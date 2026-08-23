@@ -1839,11 +1839,11 @@ select {
 
     .topbar-inner {
 
-        width: 92%;
+        width: 100%;
 
         padding-left: 20px;
 
-        padding-right: 0px;
+        padding-right: 20px;
 
     }
 
@@ -1853,6 +1853,9 @@ select {
         font-size: 21px;
 
     }
+
+
+    
 
 
     /* -----------------------------------------
