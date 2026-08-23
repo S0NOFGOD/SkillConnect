@@ -471,6 +471,36 @@ const notificationButton =
     );
 
 
+
+    /* =========================================================
+   IMAGE UPLOAD LIMIT
+========================================================= */
+
+/*
+    Maximum allowed image size.
+
+    5 MB = 5 × 1024 × 1024 bytes.
+*/
+
+const MAX_IMAGE_SIZE =
+    5 * 1024 * 1024;
+
+
+/*
+    Convert bytes into MB for
+    displaying a friendly message.
+*/
+
+function formatFileSize(bytes) {
+
+    return (
+        bytes /
+        (1024 * 1024)
+    ).toFixed(2);
+
+}
+
+
 /* =========================================================
    INITIALIZE PAGE
 ========================================================= */
@@ -1031,9 +1061,13 @@ function previewImage(
         input.files[0];
 
 
+    /* =====================================================
+       CHECK IMAGE TYPE
+    ===================================================== */
+
     /*
         Make sure the selected file
-        is an image.
+        is actually an image.
     */
 
     if (
@@ -1061,9 +1095,73 @@ function previewImage(
     }
 
 
+    /* =====================================================
+       CHECK IMAGE SIZE
+    ===================================================== */
+
     /*
-        Create temporary preview URL.
+        Reject images larger than
+        the maximum allowed size.
     */
+
+    if (
+        file.size >
+        MAX_IMAGE_SIZE
+    ) {
+
+        showModal(
+
+            "error",
+
+            "Image Too Large",
+
+            `The selected image is ${formatFileSize(file.size)} MB. ` +
+            `Each image must not exceed 5 MB.`
+
+        );
+
+
+        /*
+            Clear the invalid file.
+
+            This also prevents it from
+            being uploaded later.
+        */
+
+        input.value =
+            "";
+
+
+        /*
+            Remove any previous preview.
+        */
+
+        if (preview) {
+
+            preview.innerHTML =
+                "";
+
+            preview.classList.remove(
+                "has-image"
+            );
+
+        }
+
+
+        /*
+            Recalculate profile completion.
+        */
+
+        updateCompletion();
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       CREATE IMAGE PREVIEW
+    ===================================================== */
 
     const imageURL =
         URL.createObjectURL(
@@ -1993,6 +2091,33 @@ function validateProfileForm() {
 
 
     /* =====================================================
+       PROFILE PHOTO SIZE
+    ===================================================== */
+
+    if (
+        profilePhoto &&
+        profilePhoto.files.length > 0
+    ) {
+
+        const file =
+            profilePhoto.files[0];
+
+
+        if (
+            file.size >
+            MAX_IMAGE_SIZE
+        ) {
+
+            errors.push(
+                `Profile photo is too large. Maximum size is 5 MB. Selected file: ${formatFileSize(file.size)} MB.`
+            );
+
+        }
+
+    }
+
+
+    /* =====================================================
        PRIMARY SKILL
     ===================================================== */
 
@@ -2148,6 +2273,11 @@ function validateProfileForm() {
             );
 
 
+        /*
+            Make sure the portfolio image
+            exists.
+        */
+
         if (
             !input ||
             !input.files.length
@@ -2155,6 +2285,28 @@ function validateProfileForm() {
 
             errors.push(
                 `Upload portfolio image ${i}.`
+            );
+
+            continue;
+
+        }
+
+
+        /*
+            Check portfolio image size.
+        */
+
+        const file =
+            input.files[0];
+
+
+        if (
+            file.size >
+            MAX_IMAGE_SIZE
+        ) {
+
+            errors.push(
+                `Portfolio image ${i} is too large. Maximum size is 5 MB. Selected file: ${formatFileSize(file.size)} MB.`
             );
 
         }
