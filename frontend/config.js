@@ -5,8 +5,7 @@
 const DEVELOPMENT_API_URL =
     "http://localhost:5000";
 
-const PRODUCTION_API_URL =
-    "https://YOUR-SKILLCONNECT-BACKEND.onrender.com";
+const PRODUCTION_API_URL = "https://skillconnect-qjhr.onrender.com";
 
 
 
