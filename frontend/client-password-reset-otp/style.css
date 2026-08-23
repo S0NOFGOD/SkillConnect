@@ -1,0 +1,1442 @@
+/* =========================================================
+   SKILLCONNECT CLIENT PASSWORD RESET OTP STYLES
+
+   This file controls:
+
+   1. Global page styling
+   2. Navigation
+   3. Client password reset OTP card
+   4. OTP inputs
+   5. Verify button
+   6. Loading state
+   7. Resend OTP
+   8. Countdown
+   9. Success / Error modal
+   10. Responsive design
+
+   CLIENT DESIGN:
+
+   Primary color:
+       #3b82f6
+
+   Secondary color:
+       #2563eb
+
+   The structure remains consistent with the
+   Worker Password Reset OTP page.
+========================================================= */
+
+
+/* =========================================================
+   1. GLOBAL RESET
+========================================================= */
+
+* {
+
+    margin:
+        0;
+
+    padding:
+        0;
+
+    box-sizing:
+        border-box;
+
+}
+
+
+html {
+
+    scroll-behavior:
+        smooth;
+
+}
+
+
+body {
+
+    font-family:
+        "Inter",
+        sans-serif;
+
+    background:
+        #020617;
+
+    color:
+        #ffffff;
+
+    line-height:
+        1.6;
+
+    overflow-x:
+        hidden;
+
+    min-height:
+        100vh;
+
+}
+
+
+/* =========================================================
+   LINKS
+========================================================= */
+
+a {
+
+    text-decoration:
+        none;
+
+    color:
+        inherit;
+
+}
+
+
+/* =========================================================
+   2. FIXED NAVBAR
+========================================================= */
+
+header {
+
+    position:
+        fixed;
+
+    top:
+        0;
+
+    left:
+        0;
+
+    width:
+        100%;
+
+    z-index:
+        1000;
+
+    background:
+        rgba(2, 6, 23, .85);
+
+    backdrop-filter:
+        blur(15px);
+
+    border-bottom:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+}
+
+
+.navbar {
+
+    width:
+        90%;
+
+    max-width:
+        1200px;
+
+    height:
+        70px;
+
+    margin:
+        auto;
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+}
+
+
+/* =========================================================
+   3. SKILLCONNECT LOGO
+========================================================= */
+
+.logo {
+
+    font-size:
+        24px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        -1px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #3b82f6
+        );
+
+    -webkit-background-clip:
+        text;
+
+    -webkit-text-fill-color:
+        transparent;
+
+}
+
+
+/* =========================================================
+   4. NAVIGATION
+========================================================= */
+
+.nav-links {
+
+    display:
+        flex;
+
+    gap:
+        30px;
+
+}
+
+
+.nav-links a {
+
+    color:
+        #cbd5e1;
+
+    font-size:
+        15px;
+
+    font-weight:
+        600;
+
+    transition:
+        .3s;
+
+}
+
+
+.nav-links a:hover {
+
+    color:
+        #3b82f6;
+
+}
+
+
+/* =========================================================
+   5. MAIN OTP PAGE
+========================================================= */
+
+.otp-page {
+
+    width:
+        90%;
+
+    max-width:
+        1200px;
+
+    min-height:
+        calc(100vh - 70px);
+
+    margin:
+        auto;
+
+    padding-top:
+        110px;
+
+    padding-bottom:
+        70px;
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    align-items:
+        center;
+
+    position:
+        relative;
+
+}
+
+
+/* =========================================================
+   CLIENT BLUE BACKGROUND GLOW
+========================================================= */
+
+.otp-page::before {
+
+    content:
+        "";
+
+    position:
+        absolute;
+
+    width:
+        360px;
+
+    height:
+        360px;
+
+    background:
+        #3b82f6;
+
+    filter:
+        blur(170px);
+
+    opacity:
+        .18;
+
+    top:
+        100px;
+
+    left:
+        50%;
+
+    transform:
+        translateX(-50%);
+
+    pointer-events:
+        none;
+
+}
+
+
+/* =========================================================
+   6. OTP SECTION
+========================================================= */
+
+.otp-section {
+
+    width:
+        100%;
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    position:
+        relative;
+
+    z-index:
+        2;
+
+}
+
+
+/* =========================================================
+   7. OTP CARD
+========================================================= */
+
+.otp-card {
+
+    width:
+        100%;
+
+    max-width:
+        460px;
+
+    padding:
+        35px;
+
+    border-radius:
+        24px;
+
+    background:
+        rgba(255, 255, 255, .05);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+    backdrop-filter:
+        blur(15px);
+
+    box-shadow:
+        0 25px 70px
+        rgba(0, 0, 0, .45);
+
+}
+
+
+/* =========================================================
+   8. OTP HEADER
+========================================================= */
+
+.otp-header {
+
+    text-align:
+        center;
+
+    margin-bottom:
+        30px;
+
+}
+
+
+/* =========================================================
+   CLIENT PASSWORD RESET BADGE
+========================================================= */
+
+.otp-badge {
+
+    display:
+        inline-block;
+
+    padding:
+        8px 18px;
+
+    margin-bottom:
+        18px;
+
+    border-radius:
+        30px;
+
+    color:
+        #3b82f6;
+
+    background:
+        rgba(59, 130, 246, .15);
+
+    border:
+        1px solid
+        rgba(59, 130, 246, .30);
+
+    font-size:
+        14px;
+
+    font-weight:
+        600;
+
+}
+
+
+/* =========================================================
+   OTP HEADING
+========================================================= */
+
+.otp-header h1 {
+
+    font-size:
+        32px;
+
+    font-weight:
+        800;
+
+    margin-bottom:
+        10px;
+
+}
+
+
+.otp-header p {
+
+    color:
+        #cbd5e1;
+
+    font-size:
+        15px;
+
+}
+
+
+/* =========================================================
+   8.1 CLIENT EMAIL
+========================================================= */
+
+/*
+    Displays the client email stored in:
+
+    sessionStorage.clientEmail
+*/
+
+.client-email {
+
+    display:
+        inline-block;
+
+    max-width:
+        100%;
+
+    margin-top:
+        12px;
+
+    padding:
+        7px 12px;
+
+    border-radius:
+        8px;
+
+    background:
+        rgba(59, 130, 246, .10);
+
+    border:
+        1px solid
+        rgba(59, 130, 246, .20);
+
+    color:
+        #93c5fd !important;
+
+    font-size:
+        14px !important;
+
+    font-weight:
+        600;
+
+    overflow-wrap:
+        anywhere;
+
+}
+
+
+/* =========================================================
+   9. OTP FORM
+========================================================= */
+
+#otpForm {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        14px;
+
+}
+
+
+/* =========================================================
+   10. OTP BOX
+========================================================= */
+
+.otp-box {
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    gap:
+        10px;
+
+    margin:
+        15px 0 25px;
+
+}
+
+
+/* =========================================================
+   OTP INPUTS
+========================================================= */
+
+.otp-input {
+
+    width:
+        55px;
+
+    height:
+        60px;
+
+    padding:
+        0;
+
+    border:
+        1px solid
+        transparent;
+
+    border-radius:
+        14px;
+
+    background:
+        #111827;
+
+    color:
+        #ffffff;
+
+    font-size:
+        24px;
+
+    font-weight:
+        700;
+
+    text-align:
+        center;
+
+    outline:
+        none;
+
+    transition:
+        .3s;
+
+}
+
+
+/*
+    Highlight the OTP box currently being used.
+*/
+
+.otp-input:focus {
+
+    border:
+        1px solid
+        #3b82f6;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(59, 130, 246, .15);
+
+}
+
+
+/*
+    Highlight an OTP box containing a value.
+*/
+
+.otp-input:not(:placeholder-shown) {
+
+    border-color:
+        rgba(59, 130, 246, .35);
+
+}
+
+
+/* =========================================================
+   11. VERIFY OTP BUTTON
+========================================================= */
+
+.submit-btn {
+
+    width:
+        100%;
+
+    border:
+        none;
+
+    border-radius:
+        14px;
+
+    padding:
+        15px;
+
+    font-size:
+        16px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    color:
+        #ffffff;
+
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+
+    transition:
+        .3s;
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    align-items:
+        center;
+
+    gap:
+        10px;
+
+}
+
+
+/*
+    Button hover effect.
+*/
+
+.submit-btn:hover {
+
+    transform:
+        translateY(-3px);
+
+    box-shadow:
+        0 10px 30px
+        rgba(59, 130, 246, .25);
+
+}
+
+
+/*
+    Disable the button while
+    the request is being processed.
+*/
+
+.submit-btn:disabled {
+
+    opacity:
+        .7;
+
+    cursor:
+        not-allowed;
+
+    transform:
+        none;
+
+}
+
+
+/* =========================================================
+   12. LOADING STATE
+========================================================= */
+
+.loading-spinner {
+
+    width:
+        18px;
+
+    height:
+        18px;
+
+    border-radius:
+        50%;
+
+    border:
+        3px solid
+        rgba(255, 255, 255, .35);
+
+    border-top-color:
+        #ffffff;
+
+    animation:
+        spin .8s linear infinite;
+
+}
+
+
+/* =========================================================
+   SPINNER ANIMATION
+========================================================= */
+
+@keyframes spin {
+
+    from {
+
+        transform:
+            rotate(0deg);
+
+    }
+
+    to {
+
+        transform:
+            rotate(360deg);
+
+    }
+
+}
+
+
+/* =========================================================
+   13. RESEND OTP
+========================================================= */
+
+.resend {
+
+    text-align:
+        center;
+
+    margin-top:
+        25px;
+
+    color:
+        #cbd5e1;
+
+    font-size:
+        14px;
+
+}
+
+
+.resend a {
+
+    color:
+        #3b82f6;
+
+    font-weight:
+        600;
+
+    transition:
+        .3s;
+
+}
+
+
+.resend a:hover {
+
+    color:
+        #60a5fa;
+
+}
+
+
+/* =========================================================
+   DISABLED RESEND LINK
+========================================================= */
+
+.resend a.disabled {
+
+    pointer-events:
+        none;
+
+    opacity:
+        .5;
+
+    cursor:
+        not-allowed;
+
+}
+
+
+/* =========================================================
+   14. COUNTDOWN
+========================================================= */
+
+.countdown {
+
+    margin-top:
+        10px;
+
+    text-align:
+        center;
+
+    color:
+        #94a3b8;
+
+    font-size:
+        13px;
+
+}
+
+
+/* =========================================================
+   15. FOOTER
+========================================================= */
+
+footer {
+
+    padding:
+        30px;
+
+    text-align:
+        center;
+
+    color:
+        #94a3b8;
+
+    border-top:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+}
+
+
+/* =========================================================
+   16. MESSAGE MODAL
+========================================================= */
+
+/*
+    This modal is used for ALL:
+
+    - Validation errors
+    - Backend errors
+    - OTP errors
+    - OTP expiry errors
+    - Resend errors
+    - Success responses
+*/
+
+.message-modal {
+
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    z-index:
+        3000;
+
+    display:
+        none;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    padding:
+        20px;
+
+}
+
+
+/*
+    JavaScript adds the "show" class
+    when the modal should appear.
+*/
+
+.message-modal.show {
+
+    display:
+        flex;
+
+    animation:
+        fadeIn .2s ease;
+
+}
+
+
+/* =========================================================
+   MODAL OVERLAY
+========================================================= */
+
+.message-modal-overlay {
+
+    position:
+        absolute;
+
+    inset:
+        0;
+
+    background:
+        rgba(2, 6, 23, .78);
+
+    backdrop-filter:
+        blur(8px);
+
+}
+
+
+/* =========================================================
+   MODAL CONTENT
+========================================================= */
+
+.message-modal-content {
+
+    position:
+        relative;
+
+    z-index:
+        2;
+
+    width:
+        100%;
+
+    max-width:
+        420px;
+
+    padding:
+        35px 30px;
+
+    border-radius:
+        22px;
+
+    text-align:
+        center;
+
+    background:
+        rgba(15, 23, 42, .96);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .10);
+
+    box-shadow:
+        0 30px 80px
+        rgba(0, 0, 0, .55);
+
+    animation:
+        scaleIn .25s ease;
+
+}
+
+
+/* =========================================================
+   MODAL CLOSE BUTTON
+========================================================= */
+
+.modal-close {
+
+    position:
+        absolute;
+
+    top:
+        12px;
+
+    right:
+        15px;
+
+    width:
+        34px;
+
+    height:
+        34px;
+
+    border:
+        none;
+
+    background:
+        transparent;
+
+    color:
+        #94a3b8;
+
+    font-size:
+        28px;
+
+    line-height:
+        1;
+
+    cursor:
+        pointer;
+
+    transition:
+        .3s;
+
+}
+
+
+.modal-close:hover {
+
+    color:
+        #ffffff;
+
+    transform:
+        rotate(90deg);
+
+}
+
+
+/* =========================================================
+   MODAL ICON
+========================================================= */
+
+.modal-icon {
+
+    width:
+        58px;
+
+    height:
+        58px;
+
+    margin:
+        0 auto 18px;
+
+    border-radius:
+        50%;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    font-size:
+        26px;
+
+    font-weight:
+        800;
+
+    background:
+        rgba(59, 130, 246, .15);
+
+    border:
+        1px solid
+        rgba(59, 130, 246, .30);
+
+    color:
+        #3b82f6;
+
+}
+
+
+/* =========================================================
+   ERROR MODAL
+========================================================= */
+
+.message-modal.error .modal-icon {
+
+    background:
+        rgba(239, 68, 68, .15);
+
+    border-color:
+        rgba(239, 68, 68, .30);
+
+    color:
+        #f87171;
+
+}
+
+
+/* =========================================================
+   SUCCESS MODAL
+========================================================= */
+
+.message-modal.success .modal-icon {
+
+    background:
+        rgba(59, 130, 246, .15);
+
+    border-color:
+        rgba(59, 130, 246, .30);
+
+    color:
+        #3b82f6;
+
+}
+
+
+/* =========================================================
+   MODAL HEADING
+========================================================= */
+
+.message-modal-content h2 {
+
+    margin-bottom:
+        10px;
+
+    color:
+        #ffffff;
+
+    font-size:
+        23px;
+
+    font-weight:
+        700;
+
+}
+
+
+/* =========================================================
+   MODAL MESSAGE
+========================================================= */
+
+.message-modal-content p {
+
+    color:
+        #cbd5e1;
+
+    font-size:
+        15px;
+
+    line-height:
+        1.7;
+
+}
+
+
+/* =========================================================
+   17. ANIMATIONS
+========================================================= */
+
+@keyframes fadeIn {
+
+    from {
+
+        opacity:
+            0;
+
+    }
+
+    to {
+
+        opacity:
+            1;
+
+    }
+
+}
+
+
+@keyframes scaleIn {
+
+    from {
+
+        transform:
+            scale(.85);
+
+        opacity:
+            0;
+
+    }
+
+    to {
+
+        transform:
+            scale(1);
+
+        opacity:
+            1;
+
+    }
+
+}
+
+
+/* =========================================================
+   18. TABLET
+========================================================= */
+
+@media (min-width: 768px) {
+
+    .otp-page {
+
+        width:
+            85%;
+
+    }
+
+
+    .otp-card {
+
+        padding:
+            40px;
+
+    }
+
+
+    .otp-header h1 {
+
+        font-size:
+            38px;
+
+    }
+
+}
+
+
+/* =========================================================
+   19. DESKTOP
+========================================================= */
+
+@media (min-width: 1024px) {
+
+    .otp-page {
+
+        max-width:
+            1200px;
+
+    }
+
+
+    .otp-card {
+
+        max-width:
+            480px;
+
+    }
+
+}
+
+
+/* =========================================================
+   20. MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .navbar {
+
+        width:
+            90%;
+
+        height:
+            65px;
+
+    }
+
+
+    .logo {
+
+        font-size:
+            22px;
+
+    }
+
+
+    .nav-links {
+
+        gap:
+            15px;
+
+    }
+
+
+    .nav-links a {
+
+        font-size:
+            14px;
+
+    }
+
+
+    .otp-page {
+
+        width:
+            92%;
+
+        padding-top:
+            95px;
+
+        padding-bottom:
+            50px;
+
+    }
+
+
+    .otp-card {
+
+        padding:
+            25px 20px;
+
+        border-radius:
+            22px;
+
+    }
+
+
+    .otp-header h1 {
+
+        font-size:
+            28px;
+
+    }
+
+
+    .otp-header p {
+
+        font-size:
+            14px;
+
+    }
+
+
+    .client-email {
+
+        font-size:
+            13px !important;
+
+    }
+
+
+    .otp-box {
+
+        gap:
+            7px;
+
+    }
+
+
+    .otp-input {
+
+        width:
+            46px;
+
+        height:
+            54px;
+
+        font-size:
+            21px;
+
+        border-radius:
+            12px;
+
+    }
+
+
+    .message-modal-content {
+
+        padding:
+            32px 22px;
+
+    }
+
+}
+
+
+/* =========================================================
+   21. SMALL MOBILE
+========================================================= */
+
+@media (max-width: 400px) {
+
+    .otp-card {
+
+        padding:
+            22px 16px;
+
+    }
+
+
+    .otp-header h1 {
+
+        font-size:
+            25px;
+
+    }
+
+
+    .otp-box {
+
+        gap:
+            5px;
+
+    }
+
+
+    .otp-input {
+
+        width:
+            42px;
+
+        height:
+            50px;
+
+        font-size:
+            19px;
+
+    }
+
+
+    .nav-links a {
+
+        font-size:
+            13px;
+
+    }
+
+
+    .message-modal-content {
+
+        padding:
+            28px 18px;
+
+    }
+
+}

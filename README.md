@@ -23,6 +23,6 @@ SkillConnect is a full-stack platform that connects nearby local skilled workers
 - JavaScript
 - Node.js
 - Express.js
-- SQLite
+- MongoDB Atlas
 - Git
 - GitHub

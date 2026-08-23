@@ -1,0 +1,1323 @@
+/* ==========================================
+   SKILLCONNECT
+   CLIENT CREATE PROFILE STYLES
+
+   This file controls:
+
+   1. Global page layout
+   2. Client blue theme
+   3. Navigation
+   4. Profile header
+   5. Profile completion
+   6. Client profile form
+   7. Country / state / city dropdowns
+   8. Validation states
+   9. Submit button
+   10. Loading state
+   11. Notification modal
+   12. Responsive mobile design
+
+   IMPORTANT:
+
+   This page follows the same structure as
+   worker-create-profile.
+
+   CLIENT THEME:
+   Blue
+
+   Worker pages:
+   Green
+
+   Client pages:
+   Blue
+========================================== */
+
+
+/* ==========================================
+   GLOBAL RESET
+========================================== */
+
+* {
+
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
+}
+
+
+/* ==========================================
+   HTML
+========================================== */
+
+html {
+
+    scroll-behavior: smooth;
+
+}
+
+
+/* ==========================================
+   BODY
+========================================== */
+
+body {
+
+    font-family: "Inter", sans-serif;
+
+    background: #020617;
+
+    color: #ffffff;
+
+    line-height: 1.6;
+
+    overflow-x: hidden;
+
+}
+
+
+/* ==========================================
+   LINKS
+========================================== */
+
+a {
+
+    text-decoration: none;
+
+    color: inherit;
+
+}
+
+
+/* ==========================================
+   BACKGROUND BLUE GLOW
+========================================== */
+
+/*
+    The client profile page uses
+    the SkillConnect client blue theme.
+*/
+
+body::before {
+
+    content: "";
+
+    position: fixed;
+
+    width: 350px;
+
+    height: 350px;
+
+    top: 80px;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    background: #3b82f6;
+
+    filter: blur(170px);
+
+    opacity: .18;
+
+    z-index: -1;
+
+}
+
+
+/* ==========================================
+   NAVBAR
+========================================== */
+
+header {
+
+    position: fixed;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    z-index: 1000;
+
+    background:
+        rgba(2, 6, 23, .85);
+
+    backdrop-filter: blur(15px);
+
+    border-bottom:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+}
+
+
+/* ==========================================
+   NAVBAR CONTAINER
+========================================== */
+
+.navbar {
+
+    width: 90%;
+
+    max-width: 1200px;
+
+    height: 70px;
+
+    margin: auto;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+}
+
+
+/* ==========================================
+   LOGO
+========================================== */
+
+/*
+    The logo keeps the SkillConnect
+    green-to-blue brand gradient.
+*/
+
+.logo {
+
+    font-size: 24px;
+
+    font-weight: 800;
+
+    letter-spacing: -1px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #3b82f6
+        );
+
+    -webkit-background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+
+}
+
+
+/* ==========================================
+   BACK / HOME LINK
+========================================== */
+
+.back-link {
+
+    color: #cbd5e1;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    transition: .2s ease;
+
+}
+
+
+/* ==========================================
+   BACK LINK HOVER
+========================================== */
+
+.back-link:hover {
+
+    color: #3b82f6;
+
+}
+
+
+/* ==========================================
+   MAIN PROFILE LAYOUT
+========================================== */
+
+.profile-page {
+
+    width: 90%;
+
+    margin: auto;
+
+    padding-top: 110px;
+
+    padding-bottom: 50px;
+
+}
+
+
+/* ==========================================
+   PROFILE CARD
+========================================== */
+
+.profile-card {
+
+    width: 100%;
+
+    max-width: 700px;
+
+    margin: auto;
+
+    padding: 25px;
+
+    border-radius: 24px;
+
+    background:
+        rgba(255, 255, 255, .05);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+    backdrop-filter: blur(15px);
+
+}
+
+
+/* ==========================================
+   PROFILE HEADER
+========================================== */
+
+.profile-header {
+
+    text-align: center;
+
+    margin-bottom: 30px;
+
+}
+
+
+/* ==========================================
+   PROFILE ICON
+========================================== */
+
+.profile-icon {
+
+    font-size: 45px;
+
+    margin-bottom: 15px;
+
+}
+
+
+/* ==========================================
+   PROFILE TITLE
+========================================== */
+
+.profile-header h1 {
+
+    font-size: 30px;
+
+    font-weight: 800;
+
+    line-height: 1.2;
+
+    margin-bottom: 12px;
+
+}
+
+
+/* ==========================================
+   PROFILE DESCRIPTION
+========================================== */
+
+.profile-header p {
+
+    color: #cbd5e1;
+
+    font-size: 15px;
+
+}
+
+
+/* ==========================================
+   PROFILE COMPLETION CARD
+========================================== */
+
+.completion-card {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 18px;
+
+    margin-bottom: 25px;
+
+    border-radius: 18px;
+
+    background:
+        rgba(59, 130, 246, .08);
+
+    border:
+        1px solid
+        rgba(59, 130, 246, .15);
+
+}
+
+
+/* ==========================================
+   COMPLETION TITLE
+========================================== */
+
+.completion-card h3 {
+
+    font-size: 17px;
+
+}
+
+
+/* ==========================================
+   COMPLETION DESCRIPTION
+========================================== */
+
+.completion-card p {
+
+    color: #94a3b8;
+
+    font-size: 13px;
+
+}
+
+
+/* ==========================================
+   COMPLETION PERCENTAGE
+========================================== */
+
+.completion-card strong {
+
+    color: #3b82f6;
+
+    font-size: 26px;
+
+}
+
+
+/* ==========================================
+   FORM
+========================================== */
+
+form {
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+/* ==========================================
+   FORM SECTION CARD
+========================================== */
+
+.form-card {
+
+    padding: 20px;
+
+    margin-bottom: 20px;
+
+    border-radius: 20px;
+
+    background:
+        rgba(255, 255, 255, .04);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+}
+
+
+/* ==========================================
+   FORM SECTION TITLE
+========================================== */
+
+.form-card h2 {
+
+    font-size: 20px;
+
+    margin-bottom: 5px;
+
+}
+
+
+/* ==========================================
+   FORM SECTION DESCRIPTION
+========================================== */
+
+.section-text {
+
+    color: #94a3b8;
+
+    font-size: 14px;
+
+    margin-bottom: 20px;
+
+}
+
+
+/* ==========================================
+   FORM LABEL
+========================================== */
+
+label {
+
+    display: block;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    margin-bottom: 8px;
+
+}
+
+
+/* ==========================================
+   INPUTS
+   SELECTS
+========================================== */
+
+input,
+select {
+
+    width: 100%;
+
+    padding: 15px;
+
+    margin-bottom: 18px;
+
+    background: #111827;
+
+    color: #ffffff;
+
+    border:
+        1px solid transparent;
+
+    border-radius: 14px;
+
+    outline: none;
+
+    font-size: 15px;
+
+    font-family: inherit;
+
+    transition: .2s ease;
+
+}
+
+
+/* ==========================================
+   INPUT PLACEHOLDER
+========================================== */
+
+input::placeholder {
+
+    color: #64748b;
+
+}
+
+
+/* ==========================================
+   INPUT / SELECT FOCUS
+========================================== */
+
+input:focus,
+select:focus {
+
+    border-color: #3b82f6;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(59, 130, 246, .15);
+
+}
+
+
+/* ==========================================
+   DISABLED INPUTS / SELECTS
+========================================== */
+
+input:disabled,
+select:disabled {
+
+    opacity: .6;
+
+    cursor: not-allowed;
+
+}
+
+
+/* ==========================================
+   SELECT DROPDOWNS
+========================================== */
+
+select {
+
+    cursor: pointer;
+
+}
+
+
+/* ==========================================
+   DISABLED SELECT DROPDOWNS
+========================================== */
+
+select:disabled {
+
+    cursor: not-allowed;
+
+    background: #0b1220;
+
+}
+
+
+/* ==========================================
+   LOCATION SECTION
+========================================== */
+
+/*
+    Client location uses exactly:
+
+        Country
+           ↓
+        State
+           ↓
+        City
+
+    There is no:
+
+    - Phone number
+    - Country code
+    - Location detection button
+*/
+
+
+#country,
+#state,
+#city {
+
+    width: 100%;
+
+}
+
+
+/* ==========================================
+   LOCATION SELECT HOVER
+========================================== */
+
+#country:hover:not(:disabled),
+#state:hover:not(:disabled),
+#city:hover:not(:disabled) {
+
+    border-color:
+        rgba(59, 130, 246, .5);
+
+}
+
+
+/* ==========================================
+   LOCATION SELECT FOCUS
+========================================== */
+
+#country:focus,
+#state:focus,
+#city:focus {
+
+    border-color: #3b82f6;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(59, 130, 246, .15);
+
+}
+
+
+/* ==========================================
+   HIDDEN LOCATION FIELD
+========================================== */
+
+/*
+    JavaScript stores the final
+    combined location here.
+
+    Example:
+
+    Nigeria, Oyo, Ogbomoso
+
+    The user does not see this field.
+*/
+
+#location {
+
+    display: none;
+
+}
+
+
+/* ==========================================
+   VALIDATION ERROR FIELD
+========================================== */
+
+.field-error {
+
+    border-color:
+        #ef4444 !important;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(239, 68, 68, .12)
+        !important;
+
+}
+
+
+/* ==========================================
+   VALIDATION ERROR MESSAGE
+========================================== */
+
+.field-error-message {
+
+    display: block;
+
+    margin-top: -10px;
+
+    margin-bottom: 16px;
+
+    color: #f87171;
+
+    font-size: 13px;
+
+    font-weight: 500;
+
+}
+
+
+/* ==========================================
+   VALIDATION SUMMARY
+========================================== */
+
+.validation-summary {
+
+    margin-bottom: 20px;
+
+    padding: 15px;
+
+    border-radius: 14px;
+
+    background:
+        rgba(239, 68, 68, .08);
+
+    border:
+        1px solid
+        rgba(239, 68, 68, .2);
+
+    color: #fecaca;
+
+}
+
+
+/* ==========================================
+   VALIDATION SUMMARY TITLE
+========================================== */
+
+.validation-summary strong {
+
+    display: block;
+
+    margin-bottom: 6px;
+
+}
+
+
+/* ==========================================
+   VALIDATION SUMMARY LIST
+========================================== */
+
+.validation-summary ul {
+
+    margin-left: 18px;
+
+}
+
+
+/* ==========================================
+   VALIDATION SUMMARY ITEM
+========================================== */
+
+.validation-summary li {
+
+    margin-bottom: 3px;
+
+}
+
+
+/* ==========================================
+   SUBMIT BUTTON
+========================================== */
+
+.submit-btn {
+
+    width: 100%;
+
+    padding: 16px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    margin-top: 10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .2s ease;
+
+}
+
+
+/* ==========================================
+   SUBMIT BUTTON HOVER
+========================================== */
+
+.submit-btn:hover {
+
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 10px 30px
+        rgba(59, 130, 246, .20);
+
+}
+
+
+/* ==========================================
+   SUBMIT BUTTON DISABLED
+========================================== */
+
+.submit-btn:disabled {
+
+    opacity: .65;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+}
+
+
+/* ==========================================
+   LOADING STATE
+========================================== */
+
+/*
+    JavaScript adds the "loading"
+    class while the profile is being
+    submitted to the backend.
+*/
+
+.submit-btn.loading {
+
+    position: relative;
+
+    cursor: wait;
+
+    opacity: .75;
+
+}
+
+
+/* ==========================================
+   NOTIFICATION MODAL OVERLAY
+========================================== */
+
+.notification-modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    z-index: 99999;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(2, 6, 23, .78);
+
+    backdrop-filter: blur(10px);
+
+    -webkit-backdrop-filter: blur(10px);
+
+}
+
+
+/* ==========================================
+   HIDDEN NOTIFICATION MODAL
+========================================== */
+
+.notification-modal[hidden] {
+
+    display: none;
+
+}
+
+
+/* ==========================================
+   NOTIFICATION CARD
+========================================== */
+
+.notification-card {
+
+    width:
+        min(
+            390px,
+            calc(100vw - 40px)
+        );
+
+    max-height:
+        calc(100vh - 40px);
+
+    overflow-y: auto;
+
+    margin: 0;
+
+    padding: 35px 30px;
+
+    text-align: center;
+
+    border-radius: 22px;
+
+    background: #0f172a;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .10);
+
+    box-shadow:
+        0 25px 80px
+        rgba(0, 0, 0, .55);
+
+}
+
+
+/* ==========================================
+   NOTIFICATION ICON
+========================================== */
+
+.notification-icon {
+
+    width: 64px;
+
+    height: 64px;
+
+    margin: 0 auto 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    color: #ffffff;
+
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+
+    font-size: 30px;
+
+    font-weight: 800;
+
+}
+
+
+/* ==========================================
+   NOTIFICATION TITLE
+========================================== */
+
+.notification-card h2 {
+
+    margin: 0 0 10px;
+
+    font-size: 24px;
+
+    font-weight: 800;
+
+    line-height: 1.3;
+
+}
+
+
+/* ==========================================
+   NOTIFICATION MESSAGE
+========================================== */
+
+.notification-card p {
+
+    margin: 0 0 25px;
+
+    color: #cbd5e1;
+
+    font-size: 14px;
+
+    line-height: 1.7;
+
+    white-space: pre-line;
+
+}
+
+
+/* ==========================================
+   NOTIFICATION BUTTON
+========================================== */
+
+.notification-card button {
+
+    width: 100%;
+
+    padding: 14px 16px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .3s ease;
+
+}
+
+
+/* ==========================================
+   NOTIFICATION BUTTON HOVER
+========================================== */
+
+.notification-card button:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 30px
+        rgba(59, 130, 246, .20);
+
+}
+
+
+/* ==========================================
+   NOTIFICATION BUTTON ACTIVE
+========================================== */
+
+.notification-card button:active {
+
+    transform: translateY(0);
+
+}
+
+
+/* ==========================================
+   ERROR MODAL
+========================================== */
+
+.notification-card.error {
+
+    border-color:
+        rgba(239, 68, 68, .25);
+
+}
+
+
+/* ==========================================
+   ERROR MODAL ICON
+========================================== */
+
+.notification-card.error .notification-icon {
+
+    background:
+        linear-gradient(
+            135deg,
+            #ef4444,
+            #dc2626
+        );
+
+}
+
+
+/* ==========================================
+   SUCCESS MODAL
+========================================== */
+
+.notification-card.success {
+
+    border-color:
+        rgba(59, 130, 246, .25);
+
+}
+
+
+/* ==========================================
+   SUCCESS MODAL ICON
+========================================== */
+
+.notification-card.success .notification-icon {
+
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+
+}
+
+
+/* ==========================================
+   INFO MODAL
+========================================== */
+
+.notification-card.info {
+
+    border-color:
+        rgba(59, 130, 246, .25);
+
+}
+
+
+/* ==========================================
+   INFO MODAL ICON
+========================================== */
+
+.notification-card.info .notification-icon {
+
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+
+}
+
+
+/* ==========================================
+   FOOTER
+========================================== */
+
+footer {
+
+    padding: 30px;
+
+    text-align: center;
+
+    color: #94a3b8;
+
+    border-top:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+}
+
+
+/* ==========================================
+   MOBILE RESPONSIVENESS
+========================================== */
+
+@media (max-width: 600px) {
+
+    /* --------------------------------------
+       Modal
+    -------------------------------------- */
+
+    .notification-modal {
+
+        padding: 16px;
+
+    }
+
+
+    .notification-card {
+
+        width:
+            min(
+                390px,
+                calc(100vw - 32px)
+            );
+
+        max-height:
+            calc(100vh - 32px);
+
+        padding: 30px 22px;
+
+    }
+
+
+    /* --------------------------------------
+       Modal Icon
+    -------------------------------------- */
+
+    .notification-icon {
+
+        width: 60px;
+
+        height: 60px;
+
+        font-size: 28px;
+
+    }
+
+
+    /* --------------------------------------
+       Modal Title
+    -------------------------------------- */
+
+    .notification-card h2 {
+
+        font-size: 22px;
+
+    }
+
+
+    /* --------------------------------------
+       Profile Card
+    -------------------------------------- */
+
+    .profile-card {
+
+        padding: 18px;
+
+        border-radius: 20px;
+
+    }
+
+
+    /* --------------------------------------
+       Profile Title
+    -------------------------------------- */
+
+    .profile-header h1 {
+
+        font-size: 26px;
+
+    }
+
+
+    /* --------------------------------------
+       Form Cards
+    -------------------------------------- */
+
+    .form-card {
+
+        padding: 17px;
+
+    }
+
+
+    /* --------------------------------------
+       Inputs / Selects
+    -------------------------------------- */
+
+    input,
+    select {
+
+        padding: 14px;
+
+    }
+
+}
+
+
+/* ==========================================
+   SMALL MOBILE
+========================================== */
+
+@media (max-width: 400px) {
+
+    .notification-card {
+
+        width:
+            calc(100vw - 24px);
+
+        padding: 26px 18px;
+
+    }
+
+
+    .profile-page {
+
+        width: 94%;
+
+    }
+
+
+    .profile-header h1 {
+
+        font-size: 24px;
+
+    }
+
+
+    .completion-card {
+
+        padding: 15px;
+
+    }
+
+
+    .completion-card strong {
+
+        font-size: 22px;
+
+    }
+
+}

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <!-- =========================
+         BASIC PAGE INFORMATION
+    ========================== -->
+
+    <!-- Defines the character encoding used by the page -->
+    <meta charset="UTF-8">
+
+    <!-- Makes the page responsive on phones, tablets and desktops -->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <!-- Text displayed in the browser tab -->
+    <title>
+        SkillConnect | Find Trusted Skilled Workers Near You
+    </title>
+
+
+    <!-- =========================
+         GOOGLE FONT
+    ========================== -->
+
+    <!-- Helps establish an early connection to Google Fonts -->
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <!-- Allows the browser to connect securely to Google Fonts -->
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <!-- SkillConnect uses Inter as its main font -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =========================
+         HOMEPAGE CSS
+    ========================== -->
+
+    <!-- Connects this HTML page to its stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         NAVIGATION BAR
+    ========================== -->
+
+    <header class="header">
+
+        <nav
+            class="navbar"
+            aria-label="Main navigation"
+        >
+
+            <!-- SkillConnect logo -->
+            <a
+                href="./index.html"
+                class="logo"
+            >
+                SkillConnect
+            </a>
+
+
+            <!-- =========================
+                 MOBILE MENU BUTTON
+            ========================== -->
+
+            <button
+                type="button"
+                class="menu-toggle"
+                id="menuToggle"
+                aria-label="Open navigation menu"
+                aria-expanded="false"
+                aria-controls="navLinks"
+            >
+                ☰
+            </button>
+
+
+            <!-- =========================
+                 NAVIGATION LINKS
+            ========================== -->
+
+            <div
+                class="nav-links"
+                id="navLinks"
+            >
+
+                <!-- Homepage -->
+                <a
+                    href="./index.html"
+                    class="active"
+                >
+                    Home
+                </a>
+
+
+                <!-- About page -->
+                <a href="./about/index.html">
+                    About
+                </a>
+
+
+                <!-- Contact page -->
+                <a href="./contact/index.html">
+                    Contact
+                </a>
+
+            </div>
+
+        </nav>
+
+    </header>
+
+
+
+    <!-- =========================
+         MAIN PAGE CONTENT
+    ========================== -->
+
+    <main>
+
+
+        <!-- =========================
+             HERO SECTION
+        ========================== -->
+
+        <section class="hero">
+
+            <!-- Main hero content -->
+            <div class="hero-content">
+
+                <!-- Small introduction badge -->
+                <span class="hero-badge">
+                    Trusted • Verified • Nearby
+                </span>
+
+
+                <!-- Main homepage heading -->
+                <h1>
+
+                    Find Trusted
+
+                    <span>
+                        Skilled Workers
+                    </span>
+
+                    Near You
+
+                </h1>
+
+
+                <!-- Homepage introduction -->
+                <p>
+
+                    SkillConnect connects clients with
+                    verified skilled workers nearby while
+                    helping professionals grow through
+                    trusted bookings.
+
+                </p>
+
+
+                <!-- =========================
+                     MAIN USER CHOICES
+                ========================== -->
+
+                <div class="hero-buttons">
+
+                    <!-- Worker entrance -->
+                    <a
+                        href="./worker-authentication/index.html"
+                        class="worker-btn"
+                    >
+                        Become a Worker
+                    </a>
+
+
+                    <!-- Client entrance -->
+                    <a
+                        href="./client-authentication/index.html"
+                        class="client-btn"
+                    >
+                        Find Workers
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 HERO FEATURE CARD
+            ========================== -->
+
+            <div class="hero-card">
+
+                <h3>
+                    Why Choose SkillConnect?
+                </h3>
+
+
+                <ul>
+
+                    <li>
+                        <span>✓</span>
+                        Nearby Professionals
+                    </li>
+
+                    <li>
+                        <span>✓</span>
+                        Verified Professionals
+                    </li>
+
+                    <li>
+                        <span>✓</span>
+                        Ratings & Reviews
+                    </li>
+
+                    <li>
+                        <span>✓</span>
+                        Secure Booking
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             STATISTICS SECTION
+        ========================== -->
+
+        <section
+            class="stats"
+            aria-label="SkillConnect statistics"
+        >
+
+            <!-- Skilled workers statistic -->
+            <div class="stat-card">
+
+                <!--
+                    JavaScript will read data-target
+                    and animate the number.
+                -->
+                <h2
+                    class="counter"
+                    data-target="5000"
+                >
+                    0
+                </h2>
+
+                <p>
+                    Skilled Workers
+                </p>
+
+            </div>
+
+
+            <!-- Happy clients statistic -->
+            <div class="stat-card">
+
+                <h2
+                    class="counter"
+                    data-target="10000"
+                >
+                    0
+                </h2>
+
+                <p>
+                    Happy Clients
+                </p>
+
+            </div>
+
+
+            <!-- Completed jobs statistic -->
+            <div class="stat-card">
+
+                <h2
+                    class="counter"
+                    data-target="25000"
+                >
+                    0
+                </h2>
+
+                <p>
+                    Jobs Completed
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             HOW IT WORKS
+        ========================== -->
+
+        <section class="section reveal">
+
+            <h2>
+                How SkillConnect Works
+            </h2>
+
+
+            <div class="cards">
+
+                <!-- Step 1 -->
+                <article class="card">
+
+                    <div class="icon">
+                        👤
+                    </div>
+
+                    <h3>
+                        Create Account
+                    </h3>
+
+                    <p>
+                        Register as a worker or client
+                        in a few simple steps.
+                    </p>
+
+                </article>
+
+
+                <!-- Step 2 -->
+                <article class="card">
+
+                    <div class="icon">
+                        🔍
+                    </div>
+
+                    <h3>
+                        Find Workers
+                    </h3>
+
+                    <p>
+                        Search verified professionals
+                        based on skills and location.
+                    </p>
+
+                </article>
+
+
+                <!-- Step 3 -->
+                <article class="card">
+
+                    <div class="icon">
+                        💳
+                    </div>
+
+                    <h3>
+                        Book Securely
+                    </h3>
+
+                    <p>
+                        Complete bookings safely
+                        through SkillConnect.
+                    </p>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             POPULAR SKILLS
+        ========================== -->
+
+        <section class="section reveal">
+
+            <h2>
+                Popular Skills
+            </h2>
+
+
+            <div class="skills">
+
+                <span>Electrician</span>
+                <span>Plumber</span>
+                <span>Mechanic</span>
+                <span>Welder</span>
+                <span>Painter</span>
+                <span>Carpenter</span>
+                <span>Barber</span>
+                <span>Tailor</span>
+                <span>Cleaner</span>
+                <span>Generator Repair</span>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             WHY CHOOSE US
+        ========================== -->
+
+        <section class="section reveal">
+
+            <h2>
+                Why Choose SkillConnect?
+            </h2>
+
+
+            <div class="cards">
+
+                <!-- Verification -->
+                <article class="card">
+
+                    <h3>
+                        ✓ Triple Verification
+                    </h3>
+
+                    <p>
+                        Email, phone and admin verification
+                        increase trust.
+                    </p>
+
+                </article>
+
+
+                <!-- Reviews -->
+                <article class="card">
+
+                    <h3>
+                        ⭐ Honest Reviews
+                    </h3>
+
+                    <p>
+                        See customer ratings before hiring.
+                    </p>
+
+                </article>
+
+
+                <!-- Location -->
+                <article class="card">
+
+                    <h3>
+                        📍 Nearby Workers
+                    </h3>
+
+                    <p>
+                        Find professionals close to
+                        your location.
+                    </p>
+
+                </article>
+
+
+                <!-- Contact privacy -->
+                <article class="card">
+
+                    <h3>
+                        🔒 Secure Contact
+                    </h3>
+
+                    <p>
+                        Worker contact stays private
+                        until booking.
+                    </p>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             FINAL CALL TO ACTION
+        ========================== -->
+
+        <section class="cta reveal">
+
+            <h2>
+                Ready To Start?
+            </h2>
+
+            <p>
+                Join workers and clients already
+                using SkillConnect.
+            </p>
+
+
+            <div class="hero-buttons">
+
+                <!-- Worker CTA -->
+                <a
+                    href="./worker-authentication/index.html"
+                    class="worker-btn"
+                >
+                    Join As Worker
+                </a>
+
+
+                <!-- Client CTA -->
+                <a
+                    href="./client-authentication/index.html"
+                    class="client-btn"
+                >
+                    Find Workers
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer>
+
+        <p>
+
+            ©
+            <span id="currentYear">
+                2026
+            </span>
+
+            SkillConnect.
+            All rights reserved.
+
+        </p>
+
+    </footer>
+
+
+
+    <!-- =========================
+         HOMEPAGE JAVASCRIPT
+    ========================== -->
+
+    <!-- Loads the homepage JavaScript -->
+    <script src="script.js"></script>
+
+</body>
+
+</html>

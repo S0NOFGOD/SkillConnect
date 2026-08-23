@@ -1,0 +1,2234 @@
+/* =========================================================
+   SKILLCONNECT
+   CLIENT WORKER SEARCH STYLES
+
+   This file controls:
+
+   1. Global reset
+   2. Client blue theme
+   3. Background glow
+   4. Desktop sidebar
+   5. Mobile hamburger navigation
+   6. Dashboard layout
+   7. Search section
+   8. Filter controls
+   9. Fixed search/filter section
+   10. Worker cards
+   11. Empty state
+   12. Loading state
+   13. Notification modal
+   14. Responsive layouts
+
+   CLIENT THEME:
+   Blue
+
+   BRAND:
+   Green → Blue
+
+   IMPORTANT:
+
+   Mobile:
+       Hamburger menu
+       2 worker cards per row
+
+   Larger screens:
+       Sidebar
+       More worker cards per row
+========================================================= */
+
+
+/* =========================================================
+   1. GLOBAL RESET
+========================================================= */
+
+* {
+
+    margin: 0;
+
+    padding: 0;
+
+    box-sizing: border-box;
+
+}
+
+
+/* =========================================================
+   2. HTML
+========================================================= */
+
+html {
+
+    scroll-behavior: smooth;
+
+}
+
+
+/* =========================================================
+   3. BODY
+========================================================= */
+
+body {
+
+    min-height: 100vh;
+
+    font-family: "Inter", sans-serif;
+
+    background: #020617;
+
+    color: #ffffff;
+
+    line-height: 1.6;
+
+    overflow-x: hidden;
+
+}
+
+
+/* =========================================================
+   4. LINKS
+========================================================= */
+
+a {
+
+    color: inherit;
+
+    text-decoration: none;
+
+}
+
+
+/* =========================================================
+   5. BUTTONS / INPUTS / SELECTS
+========================================================= */
+
+button,
+input,
+select {
+
+    font-family: inherit;
+
+}
+
+
+/* =========================================================
+   6. BACKGROUND BLUE / GREEN GLOWS
+========================================================= */
+
+/*
+    These glows create the same premium
+    atmospheric appearance used throughout
+    the SkillConnect client pages.
+*/
+
+.green-glow,
+.blue-glow {
+
+    position: fixed;
+
+    width: 350px;
+
+    height: 350px;
+
+    border-radius: 50%;
+
+    filter: blur(150px);
+
+    opacity: .15;
+
+    pointer-events: none;
+
+    z-index: -1;
+
+}
+
+
+/* =========================================================
+   GREEN GLOW
+========================================================= */
+
+.green-glow {
+
+    top: -120px;
+
+    left: -120px;
+
+    background: #22c55e;
+
+}
+
+
+/* =========================================================
+   BLUE GLOW
+========================================================= */
+
+.blue-glow {
+
+    right: -120px;
+
+    bottom: -120px;
+
+    background: #3b82f6;
+
+}
+
+
+/* =========================================================
+   7. SCREEN-READER ONLY
+========================================================= */
+
+/*
+    Keeps labels available for accessibility
+    while visually hiding them.
+*/
+
+.sr-only {
+
+    position: absolute;
+
+    width: 1px;
+
+    height: 1px;
+
+    padding: 0;
+
+    margin: -1px;
+
+    overflow: hidden;
+
+    clip: rect(0, 0, 0, 0);
+
+    white-space: nowrap;
+
+    border: 0;
+
+}
+
+
+/* =========================================================
+   8. TOP MOBILE NAVBAR
+========================================================= */
+
+.topbar {
+
+    position: fixed;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 72px;
+
+    z-index: 1000;
+
+    background:
+        rgba(2, 6, 23, .88);
+
+    backdrop-filter: blur(15px);
+
+    -webkit-backdrop-filter: blur(15px);
+
+    border-bottom:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+}
+
+
+/* =========================================================
+   TOPBAR INNER
+========================================================= */
+
+.topbar-inner {
+
+    width: 100%;
+
+    height: 100%;
+
+    padding-left: 40px;
+
+    padding-right: 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+}
+
+
+/* =========================================================
+   9. LOGO
+========================================================= */
+
+.logo {
+
+    font-size: 24px;
+
+    font-weight: 800;
+
+    letter-spacing: -1px;
+
+    background:
+        linear-gradient(
+            40deg,
+            #22c55e,
+            #3b82f6
+        );
+
+    -webkit-background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+
+}
+
+
+/* =========================================================
+   10. HAMBURGER MENU BUTTON
+========================================================= */
+
+.menu-btn {
+
+    width: 44px;
+
+    height: 44px;
+
+    display: none;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 5px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: #111827;
+
+    cursor: pointer;
+
+    transition: .2s ease;
+
+}
+
+
+/* =========================================================
+   HAMBURGER LINES
+========================================================= */
+
+.menu-btn span {
+
+    width: 21px;
+
+    height: 2px;
+
+    border-radius: 5px;
+
+    background: #ffffff;
+
+    transition: .2s ease;
+
+}
+
+
+/* =========================================================
+   HAMBURGER HOVER
+========================================================= */
+
+.menu-btn:hover {
+
+    background: #1e293b;
+
+}
+
+
+/* =========================================================
+   11. DESKTOP SIDEBAR
+========================================================= */
+
+.sidebar {
+
+    position: fixed;
+
+    top: 0px;
+
+    right: 0;
+
+    width: 280px;
+
+    height: calc(100vh - 5px);
+
+    display: flex;
+
+    flex-direction: column;
+
+    padding: 25px 18px;
+
+    background:
+        rgba(2, 6, 23, .88);
+
+    backdrop-filter: blur(15px);
+
+    -webkit-backdrop-filter: blur(15px);
+
+    border-left:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+    z-index: 900;
+
+}
+
+
+/* =========================================================
+   SIDEBAR HEADER
+========================================================= */
+
+.sidebar-header {
+
+    min-height: 55px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 8px;
+
+    margin-bottom: 30px;
+
+}
+
+
+/* =========================================================
+   SIDEBAR CLOSE BUTTON
+========================================================= */
+
+.close-menu-btn {
+
+    display: none;
+
+    width: 38px;
+
+    height: 38px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #111827;
+
+    color: #ffffff;
+
+    font-size: 26px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+}
+
+
+/* =========================================================
+   12. SIDEBAR NAVIGATION
+========================================================= */
+
+.sidebar-nav {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+}
+
+
+/* =========================================================
+   NAVIGATION LINK
+========================================================= */
+
+.nav-link {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    min-height: 48px;
+
+    padding: 12px 14px;
+
+    border-radius: 13px;
+
+    color: #cbd5e1;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    transition: .2s ease;
+
+}
+
+
+/* =========================================================
+   NAVIGATION ICON
+========================================================= */
+
+.nav-icon {
+
+    width: 25px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 17px;
+
+}
+
+
+/* =========================================================
+   NAVIGATION HOVER
+========================================================= */
+
+.nav-link:hover {
+
+    color: #ffffff;
+
+    background:
+        rgba(59, 130, 246, .10);
+
+}
+
+
+/* =========================================================
+   ACTIVE NAVIGATION
+========================================================= */
+
+.nav-link.active {
+
+    color: #ffffff;
+
+    background:
+        rgba(59, 130, 246, .15);
+
+    border:
+        1px solid
+        rgba(59, 130, 246, .20);
+
+}
+
+
+/* =========================================================
+   ACTIVE NAVIGATION ICON
+========================================================= */
+
+.nav-link.active .nav-icon {
+
+    color: #3b82f6;
+
+}
+
+
+/* =========================================================
+   SIDEBAR FOOTER
+========================================================= */
+
+.sidebar-footer {
+
+    margin-top: auto;
+
+    padding-top: 20px;
+
+    border-top:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+}
+
+
+/* =========================================================
+   LOGOUT LINK
+========================================================= */
+
+.logout-link:hover {
+
+    color: #f87171;
+
+    background:
+        rgba(239, 68, 68, .08);
+
+}
+
+
+/* =========================================================
+   13. SIDEBAR OVERLAY
+========================================================= */
+
+.overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    background:
+        rgba(2, 6, 23, .70);
+
+    backdrop-filter: blur(3px);
+
+    -webkit-backdrop-filter: blur(3px);
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    pointer-events: none;
+
+    transition: .25s ease;
+
+    z-index: 1400;
+
+}
+
+
+/* =========================================================
+   ACTIVE OVERLAY
+========================================================= */
+
+.overlay.active {
+
+    opacity: 1;
+
+    visibility: visible;
+
+    pointer-events: auto;
+
+}
+
+
+/* =========================================================
+   14. MAIN DASHBOARD
+========================================================= */
+
+.dashboard {
+
+    width: calc(100% - 280px);
+
+    min-height: 100vh;
+
+    margin-left: 0;
+
+    margin-right: 280px;
+
+    padding:
+        88px
+        40px
+        70px;
+
+}
+
+
+/* =========================================================
+   15. DASHBOARD INTRO
+========================================================= */
+
+.dashboard-intro {
+
+    width: 100%;
+
+    max-width: 1500px;
+
+    margin: 0 auto 30px;
+
+}
+
+
+/* =========================================================
+   EYEBROW
+========================================================= */
+
+.eyebrow {
+
+    display: inline-block;
+
+    margin-bottom: 10px;
+
+    color: #60a5fa;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    letter-spacing: .5px;
+
+    text-transform: uppercase;
+
+}
+
+
+/* =========================================================
+   DASHBOARD TITLE
+========================================================= */
+
+.dashboard-intro h1 {
+
+    max-width: 750px;
+
+    margin-bottom: 10px;
+
+    font-size: 38px;
+
+    font-weight: 800;
+
+    line-height: 1.15;
+
+    letter-spacing: -1px;
+
+}
+
+
+/* =========================================================
+   DASHBOARD DESCRIPTION
+========================================================= */
+
+.dashboard-intro p {
+
+    max-width: 650px;
+
+    color: #94a3b8;
+
+    font-size: 15px;
+
+}
+
+
+/* =========================================================
+   16. SEARCH AND FILTER SECTION
+========================================================= */
+
+.search-filter-section {
+
+    position: relative;
+
+    width: 100%;
+
+    max-width: 1500px;
+
+    margin:
+        0 auto 35px;
+
+    padding: 18px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+    border-radius: 20px;
+
+    background:
+        rgba(2, 6, 23, .88);
+
+    backdrop-filter: blur(15px);
+
+    -webkit-backdrop-filter: blur(15px);
+
+    transition: .2s ease;
+
+    z-index: 800;
+
+}
+
+
+/* =========================================================
+   FIXED SEARCH/FILTER SECTION
+========================================================= */
+
+.search-filter-section.search-fixed {
+
+    position: fixed;
+
+    top: 72px;
+
+    left: 0;
+
+    right: 280px;
+
+    width: auto;
+
+    max-width: none;
+
+    margin: 0;
+
+    border-radius: 0;
+
+    border-top: none;
+
+    border-left: none;
+
+    background:
+        rgba(2, 6, 23, .94);
+
+    box-shadow:
+        0 15px 40px
+        rgba(0, 0, 0, .25);
+
+}
+
+/* =========================================================
+   17. SEARCH WRAPPER
+========================================================= */
+
+.search-wrapper {
+
+    position: relative;
+
+    width: 100%;
+
+    margin-bottom: 15px;
+
+    background:
+        rgba(2, 6, 23, .88);
+
+    backdrop-filter: blur(15px);
+
+    -webkit-backdrop-filter: blur(15px);
+
+}
+
+
+/* =========================================================
+   SEARCH ICON
+========================================================= */
+
+.search-icon {
+
+    position: absolute;
+
+    top: 50%;
+
+    left: 17px;
+
+    transform: translateY(-50%);
+
+    color: #64748b;
+
+    pointer-events: none;
+
+}
+
+
+/* =========================================================
+   SEARCH INPUT
+========================================================= */
+
+#searchInput {
+
+    width: 100%;
+
+    min-height: 52px;
+
+    padding:
+        14px
+        16px
+        14px
+        48px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .06);
+
+    outline: none;
+
+    border-radius: 14px;
+
+    background: #111827;
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+    transition: .2s ease;
+
+}
+
+
+/* =========================================================
+   SEARCH PLACEHOLDER
+========================================================= */
+
+#searchInput::placeholder {
+
+    color: #64748b;
+
+}
+
+
+/* =========================================================
+   SEARCH FOCUS
+========================================================= */
+
+#searchInput:focus {
+
+    border-color: #3b82f6;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(59, 130, 246, .12);
+
+}
+
+
+/* =========================================================
+   18. FILTERS
+========================================================= */
+
+.filters {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 15px;
+
+}
+
+
+/* =========================================================
+   FILTER GROUP
+========================================================= */
+
+.filter-group {
+
+    min-width: 0;
+
+}
+
+
+/* =========================================================
+   FILTER LABEL
+========================================================= */
+
+.filter-group label {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #94a3b8;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+}
+
+
+/* =========================================================
+   FILTER SELECT
+========================================================= */
+
+.filter-group select {
+
+    width: 100%;
+
+    min-height: 48px;
+
+    padding: 12px 14px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .06);
+
+    outline: none;
+
+    border-radius: 13px;
+
+    background: #111827;
+
+    color: #ffffff;
+
+    font-size: 14px;
+
+    cursor: pointer;
+
+    transition: .2s ease;
+
+}
+
+
+/* =========================================================
+   FILTER SELECT FOCUS
+========================================================= */
+
+.filter-group select:focus {
+
+    border-color: #3b82f6;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(59, 130, 246, .12);
+
+}
+
+
+/* =========================================================
+   FILTER SELECT HOVER
+========================================================= */
+
+.filter-group select:hover {
+
+    border-color:
+        rgba(59, 130, 246, .45);
+
+}
+
+
+/* =========================================================
+   19. RESULTS HEADER
+========================================================= */
+
+.results-header {
+
+    width: 100%;
+
+    max-width: 1500px;
+
+    margin: 0 auto 18px;
+
+}
+
+
+/* =========================================================
+   RESULTS TITLE
+========================================================= */
+
+.results-header h2 {
+
+    margin-bottom: 4px;
+
+    font-size: 21px;
+
+    font-weight: 700;
+
+}
+
+
+/* =========================================================
+   RESULTS DESCRIPTION
+========================================================= */
+
+.results-header p {
+
+    color: #64748b;
+
+    font-size: 13px;
+
+}
+
+
+/* =========================================================
+   20. WORKER LIST
+========================================================= */
+
+.worker-list {
+
+    width: 100%;
+
+    max-width: 1500px;
+
+    margin: auto;
+
+    display: grid;
+
+    /*
+        Large desktop default:
+
+        4 worker cards per row.
+    */
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 18px;
+
+}
+
+
+/* =========================================================
+   21. WORKER CARD
+========================================================= */
+
+.worker-card {
+
+    min-width: 0;
+
+    padding: 18px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+    border-radius: 20px;
+
+    background:
+        rgba(15, 23, 42, .78);
+
+    backdrop-filter: blur(12px);
+
+    -webkit-backdrop-filter: blur(12px);
+
+    overflow: hidden;
+
+    transition:
+        transform .2s ease,
+        border-color .2s ease,
+        box-shadow .2s ease;
+
+}
+
+
+/* =========================================================
+   WORKER CARD HOVER
+========================================================= */
+
+.worker-card:hover {
+
+    transform: translateY(-4px);
+
+    border-color:
+        rgba(59, 130, 246, .45);
+
+    box-shadow:
+        0 15px 35px
+        rgba(0, 0, 0, .20);
+
+}
+
+
+/* =========================================================
+   22. WORKER PROFILE PICTURE
+========================================================= */
+
+/*
+    The card intentionally displays only:
+
+    - profilePicture
+    - name
+    - city/state
+    - price
+
+    No rating, skill description,
+    biography or extra information
+    is displayed here.
+*/
+
+.worker-photo {
+
+    width: 100%;
+
+    aspect-ratio: 1 / 1;
+
+    display: block;
+
+    object-fit: cover;
+
+    border-radius: 16px;
+
+    margin-bottom: 14px;
+
+    background: #111827;
+
+}
+
+
+/* =========================================================
+   23. WORKER NAME
+========================================================= */
+
+.worker-card h2 {
+
+    margin-bottom: 5px;
+
+    color: #ffffff;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    line-height: 1.3;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+
+/* =========================================================
+   24. WORKER LOCATION
+========================================================= */
+
+.worker-card .location {
+
+    margin-bottom: 8px;
+
+    color: #94a3b8;
+
+    font-size: 13px;
+
+    line-height: 1.4;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+
+/* =========================================================
+   25. WORKER PRICE
+========================================================= */
+
+.worker-card .price {
+
+    color: #60a5fa;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+}
+
+
+/* =========================================================
+   26. EMPTY STATE
+========================================================= */
+
+.empty-state {
+
+    width: 100%;
+
+    max-width: 500px;
+
+    margin: 60px auto;
+
+    padding: 40px 25px;
+
+    text-align: center;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+    border-radius: 20px;
+
+    background:
+        rgba(15, 23, 42, .60);
+
+}
+
+
+/* =========================================================
+   EMPTY STATE ICON
+========================================================= */
+
+.empty-icon {
+
+    width: 60px;
+
+    height: 60px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin:
+        0 auto 18px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(59, 130, 246, .10);
+
+    font-size: 25px;
+
+}
+
+
+/* =========================================================
+   EMPTY STATE TITLE
+========================================================= */
+
+.empty-state h2 {
+
+    margin-bottom: 8px;
+
+    font-size: 20px;
+
+}
+
+
+/* =========================================================
+   EMPTY STATE TEXT
+========================================================= */
+
+.empty-state p {
+
+    color: #94a3b8;
+
+    font-size: 14px;
+
+}
+
+
+/* =========================================================
+   27. LOADING STATE
+========================================================= */
+
+.loading-state {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 250px;
+
+    gap: 15px;
+
+    color: #94a3b8;
+
+    font-size: 14px;
+
+}
+
+
+/* =========================================================
+   LOADING SPINNER
+========================================================= */
+
+.loading-spinner {
+
+    width: 42px;
+
+    height: 42px;
+
+    border:
+        3px solid
+        rgba(255, 255, 255, .10);
+
+    border-top-color: #3b82f6;
+
+    border-radius: 50%;
+
+    animation:
+        spin .8s linear infinite;
+
+}
+
+
+/* =========================================================
+   SPINNER ANIMATION
+========================================================= */
+
+@keyframes spin {
+
+    from {
+
+        transform: rotate(0deg);
+
+    }
+
+    to {
+
+        transform: rotate(360deg);
+
+    }
+
+}
+
+
+/* =========================================================
+   28. NOTIFICATION MODAL
+========================================================= */
+
+.notification-modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    z-index: 99999;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(2, 6, 23, .78);
+
+    backdrop-filter: blur(10px);
+
+    -webkit-backdrop-filter: blur(10px);
+
+}
+
+
+/* =========================================================
+   HIDDEN NOTIFICATION MODAL
+========================================================= */
+
+.notification-modal[hidden] {
+
+    display: none;
+
+}
+
+
+/* =========================================================
+   NOTIFICATION CARD
+========================================================= */
+
+.notification-card {
+
+    width:
+        min(
+            390px,
+            calc(100vw - 40px)
+        );
+
+    max-height:
+        calc(100vh - 40px);
+
+    overflow-y: auto;
+
+    padding: 35px 30px;
+
+    text-align: center;
+
+    border-radius: 22px;
+
+    background: #0f172a;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .10);
+
+    box-shadow:
+        0 25px 80px
+        rgba(0, 0, 0, .55);
+
+}
+
+
+/* =========================================================
+   NOTIFICATION ICON
+========================================================= */
+
+.notification-icon {
+
+    width: 64px;
+
+    height: 64px;
+
+    margin:
+        0 auto 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+
+    color: #ffffff;
+
+    font-size: 30px;
+
+    font-weight: 800;
+
+}
+
+
+/* =========================================================
+   NOTIFICATION TITLE
+========================================================= */
+
+.notification-card h2 {
+
+    margin-bottom: 10px;
+
+    font-size: 24px;
+
+    font-weight: 800;
+
+    line-height: 1.3;
+
+}
+
+
+/* =========================================================
+   NOTIFICATION MESSAGE
+========================================================= */
+
+.notification-card p {
+
+    margin-bottom: 25px;
+
+    color: #cbd5e1;
+
+    font-size: 14px;
+
+    line-height: 1.7;
+
+    white-space: pre-line;
+
+}
+
+
+/* =========================================================
+   NOTIFICATION BUTTON
+========================================================= */
+
+.notification-card button {
+
+    width: 100%;
+
+    padding: 14px 16px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .2s ease;
+
+}
+
+
+/* =========================================================
+   NOTIFICATION BUTTON HOVER
+========================================================= */
+
+.notification-card button:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 30px
+        rgba(59, 130, 246, .20);
+
+}
+
+
+/* =========================================================
+   NOTIFICATION BUTTON ACTIVE
+========================================================= */
+
+.notification-card button:active {
+
+    transform: translateY(0);
+
+}
+
+
+/* =========================================================
+   29. ERROR MODAL
+========================================================= */
+
+.notification-card.error {
+
+    border-color:
+        rgba(239, 68, 68, .25);
+
+}
+
+
+.notification-card.error .notification-icon {
+
+    background:
+        linear-gradient(
+            135deg,
+            #ef4444,
+            #dc2626
+        );
+
+}
+
+
+/* =========================================================
+   30. SUCCESS MODAL
+========================================================= */
+
+.notification-card.success {
+
+    border-color:
+        rgba(59, 130, 246, .25);
+
+}
+
+
+.notification-card.success .notification-icon {
+
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+
+}
+
+
+/* =========================================================
+   31. INFO MODAL
+========================================================= */
+
+.notification-card.info {
+
+    border-color:
+        rgba(59, 130, 246, .25);
+
+}
+
+
+.notification-card.info .notification-icon {
+
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+
+}
+
+
+/* =========================================================
+   32. TABLET / SMALL DESKTOP
+========================================================= */
+
+@media (max-width: 1200px) {
+
+    /* -----------------------------------------
+       Worker grid
+    ----------------------------------------- */
+
+    .worker-list {
+
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+
+    }
+
+
+    /* -----------------------------------------
+       Dashboard spacing
+    ----------------------------------------- */
+
+    .dashboard {
+
+        padding-left: 30px;
+
+        padding-right: 30px;
+
+    }
+
+
+    /* -----------------------------------------
+       Right sidebar
+    ----------------------------------------- */
+
+    .sidebar {
+
+        width: 250px;
+
+    }
+
+
+    /* -----------------------------------------
+       Dashboard width
+    ----------------------------------------- */
+
+    .dashboard {
+
+        width: calc(100% - 250px);
+
+        margin-right: 250px;
+
+    }
+
+
+    /* -----------------------------------------
+       Fixed search/filter section
+    ----------------------------------------- */
+
+    .search-filter-section.search-fixed {
+
+        right: 250px;
+
+    }
+
+}
+
+
+/* =========================================================
+   33. MOBILE NAVIGATION
+========================================================= */
+@media (max-width: 900px) {
+
+    .menu-btn {
+
+    display: flex;
+
+}
+
+    .sidebar {
+
+        top: 0;
+
+        right: -290px;
+
+        width: 280px;
+
+        height: 100vh;
+
+        border-left: none;
+
+        border-right: none;
+
+        transition:
+            right .3s ease;
+
+        z-index: 1500;
+
+    }
+
+
+    /* -----------------------------------------
+       Open mobile sidebar
+    ----------------------------------------- */
+
+    .sidebar.active {
+
+        right: 0;
+
+    }
+
+
+    /* -----------------------------------------
+       Display close button
+    ----------------------------------------- */
+
+    .close-menu-btn {
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+    }
+
+
+    /* -----------------------------------------
+       Dashboard
+    ----------------------------------------- */
+     
+    .dashboard {
+        
+        width: 100%;
+        
+        margin-left: 0;
+        
+        margin-right: 0;
+        
+        padding:
+        82px
+        24px
+        60px;
+    }
+
+
+    /* -----------------------------------------
+       Fixed search/filter section
+    ----------------------------------------- */
+
+    .search-filter-section.search-fixed {
+
+        top: 72px;
+
+        left: 0;
+
+        right: 0;
+
+        width: 100%;
+
+    }
+
+}
+
+/* =========================================================
+   34. MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    /* -----------------------------------------
+       Topbar
+    ----------------------------------------- */
+
+    .topbar {
+
+        height: 66px;
+
+    }
+
+
+    .topbar-inner {
+
+        width: 92%;
+
+        padding-left: 10px;
+
+        padding-right: 0px;
+
+    }
+
+
+    .logo {
+
+        font-size: 21px;
+
+    }
+
+
+    /* -----------------------------------------
+       Dashboard
+    ----------------------------------------- */
+
+    .dashboard {
+
+        padding:
+            78px
+            12px
+            50px;
+
+    }
+
+
+    /* -----------------------------------------
+       Dashboard title
+    ----------------------------------------- */
+
+    .dashboard-intro {
+
+        margin-bottom: 22px;
+
+    }
+
+
+    .dashboard-intro h1 {
+
+        font-size: 27px;
+
+        letter-spacing: -.6px;
+
+    }
+
+
+    .dashboard-intro p {
+
+        font-size: 14px;
+
+    }
+
+
+    /* -----------------------------------------
+       Search/filter section
+    ----------------------------------------- */
+
+    .search-filter-section {
+
+        padding: 14px;
+
+        margin-bottom: 25px;
+
+        border-radius: 17px;
+
+    }
+
+
+    /* -----------------------------------------
+       Fixed search/filter section
+    ----------------------------------------- */
+
+    .search-filter-section.search-fixed {
+
+    top: 66px;
+
+    left: 0;
+
+    right: 0;
+
+    width: 100%;
+
+    padding:
+        10px
+        12px;
+
+    border-radius: 0;
+
+}
+
+
+    /* -----------------------------------------
+       Filters
+    ----------------------------------------- */
+
+    .filters {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 10px;
+
+    }
+
+
+    .filter-group label {
+
+        font-size: 11px;
+
+    }
+
+
+    .filter-group select {
+
+        min-height: 44px;
+
+        padding: 10px;
+
+        font-size: 13px;
+
+    }
+
+
+    /* -----------------------------------------
+       Results header
+    ----------------------------------------- */
+
+    .results-header {
+
+        margin-bottom: 14px;
+
+    }
+
+
+    .results-header h2 {
+
+        font-size: 19px;
+
+    }
+
+
+    /* -----------------------------------------
+       WORKER GRID
+       
+       IMPORTANT:
+       
+       Exactly 2 worker cards per row
+       on mobile.
+    ----------------------------------------- */
+
+    .worker-list {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 10px;
+
+    }
+
+
+    /* -----------------------------------------
+       Worker card
+    ----------------------------------------- */
+
+    .worker-card {
+
+        padding: 10px;
+
+        border-radius: 15px;
+
+    }
+
+
+    /* -----------------------------------------
+       Worker image
+    ----------------------------------------- */
+
+    .worker-photo {
+
+        border-radius: 11px;
+
+        margin-bottom: 10px;
+
+    }
+
+
+    /* -----------------------------------------
+       Worker name
+    ----------------------------------------- */
+
+    .worker-card h2 {
+
+        font-size: 13px;
+
+        margin-bottom: 3px;
+
+    }
+
+
+    /* -----------------------------------------
+       Worker location
+    ----------------------------------------- */
+
+    .worker-card .location {
+
+        margin-bottom: 5px;
+
+        font-size: 11px;
+
+    }
+
+
+    /* -----------------------------------------
+       Worker price
+    ----------------------------------------- */
+
+    .worker-card .price {
+
+        font-size: 12px;
+
+    }
+
+
+    /* -----------------------------------------
+       Empty state
+    ----------------------------------------- */
+
+    .empty-state {
+
+        margin:
+            40px auto;
+
+        padding: 30px 18px;
+
+    }
+
+
+    /* -----------------------------------------
+       Modal
+    ----------------------------------------- */
+
+    .notification-modal {
+
+        padding: 16px;
+
+    }
+
+
+    .notification-card {
+
+        width:
+            min(
+                390px,
+                calc(100vw - 32px)
+            );
+
+        max-height:
+            calc(100vh - 32px);
+
+        padding:
+            30px
+            22px;
+
+    }
+
+
+    .notification-icon {
+
+        width: 60px;
+
+        height: 60px;
+
+        font-size: 28px;
+
+    }
+
+
+    .notification-card h2 {
+
+        font-size: 22px;
+
+    }
+
+}
+
+
+/* =========================================================
+   35. VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width: 380px) {
+
+    /* -----------------------------------------
+       Dashboard
+    ----------------------------------------- */
+
+    .dashboard {
+
+        padding-left: 9px;
+
+        padding-right: 9px;
+
+    }
+
+
+    /* -----------------------------------------
+       Worker grid
+    ----------------------------------------- */
+
+    .worker-list {
+
+        gap: 8px;
+
+    }
+
+
+    /* -----------------------------------------
+       Worker card
+    ----------------------------------------- */
+
+    .worker-card {
+
+        padding: 8px;
+
+    }
+
+
+    .worker-card h2 {
+
+        font-size: 12px;
+
+    }
+
+
+    .worker-card .location {
+
+        font-size: 10px;
+
+    }
+
+
+    .worker-card .price {
+
+        font-size: 11px;
+
+    }
+
+
+    /* -----------------------------------------
+       Search
+    ----------------------------------------- */
+
+    #searchInput {
+
+        min-height: 48px;
+
+        font-size: 14px;
+
+    }
+
+}
+
+
+/* =========================================================
+   36. REDUCED MOTION
+========================================================= */
+
+/*
+    Respects users who have requested
+    reduced motion at operating-system level.
+*/
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+
+        scroll-behavior: auto !important;
+
+        animation-duration: .01ms !important;
+
+        animation-iteration-count: 1 !important;
+
+        transition-duration: .01ms !important;
+
+    }
+
+}

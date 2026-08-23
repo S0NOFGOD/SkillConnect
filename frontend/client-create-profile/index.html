@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <!-- =====================================================
+         BASIC DOCUMENT CONFIGURATION
+    ====================================================== -->
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Complete Client Profile | SkillConnect
+    </title>
+
+
+    <!-- =====================================================
+         GOOGLE FONT
+    ====================================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =====================================================
+         PAGE STYLESHEET
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
+<header>
+
+    <nav class="navbar">
+
+        <!-- =================================================
+             SKILLCONNECT LOGO
+        ================================================== -->
+
+        <a
+            href="../index.html"
+            class="logo"
+        >
+
+            SkillConnect
+
+        </a>
+
+
+        <!-- =================================================
+             HOME LINK
+        ================================================== -->
+
+        <a
+            href="../index.html"
+            class="back-link"
+        >
+
+            Home
+
+        </a>
+
+    </nav>
+
+</header>
+
+
+
+<!-- =========================================================
+     MAIN CLIENT PROFILE PAGE
+========================================================= -->
+
+<main class="profile-page">
+
+    <section class="profile-card">
+
+
+        <!-- =================================================
+             PROFILE HEADER
+        ================================================== -->
+
+        <div class="profile-header">
+
+            <!-- Client icon -->
+
+            <div class="profile-icon">
+
+                👤
+
+            </div>
+
+
+            <!-- Page title -->
+
+            <h1>
+
+                Complete Your Client Profile
+
+            </h1>
+
+
+            <!-- Page description -->
+
+            <p>
+
+                Add your information so SkillConnect can
+                help you find trusted nearby skilled workers.
+
+            </p>
+
+        </div>
+
+
+
+        <!-- =================================================
+             PROFILE COMPLETION
+        ================================================== -->
+
+        <div class="completion-card">
+
+            <div>
+
+                <h3>
+
+                    Profile Completion
+
+                </h3>
+
+
+                <p>
+
+                    Complete all required fields to continue.
+
+                </p>
+
+            </div>
+
+
+            <!--
+                JavaScript automatically updates
+                this percentage.
+
+                Example:
+
+                0%
+                25%
+                50%
+                75%
+                100%
+            -->
+
+            <strong id="completionPercent">
+
+                0%
+
+            </strong>
+
+        </div>
+
+
+
+        <!-- =================================================
+             CLIENT PROFILE FORM
+        ================================================== -->
+
+        <form
+            id="clientProfileForm"
+            novalidate
+        >
+
+
+            <!-- =================================================
+                 PERSONAL INFORMATION
+            ================================================== -->
+
+            <div class="form-card">
+
+                <h2>
+
+                    Personal Information
+
+                </h2>
+
+
+                <p class="section-text">
+
+                    Tell us who you are.
+
+                </p>
+
+
+
+                <!-- =================================================
+                     FULL NAME
+                ================================================== -->
+
+                <label for="fullName">
+
+                    Full Name *
+
+                </label>
+
+
+                <input
+                    type="text"
+                    id="fullName"
+                    name="fullName"
+                    placeholder="Enter your full name"
+                    autocomplete="name"
+                    maxlength="100"
+                    required
+                >
+
+            </div>
+
+
+
+            <!-- =================================================
+                 LOCATION INFORMATION
+            ================================================== -->
+
+            <div class="form-card">
+
+                <h2>
+
+                    Location Information
+
+                </h2>
+
+
+                <p class="section-text">
+
+                    Select your location so you can find
+                    skilled workers near you.
+
+                </p>
+
+
+
+                <!-- =================================================
+                     COUNTRY
+                ================================================== -->
+
+                <label for="country">
+
+                    Country *
+
+                </label>
+
+
+                <select
+                    id="country"
+                    name="country"
+                    required
+                >
+
+                    <option
+                        value=""
+                        selected
+                    >
+
+                        Select country
+
+                    </option>
+
+                </select>
+
+
+
+                <!-- =================================================
+                     STATE
+                ================================================== -->
+
+                <label for="state">
+
+                    State *
+
+                </label>
+
+
+                <select
+                    id="state"
+                    name="state"
+                    required
+                    disabled
+                >
+
+                    <option
+                        value=""
+                        selected
+                    >
+
+                        Select country first
+
+                    </option>
+
+                </select>
+
+
+
+                <!-- =================================================
+                     CITY
+                ================================================== -->
+
+                <label for="city">
+
+                    City *
+
+                </label>
+
+
+                <select
+                    id="city"
+                    name="city"
+                    required
+                    disabled
+                >
+
+                    <option
+                        value=""
+                        selected
+                    >
+
+                        Select state first
+
+                    </option>
+
+                </select>
+
+
+
+                <!-- =================================================
+                     FINAL LOCATION VALUE
+                     
+                     JavaScript automatically combines:
+
+                     Country, State, City
+
+                     Example:
+
+                     Nigeria, Oyo, Ogbomoso
+                ================================================== -->
+
+                <input
+                    type="hidden"
+                    id="location"
+                    name="location"
+                >
+
+            </div>
+
+
+
+            <!-- =================================================
+                 SUBMIT BUTTON
+            ================================================== -->
+
+            <button
+                type="submit"
+                id="continueBtn"
+                class="submit-btn"
+            >
+
+                Continue To Dashboard
+
+            </button>
+
+        </form>
+
+    </section>
+
+</main>
+
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer>
+
+    <p>
+
+        © 2026 SkillConnect. All rights reserved.
+
+    </p>
+
+</footer>
+
+
+
+<!-- =========================================================
+     NOTIFICATION MODAL
+
+     IMPORTANT:
+
+     ALL CLIENT PROFILE SUCCESS, ERROR AND REDIRECT
+     RESPONSES MUST USE THIS MODAL.
+
+     The JavaScript controls:
+
+     1. Error messages
+     2. Success messages
+     3. Redirect messages
+     4. Loading-related messages
+========================================================= -->
+
+<div
+    id="notificationOverlay"
+    class="notification-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="notificationTitle"
+    aria-describedby="notificationText"
+    hidden
+>
+
+    <div class="notification-card">
+
+
+        <!-- =================================================
+             MODAL ICON
+        ================================================== -->
+
+        <div
+            id="notificationIcon"
+            class="notification-icon"
+            aria-hidden="true"
+        >
+
+            ✓
+
+        </div>
+
+
+        <!-- =================================================
+             MODAL TITLE
+        ================================================== -->
+
+        <h2 id="notificationTitle">
+
+        </h2>
+
+
+        <!-- =================================================
+             MODAL MESSAGE
+        ================================================== -->
+
+        <p id="notificationText">
+
+        </p>
+
+
+        <!-- =================================================
+             MODAL BUTTON
+        ================================================== -->
+
+        <button
+            type="button"
+            id="notificationButton"
+        >
+
+            Continue
+
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     PAGE JAVASCRIPT
+========================================================= -->
+<script src="../config.js"></script>
+<script src="script.js"></script>
+
+
+</body>
+
+</html>

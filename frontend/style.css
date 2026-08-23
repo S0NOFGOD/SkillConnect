@@ -1,0 +1,1235 @@
+/* =========================================================
+   SKILLCONNECT HOMEPAGE
+   GLOBAL STYLES
+========================================================= */
+
+
+/* =========================================================
+   CSS VARIABLES
+========================================================= */
+
+:root {
+
+    /* Main dark background */
+    --background: #020617;
+
+    /* Glass-style card background */
+    --card-background: rgba(255, 255, 255, 0.05);
+
+    /* Worker green */
+    --worker-green: #22c55e;
+
+    /* Darker worker green */
+    --worker-green-dark: #16a34a;
+
+    /* Client blue */
+    --client-blue: #3b82f6;
+
+    /* Darker client blue */
+    --client-blue-dark: #2563eb;
+
+    /* Main white text */
+    --text-white: #ffffff;
+
+    /* Secondary text */
+    --text-light: #cbd5e1;
+
+    /* Muted text */
+    --text-muted: #94a3b8;
+
+    /* Transparent border */
+    --border: rgba(255, 255, 255, 0.08);
+
+    /* Main SkillConnect brand gradient */
+    --brand-gradient:
+        linear-gradient(
+            135deg,
+            var(--worker-green),
+            var(--client-blue)
+        );
+
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+/*
+    Removes default browser spacing
+    and makes element sizing easier to control.
+*/
+
+* {
+
+    margin: 0;
+
+    padding: 0;
+
+    box-sizing: border-box;
+
+}
+
+
+/* =========================================================
+   HTML
+========================================================= */
+
+html {
+
+    /* Enables smooth scrolling */
+    scroll-behavior: smooth;
+
+}
+
+
+/* =========================================================
+   BODY
+========================================================= */
+
+body {
+
+    /* Uses the Inter font loaded in index.html */
+    font-family: "Inter", sans-serif;
+
+    /* Main page background */
+    background: var(--background);
+
+    /* Main text color */
+    color: var(--text-white);
+
+    /* Improves readability */
+    line-height: 1.6;
+
+    /* Prevents unwanted horizontal scrolling */
+    overflow-x: hidden;
+
+}
+
+
+/* =========================================================
+   LINKS
+========================================================= */
+
+a {
+
+    /* Removes default underline */
+    text-decoration: none;
+
+    /* Allows links to inherit surrounding text color */
+    color: inherit;
+
+}
+
+
+/* =========================================================
+   NAVIGATION BAR
+========================================================= */
+
+.header {
+
+    /* Keeps navbar visible while scrolling */
+    position: fixed;
+
+    top: 0;
+
+    left: 0;
+
+    /* Makes navbar span the screen */
+    width: 100%;
+
+    /* Keeps navbar above page content */
+    z-index: 1000;
+
+    /* Semi-transparent dark background */
+    background: rgba(2, 6, 23, 0.85);
+
+    /* Glass blur effect */
+    backdrop-filter: blur(15px);
+
+    /* Bottom border */
+    border-bottom: 1px solid var(--border);
+
+}
+
+
+/* =========================================================
+   NAVBAR CONTAINER
+========================================================= */
+
+.navbar {
+
+    /* Uses 90% of screen width */
+    width: 90%;
+
+    /* Prevents the navbar from becoming too wide */
+    max-width: 1200px;
+
+    /* Navbar height */
+    height: 70px;
+
+    /* Centers navbar */
+    margin: auto;
+
+    /* Places logo and navigation horizontally */
+    display: flex;
+
+    /* Vertically centers items */
+    align-items: center;
+
+    /* Pushes logo and navigation apart */
+    justify-content: space-between;
+
+}
+
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.logo {
+
+    /* Logo size */
+    font-size: 24px;
+
+    /* Makes logo bold */
+    font-weight: 800;
+
+    /* Slightly tightens letters */
+    letter-spacing: -1px;
+
+    /* Applies the green/blue gradient */
+    background: var(--brand-gradient);
+
+    /* Clips gradient to the text */
+    -webkit-background-clip: text;
+
+    /* Makes the original text transparent */
+    -webkit-text-fill-color: transparent;
+
+}
+
+
+/* =========================================================
+   NAVIGATION LINKS
+========================================================= */
+
+.nav-links {
+
+    /* Places links horizontally */
+    display: flex;
+
+    /* Space between links */
+    gap: 25px;
+
+}
+
+
+/* Individual navigation links */
+
+.nav-links a {
+
+    /* Light text */
+    color: var(--text-light);
+
+    /* Small navigation text */
+    font-size: 14px;
+
+    /* Semi-bold */
+    font-weight: 600;
+
+    /* Smooth color transition */
+    transition: color 0.3s ease;
+
+}
+
+
+/* Active and hovered navigation links */
+
+.nav-links a:hover,
+.nav-links a.active {
+
+    /* Worker green highlight */
+    color: var(--worker-green);
+
+}
+
+
+/* =========================================================
+   MOBILE MENU BUTTON
+========================================================= */
+
+.menu-toggle {
+
+    /* Hidden on larger screens */
+    display: none;
+
+    /* Removes default button border */
+    border: none;
+
+    /* Transparent background */
+    background: transparent;
+
+    /* White icon */
+    color: var(--text-white);
+
+    /* Menu icon size */
+    font-size: 25px;
+
+    /* Shows pointer cursor */
+    cursor: pointer;
+
+}
+
+
+/* =========================================================
+   HERO SECTION
+========================================================= */
+
+.hero {
+
+    /* Main content width */
+    width: 90%;
+
+    /* Maximum width */
+    max-width: 1200px;
+
+    /* Minimum screen height */
+    min-height: 100vh;
+
+    /* Centers section */
+    margin: auto;
+
+    /* Leaves space for fixed navbar */
+    padding-top: 110px;
+
+    /* Uses flexbox */
+    display: flex;
+
+    /* Mobile layout starts vertically */
+    flex-direction: column;
+
+    /* Centers content vertically */
+    justify-content: center;
+
+    /* Centers content horizontally */
+    align-items: center;
+
+    /* Centers text on mobile */
+    text-align: center;
+
+    /* Space between hero content and card */
+    gap: 40px;
+
+    /* Allows the glow to be positioned relative to hero */
+    position: relative;
+
+}
+
+
+/* =========================================================
+   HERO GLOW
+========================================================= */
+
+.hero::before {
+
+    /* Required for pseudo-element */
+    content: "";
+
+    /* Glow width */
+    width: 300px;
+
+    /* Glow height */
+    height: 300px;
+
+    /* Green glow */
+    background: var(--worker-green);
+
+    /* Blurs the glow */
+    filter: blur(150px);
+
+    /* Makes glow subtle */
+    opacity: 0.15;
+
+    /* Position */
+    position: absolute;
+
+    top: 100px;
+
+    left: 10%;
+
+    /* Places glow behind content */
+    z-index: -1;
+
+}
+
+
+/* =========================================================
+   HERO CONTENT
+========================================================= */
+
+.hero-content {
+
+    /* Prevents text from becoming too wide */
+    max-width: 700px;
+
+}
+
+
+/* =========================================================
+   HERO BADGE
+========================================================= */
+
+.hero-badge {
+
+    /* Allows padding and dimensions */
+    display: inline-block;
+
+    /* Inner spacing */
+    padding: 8px 18px;
+
+    /* Space below badge */
+    margin-bottom: 20px;
+
+    /* Rounded pill shape */
+    border-radius: 30px;
+
+    /* Green text */
+    color: var(--worker-green);
+
+    /* Transparent green background */
+    background: rgba(34, 197, 94, 0.15);
+
+    /* Green border */
+    border: 1px solid rgba(34, 197, 94, 0.3);
+
+    /* Badge text size */
+    font-size: 14px;
+
+}
+
+
+/* =========================================================
+   HERO HEADING
+========================================================= */
+
+.hero h1 {
+
+    /* Mobile heading size */
+    font-size: 38px;
+
+    /* Controls line spacing */
+    line-height: 1.15;
+
+    /* Strong heading weight */
+    font-weight: 800;
+
+    /* Space below heading */
+    margin-bottom: 20px;
+
+}
+
+
+/* Gradient portion of hero heading */
+
+.hero h1 span {
+
+    /* Applies brand gradient */
+    background: var(--brand-gradient);
+
+    /* Clips gradient to text */
+    -webkit-background-clip: text;
+
+    /* Makes normal text transparent */
+    -webkit-text-fill-color: transparent;
+
+}
+
+
+/* =========================================================
+   HERO DESCRIPTION
+========================================================= */
+
+.hero p {
+
+    /* Secondary text color */
+    color: var(--text-light);
+
+    /* Space below paragraph */
+    margin-bottom: 35px;
+
+}
+
+
+/* =========================================================
+   BUTTON CONTAINER
+========================================================= */
+
+.hero-buttons {
+
+    /* Uses flexbox */
+    display: flex;
+
+    /* Mobile buttons appear vertically */
+    flex-direction: column;
+
+    /* Space between buttons */
+    gap: 15px;
+
+    /* Centers buttons */
+    align-items: center;
+
+}
+
+
+/* =========================================================
+   SHARED BUTTON STYLES
+========================================================= */
+
+.worker-btn,
+.client-btn {
+
+    /* Makes buttons fill their container */
+    width: 100%;
+
+    /* Prevents oversized buttons */
+    max-width: 320px;
+
+    /* Vertical and horizontal spacing */
+    padding: 15px 30px;
+
+    /* Rounded corners */
+    border-radius: 14px;
+
+    /* Bold text */
+    font-weight: 700;
+
+    /* Centers button text */
+    text-align: center;
+
+    /* Smooth animation */
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+
+}
+
+
+/* =========================================================
+   WORKER BUTTON
+========================================================= */
+
+.worker-btn {
+
+    /* Worker green gradient */
+    background:
+        linear-gradient(
+            135deg,
+            var(--worker-green),
+            var(--worker-green-dark)
+        );
+
+}
+
+
+/* =========================================================
+   CLIENT BUTTON
+========================================================= */
+
+.client-btn {
+
+    /* Client blue gradient */
+    background:
+        linear-gradient(
+            135deg,
+            var(--client-blue),
+            var(--client-blue-dark)
+        );
+
+}
+
+
+/* =========================================================
+   BUTTON HOVER
+========================================================= */
+
+.worker-btn:hover,
+.client-btn:hover {
+
+    /* Moves button slightly upward */
+    transform: translateY(-5px);
+
+}
+
+
+/* =========================================================
+   HERO CARD
+========================================================= */
+
+.hero-card {
+
+    /* Full available width */
+    width: 100%;
+
+    /* Prevents excessive width */
+    max-width: 350px;
+
+    /* Inner spacing */
+    padding: 30px;
+
+    /* Rounded glass card */
+    border-radius: 25px;
+
+    /* Transparent card background */
+    background: var(--card-background);
+
+    /* Subtle border */
+    border: 1px solid var(--border);
+
+    /* Glass blur */
+    backdrop-filter: blur(15px);
+
+}
+
+
+/* Hero card heading */
+
+.hero-card h3 {
+
+    /* Green heading */
+    color: var(--worker-green);
+
+    /* Space below heading */
+    margin-bottom: 20px;
+
+}
+
+
+/* Hero card list */
+
+.hero-card ul {
+
+    /* Removes browser bullet points */
+    list-style: none;
+
+}
+
+
+/* Hero card items */
+
+.hero-card li {
+
+    /* Light text */
+    color: var(--text-light);
+
+    /* Space below each item */
+    margin-bottom: 12px;
+
+    /* Places check mark and text horizontally */
+    display: flex;
+
+    /* Space between icon and text */
+    gap: 10px;
+
+}
+
+
+/* Hero card check marks */
+
+.hero-card li span {
+
+    /* Green check mark */
+    color: var(--worker-green);
+
+    /* Makes check mark bold */
+    font-weight: 700;
+
+}
+
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+.stats {
+
+    /* Main width */
+    width: 90%;
+
+    /* Maximum width */
+    max-width: 1200px;
+
+    /* Centers section */
+    margin: 60px auto;
+
+    /* Uses CSS grid */
+    display: grid;
+
+    /* One column on mobile */
+    grid-template-columns: 1fr;
+
+    /* Space between cards */
+    gap: 20px;
+
+}
+
+
+/* Statistic card */
+
+.stat-card {
+
+    /* Inner spacing */
+    padding: 30px;
+
+    /* Centers content */
+    text-align: center;
+
+    /* Rounded card */
+    border-radius: 20px;
+
+    /* Glass background */
+    background: var(--card-background);
+
+    /* Border */
+    border: 1px solid var(--border);
+
+}
+
+
+/* Statistic number */
+
+.stat-card h2 {
+
+    /* Green number */
+    color: var(--worker-green);
+
+    /* Large number */
+    font-size: 36px;
+
+}
+
+
+/* Statistic description */
+
+.stat-card p {
+
+    /* Light text */
+    color: var(--text-light);
+
+}
+
+
+/* =========================================================
+   GENERAL SECTIONS
+========================================================= */
+
+.section {
+
+    /* Section width */
+    width: 90%;
+
+    /* Maximum width */
+    max-width: 1200px;
+
+    /* Vertical spacing */
+    margin: 70px auto;
+
+    /* Centers section text */
+    text-align: center;
+
+}
+
+
+/* Section headings */
+
+.section h2 {
+
+    /* Heading size */
+    font-size: 32px;
+
+    /* Space below heading */
+    margin-bottom: 35px;
+
+}
+
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.cards {
+
+    /* Uses CSS grid */
+    display: grid;
+
+    /* One column on mobile */
+    grid-template-columns: 1fr;
+
+    /* Space between cards */
+    gap: 20px;
+
+}
+
+
+/* Individual card */
+
+.card {
+
+    /* Inner spacing */
+    padding: 30px;
+
+    /* Rounded corners */
+    border-radius: 20px;
+
+    /* Glass background */
+    background: var(--card-background);
+
+    /* Border */
+    border: 1px solid var(--border);
+
+    /* Smooth animation */
+    transition:
+        transform 0.3s ease,
+        border-color 0.3s ease;
+
+}
+
+
+/* Card hover */
+
+.card:hover {
+
+    /* Moves card upward */
+    transform: translateY(-8px);
+
+    /* Highlights border */
+    border-color: var(--worker-green);
+
+}
+
+
+/* Card heading */
+
+.card h3 {
+
+    /* Green heading */
+    color: var(--worker-green);
+
+    /* Space below heading */
+    margin-bottom: 15px;
+
+}
+
+
+/* Card paragraph */
+
+.card p {
+
+    /* Light paragraph text */
+    color: var(--text-light);
+
+}
+
+
+/* =========================================================
+   ICONS
+========================================================= */
+
+.icon {
+
+    /* Large emoji/icon size */
+    font-size: 40px;
+
+    /* Space below icon */
+    margin-bottom: 15px;
+
+}
+
+
+/* =========================================================
+   POPULAR SKILLS
+========================================================= */
+
+.skills {
+
+    /* Uses CSS grid */
+    display: grid;
+
+    /* Two columns on mobile */
+    grid-template-columns: repeat(2, 1fr);
+
+    /* Space between skills */
+    gap: 15px;
+
+}
+
+
+/* Individual skill */
+
+.skills span {
+
+    /* Inner spacing */
+    padding: 12px;
+
+    /* Rounded corners */
+    border-radius: 15px;
+
+    /* Slightly lighter background */
+    background: #111827;
+
+    /* Skill text */
+    color: #e2e8f0;
+
+    /* Border */
+    border: 1px solid var(--border);
+
+    /* Smooth animation */
+    transition:
+        background 0.3s ease,
+        transform 0.3s ease;
+
+}
+
+
+/* Skill hover */
+
+.skills span:hover {
+
+    /* Green background */
+    background: var(--worker-green);
+
+    /* Moves skill upward */
+    transform: translateY(-5px);
+
+}
+
+
+/* =========================================================
+   FINAL CTA
+========================================================= */
+
+.cta {
+
+    /* Main width */
+    width: 90%;
+
+    /* Maximum width */
+    max-width: 1100px;
+
+    /* Centers CTA */
+    margin: 80px auto;
+
+    /* Inner spacing */
+    padding: 50px 20px;
+
+    /* Centers text */
+    text-align: center;
+
+    /* Rounded container */
+    border-radius: 25px;
+
+    /* Green and blue transparent gradient */
+    background:
+        linear-gradient(
+            135deg,
+            rgba(34, 197, 94, 0.15),
+            rgba(59, 130, 246, 0.15)
+        );
+
+    /* Subtle border */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+}
+
+
+/* CTA heading */
+
+.cta h2 {
+
+    /* Heading size */
+    font-size: 32px;
+
+    /* Space below */
+    margin-bottom: 15px;
+
+}
+
+
+/* CTA paragraph */
+
+.cta p {
+
+    /* Light text */
+    color: var(--text-light);
+
+    /* Space below */
+    margin-bottom: 30px;
+
+}
+
+
+/* CTA buttons */
+
+.cta .hero-buttons {
+
+    /* Centers buttons */
+    justify-content: center;
+
+    align-items: center;
+
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+footer {
+
+    /* Footer spacing */
+    padding: 30px;
+
+    /* Centers footer text */
+    text-align: center;
+
+    /* Muted text */
+    color: var(--text-muted);
+
+    /* Top border */
+    border-top: 1px solid var(--border);
+
+}
+
+
+/* =========================================================
+   SCROLL REVEAL
+========================================================= */
+
+/*
+    Elements with .reveal begin invisible.
+    JavaScript will add .show when they enter the viewport.
+*/
+
+.reveal {
+
+    /* Initially invisible */
+    opacity: 0;
+
+    /* Starts slightly below its final position */
+    transform: translateY(30px);
+
+    /* Smooth animation */
+    transition:
+        opacity 0.7s ease,
+        transform 0.7s ease;
+
+}
+
+
+/* Visible reveal element */
+
+.reveal.show {
+
+    /* Makes element visible */
+    opacity: 1;
+
+    /* Returns element to normal position */
+    transform: translateY(0);
+
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (min-width: 768px) {
+
+    /* Increase main content width */
+
+    .navbar,
+    .hero,
+    .stats,
+    .section {
+
+        width: 85%;
+
+    }
+
+
+    /* Larger hero heading */
+
+    .hero h1 {
+
+        font-size: 52px;
+
+    }
+
+
+    /* Put buttons beside each other */
+
+    .hero-buttons {
+
+        flex-direction: row;
+
+        justify-content: center;
+
+    }
+
+
+    /* Three statistics columns */
+
+    .stats {
+
+        grid-template-columns: repeat(3, 1fr);
+
+    }
+
+
+    /* Two card columns */
+
+    .cards {
+
+        grid-template-columns: repeat(2, 1fr);
+
+    }
+
+}
+
+
+/* =========================================================
+   DESKTOP
+========================================================= */
+
+@media (min-width: 1024px) {
+
+    /* Hero becomes a two-column layout */
+
+    .hero {
+
+        flex-direction: row;
+
+        text-align: left;
+
+    }
+
+
+    /* Large desktop heading */
+
+    .hero h1 {
+
+        font-size: 64px;
+
+    }
+
+
+    /* Align hero buttons to the left */
+
+    .hero-buttons {
+
+        justify-content: flex-start;
+
+    }
+
+
+    /* Three cards per row */
+
+    .cards {
+
+        grid-template-columns: repeat(3, 1fr);
+
+    }
+
+
+    /* Five popular skills per row */
+
+    .skills {
+
+        grid-template-columns: repeat(5, 1fr);
+
+    }
+
+
+    /* Larger section headings */
+
+    .section h2 {
+
+        font-size: 42px;
+
+    }
+
+
+    /* Keep CTA buttons centered */
+
+    .cta .hero-buttons {
+
+        justify-content: center;
+
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    /* Show hamburger button */
+
+    .menu-toggle {
+
+        display: block;
+
+    }
+
+
+    /* Hide normal navigation */
+
+    .nav-links {
+
+        position: absolute;
+
+        top: 70px;
+
+        left: 0;
+
+        width: 100%;
+
+        padding: 20px;
+
+        display: none;
+
+        flex-direction: column;
+
+        gap: 15px;
+
+        background: rgba(2, 6, 23, 0.97);
+
+        border-bottom: 1px solid var(--border);
+
+    }
+
+
+    /* JavaScript adds .show to display menu */
+
+    .nav-links.show {
+
+        display: flex;
+
+    }
+
+
+    /* Larger clickable navigation area */
+
+    .nav-links a {
+
+        padding: 10px;
+
+    }
+
+}
+
+
+/* =================================================

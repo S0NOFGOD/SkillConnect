@@ -1,0 +1,1282 @@
+/* ==========================================
+    SkillConnect Worker Authentication Styles
+    Clean + Easy Memorization Version
+========================================== */
+
+
+/* ==========================================
+   1. Global Reset
+========================================== */
+
+* {
+
+    margin: 0;
+
+    padding: 0;
+
+    box-sizing: border-box;
+
+}
+
+
+html {
+
+    scroll-behavior: smooth;
+
+}
+
+
+body {
+
+    font-family: "Inter", sans-serif;
+
+    background: #020617;
+
+    color: #ffffff;
+
+    line-height: 1.6;
+
+    overflow-x: hidden;
+
+}
+
+
+a {
+
+    text-decoration: none;
+
+    color: inherit;
+
+}
+
+
+
+/* ==========================================
+   2. Fixed Navbar
+========================================== */
+
+header {
+
+    position: fixed;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    z-index: 1000;
+
+    background: rgba(2, 6, 23, .85);
+
+    backdrop-filter: blur(15px);
+
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+
+}
+
+
+.navbar {
+
+    width: 90%;
+
+    max-width: 1200px;
+
+    height: 70px;
+
+    margin: auto;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+}
+
+
+
+/* ==========================================
+   Logo
+========================================== */
+
+.logo {
+
+    font-size: 24px;
+
+    font-weight: 800;
+
+    letter-spacing: -1px;
+
+    background: linear-gradient(
+        135deg,
+        #22c55e,
+        #3b82f6
+    );
+
+    -webkit-background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+
+}
+
+
+
+/* ==========================================
+   Navigation
+========================================== */
+
+.nav-links {
+
+    display: flex;
+
+    gap: 30px;
+
+}
+
+
+.nav-links a {
+
+    color: #cbd5e1;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    transition: .3s;
+
+}
+
+
+.nav-links a:hover {
+
+    color: #22c55e;
+
+}
+
+
+
+/* ==========================================
+   3. Main Authentication Layout
+========================================== */
+
+.auth-page {
+
+    width: 90%;
+
+    margin: auto;
+
+    padding-top: 110px;
+
+    padding-bottom: 70px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 40px;
+
+    position: relative;
+
+}
+
+
+.auth-page::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 320px;
+
+    height: 320px;
+
+    background: #22c55e;
+
+    filter: blur(170px);
+
+    opacity: .18;
+
+    top: 70px;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+
+}
+
+
+
+/* ==========================================
+   4. Hero Section
+========================================== */
+
+.hero-content {
+
+    position: relative;
+
+    z-index: 2;
+
+    text-align: center;
+
+}
+
+
+.hero-badge {
+
+    display: inline-block;
+
+    padding: 8px 18px;
+
+    margin-bottom: 20px;
+
+    border-radius: 30px;
+
+    color: #22c55e;
+
+    background: rgba(34, 197, 94, .15);
+
+    border: 1px solid rgba(34, 197, 94, .3);
+
+    font-size: 14px;
+
+}
+
+
+.hero-content h1 {
+
+    font-size: 38px;
+
+    line-height: 1.15;
+
+    font-weight: 800;
+
+    margin-bottom: 20px;
+
+}
+
+
+.hero-content h1 span {
+
+    background: linear-gradient(
+        135deg,
+        #22c55e,
+        #3b82f6
+    );
+
+    -webkit-background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+
+}
+
+
+.hero-content p {
+
+    color: #cbd5e1;
+
+    font-size: 16px;
+
+    margin-bottom: 35px;
+
+}
+
+
+
+/* ==========================================
+   5. Benefits Cards
+========================================== */
+
+.benefits {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 18px;
+
+}
+
+
+.benefit-card {
+
+    display: flex;
+
+    gap: 18px;
+
+    align-items: center;
+
+    padding: 20px;
+
+    border-radius: 20px;
+
+    background: rgba(255, 255, 255, .05);
+
+    border: 1px solid rgba(255, 255, 255, .08);
+
+    transition: .3s;
+
+}
+
+
+.benefit-card:hover {
+
+    transform: translateY(-5px);
+
+    border-color: #22c55e;
+
+}
+
+
+.icon {
+
+    font-size: 36px;
+
+    flex-shrink: 0;
+
+}
+
+
+.benefit-card h3 {
+
+    color: #22c55e;
+
+    margin-bottom: 5px;
+
+}
+
+
+.benefit-card p {
+
+    color: #cbd5e1;
+
+    font-size: 14px;
+
+}
+
+
+
+/* ==========================================
+   6. Authentication Card
+========================================== */
+
+.auth-card {
+
+    position: relative;
+
+    z-index: 2;
+
+    padding: 30px;
+
+    border-radius: 24px;
+
+    background: rgba(255, 255, 255, .05);
+
+    border: 1px solid rgba(255, 255, 255, .08);
+
+    backdrop-filter: blur(15px);
+
+}
+
+
+.auth-header {
+
+    text-align: center;
+
+    margin-bottom: 25px;
+
+}
+
+
+.auth-header h2 {
+
+    font-size: 30px;
+
+    margin-bottom: 8px;
+
+}
+
+
+.auth-header p {
+
+    color: #cbd5e1;
+
+}
+
+
+
+/* ==========================================
+   7. Authentication Tabs
+========================================== */
+
+.tabs {
+
+    display: flex;
+
+    gap: 8px;
+
+    padding: 6px;
+
+    margin-bottom: 25px;
+
+    border-radius: 16px;
+
+    background: #111827;
+
+}
+
+
+.tab {
+
+    flex: 1;
+
+    border: none;
+
+    background: transparent;
+
+    color: #cbd5e1;
+
+    font-weight: 600;
+
+    font-size: 15px;
+
+    padding: 14px;
+
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    transition: .3s;
+
+}
+
+
+.tab.active {
+
+    background: linear-gradient(
+        135deg,
+        #22c55e,
+        #16a34a
+    );
+
+    color: #ffffff;
+
+}
+
+
+
+/* ==========================================
+   8. Form Sections
+========================================== */
+
+.form-section {
+
+    display: none;
+
+}
+
+
+.form-section.active {
+
+    display: block;
+
+}
+
+
+form {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 14px;
+
+}
+
+
+label {
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+}
+
+
+
+/* ==========================================
+   9. Standard Inputs
+========================================== */
+
+input {
+
+    width: 100%;
+
+    padding: 15px;
+
+    border: 1px solid transparent;
+
+    border-radius: 14px;
+
+    background: #111827;
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+    outline: none;
+
+    transition: .3s;
+
+}
+
+
+input::placeholder {
+
+    color: #64748b;
+
+}
+
+
+input:focus {
+
+    border-color: #22c55e;
+
+    box-shadow:
+        0 0 0 3px rgba(34, 197, 94, .15);
+
+}
+
+
+
+/* ==========================================
+   10. Password Container
+========================================== */
+
+.password-container {
+
+    position: relative;
+
+    width: 100%;
+
+}
+
+
+
+/* ==========================================
+   Password Input Inside Container
+========================================== */
+
+.password-container input {
+
+    padding-right: 55px;
+
+}
+
+
+
+/* ==========================================
+   Password Toggle Button
+========================================== */
+
+.password-toggle {
+
+    position: absolute;
+
+    top: 50%;
+
+    right: 15px;
+
+    transform: translateY(-50%);
+
+    width: 30px;
+
+    height: 30px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 0;
+
+    border: none;
+
+    background: transparent;
+
+    color: #94a3b8;
+
+    font-size: 18px;
+
+    cursor: pointer;
+
+    transition: .3s;
+
+}
+
+
+.password-toggle:hover {
+
+    color: #22c55e;
+
+}
+
+
+.password-toggle:focus {
+
+    outline: none;
+
+    color: #22c55e;
+
+}
+
+
+
+/* ==========================================
+   11. Forgot Password Link
+========================================== */
+
+.forgot-link {
+
+    color: #3b82f6;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    transition: .3s;
+
+}
+
+
+.forgot-link:hover {
+
+    color: #22c55e;
+
+}
+
+
+
+/* ==========================================
+   12. Terms & Privacy
+========================================== */
+
+.terms {
+
+    display: flex;
+
+    gap: 10px;
+
+    align-items: flex-start;
+
+    font-size: 14px;
+
+}
+
+
+.terms input {
+
+    width: auto;
+
+    margin-top: 3px;
+
+    flex-shrink: 0;
+
+}
+
+
+.terms a {
+
+    color: #22c55e;
+
+    font-weight: 600;
+
+    transition: .3s;
+
+}
+
+
+.terms a:hover {
+
+    color: #3b82f6;
+
+}
+
+
+
+/* ==========================================
+   13. Main Buttons
+========================================== */
+
+.submit-btn {
+
+    margin-top: 10px;
+
+    width: 100%;
+
+    border: none;
+
+    border-radius: 14px;
+
+    padding: 15px;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    color: #ffffff;
+
+    background: linear-gradient(
+        135deg,
+        #22c55e,
+        #16a34a
+    );
+
+    transition: .3s;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+
+.submit-btn:hover {
+
+    transform: translateY(-3px);
+
+}
+
+
+.submit-btn:disabled {
+
+    opacity: .7;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+}
+
+
+
+/* ==========================================
+   14. Loading State
+========================================== */
+
+.loading-spinner {
+
+    width: 18px;
+
+    height: 18px;
+
+    border-radius: 50%;
+
+    border: 3px solid rgba(255, 255, 255, .35);
+
+    border-top-color: #ffffff;
+
+    animation: spin .8s linear infinite;
+
+}
+
+
+@keyframes spin {
+
+    from {
+
+        transform: rotate(0deg);
+
+    }
+
+    to {
+
+        transform: rotate(360deg);
+
+    }
+
+}
+
+
+.btn-loading {
+
+    pointer-events: none;
+
+    opacity: .75;
+
+}
+
+
+
+/* ==========================================
+   15. Notification Modal
+========================================== */
+
+.notification-modal {
+
+    display: none;
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 3000;
+
+    background: rgba(2, 6, 23, .75);
+
+    backdrop-filter: blur(10px);
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 20px;
+
+}
+
+
+.notification-modal.show {
+
+    display: flex;
+
+    animation: fadeIn .3s ease;
+
+}
+
+
+.notification-card {
+
+    width: 100%;
+
+    max-width: 420px;
+
+    position: relative;
+
+    padding: 35px 30px;
+
+    border-radius: 26px;
+
+    text-align: center;
+
+    background: rgba(15, 23, 42, .95);
+
+    border: 1px solid rgba(255, 255, 255, .1);
+
+    backdrop-filter: blur(20px);
+
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, .45);
+
+    animation: scaleIn .3s ease;
+
+}
+
+
+.notification-card.success {
+
+    border-color: rgba(34, 197, 94, .5);
+
+}
+
+
+.notification-card.error {
+
+    border-color: rgba(239, 68, 68, .5);
+
+}
+
+
+.notification-close {
+
+    position: absolute;
+
+    top: 15px;
+
+    right: 18px;
+
+    background: none;
+
+    border: none;
+
+    color: #ffffff;
+
+    font-size: 28px;
+
+    cursor: pointer;
+
+}
+
+
+.notification-icon {
+
+    width: 65px;
+
+    height: 65px;
+
+    margin: 0 auto 18px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    font-size: 32px;
+
+}
+
+
+.notification-card.success .notification-icon {
+
+    background: rgba(34, 197, 94, .15);
+
+    color: #22c55e;
+
+}
+
+
+.notification-card.error .notification-icon {
+
+    background: rgba(239, 68, 68, .15);
+
+    color: #ef4444;
+
+}
+
+
+.notification-card h3 {
+
+    font-size: 24px;
+
+    margin-bottom: 12px;
+
+}
+
+
+.notification-card p {
+
+    color: #cbd5e1;
+
+    font-size: 15px;
+
+    margin-bottom: 25px;
+
+}
+
+
+.notification-button {
+
+    width: 100%;
+
+    padding: 14px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    background: linear-gradient(
+        135deg,
+        #22c55e,
+        #3b82f6
+    );
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .3s;
+
+}
+
+
+.notification-button:hover {
+
+    transform: translateY(-2px);
+
+}
+
+
+
+/* ==========================================
+   16. Forgot Password Modal
+========================================== */
+
+.modal {
+
+    display: none;
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 2000;
+
+    background: rgba(2, 6, 23, .75);
+
+    backdrop-filter: blur(10px);
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 20px;
+
+}
+
+
+.modal.show {
+
+    display: flex;
+
+    animation: fadeIn .3s ease;
+
+}
+
+
+.modal-card {
+
+    width: 100%;
+
+    max-width: 420px;
+
+    padding: 30px;
+
+    border-radius: 24px;
+
+    background: #0f172a;
+
+    border: 1px solid rgba(255, 255, 255, .08);
+
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, .45);
+
+    animation: scaleIn .3s ease;
+
+}
+
+
+.modal-card h2 {
+
+    margin-bottom: 10px;
+
+}
+
+
+.modal-card p {
+
+    color: #cbd5e1;
+
+    margin-bottom: 20px;
+
+}
+
+
+.close {
+
+    float: right;
+
+    background: none;
+
+    border: none;
+
+    color: #ffffff;
+
+    font-size: 30px;
+
+    cursor: pointer;
+
+    line-height: 1;
+
+}
+
+
+.close:hover {
+
+    color: #22c55e;
+
+}
+
+
+
+/* ==========================================
+   17. Footer
+========================================== */
+
+footer {
+
+    padding: 30px;
+
+    text-align: center;
+
+    color: #94a3b8;
+
+    border-top: 1px solid rgba(255, 255, 255, .08);
+
+}
+
+
+
+/* ==========================================
+   18. Animations
+========================================== */
+
+@keyframes fadeIn {
+
+    from {
+
+        opacity: 0;
+
+    }
+
+    to {
+
+        opacity: 1;
+
+    }
+
+}
+
+
+@keyframes scaleIn {
+
+    from {
+
+        transform: scale(.85);
+
+        opacity: 0;
+
+    }
+
+    to {
+
+        transform: scale(1);
+
+        opacity: 1;
+
+    }
+
+}
+
+
+
+/* ==========================================
+   19. Tablet
+========================================== */
+
+@media (min-width: 768px) {
+
+
+    .auth-page {
+
+        width: 85%;
+
+    }
+
+
+    .hero-content h1 {
+
+        font-size: 52px;
+
+    }
+
+
+}
+
+
+
+/* ==========================================
+   20. Desktop
+========================================== */
+
+@media (min-width: 1024px) {
+
+
+    .auth-page {
+
+        max-width: 1200px;
+
+        display: grid;
+
+        grid-template-columns: 1fr 460px;
+
+        gap: 60px;
+
+        align-items: center;
+
+    }
+
+
+    .hero-content {
+
+        text-align: left;
+
+    }
+
+
+    .hero-content h1 {
+
+        font-size: 64px;
+
+    }
+
+
+}
+
+
+
+/* ==========================================
+   21. Small Mobile
+========================================== */
+
+@media (max-width: 400px) {
+
+
+    .logo {
+
+        font-size: 22px;
+
+    }
+
+
+    .hero-content h1 {
+
+        font-size: 34px;
+
+    }
+
+
+    .auth-card {
+
+        padding: 22px;
+
+    }
+
+
+    .password-toggle {
+
+        right: 12px;
+
+    }
+
+
+    .password-container input {
+
+        padding-right: 50px;
+
+    }
+
+
+}

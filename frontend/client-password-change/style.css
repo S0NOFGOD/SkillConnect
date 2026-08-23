@@ -1,0 +1,1619 @@
+/* =========================================================
+   SKILLCONNECT CLIENT PASSWORD CHANGE STYLESHEET
+
+   PURPOSE:
+   This stylesheet controls the Client Password Change page.
+
+   DESIGN:
+   - Premium modern dark interface
+   - Client blue accent
+   - Responsive layout
+   - Password visibility buttons
+   - Loading button state
+   - Authentication message modal
+
+   IMPORTANT:
+   The class names and IDs below match index.html exactly.
+========================================================= */
+
+
+/* =========================================================
+   1. ROOT VARIABLES
+========================================================= */
+
+:root {
+
+    /* Main page background */
+    --bg-primary: #0f172a;
+
+    /* Secondary dark surface */
+    --bg-secondary: #111827;
+
+    /* Card background */
+    --card-bg: rgba(15, 23, 42, 0.88);
+
+    /* Input background */
+    --input-bg: rgba(30, 41, 59, 0.75);
+
+    /* Border color */
+    --border-color: rgba(148, 163, 184, 0.18);
+
+    /* Main text */
+    --text-primary: #f8fafc;
+
+    /* Secondary text */
+    --text-secondary: #94a3b8;
+
+    /* Muted text */
+    --text-muted: #64748b;
+
+    /* Client blue */
+    --client-blue: #3b82f6;
+
+    /* Lighter client blue */
+    --client-blue-light: #60a5fa;
+
+    /* Dark blue */
+    --client-blue-dark: #2563eb;
+
+    /* Success color */
+    --success: #22c55e;
+
+    /* Error color */
+    --error: #ef4444;
+
+    /* Warning color */
+    --warning: #f59e0b;
+
+    /* Shadow */
+    --card-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.45);
+
+    /* Large border radius */
+    --radius-large: 24px;
+
+    /* Medium border radius */
+    --radius-medium: 14px;
+
+    /* Small border radius */
+    --radius-small: 10px;
+
+}
+
+
+/* =========================================================
+   2. GLOBAL RESET
+========================================================= */
+
+* {
+
+    margin: 0;
+
+    padding: 0;
+
+    box-sizing: border-box;
+
+}
+
+
+/* =========================================================
+   3. HTML AND BODY
+========================================================= */
+
+html {
+
+    scroll-behavior: smooth;
+
+}
+
+
+body {
+
+    min-height: 100vh;
+
+    font-family:
+        "Inter",
+        Arial,
+        sans-serif;
+
+    color: var(--text-primary);
+
+    background:
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(59, 130, 246, 0.14),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 85% 80%,
+            rgba(37, 99, 235, 0.12),
+            transparent 35%
+        ),
+        var(--bg-primary);
+
+    -webkit-font-smoothing: antialiased;
+
+}
+
+
+/* =========================================================
+   4. LINKS
+========================================================= */
+
+a {
+
+    color: inherit;
+
+    text-decoration: none;
+
+}
+
+
+/* =========================================================
+   5. FIXED NAVIGATION
+========================================================= */
+
+header {
+
+    position: fixed;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    z-index: 100;
+
+    padding: 18px 24px;
+
+    background:
+        rgba(15, 23, 42, 0.78);
+
+    border-bottom:
+        1px solid
+        rgba(148, 163, 184, 0.08);
+
+    backdrop-filter: blur(18px);
+
+    -webkit-backdrop-filter: blur(18px);
+
+}
+
+
+/* =========================================================
+   6. NAVBAR CONTAINER
+========================================================= */
+
+.navbar {
+
+    width: 100%;
+
+    max-width: 1180px;
+
+    margin: 0 auto;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+}
+
+
+/* =========================================================
+   7. SKILLCONNECT LOGO
+========================================================= */
+
+.logo {
+
+    font-size: 1.25rem;
+
+    font-weight: 800;
+
+    letter-spacing: -0.5px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #60a5fa,
+            #3b82f6,
+            #2563eb
+        );
+
+    -webkit-background-clip: text;
+
+    background-clip: text;
+
+    color: transparent;
+
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+
+}
+
+
+.logo:hover {
+
+    opacity: 0.85;
+
+    transform: translateY(-1px);
+
+}
+
+
+/* =========================================================
+   8. NAVIGATION LINKS
+========================================================= */
+
+.nav-links {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 24px;
+
+}
+
+
+.nav-links a {
+
+    position: relative;
+
+    color: var(--text-secondary);
+
+    font-size: 0.9rem;
+
+    font-weight: 500;
+
+    transition:
+        color 0.2s ease;
+
+}
+
+
+.nav-links a:hover {
+
+    color: var(--text-primary);
+
+}
+
+
+/* =========================================================
+   9. NAVIGATION LINK UNDERLINE
+========================================================= */
+
+.nav-links a::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+
+    bottom: -6px;
+
+    width: 0;
+
+    height: 2px;
+
+    border-radius: 10px;
+
+    background: var(--client-blue);
+
+    transition:
+        width 0.2s ease;
+
+}
+
+
+.nav-links a:hover::after {
+
+    width: 100%;
+
+}
+
+
+/* =========================================================
+   10. PASSWORD PAGE
+========================================================= */
+
+.password-page {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding:
+        120px
+        20px
+        60px;
+
+}
+
+
+/* =========================================================
+   11. PASSWORD SECTION
+========================================================= */
+
+.password-section {
+
+    width: 100%;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+}
+
+
+/* =========================================================
+   12. PASSWORD CARD
+========================================================= */
+
+.password-card {
+
+    position: relative;
+
+    width: 100%;
+
+    max-width: 470px;
+
+    padding: 38px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(30, 41, 59, 0.82),
+            rgba(15, 23, 42, 0.92)
+        );
+
+    border:
+        1px solid
+        var(--border-color);
+
+    border-radius:
+        var(--radius-large);
+
+    box-shadow:
+        var(--card-shadow);
+
+    backdrop-filter: blur(20px);
+
+    -webkit-backdrop-filter: blur(20px);
+
+}
+
+
+/* =========================================================
+   13. CARD TOP BLUE GLOW
+========================================================= */
+
+.password-card::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: -1px;
+
+    left: 12%;
+
+    width: 76%;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(59, 130, 246, 0.8),
+            transparent
+        );
+
+    pointer-events: none;
+
+}
+
+
+/* =========================================================
+   14. PASSWORD HEADER
+========================================================= */
+
+.password-header {
+
+    text-align: center;
+
+    margin-bottom: 32px;
+
+}
+
+
+/* =========================================================
+   15. PASSWORD BADGE
+========================================================= */
+
+.password-badge {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding:
+        7px
+        13px;
+
+    margin-bottom: 16px;
+
+    border:
+        1px solid
+        rgba(59, 130, 246, 0.25);
+
+    border-radius: 999px;
+
+    background:
+        rgba(59, 130, 246, 0.1);
+
+    color: var(--client-blue-light);
+
+    font-size: 0.72rem;
+
+    font-weight: 700;
+
+    letter-spacing: 0.6px;
+
+    text-transform: uppercase;
+
+}
+
+
+/* =========================================================
+   16. MAIN HEADING
+========================================================= */
+
+.password-header h1 {
+
+    margin-bottom: 12px;
+
+    color: var(--text-primary);
+
+    font-size: 2rem;
+
+    line-height: 1.2;
+
+    font-weight: 800;
+
+    letter-spacing: -0.8px;
+
+}
+
+
+/* =========================================================
+   17. HEADER DESCRIPTION
+========================================================= */
+
+.password-header p {
+
+    max-width: 370px;
+
+    margin: 0 auto;
+
+    color: var(--text-secondary);
+
+    font-size: 0.9rem;
+
+    line-height: 1.7;
+
+}
+
+
+/* =========================================================
+   18. INPUT GROUP
+========================================================= */
+
+.input-group {
+
+    margin-bottom: 20px;
+
+}
+
+
+/* =========================================================
+   19. INPUT LABEL
+========================================================= */
+
+.input-group label {
+
+    display: block;
+
+    margin-bottom: 9px;
+
+    color: #e2e8f0;
+
+    font-size: 0.84rem;
+
+    font-weight: 600;
+
+}
+
+
+/* =========================================================
+   20. PASSWORD BOX
+========================================================= */
+
+.password-box {
+
+    position: relative;
+
+    width: 100%;
+
+}
+
+
+/* =========================================================
+   21. PASSWORD INPUT
+========================================================= */
+
+.password-box input {
+
+    width: 100%;
+
+    height: 54px;
+
+    padding:
+        0
+        52px
+        0
+        16px;
+
+    border:
+        1px solid
+        rgba(148, 163, 184, 0.18);
+
+    border-radius:
+        var(--radius-medium);
+
+    outline: none;
+
+    background:
+        var(--input-bg);
+
+    color:
+        var(--text-primary);
+
+    font-family:
+        "Inter",
+        Arial,
+        sans-serif;
+
+    font-size: 0.9rem;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+
+}
+
+
+/* =========================================================
+   22. PASSWORD INPUT PLACEHOLDER
+========================================================= */
+
+.password-box input::placeholder {
+
+    color: var(--text-muted);
+
+}
+
+
+/* =========================================================
+   23. PASSWORD INPUT FOCUS
+========================================================= */
+
+.password-box input:focus {
+
+    border-color:
+        rgba(59, 130, 246, 0.75);
+
+    background:
+        rgba(30, 41, 59, 0.95);
+
+    box-shadow:
+        0 0 0 4px
+        rgba(59, 130, 246, 0.1);
+
+}
+
+
+/* =========================================================
+   24. PASSWORD VISIBILITY TOGGLE
+========================================================= */
+
+.toggle {
+
+    position: absolute;
+
+    top: 50%;
+
+    right: 7px;
+
+    width: 40px;
+
+    height: 40px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    transform: translateY(-50%);
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: transparent;
+
+    color: var(--text-secondary);
+
+    font-size: 1rem;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+
+}
+
+
+/* =========================================================
+   25. TOGGLE HOVER
+========================================================= */
+
+.toggle:hover {
+
+    background:
+        rgba(59, 130, 246, 0.1);
+
+    color:
+        var(--client-blue-light);
+
+}
+
+
+/* =========================================================
+   26. SECURITY INFORMATION
+========================================================= */
+
+.security-note {
+
+    margin:
+        4px
+        0
+        24px;
+
+    padding:
+        12px
+        14px;
+
+    border:
+        1px solid
+        rgba(59, 130, 246, 0.12);
+
+    border-radius:
+        var(--radius-small);
+
+    background:
+        rgba(59, 130, 246, 0.06);
+
+    color:
+        #94a3b8;
+
+    font-size:
+        0.76rem;
+
+    line-height:
+        1.55;
+
+}
+
+
+/* =========================================================
+   27. SUBMIT BUTTON
+========================================================= */
+
+.submit-btn {
+
+    width: 100%;
+
+    min-height: 54px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: none;
+
+    border-radius:
+        var(--radius-medium);
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--client-blue),
+            var(--client-blue-dark)
+        );
+
+    color: white;
+
+    font-family:
+        "Inter",
+        Arial,
+        sans-serif;
+
+    font-size:
+        0.9rem;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    box-shadow:
+        0 10px 25px
+        rgba(37, 99, 235, 0.22);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+
+}
+
+
+/* =========================================================
+   28. SUBMIT BUTTON HOVER
+========================================================= */
+
+.submit-btn:hover {
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 14px 30px
+        rgba(37, 99, 235, 0.3);
+
+}
+
+
+/* =========================================================
+   29. SUBMIT BUTTON ACTIVE
+========================================================= */
+
+.submit-btn:active {
+
+    transform:
+        translateY(0);
+
+}
+
+
+/* =========================================================
+   30. DISABLED SUBMIT BUTTON
+========================================================= */
+
+.submit-btn:disabled {
+
+    opacity:
+        0.7;
+
+    cursor:
+        not-allowed;
+
+    transform:
+        none;
+
+    box-shadow:
+        none;
+
+}
+
+
+/* =========================================================
+   31. BUTTON LOADING STATE
+========================================================= */
+
+.button-loader {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 9px;
+
+}
+
+
+/* =========================================================
+   31.1 HIDE LOADING STATE WHEN NOT ACTIVE
+========================================================= */
+
+.button-loader[hidden] {
+
+    display: none;
+
+}
+
+
+/* =========================================================
+   32. LOADING SPINNER
+========================================================= */
+
+.loading-spinner {
+
+    width: 17px;
+
+    height: 17px;
+
+    border:
+        2px solid
+        rgba(255, 255, 255, 0.35);
+
+    border-top-color:
+        white;
+
+    border-radius:
+        50%;
+
+    animation:
+        spin 0.8s linear infinite;
+
+}
+
+
+/* =========================================================
+   33. SPINNER ANIMATION
+========================================================= */
+
+@keyframes spin {
+
+    from {
+
+        transform:
+            rotate(0deg);
+
+    }
+
+    to {
+
+        transform:
+            rotate(360deg);
+
+    }
+
+}
+
+
+/* =========================================================
+   34. LOGIN LINK
+========================================================= */
+
+.login-link {
+
+    margin-top:
+        24px;
+
+    text-align:
+        center;
+
+    color:
+        var(--text-secondary);
+
+    font-size:
+        0.82rem;
+
+    line-height:
+        1.6;
+
+}
+
+
+/* =========================================================
+   35. BACK TO LOGIN LINK
+========================================================= */
+
+.login-link a {
+
+    margin-left:
+        4px;
+
+    color:
+        var(--client-blue-light);
+
+    font-weight:
+        600;
+
+    transition:
+        color 0.2s ease;
+
+}
+
+
+/* =========================================================
+   36. LOGIN LINK HOVER
+========================================================= */
+
+.login-link a:hover {
+
+    color:
+        #93c5fd;
+
+    text-decoration:
+        underline;
+
+}
+
+
+/* =========================================================
+   37. MESSAGE MODAL
+========================================================= */
+
+.message-modal {
+
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    z-index:
+        1000;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    padding:
+        20px;
+
+    visibility:
+        hidden;
+
+    opacity:
+        0;
+
+    pointer-events:
+        none;
+
+    transition:
+        opacity 0.2s ease,
+        visibility 0.2s ease;
+
+}
+
+
+/* =========================================================
+   38. ACTIVE MESSAGE MODAL
+========================================================= */
+
+.message-modal.show {
+
+    visibility:
+        visible;
+
+    opacity:
+        1;
+
+    pointer-events:
+        auto;
+
+}
+
+
+/* =========================================================
+   39. MODAL OVERLAY
+========================================================= */
+
+.message-modal-overlay {
+
+    position:
+        absolute;
+
+    inset:
+        0;
+
+    background:
+        rgba(2, 6, 23, 0.78);
+
+    backdrop-filter:
+        blur(8px);
+
+    -webkit-backdrop-filter:
+        blur(8px);
+
+}
+
+
+/* =========================================================
+   40. MODAL CONTENT
+========================================================= */
+
+.message-modal-content {
+
+    position:
+        relative;
+
+    width:
+        100%;
+
+    max-width:
+        410px;
+
+    padding:
+        34px
+        28px
+        30px;
+
+    text-align:
+        center;
+
+    border:
+        1px solid
+        rgba(148, 163, 184, 0.16);
+
+    border-radius:
+        20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(30, 41, 59, 0.98),
+            rgba(15, 23, 42, 0.98)
+        );
+
+    box-shadow:
+        0 25px 80px
+        rgba(0, 0, 0, 0.55);
+
+    transform:
+        translateY(12px)
+        scale(0.98);
+
+    transition:
+        transform 0.2s ease;
+
+}
+
+
+/* =========================================================
+   41. MODAL ACTIVE ANIMATION
+========================================================= */
+
+.message-modal.show
+.message-modal-content {
+
+    transform:
+        translateY(0)
+        scale(1);
+
+}
+
+
+/* =========================================================
+   42. MODAL CLOSE BUTTON
+========================================================= */
+
+.modal-close {
+
+    position:
+        absolute;
+
+    top:
+        12px;
+
+    right:
+        12px;
+
+    width:
+        36px;
+
+    height:
+        36px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        none;
+
+    border-radius:
+        10px;
+
+    background:
+        rgba(148, 163, 184, 0.08);
+
+    color:
+        var(--text-secondary);
+
+    font-size:
+        1.4rem;
+
+    line-height:
+        1;
+
+    cursor:
+        pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+
+}
+
+
+/* =========================================================
+   43. MODAL CLOSE HOVER
+========================================================= */
+
+.modal-close:hover {
+
+    background:
+        rgba(239, 68, 68, 0.12);
+
+    color:
+        #fca5a5;
+
+}
+
+
+/* =========================================================
+   44. MODAL ICON
+========================================================= */
+
+.modal-icon {
+
+    width:
+        56px;
+
+    height:
+        56px;
+
+    margin:
+        0 auto
+        18px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        1px solid
+        rgba(239, 68, 68, 0.25);
+
+    border-radius:
+        50%;
+
+    background:
+        rgba(239, 68, 68, 0.1);
+
+    color:
+        #f87171;
+
+    font-size:
+        1.35rem;
+
+    font-weight:
+        800;
+
+}
+
+
+/* =========================================================
+   45. SUCCESS MODAL ICON
+========================================================= */
+
+.message-modal.success
+.modal-icon {
+
+    border-color:
+        rgba(34, 197, 94, 0.25);
+
+    background:
+        rgba(34, 197, 94, 0.1);
+
+    color:
+        #4ade80;
+
+}
+
+
+/* =========================================================
+   46. WARNING MODAL ICON
+========================================================= */
+
+.message-modal.warning
+.modal-icon {
+
+    border-color:
+        rgba(245, 158, 11, 0.25);
+
+    background:
+        rgba(245, 158, 11, 0.1);
+
+    color:
+        #fbbf24;
+
+}
+
+
+/* =========================================================
+   47. MODAL TITLE
+========================================================= */
+
+.message-modal-content h2 {
+
+    margin-bottom:
+        10px;
+
+    color:
+        var(--text-primary);
+
+    font-size:
+        1.3rem;
+
+    font-weight:
+        700;
+
+    letter-spacing:
+        -0.3px;
+
+}
+
+
+/* =========================================================
+   48. MODAL MESSAGE
+========================================================= */
+
+.message-modal-content p {
+
+    color:
+        var(--text-secondary);
+
+    font-size:
+        0.87rem;
+
+    line-height:
+        1.65;
+
+}
+
+
+/* =========================================================
+   49. INPUT INVALID STATE
+========================================================= */
+
+.password-box input.input-error {
+
+    border-color:
+        rgba(239, 68, 68, 0.75);
+
+    box-shadow:
+        0 0 0 4px
+        rgba(239, 68, 68, 0.08);
+
+}
+
+
+/* =========================================================
+   50. INPUT VALID STATE
+========================================================= */
+
+.password-box input.input-success {
+
+    border-color:
+        rgba(34, 197, 94, 0.55);
+
+}
+
+
+/* =========================================================
+   51. TABLET RESPONSIVENESS
+========================================================= */
+
+@media (max-width: 768px) {
+
+    header {
+
+        padding:
+            16px
+            18px;
+
+    }
+
+
+    .password-page {
+
+        padding:
+            105px
+            18px
+            45px;
+
+    }
+
+
+    .password-card {
+
+        max-width:
+            450px;
+
+        padding:
+            32px
+            26px;
+
+    }
+
+
+    .password-header h1 {
+
+        font-size:
+            1.8rem;
+
+    }
+
+}
+
+
+/* =========================================================
+   52. MOBILE RESPONSIVENESS
+========================================================= */
+
+@media (max-width: 480px) {
+
+    header {
+
+        padding:
+            15px
+            16px;
+
+    }
+
+
+    .logo {
+
+        font-size:
+            1.12rem;
+
+    }
+
+
+    .nav-links {
+
+        gap:
+            12px;
+
+    }
+
+
+    .nav-links a {
+
+        font-size:
+            0.78rem;
+
+    }
+
+
+    .password-page {
+
+        padding:
+            95px
+            14px
+            35px;
+
+    }
+
+
+    .password-card {
+
+        padding:
+            28px
+            18px;
+
+        border-radius:
+            20px;
+
+    }
+
+
+    .password-header {
+
+        margin-bottom:
+            27px;
+
+    }
+
+
+    .password-header h1 {
+
+        font-size:
+            1.55rem;
+
+    }
+
+
+    .password-header p {
+
+        font-size:
+            0.82rem;
+
+    }
+
+
+    .password-badge {
+
+        font-size:
+            0.65rem;
+
+    }
+
+
+    .password-box input {
+
+        height:
+            52px;
+
+        font-size:
+            0.84rem;
+
+    }
+
+
+    .submit-btn {
+
+        min-height:
+            52px;
+
+    }
+
+
+    .message-modal-content {
+
+        max-width:
+            360px;
+
+        padding:
+            32px
+            22px
+            26px;
+
+    }
+
+}
+
+
+/* =========================================================
+   53. VERY SMALL SCREENS
+========================================================= */
+
+@media (max-width: 350px) {
+
+    .password-card {
+
+        padding:
+            24px
+            15px;
+
+    }
+
+
+    .password-header h1 {
+
+        font-size:
+            1.4rem;
+
+    }
+
+
+    .password-header p {
+
+        font-size:
+            0.78rem;
+
+    }
+
+
+    .login-link {
+
+        font-size:
+            0.76rem;
+
+    }
+
+}
+
+
+/* =========================================================
+   54. ACCESSIBILITY
+========================================================= */
+
+/* Visible keyboard focus for interactive elements */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+
+    outline:
+        2px solid
+        var(--client-blue-light);
+
+    outline-offset:
+        3px;
+
+}
+
+
+/* =========================================================
+   55. REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+
+        scroll-behavior:
+            auto !important;
+
+        animation-duration:
+            0.01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
+        transition-duration:
+            0.01ms !important;
+
+    }
+
+}
+
+
+/* =========================================================
+   END OF CLIENT PASSWORD CHANGE STYLESHEET
+========================================================= */

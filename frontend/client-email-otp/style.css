@@ -1,0 +1,1216 @@
+/* =========================================================
+   SKILLCONNECT CLIENT EMAIL OTP STYLES
+
+   This file controls the visual appearance of:
+
+   1. Navigation
+   2. Client email verification page
+   3. OTP inputs
+   4. Verify button
+   5. Loading state
+   6. Resend OTP
+   7. Countdown
+   8. Success / Error modal
+   9. Responsive layouts
+
+   IMPORTANT:
+
+   The JavaScript controls authentication logic.
+   This CSS only controls presentation.
+
+   CLIENT THEME:
+
+   Primary Blue:
+   #3b82f6
+
+   Dark Blue:
+   #2563eb
+
+   Worker Green:
+   #22c55e
+
+   The SkillConnect logo uses exactly:
+   50% Green + 50% Blue.
+========================================================= */
+
+
+/* =========================================================
+   1. GLOBAL RESET
+========================================================= */
+
+* {
+
+    margin: 0;
+
+    padding: 0;
+
+    box-sizing: border-box;
+
+}
+
+
+/* =========================================================
+   HTML
+========================================================= */
+
+html {
+
+    scroll-behavior: smooth;
+
+}
+
+
+/* =========================================================
+   BODY
+========================================================= */
+
+body {
+
+    font-family: "Inter", sans-serif;
+
+    background: #020617;
+
+    color: #ffffff;
+
+    line-height: 1.6;
+
+    overflow-x: hidden;
+
+    min-height: 100vh;
+
+}
+
+
+/* =========================================================
+   LINKS
+========================================================= */
+
+a {
+
+    text-decoration: none;
+
+    color: inherit;
+
+}
+
+
+/* =========================================================
+   2. FIXED NAVBAR
+========================================================= */
+
+header {
+
+    position: fixed;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    z-index: 1000;
+
+    background:
+        rgba(2, 6, 23, .85);
+
+    backdrop-filter:
+        blur(15px);
+
+    border-bottom:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+}
+
+
+/* =========================================================
+   NAVBAR CONTAINER
+========================================================= */
+
+.navbar {
+
+    width: 90%;
+
+    max-width: 1200px;
+
+    height: 70px;
+
+    margin: auto;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+}
+
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+/*
+   IMPORTANT:
+
+   The SkillConnect logo uses an exact
+   50% green and 50% blue gradient.
+
+   Green:
+   #22c55e
+
+   Blue:
+   #3b82f6
+
+   The gradient starts with green and
+   transitions directly into blue.
+*/
+
+.logo {
+
+    font-size: 24px;
+
+    font-weight: 800;
+
+    letter-spacing: -1px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #3b82f6
+        );
+
+    -webkit-background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+
+}
+
+/* =========================================================
+   NAVIGATION LINKS
+========================================================= */
+
+.nav-links {
+
+    display: flex;
+
+    gap: 30px;
+
+}
+
+
+.nav-links a {
+
+    color: #cbd5e1;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    transition: .3s;
+
+}
+
+
+/* =========================================================
+   NAVIGATION LINK HOVER
+========================================================= */
+
+.nav-links a:hover {
+
+    color: #3b82f6;
+
+}
+
+
+/* =========================================================
+   3. MAIN OTP PAGE
+========================================================= */
+
+.otp-page {
+
+    width: 90%;
+
+    max-width: 1200px;
+
+    min-height:
+        calc(100vh - 70px);
+
+    margin: auto;
+
+    padding-top: 110px;
+
+    padding-bottom: 70px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    position: relative;
+
+}
+
+
+/* =========================================================
+   BACKGROUND BLUE GLOW
+========================================================= */
+
+/*
+   Unlike the worker OTP page, the client page
+   uses a blue glow.
+
+   This keeps the client authentication pages
+   visually connected to the client theme.
+*/
+
+.otp-page::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 360px;
+
+    height: 360px;
+
+    background: #3b82f6;
+
+    filter: blur(170px);
+
+    opacity: .18;
+
+    top: 100px;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    pointer-events: none;
+
+}
+
+
+/* =========================================================
+   4. OTP SECTION
+========================================================= */
+
+.otp-section {
+
+    width: 100%;
+
+    display: flex;
+
+    justify-content: center;
+
+    position: relative;
+
+    z-index: 2;
+
+}
+
+
+/* =========================================================
+   5. OTP CARD
+========================================================= */
+
+.otp-card {
+
+    width: 100%;
+
+    max-width: 460px;
+
+    padding: 35px;
+
+    border-radius: 24px;
+
+    background:
+        rgba(255, 255, 255, .05);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+    backdrop-filter:
+        blur(15px);
+
+    box-shadow:
+        0 25px 70px
+        rgba(0, 0, 0, .45);
+
+}
+
+
+/* =========================================================
+   6. OTP HEADER
+========================================================= */
+
+.otp-header {
+
+    text-align: center;
+
+    margin-bottom: 30px;
+
+}
+
+
+/* =========================================================
+   OTP BADGE
+========================================================= */
+
+/*
+   Client pages use blue as their
+   primary authentication color.
+*/
+
+.otp-badge {
+
+    display: inline-block;
+
+    padding: 8px 18px;
+
+    margin-bottom: 18px;
+
+    border-radius: 30px;
+
+    color: #3b82f6;
+
+    background:
+        rgba(59, 130, 246, .15);
+
+    border:
+        1px solid
+        rgba(59, 130, 246, .30);
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+}
+
+
+/* =========================================================
+   OTP HEADING
+========================================================= */
+
+.otp-header h1 {
+
+    font-size: 32px;
+
+    font-weight: 800;
+
+    margin-bottom: 10px;
+
+}
+
+
+.otp-header p {
+
+    color: #cbd5e1;
+
+    font-size: 15px;
+
+}
+
+
+/* =========================================================
+   CLIENT EMAIL
+========================================================= */
+
+.client-email {
+
+    margin-top: 8px;
+
+    color: #ffffff !important;
+
+    font-size: 15px !important;
+
+    font-weight: 700;
+
+    word-break: break-word;
+
+}
+
+
+/* =========================================================
+   7. OTP FORM
+========================================================= */
+
+#otpForm {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 14px;
+
+}
+
+
+/* =========================================================
+   8. OTP INPUT CONTAINER
+========================================================= */
+
+.otp-box {
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    margin:
+        15px 0 25px;
+
+}
+
+
+/* =========================================================
+   OTP INPUT
+========================================================= */
+
+.otp-input {
+
+    width: 55px;
+
+    height: 60px;
+
+    padding: 0;
+
+    border:
+        1px solid
+        transparent;
+
+    border-radius: 14px;
+
+    background: #111827;
+
+    color: #ffffff;
+
+    font-size: 24px;
+
+    font-weight: 700;
+
+    text-align: center;
+
+    outline: none;
+
+    transition: .3s;
+
+}
+
+
+/* =========================================================
+   OTP INPUT FOCUS
+========================================================= */
+
+.otp-input:focus {
+
+    border:
+        1px solid
+        #3b82f6;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(59, 130, 246, .15);
+
+}
+
+
+/* =========================================================
+   OTP INPUT WITH VALUE
+========================================================= */
+
+.otp-input:not(:placeholder-shown) {
+
+    border-color:
+        rgba(59, 130, 246, .35);
+
+}
+
+
+/* =========================================================
+   INVALID OTP INPUT
+========================================================= */
+
+.otp-input.invalid {
+
+    border-color:
+        #ef4444;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(239, 68, 68, .12);
+
+}
+
+
+/* =========================================================
+   9. SUBMIT BUTTON
+========================================================= */
+
+.submit-btn {
+
+    width: 100%;
+
+    border: none;
+
+    border-radius: 14px;
+
+    padding: 15px;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    color: #ffffff;
+
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+
+    transition: .3s;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+
+/* =========================================================
+   SUBMIT BUTTON HOVER
+========================================================= */
+
+.submit-btn:hover {
+
+    transform:
+        translateY(-3px);
+
+    box-shadow:
+        0 10px 30px
+        rgba(59, 130, 246, .20);
+
+}
+
+
+/* =========================================================
+   SUBMIT BUTTON DISABLED
+========================================================= */
+
+.submit-btn:disabled {
+
+    opacity: .7;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+}
+
+
+/* =========================================================
+   10. LOADING SPINNER
+========================================================= */
+
+.loading-spinner {
+
+    width: 18px;
+
+    height: 18px;
+
+    border-radius: 50%;
+
+    border:
+        3px solid
+        rgba(255, 255, 255, .35);
+
+    border-top-color:
+        #ffffff;
+
+    animation:
+        spin .8s linear infinite;
+
+}
+
+
+/* =========================================================
+   BUTTON LOADING STATE
+
+   JavaScript can add the class:
+
+   .loading
+
+   while verifying or resending OTP.
+========================================================= */
+
+.submit-btn.loading {
+
+    pointer-events: none;
+
+    opacity: .75;
+
+}
+
+
+/* =========================================================
+   11. RESEND OTP
+========================================================= */
+
+.resend {
+
+    text-align: center;
+
+    margin-top: 25px;
+
+    color: #cbd5e1;
+
+    font-size: 14px;
+
+}
+
+
+.resend a {
+
+    color: #3b82f6;
+
+    font-weight: 600;
+
+    transition: .3s;
+
+}
+
+
+.resend a:hover {
+
+    color: #60a5fa;
+
+}
+
+
+/* =========================================================
+   DISABLED RESEND LINK
+
+   JavaScript uses this while the 60-second
+   resend countdown is running.
+========================================================= */
+
+.resend a.disabled {
+
+    pointer-events: none;
+
+    opacity: .5;
+
+    cursor: not-allowed;
+
+}
+
+
+/* =========================================================
+   12. COUNTDOWN
+========================================================= */
+
+.countdown {
+
+    margin-top: 10px;
+
+    text-align: center;
+
+    color: #94a3b8;
+
+    font-size: 13px;
+
+}
+
+
+/* =========================================================
+   13. NOTIFICATION MODAL
+========================================================= */
+
+.notification-modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 2000;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 20px;
+
+    background:
+        rgba(2, 6, 23, .78);
+
+    backdrop-filter:
+        blur(10px);
+
+    animation:
+        fadeIn .25s ease;
+
+}
+
+
+/* =========================================================
+   HIDDEN MODAL
+========================================================= */
+
+.notification-modal[hidden] {
+
+    display: none;
+
+}
+
+
+/* =========================================================
+   14. NOTIFICATION CARD
+========================================================= */
+
+.notification-card {
+
+    width: 100%;
+
+    max-width: 390px;
+
+    padding: 35px 30px;
+
+    text-align: center;
+
+    border-radius: 22px;
+
+    background:
+        rgba(15, 23, 42, .96);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .10);
+
+    box-shadow:
+        0 25px 80px
+        rgba(0, 0, 0, .55);
+
+    animation:
+        scaleIn .25s ease;
+
+}
+
+
+/* =========================================================
+   15. NOTIFICATION ICON
+========================================================= */
+
+.notification-icon {
+
+    width: 64px;
+
+    height: 64px;
+
+    margin:
+        0 auto 20px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    border-radius: 50%;
+
+    color: #ffffff;
+
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+
+    font-size: 30px;
+
+    font-weight: 800;
+
+}
+
+
+/* =========================================================
+   SUCCESS MODAL ICON
+========================================================= */
+
+/*
+   Successful authentication uses the
+   client blue theme.
+*/
+
+.notification-icon.success {
+
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+
+}
+
+
+/* =========================================================
+   ERROR MODAL ICON
+========================================================= */
+
+.notification-icon.error {
+
+    background:
+        linear-gradient(
+            135deg,
+            #ef4444,
+            #dc2626
+        );
+
+}
+
+
+/* =========================================================
+   16. NOTIFICATION TITLE
+========================================================= */
+
+.notification-card h2 {
+
+    margin-bottom: 10px;
+
+    font-size: 24px;
+
+    font-weight: 800;
+
+}
+
+
+/* =========================================================
+   17. NOTIFICATION MESSAGE
+========================================================= */
+
+.notification-card p {
+
+    color: #cbd5e1;
+
+    font-size: 14px;
+
+    line-height: 1.7;
+
+}
+
+
+/* =========================================================
+   18. FOOTER
+========================================================= */
+
+footer {
+
+    padding: 30px;
+
+    text-align: center;
+
+    color: #94a3b8;
+
+    border-top:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+}
+
+
+/* =========================================================
+   19. ANIMATION — FADE IN
+========================================================= */
+
+@keyframes fadeIn {
+
+    from {
+
+        opacity: 0;
+
+    }
+
+    to {
+
+        opacity: 1;
+
+    }
+
+}
+
+
+/* =========================================================
+   20. ANIMATION — SCALE IN
+========================================================= */
+
+@keyframes scaleIn {
+
+    from {
+
+        transform:
+            scale(.85);
+
+        opacity: 0;
+
+    }
+
+    to {
+
+        transform:
+            scale(1);
+
+        opacity: 1;
+
+    }
+
+}
+
+
+/* =========================================================
+   21. ANIMATION — SPINNER
+========================================================= */
+
+@keyframes spin {
+
+    from {
+
+        transform:
+            rotate(0deg);
+
+    }
+
+    to {
+
+        transform:
+            rotate(360deg);
+
+    }
+
+}
+
+
+/* =========================================================
+   22. TABLET
+========================================================= */
+
+@media (min-width: 768px) {
+
+    .otp-page {
+
+        width: 85%;
+
+    }
+
+
+    .otp-card {
+
+        padding: 40px;
+
+    }
+
+
+    .otp-header h1 {
+
+        font-size: 38px;
+
+    }
+
+}
+
+
+/* =========================================================
+   23. DESKTOP
+========================================================= */
+
+@media (min-width: 1024px) {
+
+    .otp-page {
+
+        max-width: 1200px;
+
+    }
+
+
+    .otp-card {
+
+        max-width: 480px;
+
+    }
+
+}
+
+
+/* =========================================================
+   24. MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .navbar {
+
+        width: 90%;
+
+        height: 65px;
+
+    }
+
+
+    .logo {
+
+        font-size: 22px;
+
+    }
+
+
+    .nav-links {
+
+        gap: 15px;
+
+    }
+
+
+    .nav-links a {
+
+        font-size: 14px;
+
+    }
+
+
+    .otp-page {
+
+        width: 92%;
+
+        padding-top: 95px;
+
+        padding-bottom: 50px;
+
+    }
+
+
+    .otp-card {
+
+        padding: 25px 20px;
+
+        border-radius: 22px;
+
+    }
+
+
+    .otp-header h1 {
+
+        font-size: 28px;
+
+    }
+
+
+    .otp-header p {
+
+        font-size: 14px;
+
+    }
+
+
+    .client-email {
+
+        font-size: 14px !important;
+
+    }
+
+
+    .otp-box {
+
+        gap: 7px;
+
+    }
+
+
+    .otp-input {
+
+        width: 46px;
+
+        height: 54px;
+
+        font-size: 21px;
+
+        border-radius: 12px;
+
+    }
+
+
+    .notification-card {
+
+        padding: 30px 22px;
+
+    }
+
+}
+
+
+/* =========================================================
+   25. SMALL MOBILE
+========================================================= */
+
+@media (max-width: 400px) {
+
+    .otp-card {
+
+        padding: 22px 16px;
+
+    }
+
+
+    .otp-header h1 {
+
+        font-size: 25px;
+
+    }
+
+
+    .otp-box {
+
+        gap: 5px;
+
+    }
+
+
+    .otp-input {
+
+        width: 42px;
+
+        height: 50px;
+
+        font-size: 19px;
+
+    }
+
+
+    .nav-links a {
+
+        font-size: 13px;
+
+    }
+
+
+    .notification-card {
+
+        max-width: 340px;
+
+    }
+
+}

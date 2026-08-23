@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <!-- ==========================================
+         META INFORMATION
+    =========================================== -->
+
+    <!-- Character encoding -->
+    <meta charset="UTF-8">
+
+
+    <!-- Responsive layout for mobile devices -->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+
+    <!-- ==========================================
+         PAGE TITLE
+    =========================================== -->
+
+    <title>
+        Client Password Reset | SkillConnect
+    </title>
+
+
+    <!-- ==========================================
+         GOOGLE FONTS
+    =========================================== -->
+
+    <!-- Improve font loading performance -->
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com">
+
+
+    <!-- Allow cross-origin font loading -->
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin>
+
+
+    <!-- Inter font used throughout SkillConnect -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+
+    <!-- ==========================================
+         PAGE STYLESHEET
+    =========================================== -->
+
+    <link
+        rel="stylesheet"
+        href="style.css">
+
+</head>
+
+
+<body>
+
+
+    <!-- ==========================================
+         HEADER / NAVIGATION
+    =========================================== -->
+
+    <header>
+
+        <nav class="navbar">
+
+
+            <!-- ==================================
+                 SKILLCONNECT LOGO
+            =================================== -->
+
+            <a
+                href="../index.html"
+                class="logo">
+
+                SkillConnect
+
+            </a>
+
+
+            <!-- ==================================
+                 NAVIGATION LINKS
+            =================================== -->
+
+            <div class="nav-links">
+
+                <a href="../index.html">
+
+                    Home
+
+                </a>
+
+            </div>
+
+
+        </nav>
+
+    </header>
+
+
+
+    <!-- ==========================================
+         MAIN PASSWORD RESET OTP AREA
+    =========================================== -->
+
+    <main class="otp-page">
+
+
+        <!-- ======================================
+             OTP SECTION
+        ======================================= -->
+
+        <section class="otp-section">
+
+
+            <!-- ==================================
+                 OTP CARD
+            =================================== -->
+
+            <div class="otp-card">
+
+
+                <!-- ==================================
+                     OTP HEADER
+                =================================== -->
+
+                <div class="otp-header">
+
+
+                    <!-- ==================================
+                         PASSWORD RESET BADGE
+                    =================================== -->
+
+                    <span class="otp-badge">
+
+                        Password Reset
+
+                    </span>
+
+
+                    <!-- ==================================
+                         MAIN HEADING
+                    =================================== -->
+
+                    <h1>
+
+                        Verify Reset Code
+
+                    </h1>
+
+
+                    <!-- ==================================
+                         DESCRIPTION
+                    =================================== -->
+
+                    <p>
+
+                        Enter the 6-digit password reset
+                        code sent to your email address.
+
+                    </p>
+
+
+                    <!-- ==================================
+                         CLIENT EMAIL
+
+                         script.js will replace:
+
+                         "Loading email..."
+
+                         with the client's email.
+                    =================================== -->
+
+                    <p
+                        id="clientEmailDisplay"
+                        class="client-email">
+
+                        Loading email...
+
+                    </p>
+
+                </div>
+
+
+
+                <!-- ==================================
+                     OTP FORM
+                =================================== -->
+
+                <form
+                    id="otpForm"
+                    novalidate>
+
+
+                    <!-- ==================================
+                         SIX-DIGIT OTP INPUT AREA
+                    =================================== -->
+
+                    <div class="otp-box">
+
+
+                        <!-- ==================================
+                             OTP DIGIT 1
+                        =================================== -->
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            autocomplete="one-time-code"
+                            aria-label="OTP digit 1"
+                            required>
+
+
+                        <!-- ==================================
+                             OTP DIGIT 2
+                        =================================== -->
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            aria-label="OTP digit 2"
+                            required>
+
+
+                        <!-- ==================================
+                             OTP DIGIT 3
+                        =================================== -->
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            aria-label="OTP digit 3"
+                            required>
+
+
+                        <!-- ==================================
+                             OTP DIGIT 4
+                        =================================== -->
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            aria-label="OTP digit 4"
+                            required>
+
+
+                        <!-- ==================================
+                             OTP DIGIT 5
+                        =================================== -->
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            aria-label="OTP digit 5"
+                            required>
+
+
+                        <!-- ==================================
+                             OTP DIGIT 6
+                        =================================== -->
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            aria-label="OTP digit 6"
+                            required>
+
+
+                    </div>
+
+
+
+                    <!-- ==================================
+                         VERIFY OTP BUTTON
+
+                         JavaScript will:
+
+                         1. Validate OTP
+                         2. Disable button
+                         3. Show loading state
+                         4. Send OTP to backend
+                         5. Show success/error modal
+                    =================================== -->
+
+                    <button
+                        id="verifyButton"
+                        type="submit"
+                        class="submit-btn">
+
+
+                        <!-- Button text changes while loading -->
+
+                        <span class="btn-text">
+
+                            Verify OTP
+
+                        </span>
+
+
+                    </button>
+
+                </form>
+
+
+
+                <!-- ==================================
+                     RESEND OTP
+                =================================== -->
+
+                <p class="resend">
+
+                    Didn't receive the code?
+
+                    <a
+                        href="#"
+                        id="resendOTP">
+
+                        Resend OTP
+
+                    </a>
+
+                </p>
+
+
+
+                <!-- ==================================
+                     RESEND COUNTDOWN
+                =================================== -->
+
+                <p
+                    id="countdown"
+                    class="countdown">
+
+                    Resend available in 60s
+
+                </p>
+
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- ==========================================
+         SUCCESS / ERROR MESSAGE MODAL
+
+         ALL authentication:
+
+         - validation errors
+         - backend errors
+         - OTP errors
+         - expiry errors
+         - resend errors
+         - success responses
+
+         must use this modal.
+    =========================================== -->
+
+    <div
+        id="messageModal"
+        class="message-modal"
+        aria-hidden="true">
+
+
+        <!-- ======================================
+             MODAL OVERLAY
+        ======================================= -->
+
+        <div
+            class="message-modal-overlay"
+            id="messageModalOverlay">
+        </div>
+
+
+
+        <!-- ======================================
+             MODAL CONTENT
+        ======================================= -->
+
+        <div
+            class="message-modal-content"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="messageModalTitle">
+
+
+            <!-- ==================================
+                 CLOSE MODAL BUTTON
+            =================================== -->
+
+            <button
+                type="button"
+                id="closeMessageModal"
+                class="modal-close"
+                aria-label="Close">
+
+                &times;
+
+            </button>
+
+
+
+            <!-- ==================================
+                 MODAL ICON
+            =================================== -->
+
+            <div
+                id="modalIcon"
+                class="modal-icon">
+
+            </div>
+
+
+
+            <!-- ==================================
+                 MODAL TITLE
+            =================================== -->
+
+            <h2 id="messageModalTitle">
+
+                Message
+
+            </h2>
+
+
+
+            <!-- ==================================
+                 MODAL MESSAGE
+            =================================== -->
+
+            <p id="messageModalText">
+
+            </p>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==========================================
+         PAGE JAVASCRIPT
+    =========================================== -->
+    <script src="../config.js"></script>
+    <script src="script.js"></script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <!-- =====================================================
+         BASIC DOCUMENT CONFIGURATION
+    ====================================================== -->
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Find Skilled Workers | SkillConnect
+    </title>
+
+
+    <!-- =====================================================
+         GOOGLE FONT
+    ====================================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =====================================================
+         PAGE STYLESHEET
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     BACKGROUND GLOWS
+========================================================= -->
+
+<div
+    class="green-glow"
+    aria-hidden="true"
+></div>
+
+<div
+    class="blue-glow"
+    aria-hidden="true"
+></div>
+
+
+
+<!-- =========================================================
+     MOBILE / TOP NAVBAR
+     
+     On smaller screens this contains:
+     
+     1. SkillConnect logo
+     2. Hamburger menu button
+     
+     On larger screens the sidebar handles navigation.
+========================================================= -->
+
+<header class="topbar">
+
+    <div class="topbar-inner">
+
+        <a
+            href="../index.html"
+            class="logo"
+        >
+
+            Client Dashboard
+
+        </a>
+
+
+        <!-- =================================================
+             MOBILE HAMBURGER BUTTON
+        ================================================== -->
+
+        <button
+            type="button"
+            id="menuBtn"
+            class="menu-btn"
+            aria-label="Open navigation menu"
+            aria-controls="sidebar"
+            aria-expanded="false"
+        >
+
+            <span></span>
+            <span></span>
+            <span></span>
+
+        </button>
+
+    </div>
+
+</header>
+
+
+
+<!-- =========================================================
+     DESKTOP SIDEBAR / MOBILE SLIDE-OUT MENU
+========================================================= -->
+
+<aside
+    id="sidebar"
+    class="sidebar"
+    aria-label="Client navigation"
+>
+
+
+    <!-- =====================================================
+         SIDEBAR HEADER
+    ====================================================== -->
+
+    <div class="sidebar-header">
+
+
+        <!-- =================================================
+             MOBILE CLOSE BUTTON
+        ================================================== -->
+
+        <button
+            type="button"
+            id="closeMenuBtn"
+            class="close-menu-btn"
+            aria-label="Close navigation menu"
+        >
+
+            ×
+
+        </button>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         CLIENT NAVIGATION
+    ====================================================== -->
+
+    <nav class="sidebar-nav">
+
+
+        <!-- =================================================
+             WORKER SEARCH
+             
+             Current page.
+        ================================================== -->
+
+        <a
+            href="index.html"
+            class="nav-link active"
+        >
+
+            <span class="nav-icon">
+                🔎
+            </span>
+
+            <span>
+                Find Workers
+            </span>
+
+        </a>
+
+
+        <!-- =================================================
+             BOOKING HISTORY
+        ================================================== -->
+
+        <a
+            href="../client-booking-history/index.html"
+            class="nav-link"
+        >
+
+            <span class="nav-icon">
+                📋
+            </span>
+
+            <span>
+                Booking History
+            </span>
+
+        </a>
+
+
+        <!-- =================================================
+             PROFILE SETTINGS
+        ================================================== -->
+
+        <a
+            href="../client-profile-settings/index.html"
+            class="nav-link"
+        >
+
+            <span class="nav-icon">
+                ⚙️
+            </span>
+
+            <span>
+                Profile Settings
+            </span>
+
+        </a>
+
+    </nav>
+
+
+
+    <!-- =====================================================
+         SIDEBAR FOOTER
+    ====================================================== -->
+
+    <div class="sidebar-footer">
+
+
+        <!-- =================================================
+             LOGOUT
+        ================================================== -->
+
+        <a
+            href="../index.html"
+            id="logoutBtn"
+            class="nav-link logout-link"
+        >
+
+            <span class="nav-icon">
+                ↪
+            </span>
+
+            <span>
+                Logout
+            </span>
+
+        </a>
+
+    </div>
+
+</aside>
+
+
+
+<!-- =========================================================
+     SIDEBAR OVERLAY
+     
+     Used primarily on mobile.
+     
+     Clicking the overlay closes the sidebar.
+========================================================= -->
+
+<div
+    id="overlay"
+    class="overlay"
+    aria-hidden="true"
+></div>
+
+
+
+<!-- =========================================================
+     MAIN DASHBOARD
+========================================================= -->
+
+<main class="dashboard">
+
+
+    <!-- =====================================================
+         DASHBOARD INTRODUCTION
+    ====================================================== -->
+    <section
+        id="searchFilterSection"
+        class="search-filter-section"
+    >
+
+
+        <!-- =================================================
+             SEARCH INPUT
+        ================================================== -->
+
+        <div class="search-wrapper">
+
+            <label
+                for="searchInput"
+                class="sr-only"
+            >
+
+                Search workers
+
+            </label>
+
+
+            <span
+                class="search-icon"
+                aria-hidden="true"
+            >
+
+                🔎
+
+            </span>
+
+
+            <input
+                type="search"
+                id="searchInput"
+                name="search"
+                placeholder="Search by skill..."
+                autocomplete="off"
+            >
+
+        </div>
+
+
+
+        <!-- =================================================
+             FILTER CONTROLS
+        ================================================== -->
+
+        <div class="filters">
+
+
+            <!-- =================================================
+                 SKILL FILTER
+            ================================================== -->
+
+            <div class="filter-group">
+
+                <label for="categoryFilter">
+                    Skill
+                </label>
+
+
+                <select
+                    id="categoryFilter"
+                    name="category"
+                >
+
+                    <option value="">
+                        All Skills
+                    </option>
+
+                    <option value="Electrician">
+                        Electrician
+                    </option>
+
+                    <option value="Plumber">
+                        Plumber
+                    </option>
+
+                    <option value="Carpenter">
+                        Carpenter
+                    </option>
+
+                    <option value="Painter">
+                        Painter
+                    </option>
+
+                    <option value="Welder">
+                        Welder
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 PRICE FILTER
+            ================================================== -->
+
+            <div class="filter-group">
+
+                <label for="locationFilter">
+                    Price
+                </label>
+
+
+                <select
+                    id="locationFilter"
+                    name="distance"
+                >
+
+                    <option>
+                        1000
+                    </option>
+
+                    <option>
+                        2000
+                    </option>
+
+                    <option>
+                        3000
+                    </option>
+
+                    <option>
+                        4000
+                    </option>
+
+                    <option>
+                        5000
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         SEARCH RESULT HEADER
+    ====================================================== -->
+
+    <section class="results-header">
+
+        <div>
+
+            <h2>
+                Available Workers
+            </h2>
+
+            <p id="resultsText">
+                Find skilled workers near you.
+            </p>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         WORKER LIST
+         
+         JavaScript dynamically inserts worker cards here.
+         
+         Desktop:
+             Multiple columns
+         
+         Mobile:
+             Exactly two columns
+    ====================================================== -->
+
+    <section
+        id="workerList"
+        class="worker-list"
+        aria-live="polite"
+        aria-label="Available skilled workers"
+    >
+
+        <!--
+            Worker cards are generated by script.js.
+        -->
+
+    </section>
+
+
+
+    <!-- =====================================================
+         EMPTY RESULTS MESSAGE
+         
+         Hidden by default.
+         
+         JavaScript displays this when no workers
+         match the current search/filter.
+    ====================================================== -->
+
+    <section
+        id="emptyState"
+        class="empty-state"
+        hidden
+    >
+
+        <div class="empty-icon">
+            🔎
+        </div>
+
+
+        <h2>
+            No Workers Found
+        </h2>
+
+
+        <p>
+            Try changing your search or filter options.
+        </p>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         LOADING STATE
+         
+         JavaScript displays this while workers are
+         being loaded from the backend.
+    ====================================================== -->
+
+    <section
+        id="loadingState"
+        class="loading-state"
+        hidden
+    >
+
+        <div class="loading-spinner"></div>
+
+
+        <p>
+            Finding skilled workers...
+        </p>
+
+    </section>
+
+</main>
+
+
+
+<!-- =========================================================
+     NOTIFICATION MODAL
+     
+     IMPORTANT:
+     
+     Authentication errors, worker-search errors,
+     success messages and redirect messages should
+     use this modal.
+========================================================= -->
+
+<div
+    id="notificationOverlay"
+    class="notification-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="notificationTitle"
+    aria-describedby="notificationText"
+    hidden
+>
+
+    <div class="notification-card">
+
+
+        <!-- =================================================
+             MODAL ICON
+        ================================================== -->
+
+        <div
+            id="notificationIcon"
+            class="notification-icon"
+            aria-hidden="true"
+        >
+
+            ✓
+
+        </div>
+
+
+        <!-- =================================================
+             MODAL TITLE
+        ================================================== -->
+
+        <h2 id="notificationTitle">
+
+        </h2>
+
+
+        <!-- =================================================
+             MODAL MESSAGE
+        ================================================== -->
+
+        <p id="notificationText">
+
+        </p>
+
+
+        <!-- =================================================
+             MODAL BUTTON
+        ================================================== -->
+
+        <button
+            type="button"
+            id="notificationButton"
+        >
+
+            Continue
+
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     PAGE JAVASCRIPT
+========================================================= -->
+
+<script src="../config.js"></script>
+
+<script src="script.js"></script>
+
+
+</body>
+
+</html>

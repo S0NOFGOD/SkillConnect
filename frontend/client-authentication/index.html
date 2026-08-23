@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <!-- ==========================================
+         META CONFIGURATION
+    =========================================== -->
+
+    <!-- Defines the character encoding -->
+    <meta charset="UTF-8">
+
+    <!-- Makes the page responsive on phones,
+         tablets and desktop computers -->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <!-- Browser tab title -->
+    <title>
+        Client Authentication | SkillConnect
+    </title>
+
+
+    <!-- ==========================================
+         GOOGLE FONTS
+    =========================================== -->
+
+    <!-- Improves font loading performance -->
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <!-- SkillConnect uses Inter -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- ==========================================
+         CLIENT AUTHENTICATION STYLES
+    =========================================== -->
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- ==========================================
+         HEADER / NAVBAR
+    =========================================== -->
+
+    <header>
+
+        <nav class="navbar">
+
+
+            <!-- ======================================
+                 SKILLCONNECT LOGO
+            ======================================= -->
+
+            <a
+                href="../index.html"
+                class="logo"
+            >
+
+                SkillConnect
+
+            </a>
+
+
+            <!-- ======================================
+                 NAVIGATION LINKS
+            ======================================= -->
+
+            <div class="nav-links">
+
+                <a href="../index.html">
+
+                    Home
+
+                </a>
+
+            </div>
+
+        </nav>
+
+    </header>
+
+
+
+    <!-- ==========================================
+         MAIN AUTHENTICATION PAGE
+    =========================================== -->
+
+    <main class="auth-page">
+
+
+        <!-- ======================================
+             CLIENT HERO SECTION
+        ======================================= -->
+
+        <section class="hero-content">
+
+
+            <!-- ==================================
+                 HERO BADGE
+            =================================== -->
+
+            <span class="hero-badge">
+
+                Trusted • Skilled • Nearby
+
+            </span>
+
+
+            <!-- ==================================
+                 HERO HEADING
+            =================================== -->
+
+            <h1>
+
+                Find The Right
+
+                <span>
+
+                    Professional
+
+                </span>
+
+                For Your Job
+
+            </h1>
+
+
+            <!-- ==================================
+                 HERO DESCRIPTION
+            =================================== -->
+
+            <p>
+
+                Create your client account and connect
+                with trusted skilled workers near you
+                for the services you need.
+
+            </p>
+
+
+            <!-- ==================================
+                 CLIENT BENEFITS
+            =================================== -->
+
+            <div class="benefits">
+
+
+                <!-- ==================================
+                     BENEFIT 1
+                =================================== -->
+
+                <div class="benefit-card">
+
+                    <div class="icon">
+
+                        🔍
+
+                    </div>
+
+                    <div>
+
+                        <h3>
+
+                            Find Skilled Workers
+
+                        </h3>
+
+                        <p>
+
+                            Discover trusted professionals
+                            based on their skills and location.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ==================================
+                     BENEFIT 2
+                =================================== -->
+
+                <div class="benefit-card">
+
+                    <div class="icon">
+
+                        🛡️
+
+                    </div>
+
+                    <div>
+
+                        <h3>
+
+                            Hire With Confidence
+
+                        </h3>
+
+                        <p>
+
+                            View worker profiles, ratings
+                            and reviews before booking
+                            a service.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ======================================
+             AUTHENTICATION CARD
+        ======================================= -->
+
+        <section class="auth-card">
+
+
+            <!-- ==================================
+                 AUTHENTICATION HEADER
+            =================================== -->
+
+            <div class="auth-header">
+
+                <h2>
+
+                    Client Account
+
+                </h2>
+
+                <p>
+
+                    Login or create your account.
+
+                </p>
+
+            </div>
+
+
+
+            <!-- ==================================
+                 AUTHENTICATION TABS
+            =================================== -->
+
+            <div class="tabs">
+
+
+                <!-- Login tab -->
+
+                <button
+                    type="button"
+                    class="tab active"
+                    data-tab="login"
+                >
+
+                    Login
+
+                </button>
+
+
+                <!-- Create account tab -->
+
+                <button
+                    type="button"
+                    class="tab"
+                    data-tab="signup"
+                >
+
+                    Create Account
+
+                </button>
+
+            </div>
+
+
+
+            <!-- ======================================
+                 LOGIN FORM
+            ======================================= -->
+
+            <section
+                id="login"
+                class="form-section active"
+            >
+
+                <form
+                    id="loginForm"
+                    autocomplete="on"
+                    novalidate
+                >
+
+
+                    <!-- ==================================
+                         LOGIN EMAIL
+                    =================================== -->
+
+                    <label for="loginEmail">
+
+                        Email Address
+
+                    </label>
+
+                    <input
+                        id="loginEmail"
+                        name="email"
+                        type="email"
+                        autocomplete="email"
+                        placeholder="Enter your email"
+                        required
+                    >
+
+
+                    <!-- ==================================
+                         LOGIN PASSWORD
+                    =================================== -->
+
+                    <label for="loginPassword">
+
+                        Password
+
+                    </label>
+
+                    <!--
+                        Password input wrapper.
+
+                        The password toggle button is placed
+                        inside this wrapper so the user can
+                        show or hide the password directly
+                        from the password field.
+                    -->
+
+                    <div class="password-wrapper">
+
+                        <input
+                            id="loginPassword"
+                            name="password"
+                            type="password"
+                            autocomplete="current-password"
+                            placeholder="Enter your password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            data-target="loginPassword"
+                            aria-label="Show password"
+                            aria-pressed="false"
+                        >
+
+                            👁️
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- ==================================
+                         FORGOT PASSWORD
+                    =================================== -->
+
+                    <a
+                        href="#"
+                        class="forgot-link"
+                        id="forgotPassword"
+                    >
+
+                        Forgot Password?
+
+                    </a>
+
+
+                    <!-- ==================================
+                         LOGIN BUTTON
+                    =================================== -->
+
+                    <button
+                        id="loginButton"
+                        type="submit"
+                        class="submit-btn"
+                    >
+
+                        <span class="btn-text">
+
+                            Login
+
+                        </span>
+
+                    </button>
+
+                </form>
+
+            </section>
+
+
+
+            <!-- ======================================
+                 CREATE ACCOUNT FORM
+            ======================================= -->
+
+            <section
+                id="signup"
+                class="form-section"
+            >
+
+                <form
+                    id="signupForm"
+                    autocomplete="on"
+                    novalidate
+                >
+
+
+                    <!-- ==================================
+                         SIGNUP EMAIL
+                    =================================== -->
+
+                    <label for="signupEmail">
+
+                        Email Address
+
+                    </label>
+
+                    <input
+                        id="signupEmail"
+                        name="email"
+                        type="email"
+                        autocomplete="email"
+                        placeholder="Enter your email"
+                        required
+                    >
+
+
+                    <!-- ==================================
+                         SIGNUP PASSWORD
+                    =================================== -->
+
+                    <label for="signupPassword">
+
+                        Password
+
+                    </label>
+
+                    <!--
+                        Signup password wrapper.
+
+                        The toggle controls only the
+                        signup password field.
+                    -->
+
+                    <div class="password-wrapper">
+
+                        <input
+                            id="signupPassword"
+                            name="password"
+                            type="password"
+                            autocomplete="new-password"
+                            placeholder="Create password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            data-target="signupPassword"
+                            aria-label="Show password"
+                            aria-pressed="false"
+                        >
+
+                            👁️
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- ==================================
+                         CONFIRM PASSWORD
+                    =================================== -->
+
+                    <label for="confirmPassword">
+
+                        Confirm Password
+
+                    </label>
+
+                    <!--
+                        Confirm-password wrapper.
+
+                        This field has its own independent
+                        password visibility toggle.
+                    -->
+
+                    <div class="password-wrapper">
+
+                        <input
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            type="password"
+                            autocomplete="new-password"
+                            placeholder="Confirm password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            data-target="confirmPassword"
+                            aria-label="Show password"
+                            aria-pressed="false"
+                        >
+
+                            👁️
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- ==================================
+                         TERMS AND PRIVACY
+                    =================================== -->
+
+                    <label class="terms">
+
+                        <input
+                            id="termsCheckbox"
+                            type="checkbox"
+                        >
+
+                        <span>
+
+                            I agree to the
+
+                            <a href="../about/index.html">
+
+                                Terms &amp; Privacy Policy
+
+                            </a>
+
+                        </span>
+
+                    </label>
+
+
+                    <!-- ==================================
+                         CREATE ACCOUNT BUTTON
+                    =================================== -->
+
+                    <button
+                        id="signupButton"
+                        type="submit"
+                        class="submit-btn"
+                    >
+
+                        <span class="btn-text">
+
+                            Create Account
+
+                        </span>
+
+                    </button>
+
+                </form>
+
+            </section>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- ==========================================
+         GENERAL NOTIFICATION MODAL
+
+         Used for:
+         - Authentication errors
+         - Authentication success
+         - Redirect messages
+    =========================================== -->
+
+    <div
+        id="notificationModal"
+        class="notification-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="notificationTitle"
+    >
+
+        <div class="notification-card">
+
+
+            <!-- ==================================
+                 CLOSE BUTTON
+            =================================== -->
+
+            <button
+                id="closeNotification"
+                type="button"
+                class="notification-close"
+                aria-label="Close notification"
+            >
+
+                ×
+
+            </button>
+
+
+            <!-- ==================================
+                 NOTIFICATION ICON
+            =================================== -->
+
+            <div
+                id="notificationIcon"
+                class="notification-icon"
+            >
+
+            </div>
+
+
+            <!-- ==================================
+                 NOTIFICATION TITLE
+            =================================== -->
+
+            <h3 id="notificationTitle"></h3>
+
+
+            <!-- ==================================
+                 NOTIFICATION MESSAGE
+            =================================== -->
+
+            <p id="notificationMessage"></p>
+
+
+            <!-- ==================================
+                 NOTIFICATION BUTTON
+            =================================== -->
+
+            <button
+                id="notificationButton"
+                type="button"
+                class="notification-button"
+            >
+
+                Close
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==========================================
+         FORGOT PASSWORD MODAL
+
+         This modal collects the client's email.
+
+         Authentication responses from the backend
+         will still be displayed through the
+         general notification modal.
+    =========================================== -->
+
+    <div
+        id="forgotModal"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="forgotModalTitle"
+    >
+
+        <div class="modal-card">
+
+
+            <!-- ==================================
+                 CLOSE FORGOT PASSWORD MODAL
+            =================================== -->
+
+            <button
+                id="closeModal"
+                type="button"
+                class="close"
+                aria-label="Close"
+            >
+
+                ×
+
+            </button>
+
+
+            <h2 id="forgotModalTitle">
+
+                Reset Password
+
+            </h2>
+
+
+            <p>
+
+                Enter your email to receive an OTP.
+
+            </p>
+
+
+            <!-- ==================================
+                 FORGOT PASSWORD FORM
+            =================================== -->
+
+            <form
+                id="forgotForm"
+                novalidate
+            >
+
+                <label for="resetEmail">
+
+                    Email Address
+
+                </label>
+
+                <input
+                    id="resetEmail"
+                    type="email"
+                    name="email"
+                    autocomplete="email"
+                    placeholder="Enter your email"
+                    required
+                >
+
+
+                <!-- ==================================
+                     SEND OTP BUTTON
+                =================================== -->
+
+                <button
+                    type="submit"
+                    class="submit-btn"
+                    id="forgotButton"
+                >
+
+                    <span class="btn-text">
+
+                        Send OTP
+
+                    </span>
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==========================================
+         FOOTER
+    =========================================== -->
+
+    <footer>
+
+        <p>
+
+            © 2026 SkillConnect. All rights reserved.
+
+        </p>
+
+    </footer>
+
+
+    <!-- ==========================================
+         CLIENT AUTHENTICATION JAVASCRIPT
+    =========================================== -->
+    <script src="../config.js"></script>
+    <script src="script.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <!-- =========================================================
+         BASIC DOCUMENT CONFIGURATION
+    ========================================================= -->
+
+    <meta charset="UTF-8">
+
+    <!-- Responsive layout for mobile, tablet and desktop -->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <!-- Browser tab title -->
+    <title>Worker Password Change | SkillConnect</title>
+
+
+    <!-- =========================================================
+         GOOGLE FONT
+    ========================================================= -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =========================================================
+         PAGE STYLESHEET
+    ========================================================= -->
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================================================
+         1. FIXED NAVIGATION
+         
+         This follows the same navbar structure used by
+         worker-password-reset-otp.
+    ========================================================= -->
+
+    <header>
+
+        <div class="navbar">
+
+
+            <!-- =================================================
+                 SKILLCONNECT LOGO
+            ================================================= -->
+
+            <a
+                href="../index.html"
+                class="logo"
+            >
+                SkillConnect
+            </a>
+
+
+            <!-- =================================================
+                 NAVIGATION LINKS
+            ================================================= -->
+
+            <nav class="nav-links">
+
+                <a
+                    href="../index.html"
+                >
+                    Home
+                </a>
+
+            </nav>
+
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =========================================================
+         2. PASSWORD CHANGE PAGE
+    ========================================================= -->
+
+    <main class="password-page">
+
+
+        <!-- =====================================================
+             PASSWORD CHANGE SECTION
+        ===================================================== -->
+
+        <section class="password-section">
+
+
+            <!-- =================================================
+                 PASSWORD CHANGE CARD
+            ================================================= -->
+
+            <div class="password-card">
+
+
+                <!-- =================================================
+                     PAGE HEADER
+                ================================================= -->
+
+                <div class="password-header">
+
+
+                    <!-- Password reset badge -->
+                    <div class="password-badge">
+
+                        Password Reset
+
+                    </div>
+
+
+                    <!-- Main heading -->
+                    <h1>
+
+                        Create New Password
+
+                    </h1>
+
+
+                    <!-- Description -->
+                    <p>
+
+                        Create a new password to secure your
+                        SkillConnect worker account.
+
+                    </p>
+
+
+                </div>
+
+
+
+                <!-- =================================================
+                     PASSWORD CHANGE FORM
+                ================================================= -->
+
+                <form
+                    id="resetForm"
+                    novalidate
+                >
+
+
+                    <!-- =============================================
+                         NEW PASSWORD
+                    ============================================== -->
+
+                    <div class="input-group">
+
+
+                        <label for="password">
+
+                            New Password
+
+                        </label>
+
+
+                        <div class="password-box">
+
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your new password"
+                                autocomplete="new-password"
+                            >
+
+
+                            <!-- Password visibility button -->
+                            <button
+                                type="button"
+                                id="passwordToggle"
+                                class="toggle"
+                                aria-label="Show password"
+                            >
+                                👁
+                            </button>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                    <!-- =============================================
+                         CONFIRM PASSWORD
+                    ============================================== -->
+
+                    <div class="input-group">
+
+
+                        <label for="confirmPassword">
+
+                            Confirm Password
+
+                        </label>
+
+
+                        <div class="password-box">
+
+
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                placeholder="Confirm your new password"
+                                autocomplete="new-password"
+                            >
+
+
+                            <!-- Confirm-password visibility button -->
+                            <button
+                                type="button"
+                                id="confirmToggle"
+                                class="toggle"
+                                aria-label="Show confirm password"
+                            >
+                                👁
+                            </button>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- =============================================
+                         SECURITY INFORMATION
+                    ============================================== -->
+
+                    <div class="security-note">
+
+                        🔒 Your new password is securely hashed
+                        before being stored.
+
+                    </div>
+
+
+
+                    <!-- =============================================
+                         CHANGE PASSWORD BUTTON
+                    ============================================== -->
+
+                    <button
+                        type="submit"
+                        id="changePasswordBtn"
+                        class="submit-btn"
+                    >
+
+
+                        <!-- Normal button text -->
+                        <span id="buttonText">
+
+                            Change Password
+
+                        </span>
+
+
+                        <!-- Loading state -->
+                        <span
+                            id="buttonLoader"
+                            class="button-loader"
+                            hidden
+                        >
+
+                            <span class="loading-spinner"></span>
+
+                            Changing Password...
+
+                        </span>
+
+
+                    </button>
+
+
+                </form>
+
+
+
+                <!-- =================================================
+                     RETURN TO LOGIN
+                ================================================= -->
+
+                <div class="login-link">
+
+
+                    Remember your password?
+
+
+                    <a
+                        href="../worker-authentication/index.html"
+                    >
+
+                        Back to Login
+
+                    </a>
+
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- =========================================================
+         3. MESSAGE MODAL
+         
+         Used for:
+         
+         - Missing reset session
+         - Validation errors
+         - Worker not found
+         - Invalid authorization
+         - Expired authorization
+         - Network errors
+         - Password change success
+    ========================================================= -->
+
+    <div
+        id="authModal"
+        class="message-modal"
+        aria-hidden="true"
+    >
+
+
+        <!-- Modal background -->
+        <div
+            class="message-modal-overlay"
+        ></div>
+
+
+        <!-- Modal content -->
+        <div
+            class="message-modal-content"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modalTitle"
+        >
+
+
+            <!-- Modal close button -->
+            <button
+                type="button"
+                id="modalCloseBtn"
+                class="modal-close"
+                aria-label="Close message"
+            >
+
+                ×
+
+            </button>
+
+
+            <!-- Modal icon -->
+            <div
+                id="modalIcon"
+                class="modal-icon"
+            >
+
+                !
+
+            </div>
+
+
+            <!-- Modal title -->
+            <h2 id="modalTitle">
+
+                Message
+
+            </h2>
+
+
+            <!-- Modal message -->
+            <p id="modalMessage">
+
+                Something happened.
+
+            </p>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =========================================================
+         JAVASCRIPT
+    ========================================================= -->
+    <script src="../config.js"></script>
+    <script src="script.js"></script>
+
+
+</body>
+
+</html>

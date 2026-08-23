@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <!-- =====================================================
+         META INFORMATION
+    ====================================================== -->
+
+    <!-- Character encoding -->
+    <meta charset="UTF-8">
+
+
+    <!-- Responsive layout for mobile devices -->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+
+    <!-- Browser page title -->
+    <title>
+        Client Email Verification | SkillConnect
+    </title>
+
+
+    <!-- =====================================================
+         GOOGLE FONTS
+    ====================================================== -->
+
+    <!-- Improve font loading performance -->
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com">
+
+
+    <!-- Allow cross-origin font loading -->
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin>
+
+
+    <!-- Inter font used throughout SkillConnect -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+
+    <!-- =====================================================
+         PAGE STYLESHEET
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="style.css">
+
+</head>
+
+
+<body>
+
+
+    <!-- =====================================================
+         HEADER / NAVIGATION
+    ====================================================== -->
+
+    <header>
+
+        <nav class="navbar">
+
+
+            <!-- =================================================
+                 SKILLCONNECT LOGO
+
+                 IMPORTANT:
+                 The logo uses exactly 50% green
+                 and 50% blue.
+            ================================================== -->
+
+            <a
+                href="../index.html"
+                class="logo">
+
+                SkillConnect
+
+            </a>
+
+
+            <!-- =================================================
+                 NAVIGATION LINKS
+            ================================================== -->
+
+            <div class="nav-links">
+
+                <a href="../index.html">
+
+                    Home
+
+                </a>
+
+            </div>
+
+
+        </nav>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         MAIN OTP PAGE
+    ====================================================== -->
+
+    <main class="otp-page">
+
+
+        <!-- =================================================
+             EMAIL OTP SECTION
+        ================================================== -->
+
+        <section class="otp-section">
+
+
+            <!-- =================================================
+                 OTP CARD
+            ================================================== -->
+
+            <div class="otp-card">
+
+
+                <!-- =================================================
+                     OTP HEADER
+                ================================================== -->
+
+                <div class="otp-header">
+
+
+                    <!-- Client verification badge -->
+                    <span class="otp-badge">
+
+                        Email Verification
+
+                    </span>
+
+
+                    <!-- Main heading -->
+                    <h1>
+
+                        Verify Your Email
+
+                    </h1>
+
+
+                    <!-- Verification explanation -->
+                    <p>
+
+                        Enter the 6-digit verification
+                        code sent to:
+
+                    </p>
+
+
+                    <!-- =================================================
+                         CLIENT EMAIL
+
+                         script.js will replace:
+
+                         "Loading email..."
+
+                         with the client's email.
+                    ================================================== -->
+
+                    <p
+                        id="clientEmail"
+                        class="client-email">
+
+                        Loading email...
+
+                    </p>
+
+
+                </div>
+
+
+
+                <!-- =================================================
+                     OTP FORM
+                ================================================== -->
+
+                <form
+                    id="otpForm"
+                    novalidate>
+
+
+                    <!-- =================================================
+                         SIX-DIGIT OTP INPUT AREA
+                    ================================================== -->
+
+                    <div class="otp-box">
+
+
+                        <!-- OTP DIGIT 1 -->
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            autocomplete="one-time-code"
+                            aria-label="OTP digit 1"
+                            required>
+
+
+                        <!-- OTP DIGIT 2 -->
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            aria-label="OTP digit 2"
+                            required>
+
+
+                        <!-- OTP DIGIT 3 -->
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            aria-label="OTP digit 3"
+                            required>
+
+
+                        <!-- OTP DIGIT 4 -->
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            aria-label="OTP digit 4"
+                            required>
+
+
+                        <!-- OTP DIGIT 5 -->
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            aria-label="OTP digit 5"
+                            required>
+
+
+                        <!-- OTP DIGIT 6 -->
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            aria-label="OTP digit 6"
+                            required>
+
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         VERIFY EMAIL BUTTON
+
+                         script.js will:
+
+                         1. Validate the OTP
+                         2. Disable this button
+                         3. Show loading state
+                         4. Send OTP to backend
+                         5. Show success/error modal
+                    ================================================== -->
+
+                    <button
+                        id="verifyButton"
+                        type="submit"
+                        class="submit-btn">
+
+
+                        <!-- Button text changes while loading -->
+
+                        <span class="btn-text">
+
+                            Verify Email
+
+                        </span>
+
+
+                    </button>
+
+
+                </form>
+
+
+
+                <!-- =================================================
+                     RESEND OTP
+                ================================================== -->
+
+                <p class="resend">
+
+                    Didn't receive the code?
+
+                    <a
+                        href="#"
+                        id="resendOTP">
+
+                        Resend OTP
+
+                    </a>
+
+                </p>
+
+
+
+                <!-- =================================================
+                     RESEND COUNTDOWN
+                ================================================== -->
+
+                <p
+                    id="countdown"
+                    class="countdown">
+
+                    Resend available in 60s
+
+                </p>
+
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- =====================================================
+         SUCCESS / ERROR NOTIFICATION MODAL
+
+         IMPORTANT:
+
+         All authentication responses must use this modal.
+
+         JavaScript dynamically changes:
+
+         - icon
+         - title
+         - message
+         - success/error state
+    ====================================================== -->
+
+    <div
+        id="notificationModal"
+        class="notification-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="notificationTitle"
+        hidden>
+
+
+        <!-- =================================================
+             NOTIFICATION CARD
+        ================================================== -->
+
+        <div class="notification-card">
+
+
+            <!-- =================================================
+                 NOTIFICATION ICON
+
+                 JavaScript displays:
+
+                 ✓ = success
+
+                 ! = error
+            ================================================== -->
+
+            <div
+                id="notificationIcon"
+                class="notification-icon">
+
+                ✓
+
+            </div>
+
+
+            <!-- Notification title -->
+
+            <h2 id="notificationTitle">
+
+                Email Verified
+
+            </h2>
+
+
+            <!-- Notification message -->
+
+            <p id="notificationMessage">
+
+                Your email has been successfully verified.
+
+            </p>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer>
+
+        <p>
+
+            © 2026 SkillConnect. All rights reserved.
+
+        </p>
+
+    </footer>
+
+
+
+    <!-- =====================================================
+         PAGE JAVASCRIPT
+
+         Authentication logic is contained inside:
+
+         client-email-otp/script.js
+    ====================================================== -->
+    <script src="../config.js"></script>
+    <script src="script.js"></script>
+
+
+</body>
+
+</html>
