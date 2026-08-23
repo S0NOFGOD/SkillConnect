@@ -80,22 +80,16 @@ const crypto =
    3. IMPORT NODEMAILER
 ========================================================= */
 
-/*
-   Nodemailer is used to send the password
-   reset OTP through Gmail SMTP.
-
-   Gmail credentials come from:
-
-   process.env.GMAIL_USER
-   process.env.GMAIL_APP_PASSWORD
-
-   We NEVER hard-code the Gmail credentials
-   inside this controller.
-*/
-
 const nodemailer =
     require("nodemailer");
 
+/* =========================================================
+   3. IMPORT NODEMAILER
+========================================================= */
+
+    const {
+    BrevoClient
+} = require("@getbrevo/brevo");
 
 
 /* =========================================================
@@ -173,21 +167,6 @@ const generateOTP = () => {
    7. GENERATE RESET AUTHORIZATION
 ========================================================= */
 
-/*
-   Generates a cryptographically secure random value.
-
-   IMPORTANT:
-
-   This is NOT the password reset OTP.
-
-   The OTP proves that the client has access
-   to the email account.
-
-   The reset authorization allows the client
-   to continue to the password-change page
-   after successful OTP verification.
-*/
-
 const generateResetAuthorization = () => {
 
     return crypto
@@ -197,27 +176,16 @@ const generateResetAuthorization = () => {
 };
 
 
-
 /* =========================================================
    8. SEND PASSWORD RESET OTP EMAIL
 ========================================================= */
 
 /*
-   This function sends the password reset OTP
-   through Gmail SMTP.
+   This function sends the client password reset OTP
+   through the Brevo HTTPS API.
 
-   Gmail credentials come from:
-
-   process.env.GMAIL_USER
-
-   process.env.GMAIL_APP_PASSWORD
-
-   We do NOT use:
-
-   - Resend
-   - RESEND_API_KEY
-   - EMAIL_FROM
-   - otpPurpose
+   We use Brevo instead of Gmail SMTP because
+   Render Free blocks outbound SMTP connections.
 */
 
 const sendPasswordResetOTPEmail =
@@ -228,144 +196,189 @@ const sendPasswordResetOTPEmail =
 
 
         /* ================================================
-           8.1 CREATE GMAIL TRANSPORTER
+           8.1 CREATE BREVO CLIENT
         ================================================ */
 
         /*
-           Nodemailer connects SkillConnect
-           to Gmail's SMTP server.
+           Brevo uses HTTPS instead of Gmail SMTP.
+
+           The Brevo API key is stored securely
+           in the backend environment variables.
         */
 
-        const transporter =
-            nodemailer.createTransport({
+        const brevo =
+            new BrevoClient({
 
-                service:
-                    "gmail",
-
-                auth: {
-
-                    user:
-                        process.env.GMAIL_USER,
-
-                    pass:
-                        process.env.GMAIL_APP_PASSWORD
-
-                }
+                apiKey:
+                    process.env.BREVO_API_KEY
 
             });
 
 
 
         /* ================================================
-           8.2 CREATE EMAIL
-        ================================================ */
-
-        const mailOptions = {
-
-            from:
-                `"SkillConnect" <${process.env.GMAIL_USER}>`,
-
-            to:
-                email,
-
-            subject:
-                "Your SkillConnect Password Reset OTP",
-
-            html: `
-
-                <div
-                    style="
-                        font-family: Arial, sans-serif;
-                        max-width: 600px;
-                        margin: auto;
-                        padding: 30px;
-                        background: #020617;
-                        color: #ffffff;
-                        border-radius: 16px;
-                    "
-                >
-
-                    <h2
-                        style="
-                            color: #3b82f6;
-                        "
-                    >
-                        SkillConnect
-                    </h2>
-
-
-                    <p>
-                        You requested a new
-                        password reset code.
-                    </p>
-
-
-                    <p>
-                        Your 6-digit OTP is:
-                    </p>
-
-
-                    <div
-                        style="
-                            margin: 25px 0;
-                            padding: 18px;
-                            text-align: center;
-                            background: #111827;
-                            border-radius: 12px;
-                            font-size: 32px;
-                            font-weight: bold;
-                            letter-spacing: 8px;
-                            color: #3b82f6;
-                        "
-                    >
-
-                        ${otp}
-
-                    </div>
-
-
-                    <p>
-                        This OTP will expire
-                        in 10 minutes.
-                    </p>
-
-
-                    <p
-                        style="
-                            color: #94a3b8;
-                        "
-                    >
-                        If you did not request
-                        a password reset, you
-                        can safely ignore this email.
-                    </p>
-
-
-                    <p>
-                        — SkillConnect
-                    </p>
-
-                </div>
-
-            `
-
-        };
-
-
-
-        /* ================================================
-           8.3 SEND EMAIL
+           8.2 CREATE AND SEND EMAIL
         ================================================ */
 
         try {
 
-            await transporter.sendMail(
-                mailOptions
-            );
+            /*
+               Send the password reset email
+               through Brevo's transactional
+               email API.
+            */
 
+            const result =
+                await brevo.transactionalEmails
+                    .sendTransacEmail({
+
+                        /* --------------------------------
+                           EMAIL SUBJECT
+                        -------------------------------- */
+
+                        subject:
+                            "Your SkillConnect Password Reset OTP",
+
+
+
+                        /* --------------------------------
+                           EMAIL SENDER
+                        -------------------------------- */
+
+                        sender: {
+
+                            name:
+                                process.env.BREVO_SENDER_NAME ||
+                                "SkillConnect",
+
+                            email:
+                                process.env.BREVO_SENDER_EMAIL
+
+                        },
+
+
+
+                        /* --------------------------------
+                           EMAIL RECIPIENT
+                        -------------------------------- */
+
+                        to: [
+
+                            {
+
+                                email:
+                                    email
+
+                            }
+
+                        ],
+
+
+
+                        /* --------------------------------
+                           EMAIL HTML
+                        -------------------------------- */
+
+                        htmlContent: `
+
+                            <div
+                                style="
+                                    font-family: Arial, sans-serif;
+                                    max-width: 600px;
+                                    margin: auto;
+                                    padding: 30px;
+                                    background: #020617;
+                                    color: #ffffff;
+                                    border-radius: 16px;
+                                "
+                            >
+
+                                <h2
+                                    style="
+                                        color: #3b82f6;
+                                    "
+                                >
+                                    SkillConnect
+                                </h2>
+
+
+                                <p>
+                                    You requested a new
+                                    password reset code.
+                                </p>
+
+
+                                <p>
+                                    Your 6-digit OTP is:
+                                </p>
+
+
+                                <div
+                                    style="
+                                        margin: 25px 0;
+                                        padding: 18px;
+                                        text-align: center;
+                                        background: #111827;
+                                        border-radius: 12px;
+                                        font-size: 32px;
+                                        font-weight: bold;
+                                        letter-spacing: 8px;
+                                        color: #3b82f6;
+                                    "
+                                >
+
+                                    ${otp}
+
+                                </div>
+
+
+                                <p>
+                                    This OTP will expire
+                                    in 10 minutes.
+                                </p>
+
+
+                                <p
+                                    style="
+                                        color: #94a3b8;
+                                    "
+                                >
+                                    If you did not request
+                                    a password reset, you
+                                    can safely ignore this email.
+                                </p>
+
+
+                                <p>
+                                    — SkillConnect
+                                </p>
+
+                            </div>
+
+                        `
+
+                    });
+
+
+
+            /* ============================================
+               8.3 SUCCESS MESSAGE
+            ============================================ */
 
             console.log(
                 `Client password reset OTP sent to ${email}`
+            );
+
+
+            /*
+               Log Brevo's message ID so we can
+               identify the email in Brevo later
+               if necessary.
+            */
+
+            console.log(
+                "Brevo message ID:",
+                result.messageId
             );
 
 
@@ -374,10 +387,14 @@ const sendPasswordResetOTPEmail =
         }
 
 
+        /* ================================================
+           8.4 ERROR HANDLING
+        ================================================ */
+
         catch (error) {
 
             console.error(
-                "Gmail client password reset email error:",
+                "Brevo client password reset email error:",
                 error
             );
 
@@ -391,80 +408,9 @@ const sendPasswordResetOTPEmail =
     };
 
 
-
 /* =========================================================
    9. VERIFY CLIENT PASSWORD RESET OTP
 ========================================================= */
-
-/*
-   Endpoint:
-
-   POST
-   /api/auth/client/password-reset-otp/verify
-
-
-   Expected request body:
-
-   {
-       "clientEmail": "client@example.com",
-       "otp": "123456"
-   }
-
-
-   FLOW:
-
-   Find client
-        ↓
-   Client does not exist
-        ↓
-   Error response
-
-   Client exists
-        ↓
-   Check passwordResetOtp
-        ↓
-   OTP does not exist
-        ↓
-   Error response
-
-   OTP exists
-        ↓
-   Compare OTP
-        ↓
-   Wrong OTP
-        ↓
-   Error response
-
-   Correct OTP
-        ↓
-   Check expiry
-        ↓
-   Expired
-        ↓
-   Clear OTP
-        ↓
-   Error response
-
-   Valid OTP
-        ↓
-   Generate resetAuthorization
-        ↓
-   Generate resetAuthorizationExpires
-        ↓
-   Clear passwordResetOtp
-        ↓
-   Clear passwordResetOtpExpires
-        ↓
-   Save reset authorization
-        ↓
-   Save client
-        ↓
-   Return resetAuthorization
-        ↓
-   Frontend saves authorization
-        ↓
-   Password change page
-*/
 
 const verifyClientPasswordResetOTP =
     async (

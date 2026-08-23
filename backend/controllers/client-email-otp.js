@@ -56,6 +56,16 @@ const nodemailer =
     require("nodemailer");
 
 
+    /* =========================================================
+   2. IMPORT NODEMAILER
+========================================================= */
+
+
+    const {
+    BrevoClient
+} = require("@getbrevo/brevo");
+
+
 /* =========================================================
    4. GENERATE SIX-DIGIT OTP
 ========================================================= */
@@ -106,20 +116,30 @@ const generateOTPExpiry = () => {
 };
 
 
+
+
 /* =========================================================
    6. SEND CLIENT EMAIL OTP
 ========================================================= */
 
 /*
-   Sends the Client Email Verification OTP through Gmail.
+   Sends the Client Email Verification OTP through
+   the Brevo HTTPS API.
 
-   Gmail credentials are loaded from:
+   Brevo is used instead of Gmail SMTP because
+   Render Free blocks outbound SMTP connections.
 
-   process.env.GMAIL_USER
-   process.env.GMAIL_APP_PASSWORD
+   The Brevo API key is stored securely in:
 
-   No Gmail password is written directly inside
-   this controller.
+   process.env.BREVO_API_KEY
+
+   The verified sender email is stored in:
+
+   process.env.BREVO_SENDER_EMAIL
+
+   The sender name is stored in:
+
+   process.env.BREVO_SENDER_NAME
 */
 
 const sendClientEmailOTP = async (
@@ -129,200 +149,219 @@ const sendClientEmailOTP = async (
 
 
     /* =====================================================
-       6.1 CREATE GMAIL TRANSPORTER
+       6.1 CREATE BREVO CLIENT
     ===================================================== */
 
     /*
-       The transporter connects SkillConnect
-       to Gmail's SMTP server.
+       Brevo communicates through HTTPS.
+
+       This avoids the Gmail SMTP connection
+       that was failing on Render Free.
     */
 
-    const transporter =
-        nodemailer.createTransport({
+    const brevo =
+        new BrevoClient({
 
-            service:
-                "gmail",
-
-            auth: {
-
-                user:
-                    process.env.GMAIL_USER,
-
-                pass:
-                    process.env.GMAIL_APP_PASSWORD
-
-            }
+            apiKey:
+                process.env.BREVO_API_KEY
 
         });
 
 
     /* =====================================================
-       6.2 CREATE EMAIL
+       6.2 CREATE AND SEND EMAIL
     ===================================================== */
 
     /*
-       mailOptions contains the information
-       Gmail will use to send the email.
-    */
-
-    const mailOptions = {
-
-        from:
-            `"SkillConnect" <${process.env.GMAIL_USER}>`,
-
-        to:
-            email,
-
-        subject:
-            "SkillConnect Client Email Verification",
-
-        html: `
-
-            <!DOCTYPE html>
-
-            <html>
-
-            <head>
-
-                <meta charset="UTF-8">
-
-                <title>
-                    SkillConnect Email Verification
-                </title>
-
-            </head>
-
-
-            <body
-                style="
-                    margin:0;
-                    padding:0;
-                    background:#020617;
-                    font-family:Arial,sans-serif;
-                    color:#ffffff;
-                "
-            >
-
-                <div
-                    style="
-                        max-width:600px;
-                        margin:40px auto;
-                        padding:35px;
-                        background:#0f172a;
-                        border-radius:18px;
-                    "
-                >
-
-                    <h1
-                        style="
-                            text-align:center;
-                            font-size:28px;
-                            margin-bottom:20px;
-                        "
-                    >
-
-                        SkillConnect
-
-                    </h1>
-
-
-                    <h2
-                        style="
-                            font-size:22px;
-                            margin-bottom:15px;
-                        "
-                    >
-
-                        Verify Your Email
-
-                    </h2>
-
-
-                    <p
-                        style="
-                            color:#cbd5e1;
-                            font-size:15px;
-                            line-height:1.7;
-                        "
-                    >
-
-                        Use the verification code below
-                        to verify your SkillConnect client account.
-
-                    </p>
-
-
-                    <div
-                        style="
-                            margin:30px 0;
-                            padding:20px;
-                            text-align:center;
-                            background:#111827;
-                            border-radius:14px;
-                            letter-spacing:8px;
-                            font-size:32px;
-                            font-weight:bold;
-                            color:#3b82f6;
-                        "
-                    >
-
-                        ${otp}
-
-                    </div>
-
-
-                    <p
-                        style="
-                            color:#94a3b8;
-                            font-size:14px;
-                            line-height:1.7;
-                        "
-                    >
-
-                        This verification code will expire
-                        in 10 minutes.
-
-                    </p>
-
-
-                    <p
-                        style="
-                            color:#94a3b8;
-                            font-size:13px;
-                            margin-top:30px;
-                        "
-                    >
-
-                        If you did not request this code,
-                        you can safely ignore this email.
-
-                    </p>
-
-                </div>
-
-            </body>
-
-            </html>
-
-        `
-
-    };
-
-
-    /* =====================================================
-       6.3 SEND EMAIL
-    ===================================================== */
-
-    /*
-       Send the email through Gmail.
+       The email is sent through Brevo's
+       transactional email API.
     */
 
     try {
 
-        await transporter.sendMail(
-            mailOptions
-        );
+        await brevo.transactionalEmails
+            .sendTransacEmail({
 
+                /* -----------------------------------------
+                   EMAIL SENDER
+                ----------------------------------------- */
+
+                sender: {
+
+                    name:
+                        process.env.BREVO_SENDER_NAME ||
+                        "SkillConnect",
+
+                    email:
+                        process.env.BREVO_SENDER_EMAIL
+
+                },
+
+
+                /* -----------------------------------------
+                   EMAIL RECIPIENT
+                ----------------------------------------- */
+
+                to: [
+
+                    {
+
+                        email:
+                            email
+
+                    }
+
+                ],
+
+
+                /* -----------------------------------------
+                   EMAIL SUBJECT
+                ----------------------------------------- */
+
+                subject:
+                    "SkillConnect Client Email Verification",
+
+
+                /* -----------------------------------------
+                   EMAIL HTML
+                ----------------------------------------- */
+
+                htmlContent: `
+
+                    <!DOCTYPE html>
+
+                    <html>
+
+                    <head>
+
+                        <meta charset="UTF-8">
+
+                        <title>
+                            SkillConnect Email Verification
+                        </title>
+
+                    </head>
+
+
+                    <body
+                        style="
+                            margin:0;
+                            padding:0;
+                            background:#020617;
+                            font-family:Arial,sans-serif;
+                            color:#ffffff;
+                        "
+                    >
+
+                        <div
+                            style="
+                                max-width:600px;
+                                margin:40px auto;
+                                padding:35px;
+                                background:#0f172a;
+                                border-radius:18px;
+                            "
+                        >
+
+                            <h1
+                                style="
+                                    text-align:center;
+                                    font-size:28px;
+                                    margin-bottom:20px;
+                                "
+                            >
+
+                                SkillConnect
+
+                            </h1>
+
+
+                            <h2
+                                style="
+                                    font-size:22px;
+                                    margin-bottom:15px;
+                                "
+                            >
+
+                                Verify Your Email
+
+                            </h2>
+
+
+                            <p
+                                style="
+                                    color:#cbd5e1;
+                                    font-size:15px;
+                                    line-height:1.7;
+                                "
+                            >
+
+                                Use the verification code below
+                                to verify your SkillConnect client account.
+
+                            </p>
+
+
+                            <div
+                                style="
+                                    margin:30px 0;
+                                    padding:20px;
+                                    text-align:center;
+                                    background:#111827;
+                                    border-radius:14px;
+                                    letter-spacing:8px;
+                                    font-size:32px;
+                                    font-weight:bold;
+                                    color:#3b82f6;
+                                "
+                            >
+
+                                ${otp}
+
+                            </div>
+
+
+                            <p
+                                style="
+                                    color:#94a3b8;
+                                    font-size:14px;
+                                    line-height:1.7;
+                                "
+                            >
+
+                                This verification code will expire
+                                in 10 minutes.
+
+                            </p>
+
+
+                            <p
+                                style="
+                                    color:#94a3b8;
+                                    font-size:13px;
+                                    margin-top:30px;
+                                "
+                            >
+
+                                If you did not request this code,
+                                you can safely ignore this email.
+
+                            </p>
+
+                        </div>
+
+                    </body>
+
+                    </html>
+
+                `
+
+            });
+
+
+        /* =================================================
+           6.3 SUCCESS MESSAGE
+        ================================================= */
 
         console.log(
             `Client verification OTP sent to ${email}`
@@ -333,10 +372,15 @@ const sendClientEmailOTP = async (
 
     }
 
+
+    /* =====================================================
+       6.4 ERROR HANDLING
+    ===================================================== */
+
     catch (error) {
 
         console.error(
-            "Gmail client email error:",
+            "Brevo client email error:",
             error
         );
 
@@ -349,46 +393,10 @@ const sendClientEmailOTP = async (
 
 };
 
+
 /* =========================================================
    7. VERIFY CLIENT EMAIL OTP
 ========================================================= */
-
-/*
-   Endpoint:
-
-   POST /api/auth/client/email-otp/verify
-
-
-   Request body:
-
-   {
-       email: "client@example.com",
-       otp: "123456"
-   }
-
-
-   FLOW:
-
-   Client sends email + OTP
-          ↓
-   Validate input
-          ↓
-   Find client
-          ↓
-   Check OTP
-          ↓
-   Check expiry
-          ↓
-   Verify email
-          ↓
-   Clear OTP
-          ↓
-   Save client
-          ↓
-   Check profileCompleted
-          ↓
-   Return nextPage
-*/
 
 const verifyClientEmailOTP = async (
     req,

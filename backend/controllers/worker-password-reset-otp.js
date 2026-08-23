@@ -57,6 +57,16 @@ const nodemailer =
     require("nodemailer");
 
 
+    /* =========================================================
+   4. IMPORT BREVO
+========================================================= */
+
+
+    const {
+    BrevoClient
+} = require("@getbrevo/brevo");
+
+
 /* =========================================================
    5. GENERATE SIX-DIGIT OTP
 ========================================================= */
@@ -105,50 +115,15 @@ const createOTPExpiry =
 
 
 /* =========================================================
-   7. CREATE GMAIL TRANSPORTER
-========================================================= */
-
-/*
-   Nodemailer connects SkillConnect
-   to Gmail's SMTP server.
-
-   Gmail credentials come from:
-
-   GMAIL_USER
-   GMAIL_APP_PASSWORD
-
-   IMPORTANT:
-
-   GMAIL_APP_PASSWORD is the Google
-   App Password, NOT the normal Gmail password.
-*/
-
-const transporter =
-    nodemailer.createTransport({
-
-        service:
-            "gmail",
-
-        auth: {
-
-            user:
-                process.env.GMAIL_USER,
-
-            pass:
-                process.env.GMAIL_APP_PASSWORD
-
-        }
-
-    });
-
-
-/* =========================================================
-   8. SEND PASSWORD RESET OTP EMAIL
+   7. SEND PASSWORD RESET OTP EMAIL
 ========================================================= */
 
 /*
    This function sends the password reset OTP
-   to the worker's email address.
+   through the Brevo HTTPS API.
+
+   We use Brevo instead of Gmail SMTP because
+   Render Free blocks outbound SMTP connections.
 */
 
 const sendPasswordResetOTPEmail =
@@ -157,98 +132,163 @@ const sendPasswordResetOTPEmail =
         otp
     ) => {
 
-        /* ============================================
-           CREATE EMAIL
-        ============================================ */
 
-        const mailOptions = {
+        /* =================================================
+           1. CREATE BREVO CLIENT
+        ================================================= */
 
-            from:
-                `"SkillConnect" <${process.env.GMAIL_USER}>`,
+        /*
+           Brevo communicates through HTTPS.
 
-            to:
-                email,
+           The API key is stored securely in
+           the backend environment variables.
+        */
 
-            subject:
-                "SkillConnect Password Reset OTP",
+        const brevo =
+            new BrevoClient({
 
-            html: `
+                apiKey:
+                    process.env.BREVO_API_KEY
 
-                <div
-                    style="
-                        font-family: Arial, sans-serif;
-                        max-width: 600px;
-                        margin: auto;
-                        padding: 30px;
-                        color: #111827;
-                    "
-                >
-
-                    <h2>
-                        SkillConnect Password Reset
-                    </h2>
-
-                    <p>
-                        You requested to reset your
-                        SkillConnect worker account password.
-                    </p>
-
-                    <p>
-                        Your password reset verification
-                        code is:
-                    </p>
-
-                    <div
-                        style="
-                            font-size: 32px;
-                            font-weight: bold;
-                            letter-spacing: 8px;
-                            padding: 20px;
-                            text-align: center;
-                            background: #f3f4f6;
-                            border-radius: 10px;
-                            margin: 20px 0;
-                        "
-                    >
-
-                        ${otp}
-
-                    </div>
-
-                    <p>
-                        This code expires in
-                        <strong>10 minutes</strong>.
-                    </p>
-
-                    <p>
-                        If you did not request a password
-                        reset, you can safely ignore this email.
-                    </p>
-
-                    <p>
-                        — SkillConnect
-                    </p>
-
-                </div>
-
-            `
-
-        };
+            });
 
 
-        /* ============================================
-           SEND EMAIL
-        ============================================ */
+        /* =================================================
+           2. CREATE AND SEND EMAIL
+        ================================================= */
 
         try {
 
-            await transporter.sendMail(
-                mailOptions
-            );
+            /*
+               Brevo sends the email through its
+               HTTPS API.
 
+               No Gmail SMTP connection is made.
+            */
+
+            const result =
+                await brevo.transactionalEmails
+                    .sendTransacEmail({
+
+                        /* ---------------------------------
+                           EMAIL SUBJECT
+                        --------------------------------- */
+
+                        subject:
+                            "SkillConnect Password Reset OTP",
+
+
+                        /* ---------------------------------
+                           EMAIL SENDER
+                        --------------------------------- */
+
+                        sender: {
+
+                            name:
+                                process.env.BREVO_SENDER_NAME ||
+                                "SkillConnect",
+
+                            email:
+                                process.env.BREVO_SENDER_EMAIL
+
+                        },
+
+
+                        /* ---------------------------------
+                           EMAIL RECIPIENT
+                        --------------------------------- */
+
+                        to: [
+
+                            {
+
+                                email:
+                                    email
+
+                            }
+
+                        ],
+
+
+                        /* ---------------------------------
+                           EMAIL CONTENT
+                        --------------------------------- */
+
+                        htmlContent: `
+
+                            <div
+                                style="
+                                    font-family: Arial, sans-serif;
+                                    max-width: 600px;
+                                    margin: auto;
+                                    padding: 30px;
+                                    color: #111827;
+                                "
+                            >
+
+                                <h2>
+                                    SkillConnect Password Reset
+                                </h2>
+
+                                <p>
+                                    You requested to reset your
+                                    SkillConnect worker account password.
+                                </p>
+
+                                <p>
+                                    Your password reset verification
+                                    code is:
+                                </p>
+
+                                <div
+                                    style="
+                                        font-size: 32px;
+                                        font-weight: bold;
+                                        letter-spacing: 8px;
+                                        padding: 20px;
+                                        text-align: center;
+                                        background: #f3f4f6;
+                                        border-radius: 10px;
+                                        margin: 20px 0;
+                                    "
+                                >
+
+                                    ${otp}
+
+                                </div>
+
+                                <p>
+                                    This code expires in
+                                    <strong>10 minutes</strong>.
+                                </p>
+
+                                <p>
+                                    If you did not request a password
+                                    reset, you can safely ignore this email.
+                                </p>
+
+                                <p>
+                                    — SkillConnect
+                                </p>
+
+                            </div>
+
+                        `
+
+                    });
+
+
+            /* =================================================
+               3. SUCCESS LOG
+            ================================================= */
 
             console.log(
                 `Password reset OTP sent to ${email}`
+            );
+
+            console.log(
+                "Brevo message ID:",
+                result.messageId
             );
 
 
@@ -256,10 +296,15 @@ const sendPasswordResetOTPEmail =
 
         }
 
+
+        /* =================================================
+           4. ERROR HANDLING
+        ================================================= */
+
         catch (error) {
 
             console.error(
-                "Gmail password reset email error:",
+                "Brevo password reset email error:",
                 error
             );
 

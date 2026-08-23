@@ -26,6 +26,15 @@ const nodemailer =
     require("nodemailer");
 
 
+/* =========================================================
+   3. IMPORT NODEMAILER
+========================================================= */
+
+    const {
+    BrevoClient
+} = require("@getbrevo/brevo");
+
+
 
 /* =========================================================
    5. GENERATE EMAIL OTP
@@ -89,24 +98,12 @@ const createOTPExpiry = () => {
    7. SEND OTP EMAIL
 ========================================================= */
 
-
-/* =========================================================
-   7. SEND OTP EMAIL
-========================================================= */
-
 /*
-   This function sends the worker's email
-   verification OTP through Gmail.
+   This function sends the worker email verification OTP
+   through the Brevo HTTPS API.
 
-   Gmail credentials come from:
-
-   process.env.GMAIL_USER
-   process.env.GMAIL_APP_PASSWORD
-
-   This function is used by:
-
-   1. Email OTP verification flow
-   2. Resend OTP flow
+   We use Brevo instead of Gmail SMTP because
+   Render Free blocks outbound SMTP connections.
 */
 
 const sendOTPEmail = async (
@@ -116,29 +113,21 @@ const sendOTPEmail = async (
 
 
     /* =====================================================
-       7.1 CREATE GMAIL TRANSPORTER
+       7.1 CREATE BREVO CLIENT
     ===================================================== */
 
     /*
-       The transporter connects SkillConnect
-       to Gmail's SMTP server.
+       Brevo uses HTTPS instead of Gmail SMTP.
+
+       The API key is stored securely inside
+       the backend environment variables.
     */
 
-    const transporter =
-        nodemailer.createTransport({
+    const brevo =
+        new BrevoClient({
 
-            service:
-                "gmail",
-
-            auth: {
-
-                user:
-                    process.env.GMAIL_USER,
-
-                pass:
-                    process.env.GMAIL_APP_PASSWORD
-
-            }
+            apiKey:
+                process.env.BREVO_API_KEY
 
         });
 
@@ -146,6 +135,10 @@ const sendOTPEmail = async (
     /* =====================================================
        7.2 CREATE EMAIL CONTENT
     ===================================================== */
+
+    /*
+       This is the HTML email that the worker receives.
+    */
 
     const html = `
 
@@ -160,13 +153,17 @@ const sendOTPEmail = async (
             <h2 style="
                 color: #22c55e;
             ">
+
                 SkillConnect
+
             </h2>
 
 
             <p>
+
                 Your SkillConnect email verification
                 code is:
+
             </p>
 
 
@@ -186,14 +183,18 @@ const sendOTPEmail = async (
 
 
             <p>
+
                 This OTP will expire in
                 <strong>10 minutes</strong>.
+
             </p>
 
 
             <p>
+
                 If you did not request this code,
                 you can safely ignore this email.
+
             </p>
 
 
@@ -217,75 +218,100 @@ const sendOTPEmail = async (
 
 
     /* =====================================================
-       7.3 CREATE EMAIL OPTIONS
-    ===================================================== */
-
-    /*
-       The sender is your Gmail account.
-
-       Example:
-
-       "SkillConnect" <yourgmail@gmail.com>
-    */
-
-    const mailOptions = {
-
-        from:
-            `"SkillConnect" <${process.env.GMAIL_USER}>`,
-
-        to:
-            email,
-
-        subject:
-            "SkillConnect Email Verification OTP",
-
-        html:
-            html
-
-    };
-
-
-    /* =====================================================
-       7.4 SEND EMAIL THROUGH GMAIL
+       7.3 SEND EMAIL THROUGH BREVO
     ===================================================== */
 
     try {
 
-        const info =
-            await transporter.sendMail(
-                mailOptions
-            );
+        /*
+           Brevo sends the email through its HTTPS API.
+
+           No Gmail SMTP connection is used.
+        */
+
+        const result =
+            await brevo.transactionalEmails
+                .sendTransacEmail({
+
+                    /* -------------------------------------
+                       SENDER
+                    ------------------------------------- */
+
+                    sender: {
+
+                        name:
+                            process.env.BREVO_SENDER_NAME ||
+                            "SkillConnect",
+
+                        email:
+                            process.env.BREVO_SENDER_EMAIL
+
+                    },
 
 
-        /* ================================================
-           LOG SUCCESS
+                    /* -------------------------------------
+                       RECIPIENT
+                    ------------------------------------- */
+
+                    to: [
+
+                        {
+
+                            email:
+                                email
+
+                        }
+
+                    ],
+
+
+                    /* -------------------------------------
+                       SUBJECT
+                    ------------------------------------- */
+
+                    subject:
+                        "SkillConnect Email Verification OTP",
+
+
+                    /* -------------------------------------
+                       HTML CONTENT
+                    ------------------------------------- */
+
+                    htmlContent:
+                        html
+
+                });
+
+
+        /* =================================================
+           7.4 LOG SUCCESS
         ================================================= */
 
         console.log(
+
             "Worker email OTP sent successfully:",
-            info.messageId
+
+            result.messageId
+
         );
 
 
-        return info;
+        return result;
 
     }
 
+
+    /* =====================================================
+       7.5 HANDLE EMAIL ERROR
+    ===================================================== */
+
     catch (error) {
 
-        /* ================================================
-           LOG EMAIL ERROR
-        ================================================= */
-
         console.error(
-            "Gmail email error:",
+            "Brevo email error:",
             error
         );
 
-
-        /* ================================================
-           RETURN CLEAN ERROR
-        ================================================= */
 
         throw new Error(
             "Unable to send OTP email."
@@ -296,46 +322,11 @@ const sendOTPEmail = async (
 };
 
 
+
 /* =========================================================
    8. VERIFY EMAIL OTP
 ========================================================= */
 
-/*
-   FRONTEND REQUEST:
-
-   POST /api/auth/worker/email-otp/verify
-
-   Expected body:
-
-   {
-       email: "worker@example.com",
-       otp: "482913"
-   }
-
-   FLOW:
-
-   Worker enters OTP
-           ↓
-   Frontend validates OTP
-           ↓
-   Backend receives email + OTP
-           ↓
-   Find worker
-           ↓
-   Check OTP
-           ↓
-   Check OTP expiry
-           ↓
-   Verify email
-           ↓
-   Clear OTP
-           ↓
-   Save worker
-           ↓
-   Check profileCompleted
-           ↓
-   Return nextPage
-*/
 
 exports.verifyEmailOTP = async (
     req,

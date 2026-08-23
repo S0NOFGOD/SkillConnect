@@ -1,33 +1,3 @@
-/* =========================================================
-   SKILLCONNECT WORKER AUTHENTICATION CONTROLLER
-
-   This file controls:
-
-   1. Worker account creation
-   2. Worker login
-   3. Forgot password
-   4. Email OTP generation
-   5. Email OTP delivery
-   6. Password hashing
-   7. Password comparison
-   8. Access token generation
-   9. Refresh token generation
-   10. Refresh token hashing
-   11. Refresh token httpOnly cookie
-
-   IMPORTANT:
-
-   The frontend is responsible for:
-
-   - Showing success/error modals
-   - Saving workerEmail in sessionStorage
-   - Saving accessToken in sessionStorage
-   - Performing redirects after the 1.5-second
-     redirect modal
-
-   This controller only returns structured JSON
-   responses to the frontend.
-========================================================= */
 
 
 /* =========================================================
@@ -92,6 +62,14 @@ const nodemailer =
     require("nodemailer");
 
 
+    /* =========================================================
+   5. IMPORT BREVO
+========================================================= */
+
+const {
+    BrevoClient
+} = require("@getbrevo/brevo");
+
 
 /* =========================================================
    5. GENERATE RANDOM OTP
@@ -139,6 +117,14 @@ const getOTPExpiration = () => {
    7. SEND EMAIL OTP
 ========================================================= */
 
+/*
+   This function sends SkillConnect OTP emails
+   through the Brevo HTTPS API.
+
+   We use Brevo instead of Gmail SMTP because
+   Render Free blocks outbound SMTP connections.
+*/
+
 const sendEmailOTP = async (
     email,
     otp,
@@ -147,28 +133,21 @@ const sendEmailOTP = async (
 
 
     /* =====================================================
-       1. CREATE GMAIL TRANSPORTER
+       1. CREATE BREVO CLIENT
     ===================================================== */
 
     /*
-       The transporter is responsible for connecting
-       SkillConnect to Gmail's SMTP server.
+       Brevo uses HTTPS instead of Gmail SMTP.
+
+       The API key is stored in the backend
+       environment variables.
     */
 
-    const transporter =
-        nodemailer.createTransport({
+    const brevo =
+        new BrevoClient({
 
-            service: "gmail",
-
-            auth: {
-
-                user:
-                    process.env.GMAIL_USER,
-
-                pass:
-                    process.env.GMAIL_APP_PASSWORD
-
-            }
+            apiKey:
+                process.env.BREVO_API_KEY
 
         });
 
@@ -217,96 +196,145 @@ const sendEmailOTP = async (
 
 
     /* =====================================================
-       4. CREATE EMAIL
-    ===================================================== */
-
-    /*
-       This contains the actual email information
-       that Gmail will send.
-    */
-
-    const mailOptions = {
-
-        from:
-            `"SkillConnect" <${process.env.GMAIL_USER}>`,
-
-        to:
-            email,
-
-        subject:
-
-            subject,
-
-        html: `
-
-            <div
-                style="
-                    font-family: Arial, sans-serif;
-                    max-width: 600px;
-                    margin: auto;
-                    padding: 30px;
-                "
-            >
-
-                <h2>
-                    ${heading}
-                </h2>
-
-                <p>
-                    ${description}
-                </p>
-
-                <div
-                    style="
-                        font-size: 32px;
-                        font-weight: bold;
-                        letter-spacing: 8px;
-                        margin: 25px 0;
-                    "
-                >
-                    ${otp}
-                </div>
-
-                <p>
-                    This OTP expires in 10 minutes.
-                </p>
-
-                <p>
-                    If you did not request this,
-                    you can safely ignore this email.
-                </p>
-
-            </div>
-
-        `
-
-    };
-
-
-    /* =====================================================
-       5. SEND EMAIL
+       4. CREATE AND SEND EMAIL
     ===================================================== */
 
     try {
 
-        await transporter.sendMail(
-            mailOptions
-        );
+        /*
+           Brevo sends this email through its HTTPS API.
+
+           No Gmail SMTP connection is made.
+           Therefore, Render Free's SMTP restriction
+           does not affect this request.
+        */
+
+        const result =
+            await brevo.transactionalEmails
+                .sendTransacEmail({
+
+                    /* -------------------------------------
+                       EMAIL SUBJECT
+                    ------------------------------------- */
+
+                    subject:
+                        subject,
+
+
+                    /* -------------------------------------
+                       EMAIL SENDER
+                    ------------------------------------- */
+
+                    sender: {
+
+                        name:
+                            process.env.BREVO_SENDER_NAME ||
+                            "SkillConnect",
+
+                        email:
+                            process.env.BREVO_SENDER_EMAIL
+
+                    },
+
+
+                    /* -------------------------------------
+                       EMAIL RECIPIENT
+                    ------------------------------------- */
+
+                    to: [
+
+                        {
+
+                            email:
+                                email
+
+                        }
+
+                    ],
+
+
+                    /* -------------------------------------
+                       EMAIL HTML
+                    ------------------------------------- */
+
+                    htmlContent: `
+
+                        <div
+                            style="
+                                font-family: Arial, sans-serif;
+                                max-width: 600px;
+                                margin: auto;
+                                padding: 30px;
+                            "
+                        >
+
+                            <h2>
+                                ${heading}
+                            </h2>
+
+                            <p>
+                                ${description}
+                            </p>
+
+                            <div
+                                style="
+                                    font-size: 32px;
+                                    font-weight: bold;
+                                    letter-spacing: 8px;
+                                    margin: 25px 0;
+                                "
+                            >
+
+                                ${otp}
+
+                            </div>
+
+                            <p>
+                                This OTP expires in 10 minutes.
+                            </p>
+
+                            <p>
+                                If you did not request this,
+                                you can safely ignore this email.
+                            </p>
+
+                        </div>
+
+                    `
+
+                });
+
+
+        /* =================================================
+           5. SUCCESS LOG
+        ================================================= */
 
         console.log(
             `SkillConnect OTP email sent to ${email}`
         );
 
+        console.log(
+            "Brevo message ID:",
+            result.messageId
+        );
+
+
         return true;
 
     }
 
+
+    /* =====================================================
+       6. ERROR HANDLING
+    ===================================================== */
+
     catch (error) {
 
         console.error(
-            "Gmail email error:",
+            "Brevo email error:",
             error
         );
+
 
         throw new Error(
             "Unable to send authentication email."
@@ -315,7 +343,6 @@ const sendEmailOTP = async (
     }
 
 };
-
 
 /* =========================================================
    8. CREATE ACCESS TOKEN

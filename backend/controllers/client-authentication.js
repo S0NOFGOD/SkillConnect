@@ -97,6 +97,14 @@ const crypto =
 const nodemailer =
     require("nodemailer");
 
+/* =========================================================
+   5. IMPORT BREVO
+========================================================= */
+
+    const {
+    BrevoClient
+} = require("@getbrevo/brevo");
+
 
 /* =========================================================
    7. PASSWORD VALIDATION HELPER
@@ -173,10 +181,10 @@ const generateOTPExpiry = () => {
    1. Client account creation
    2. Client login when email is not verified
 
-   Gmail credentials come from:
+   Brevo is used instead of Gmail SMTP.
 
-   process.env.GMAIL_USER
-   process.env.GMAIL_APP_PASSWORD
+   Brevo communicates through HTTPS, which works
+   with the Render Free backend.
 */
 
 const sendEmailOTP = async (
@@ -184,124 +192,172 @@ const sendEmailOTP = async (
     otp
 ) => {
 
+
     /* =====================================================
-       CREATE GMAIL TRANSPORTER
+       1. CREATE BREVO CLIENT
     ===================================================== */
 
     /*
-       Nodemailer connects SkillConnect to Gmail.
+       Brevo uses its HTTPS API to send the email.
 
-       The actual Gmail credentials are stored
-       safely inside the .env file.
+       The API key is stored securely inside
+       the backend environment variables.
     */
 
-    const transporter =
-        nodemailer.createTransport({
+    const brevo =
+        new BrevoClient({
 
-            service:
-                "gmail",
-
-            auth: {
-
-                user:
-                    process.env.GMAIL_USER,
-
-                pass:
-                    process.env.GMAIL_APP_PASSWORD
-
-            }
+            apiKey:
+                process.env.BREVO_API_KEY
 
         });
 
 
     /* =====================================================
-       CREATE EMAIL
-    ===================================================== */
-
-    const mailOptions = {
-
-        from:
-            `"SkillConnect" <${process.env.GMAIL_USER}>`,
-
-        to:
-            email,
-
-        subject:
-            "SkillConnect Email Verification OTP",
-
-        html: `
-
-            <div
-                style="
-                    font-family: Arial, sans-serif;
-                    max-width: 600px;
-                    margin: auto;
-                    padding: 30px;
-                    background: #020617;
-                    color: #ffffff;
-                    border-radius: 15px;
-                "
-            >
-
-                <h2
-                    style="
-                        color: #3b82f6;
-                    "
-                >
-                    SkillConnect
-                </h2>
-
-                <p>
-                    Your email verification OTP is:
-                </p>
-
-                <h1
-                    style="
-                        letter-spacing: 8px;
-                        color: #3b82f6;
-                    "
-                >
-                    ${otp}
-                </h1>
-
-                <p>
-                    This OTP will expire in 10 minutes.
-                </p>
-
-                <p>
-                    If you did not request this code,
-                    you can safely ignore this email.
-                </p>
-
-            </div>
-
-        `
-
-    };
-
-
-    /* =====================================================
-       SEND EMAIL THROUGH GMAIL
+       2. SEND EMAIL THROUGH BREVO
     ===================================================== */
 
     try {
 
-        await transporter.sendMail(
-            mailOptions
-        );
+        /*
+           Send the client verification email.
+
+           No Gmail SMTP connection is made here.
+        */
+
+        const result =
+            await brevo.transactionalEmails
+                .sendTransacEmail({
+
+                    /* -------------------------------------
+                       EMAIL SUBJECT
+                    ------------------------------------- */
+
+                    subject:
+                        "SkillConnect Email Verification OTP",
+
+
+                    /* -------------------------------------
+                       EMAIL SENDER
+                    ------------------------------------- */
+
+                    sender: {
+
+                        name:
+                            process.env.BREVO_SENDER_NAME ||
+                            "SkillConnect",
+
+                        email:
+                            process.env.BREVO_SENDER_EMAIL
+
+                    },
+
+
+                    /* -------------------------------------
+                       EMAIL RECIPIENT
+                    ------------------------------------- */
+
+                    to: [
+
+                        {
+
+                            email:
+                                email
+
+                        }
+
+                    ],
+
+
+                    /* -------------------------------------
+                       EMAIL HTML
+                    ------------------------------------- */
+
+                    htmlContent: `
+
+                        <div
+                            style="
+                                font-family: Arial, sans-serif;
+                                max-width: 600px;
+                                margin: auto;
+                                padding: 30px;
+                                background: #020617;
+                                color: #ffffff;
+                                border-radius: 15px;
+                            "
+                        >
+
+                            <h2
+                                style="
+                                    color: #3b82f6;
+                                "
+                            >
+                                SkillConnect
+                            </h2>
+
+
+                            <p>
+                                Your email verification OTP is:
+                            </p>
+
+
+                            <h1
+                                style="
+                                    letter-spacing: 8px;
+                                    color: #3b82f6;
+                                "
+                            >
+
+                                ${otp}
+
+                            </h1>
+
+
+                            <p>
+                                This OTP will expire in 10 minutes.
+                            </p>
+
+
+                            <p>
+                                If you did not request this code,
+                                you can safely ignore this email.
+                            </p>
+
+                        </div>
+
+                    `
+
+                });
+
+
+        /* =================================================
+           3. SUCCESS LOG
+        ================================================= */
 
         console.log(
             `Client verification OTP sent to ${email}`
         );
 
+        console.log(
+            "Brevo message ID:",
+            result.messageId
+        );
+
+
     }
+
+
+    /* =====================================================
+       4. ERROR HANDLING
+    ===================================================== */
 
     catch (error) {
 
         console.error(
-            "Client Gmail verification email error:",
+            "Client Brevo verification email error:",
             error
         );
+
 
         throw new Error(
             "Unable to send email verification OTP."
