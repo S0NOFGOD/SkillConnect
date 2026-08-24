@@ -2,14 +2,8 @@
    1. IMPORT JSON WEB TOKEN
 ========================================================= */
 
-/*
-   jsonwebtoken is used to verify the client's
-   accessToken sent by the frontend.
-*/
-
 const jwt =
     require("jsonwebtoken");
-
 
 
 /* =========================================================
@@ -20,498 +14,267 @@ const Client =
     require("../models/client");
 
 
-
 /* =========================================================
    3. IMPORT WORKER MODEL
 ========================================================= */
-
-/*
-   The Worker model is used to retrieve workers
-   available to the authenticated client.
-*/
 
 const Worker =
     require("../models/worker");
 
 
-
 /* =========================================================
-   4. VERIFY ACCESS TOKEN
-========================================================= */
-
-/*
-   This helper extracts and verifies the Bearer
-   accessToken from the Authorization header.
-
-   Expected header:
-
-       Authorization: Bearer ACCESS_TOKEN
-
-   If the token is valid, the decoded token payload
-   is returned.
-
-   If the token is missing, invalid, or expired,
-   an error is thrown.
-*/
-
-const verifyAccessToken =
-    (req) => {
-
-        /* ==========================================
-           GET AUTHORIZATION HEADER
-        ========================================== */
-
-        const authorization =
-            req.headers.authorization;
-
-
-        /* ==========================================
-           CHECK AUTHORIZATION HEADER
-        ========================================== */
-
-        if (
-            !authorization ||
-            !authorization.startsWith("Bearer ")
-        ) {
-
-            const error =
-                new Error(
-                    "Authentication required."
-                );
-
-            error.statusCode =
-                401;
-
-            error.code =
-                "AUTHENTICATION_REQUIRED";
-
-            throw error;
-
-        }
-
-
-        /* ==========================================
-           EXTRACT ACCESS TOKEN
-        ========================================== */
-
-        const accessToken =
-            authorization.substring(7).trim();
-
-
-        /* ==========================================
-           CHECK TOKEN VALUE
-        ========================================== */
-
-        if (!accessToken) {
-
-            const error =
-                new Error(
-                    "Authentication required."
-                );
-
-            error.statusCode =
-                401;
-
-            error.code =
-                "AUTHENTICATION_REQUIRED";
-
-            throw error;
-
-        }
-
-
-        /* ==========================================
-           VERIFY ACCESS TOKEN
-        ========================================== */
-
-        try {
-
-            return jwt.verify(
-
-                accessToken,
-
-                process.env.ACCESS_TOKEN_SECRET
-
-            );
-
-        }
-
-        catch (error) {
-
-            const authenticationError =
-                new Error(
-                    "Your authentication session is invalid or has expired."
-                );
-
-            authenticationError.statusCode =
-                401;
-
-            authenticationError.code =
-                "INVALID_OR_EXPIRED_TOKEN";
-
-            throw authenticationError;
-
-        }
-
-    };
-
-
-
-/* =========================================================
-   5. GET CLIENT ID FROM TOKEN
-========================================================= */
-
-/*
-   Different authentication implementations may store
-   the client ID under different names.
-
-   This helper supports the common names:
-
-       id
-       userId
-       clientId
-       _id
-
-   The controller will then use the ID to find the
-   corresponding Client document.
-*/
-
-const getClientIdFromToken =
-    (decodedToken) => {
-
-        return (
-            decodedToken.id ||
-            decodedToken.userId ||
-            decodedToken.clientId ||
-            decodedToken._id
-        );
-
-    };
-
-
-
-/* =========================================================
-   6. CHECK CLIENT SESSION
+   4. GET AVAILABLE WORKERS
 ========================================================= */
 
 /*
    Endpoint:
 
-       GET /api/client/worker-search/session
+   GET /api/client/worker-search
 
-   FLOW:
+   Authorization:
 
-   Frontend sends accessToken
-           ↓
-   Verify accessToken
-           ↓
-   Token invalid / expired
-           ↓
-   Return authentication error
-           ↓
-   Token valid
-           ↓
-   Find Client
-           ↓
-   Client does not exist
-           ↓
-   Return authentication error
-           ↓
-   Client exists
-           ↓
-   Check accountStatus
-           ↓
-   Suspended
-           ↓
-   Return account error
-           ↓
-   Active
-           ↓
-   Return success
+   Bearer <accessToken>
 */
 
-const checkClientSession =
-    async (req, res, next) => {
+const getWorkers =
+    async (req, res) => {
 
         try {
 
-            /* ==========================================
-               VERIFY ACCESS TOKEN
-            ========================================== */
+            /* =================================================
+               5. GET AUTHORIZATION HEADER
+            ================================================= */
 
-            const decodedToken =
-                verifyAccessToken(req);
-
-
-            /* ==========================================
-               GET CLIENT ID
-            ========================================== */
-
-            const clientId =
-                getClientIdFromToken(
-                    decodedToken
-                );
+            const authorization =
+                req.headers.authorization;
 
 
-            /* ==========================================
-               VERIFY CLIENT ID
-            ========================================== */
+            /*
+               The frontend must send:
 
-            if (!clientId) {
-
-                const error =
-                    new Error(
-                        "Invalid authentication session."
-                    );
-
-                error.statusCode =
-                    401;
-
-                error.code =
-                    "INVALID_AUTHENTICATION";
-
-                throw error;
-
-            }
-
-
-            /* ==========================================
-               FIND CLIENT
-            ========================================== */
-
-            const client =
-                await Client.findById(
-                    clientId
-                );
-
-
-            /* ==========================================
-               CLIENT DOES NOT EXIST
-            ========================================== */
-
-            if (!client) {
-
-                const error =
-                    new Error(
-                        "Client account could not be found."
-                    );
-
-                error.statusCode =
-                    401;
-
-                error.code =
-                    "CLIENT_NOT_FOUND";
-
-                throw error;
-
-            }
-
-
-            /* ==========================================
-               CHECK ACCOUNT STATUS
-            ========================================== */
+               Authorization:
+               Bearer <accessToken>
+            */
 
             if (
-                client.accountStatus !==
-                "active"
+                !authorization ||
+                !authorization.startsWith("Bearer ")
             ) {
 
-                const error =
-                    new Error(
-                        "Your client account is suspended or inactive."
-                    );
+                return res.status(401).json({
 
-                error.statusCode =
-                    403;
-
-                error.code =
-                    "ACCOUNT_INACTIVE";
-
-                throw error;
-
-            }
-
-
-            /* ==========================================
-               SESSION VALID
-            ========================================== */
-
-            return res.status(200).json({
-
-                success: true,
-
-                authenticated: true,
-
-                message:
-                    "Client authentication verified successfully."
-
-            });
-
-        }
-
-        catch (error) {
-
-            next(error);
-
-        }
-
-    };
-
-
-
-/* =========================================================
-   7. GET NEARBY WORKERS
-========================================================= */
-
-/*
-   Endpoint:
-
-       GET /api/client/worker-search/workers
-
-   FLOW:
-
-   Verify accessToken
-           ↓
-   Find Client
-           ↓
-   Check accountStatus
-           ↓
-   Retrieve Client state and city
-           ↓
-   Find active workers
-           ↓
-   Match workers using state/city
-           ↓
-   Return workers
-*/
-
-const getNearbyWorkers =
-    async (req, res, next) => {
-
-        try {
-
-            /* ==========================================
-               VERIFY ACCESS TOKEN
-            ========================================== */
-
-            const decodedToken =
-                verifyAccessToken(req);
-
-
-            /* ==========================================
-               GET CLIENT ID
-            ========================================== */
-
-            const clientId =
-                getClientIdFromToken(
-                    decodedToken
-                );
-
-
-            if (!clientId) {
-
-                const error =
-                    new Error(
-                        "Invalid authentication session."
-                    );
-
-                error.statusCode =
-                    401;
-
-                error.code =
-                    "INVALID_AUTHENTICATION";
-
-                throw error;
-
-            }
-
-
-            /* ==========================================
-               FIND CLIENT
-            ========================================== */
-
-            const client =
-                await Client.findById(
-                    clientId
-                );
-
-
-            if (!client) {
-
-                const error =
-                    new Error(
-                        "Client account could not be found."
-                    );
-
-                error.statusCode =
-                    401;
-
-                error.code =
-                    "CLIENT_NOT_FOUND";
-
-                throw error;
-
-            }
-
-
-            /* ==========================================
-               CHECK CLIENT ACCOUNT STATUS
-            ========================================== */
-
-            if (
-                client.accountStatus !==
-                "active"
-            ) {
-
-                const error =
-                    new Error(
-                        "Your client account is suspended or inactive."
-                    );
-
-                error.statusCode =
-                    403;
-
-                error.code =
-                    "ACCOUNT_INACTIVE";
-
-                throw error;
-
-            }
-
-
-            /* ==========================================
-               CHECK CLIENT LOCATION
-            ========================================== */
-
-            if (
-                !client.state ||
-                !client.city
-            ) {
-
-                return res.status(200).json({
-
-                    success: true,
-
-                    workers: [],
+                    success: false,
 
                     message:
-                        "Client location is not available."
+                        "Authentication required."
 
                 });
 
             }
 
 
-            /* ==========================================
-               FIND WORKERS
-            ========================================== */
+            /* =================================================
+               6. EXTRACT ACCESS TOKEN
+            ================================================= */
+
+            const accessToken =
+                authorization.split(" ")[1];
+
+
+            if (!accessToken) {
+
+                return res.status(401).json({
+
+                    success: false,
+
+                    message:
+                        "Authentication required."
+
+                });
+
+            }
+
+
+            /* =================================================
+               7. VERIFY ACCESS TOKEN
+            ================================================= */
+
+            let decodedToken;
+
+
+            try {
+
+                decodedToken =
+                    jwt.verify(
+                        accessToken,
+                        process.env.ACCESS_TOKEN_SECRET
+                    );
+
+            }
+
+            catch (error) {
+
+                /*
+                   This covers:
+
+                   - Expired token
+                   - Invalid token
+                   - Malformed token
+                */
+
+                return res.status(401).json({
+
+                    success: false,
+
+                    message:
+                        "Your session is invalid or has expired. Please log in again."
+
+                });
+
+            }
+
+
+            /* =================================================
+               8. GET CLIENT ID FROM TOKEN
+            ================================================= */
 
             /*
-               Since the existing Worker model stores
-               state and city, the search uses those
-               existing fields.
+               Different authentication implementations may
+               store the client identifier under different
+               property names.
 
-               Only active workers with completed profiles
+               We support the common possibilities while still
+               requiring an actual client account to exist.
+            */
+
+            const clientId =
+                decodedToken.clientId ||
+                decodedToken.userId ||
+                decodedToken.id ||
+                decodedToken._id;
+
+
+            if (!clientId) {
+
+                return res.status(401).json({
+
+                    success: false,
+
+                    message:
+                        "Invalid authentication session."
+
+                });
+
+            }
+
+
+            /* =================================================
+               9. FIND CLIENT ACCOUNT
+            ================================================= */
+
+            const client =
+                await Client.findById(
+                    clientId
+                );
+
+
+            /*
+               Token may be valid while the account no longer
+               exists.
+
+               Therefore we must verify the account separately.
+            */
+
+            if (!client) {
+
+                return res.status(401).json({
+
+                    success: false,
+
+                    message:
+                        "Your client account could not be found. Please log in again."
+
+                });
+
+            }
+
+
+            /* =================================================
+               10. CHECK CLIENT ACCOUNT STATUS
+            ================================================= */
+
+            /*
+               Only active clients can search for workers.
+
+               Your authentication flow requires suspended or
+               inactive accounts to be rejected.
+            */
+
+            if (
+                client.accountStatus !== "active"
+            ) {
+
+                return res.status(403).json({
+
+                    success: false,
+
+                    message:
+                        "Your client account is currently suspended or inactive. Please contact support."
+
+                });
+
+            }
+
+
+            /* =================================================
+               11. GET CLIENT LOCATION
+            ================================================= */
+
+            const clientState =
+                client.state?.trim();
+
+
+            const clientCity =
+                client.city?.trim();
+
+
+            /*
+               The worker search depends on the client's
+               state and city.
+
+               If either location is missing, workers cannot
+               be matched correctly.
+            */
+
+            if (
+                !clientState ||
+                !clientCity
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Your profile location is incomplete. Please update your state and city before searching for workers."
+
+                });
+
+            }
+
+
+            /* =================================================
+               12. FIND AVAILABLE WORKERS
+            ================================================= */
+
+            /*
+               Only workers who:
+
+               - Have completed their profile
+               - Have an active account
+               - Match the client's state
+               - Match the client's city
+
                are returned.
             */
 
@@ -525,580 +288,134 @@ const getNearbyWorkers =
                         true,
 
                     state:
-                        client.state,
+                        clientState,
 
                     city:
-                        client.city
+                        clientCity
 
                 })
 
                 /*
-                   Never return sensitive authentication
-                   information to the client.
+                   Only retrieve the fields needed by the
+                   client worker-search page.
+
+                   This prevents unnecessary private worker
+                   information from being sent to the frontend.
                 */
 
                 .select(
-
-                    "-password " +
-                    "-emailOtp " +
-                    "-emailOtpExpires " +
-                    "-passwordResetOTP " +
-                    "-passwordResetOTPExpires " +
-                    "-passwordResetVerified " +
-                    "-passwordResetVerifiedAt " +
-                    "-resetAuthorization " +
-                    "-resetAuthorizationExpires " +
-                    "-refreshTokenHash"
-
+                    [
+                        "_id",
+                        "profilePicture",
+                        "fullName",
+                        "primarySkill",
+                        "state",
+                        "city",
+                        "startingPrice"
+                    ].join(" ")
                 )
 
-                .sort({
+                .lean();
 
-                    createdAt:
-                        -1
 
-                });
-
-
-            /* ==========================================
-               RETURN WORKERS
-            ========================================== */
-
-            return res.status(200).json({
-
-                success: true,
-
-                workers
-
-            });
-
-        }
-
-        catch (error) {
-
-            next(error);
-
-        }
-
-    };
-
-
-
-/* =========================================================
-   8. GET CLIENT PROFILE
-========================================================= */
-
-/*
-   Endpoint:
-
-       GET /api/client/worker-search/profile
-
-   FLOW:
-
-   Verify accessToken
-           ↓
-   Find Client
-           ↓
-   Check accountStatus
-           ↓
-   Return:
-
-       fullName
-       country
-       state
-       city
-*/
-
-const getClientProfile =
-    async (req, res, next) => {
-
-        try {
-
-            /* ==========================================
-               VERIFY ACCESS TOKEN
-            ========================================== */
-
-            const decodedToken =
-                verifyAccessToken(req);
-
-
-            /* ==========================================
-               GET CLIENT ID
-            ========================================== */
-
-            const clientId =
-                getClientIdFromToken(
-                    decodedToken
-                );
-
-
-            if (!clientId) {
-
-                const error =
-                    new Error(
-                        "Invalid authentication session."
-                    );
-
-                error.statusCode =
-                    401;
-
-                error.code =
-                    "INVALID_AUTHENTICATION";
-
-                throw error;
-
-            }
-
-
-            /* ==========================================
-               FIND CLIENT
-            ========================================== */
-
-            const client =
-                await Client.findById(
-                    clientId
-                );
-
-
-            if (!client) {
-
-                const error =
-                    new Error(
-                        "Client account could not be found."
-                    );
-
-                error.statusCode =
-                    401;
-
-                error.code =
-                    "CLIENT_NOT_FOUND";
-
-                throw error;
-
-            }
-
-
-            /* ==========================================
-               CHECK ACCOUNT STATUS
-            ========================================== */
-
-            if (
-                client.accountStatus !==
-                "active"
-            ) {
-
-                const error =
-                    new Error(
-                        "Your client account is suspended or inactive."
-                    );
-
-                error.statusCode =
-                    403;
-
-                error.code =
-                    "ACCOUNT_INACTIVE";
-
-                throw error;
-
-            }
-
-
-            /* ==========================================
-               RETURN PROFILE
-            ========================================== */
-
-            return res.status(200).json({
-
-                success: true,
-
-                profile: {
-
-                    fullName:
-                        client.fullName,
-
-                    country:
-                        client.country,
-
-                    state:
-                        client.state,
-
-                    city:
-                        client.city
-
-                }
-
-            });
-
-        }
-
-        catch (error) {
-
-            next(error);
-
-        }
-
-    };
-
-
-
-/* =========================================================
-   9. UPDATE CLIENT PROFILE
-========================================================= */
-
-/*
-   Endpoint:
-
-       PUT /api/client/worker-search/profile
-
-   FLOW:
-
-   Client submits:
-
-       fullName
-       state
-       city
-       location
-
-           ↓
-
-   Verify accessToken
-           ↓
-   Find Client
-           ↓
-   Check accountStatus
-           ↓
-   Validate fields
-           ↓
-   Update Client document
-           ↓
-   Return success
-*/
-
-const updateClientProfile =
-    async (req, res, next) => {
-
-        try {
-
-            /* ==========================================
-               VERIFY ACCESS TOKEN
-            ========================================== */
-
-            const decodedToken =
-                verifyAccessToken(req);
-
-
-            /* ==========================================
-               GET CLIENT ID
-            ========================================== */
-
-            const clientId =
-                getClientIdFromToken(
-                    decodedToken
-                );
-
-
-            if (!clientId) {
-
-                const error =
-                    new Error(
-                        "Invalid authentication session."
-                    );
-
-                error.statusCode =
-                    401;
-
-                error.code =
-                    "INVALID_AUTHENTICATION";
-
-                throw error;
-
-            }
-
-
-            /* ==========================================
-               FIND CLIENT
-            ========================================== */
-
-            const client =
-                await Client.findById(
-                    clientId
-                );
-
-
-            if (!client) {
-
-                const error =
-                    new Error(
-                        "Client account could not be found."
-                    );
-
-                error.statusCode =
-                    401;
-
-                error.code =
-                    "CLIENT_NOT_FOUND";
-
-                throw error;
-
-            }
-
-
-            /* ==========================================
-               CHECK ACCOUNT STATUS
-            ========================================== */
-
-            if (
-                client.accountStatus !==
-                "active"
-            ) {
-
-                const error =
-                    new Error(
-                        "Your client account is suspended or inactive."
-                    );
-
-                error.statusCode =
-                    403;
-
-                error.code =
-                    "ACCOUNT_INACTIVE";
-
-                throw error;
-
-            }
-
-
-            /* ==========================================
-               GET REQUEST BODY
-            ========================================== */
-
-            const {
-
-                fullName,
-
-                state,
-
-                city,
-
-                location
-
-            } = req.body;
-
-
-            /* ==========================================
-               VALIDATE FULL NAME
-            ========================================== */
-
-            if (
-                typeof fullName !== "string" ||
-                !fullName.trim()
-            ) {
-
-                const error =
-                    new Error(
-                        "Full name is required."
-                    );
-
-                error.statusCode =
-                    400;
-
-                error.code =
-                    "INVALID_FULL_NAME";
-
-                throw error;
-
-            }
-
-
-            /* ==========================================
-               VALIDATE STATE
-            ========================================== */
-
-            if (
-                typeof state !== "string" ||
-                !state.trim()
-            ) {
-
-                const error =
-                    new Error(
-                        "State is required."
-                    );
-
-                error.statusCode =
-                    400;
-
-                error.code =
-                    "INVALID_STATE";
-
-                throw error;
-
-            }
-
-
-            /* ==========================================
-               VALIDATE CITY
-            ========================================== */
-
-            if (
-                typeof city !== "string" ||
-                !city.trim()
-            ) {
-
-                const error =
-                    new Error(
-                        "City is required."
-                    );
-
-                error.statusCode =
-                    400;
-
-                error.code =
-                    "INVALID_CITY";
-
-                throw error;
-
-            }
-
-
-            /* ==========================================
-               VALIDATE LOCATION
-            ========================================== */
-
-            if (
-                typeof location !== "string" ||
-                !location.trim()
-            ) {
-
-                const error =
-                    new Error(
-                        "Location is required."
-                    );
-
-                error.statusCode =
-                    400;
-
-                error.code =
-                    "INVALID_LOCATION";
-
-                throw error;
-
-            }
-
-
-            /* ==========================================
-               CREATE EXPECTED LOCATION
-            ========================================== */
-
-            const expectedLocation =
-                `${state.trim()}, ${city.trim()}`;
-
-
-            /* ==========================================
-               VALIDATE LOCATION VALUE
-            ========================================== */
-
-            if (
-                location.trim() !==
-                expectedLocation
-            ) {
-
-                const error =
-                    new Error(
-                        "The submitted location does not match the selected state and city."
-                    );
-
-                error.statusCode =
-                    400;
-
-                error.code =
-                    "LOCATION_MISMATCH";
-
-                throw error;
-
-            }
-
-
-            /* ==========================================
-               UPDATE CLIENT PROFILE
-            ========================================== */
-
-            client.fullName =
-                fullName.trim();
-
-            client.state =
-                state.trim();
-
-            client.city =
-                city.trim();
-
+            /* =================================================
+               13. FORMAT WORKER RESPONSE
+            ================================================= */
 
             /*
-               IMPORTANT:
+               The database uses:
 
-               The current Client model does NOT contain
-               a location field.
+               fullName
+               primarySkill
+               startingPrice
 
-               Therefore we do not save location to the
-               Client document.
+               The frontend receives:
 
-               The backend validates the location sent by
-               the frontend against state + city, while
-               the existing model continues to store:
+               name
+               skill
+               price
 
-                   state
-                   city
+               This keeps the frontend simple without changing
+               the existing Worker model.
             */
 
+            const formattedWorkers =
+                workers.map(
+                    worker => ({
 
-            await client.save();
+                        id:
+                            worker._id,
+
+                        profilePicture:
+                            worker.profilePicture,
+
+                        name:
+                            worker.fullName,
+
+                        skill:
+                            worker.primarySkill,
+
+                        state:
+                            worker.state,
+
+                        city:
+                            worker.city,
+
+                        price:
+                            worker.startingPrice
+
+                    })
+                );
 
 
-            /* ==========================================
-               RETURN SUCCESS RESPONSE
-            ========================================== */
+            /* =================================================
+               14. RETURN WORKERS
+            ================================================= */
 
             return res.status(200).json({
 
                 success: true,
 
-                message:
-                    "Profile Updated Successfully"
+                workers:
+                    formattedWorkers
 
             });
 
         }
 
+
+        /* =====================================================
+           15. HANDLE DATABASE / SERVER ERRORS
+        ===================================================== */
+
         catch (error) {
 
-            next(error);
+            console.error(
+                "Client worker search error:",
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Unable to retrieve workers at this time."
+
+            });
 
         }
 
     };
 
 
-
 /* =========================================================
-   10. EXPORT CONTROLLER FUNCTIONS
+   16. EXPORT CONTROLLER
 ========================================================= */
-
-/*
-   The route file uses these controller functions:
-
-       checkClientSession
-       getNearbyWorkers
-       getClientProfile
-       updateClientProfile
-*/
 
 module.exports = {
 
-    checkClientSession,
-
-    getNearbyWorkers,
-
-    getClientProfile,
-
-    updateClientProfile
+    getWorkers
 
 };

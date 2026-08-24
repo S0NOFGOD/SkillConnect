@@ -14,9 +14,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>
-        Find Skilled Workers | SkillConnect
-    </title>
+    <title>Find Skilled Workers | SkillConnect</title>
 
 
     <!-- =====================================================
@@ -72,14 +70,13 @@
 
 
 <!-- =========================================================
-     MOBILE / TOP NAVBAR
+     TOP NAVBAR
      
-     On smaller screens this contains:
-     
-     1. SkillConnect logo
-     2. Hamburger menu button
-     
-     On larger screens the sidebar handles navigation.
+     Mobile:
+         Logo + hamburger menu
+
+     Desktop:
+         Logo remains visible while sidebar is displayed.
 ========================================================= -->
 
 <header class="topbar">
@@ -90,14 +87,12 @@
             href="../index.html"
             class="logo"
         >
-
             Client Dashboard
-
         </a>
 
 
         <!-- =================================================
-             MOBILE HAMBURGER BUTTON
+             MOBILE HAMBURGER
         ================================================== -->
 
         <button
@@ -122,7 +117,7 @@
 
 
 <!-- =========================================================
-     DESKTOP SIDEBAR / MOBILE SLIDE-OUT MENU
+     CLIENT SIDEBAR
 ========================================================= -->
 
 <aside
@@ -138,20 +133,13 @@
 
     <div class="sidebar-header">
 
-
-        <!-- =================================================
-             MOBILE CLOSE BUTTON
-        ================================================== -->
-
         <button
             type="button"
             id="closeMenuBtn"
             class="close-menu-btn"
             aria-label="Close navigation menu"
         >
-
             ×
-
         </button>
 
     </div>
@@ -166,9 +154,7 @@
 
 
         <!-- =================================================
-             WORKER SEARCH
-             
-             Current page.
+             FIND WORKERS
         ================================================== -->
 
         <a
@@ -176,33 +162,28 @@
             class="nav-link active"
         >
 
-            <span class="nav-icon">
-                🔎
-            </span>
+            <span class="nav-icon">🔎</span>
 
-            <span>
-                Find Workers
-            </span>
+            <span>Find Workers</span>
 
         </a>
 
 
         <!-- =================================================
              BOOKING HISTORY
+
+             According to the requested flow this redirects
+             to client-worker-contact-details.
         ================================================== -->
 
         <a
-            href="../client-booking-history/index.html"
+            href="../client-worker-contact-details/index.html"
             class="nav-link"
         >
 
-            <span class="nav-icon">
-                📋
-            </span>
+            <span class="nav-icon">📋</span>
 
-            <span>
-                Booking History
-            </span>
+            <span>Booking History</span>
 
         </a>
 
@@ -216,13 +197,9 @@
             class="nav-link"
         >
 
-            <span class="nav-icon">
-                ⚙️
-            </span>
+            <span class="nav-icon">⚙️</span>
 
-            <span>
-                Profile Settings
-            </span>
+            <span>Profile Settings</span>
 
         </a>
 
@@ -236,26 +213,17 @@
 
     <div class="sidebar-footer">
 
-
-        <!-- =================================================
-             LOGOUT
-        ================================================== -->
-
-        <a
-            href="../index.html"
+        <button
+            type="button"
             id="logoutBtn"
             class="nav-link logout-link"
         >
 
-            <span class="nav-icon">
-                ↪
-            </span>
+            <span class="nav-icon">↪</span>
 
-            <span>
-                Logout
-            </span>
+            <span>Logout</span>
 
-        </a>
+        </button>
 
     </div>
 
@@ -265,10 +233,6 @@
 
 <!-- =========================================================
      SIDEBAR OVERLAY
-     
-     Used primarily on mobile.
-     
-     Clicking the overlay closes the sidebar.
 ========================================================= -->
 
 <div
@@ -280,15 +244,19 @@
 
 
 <!-- =========================================================
-     MAIN DASHBOARD
+     MAIN CLIENT WORKER SEARCH
 ========================================================= -->
 
 <main class="dashboard">
 
 
     <!-- =====================================================
-         DASHBOARD INTRODUCTION
+         SEARCH AND FILTER SECTION
+         
+         JavaScript can make this section fixed when the
+         client scrolls to it.
     ====================================================== -->
+
     <section
         id="searchFilterSection"
         class="search-filter-section"
@@ -296,7 +264,9 @@
 
 
         <!-- =================================================
-             SEARCH INPUT
+             SEARCH
+             
+             Searches worker name and skill.
         ================================================== -->
 
         <div class="search-wrapper">
@@ -305,9 +275,7 @@
                 for="searchInput"
                 class="sr-only"
             >
-
                 Search workers
-
             </label>
 
 
@@ -315,9 +283,7 @@
                 class="search-icon"
                 aria-hidden="true"
             >
-
                 🔎
-
             </span>
 
 
@@ -325,7 +291,7 @@
                 type="search"
                 id="searchInput"
                 name="search"
-                placeholder="Search by skill..."
+                placeholder="Search by name or skill..."
                 autocomplete="off"
             >
 
@@ -334,7 +300,7 @@
 
 
         <!-- =================================================
-             FILTER CONTROLS
+             FILTERS
         ================================================== -->
 
         <div class="filters">
@@ -392,34 +358,38 @@
 
             <div class="filter-group">
 
-                <label for="locationFilter">
+                <label for="priceFilter">
                     Price
                 </label>
 
 
                 <select
-                    id="locationFilter"
-                    name="distance"
+                    id="priceFilter"
+                    name="price"
                 >
 
-                    <option>
-                        1000
+                    <option value="">
+                        All Price
                     </option>
 
-                    <option>
-                        2000
+                    <option value="1000">
+                        ₦1,000
                     </option>
 
-                    <option>
-                        3000
+                    <option value="2000">
+                        ₦2,000
                     </option>
 
-                    <option>
-                        4000
+                    <option value="3000">
+                        ₦3,000
                     </option>
 
-                    <option>
-                        5000
+                    <option value="4000">
+                        ₦4,000
+                    </option>
+
+                    <option value="5000">
+                        ₦5,000+
                     </option>
 
                 </select>
@@ -433,7 +403,7 @@
 
 
     <!-- =====================================================
-         SEARCH RESULT HEADER
+         RESULTS HEADER
     ====================================================== -->
 
     <section class="results-header">
@@ -443,6 +413,7 @@
             <h2>
                 Available Workers
             </h2>
+
 
             <p id="resultsText">
                 Find skilled workers near you.
@@ -457,13 +428,15 @@
     <!-- =====================================================
          WORKER LIST
          
-         JavaScript dynamically inserts worker cards here.
+         JavaScript dynamically creates worker cards.
+
+         Each card will contain only:
          
-         Desktop:
-             Multiple columns
-         
-         Mobile:
-             Exactly two columns
+         1. Profile picture
+         2. Worker name
+         3. City and state
+         4. Price
+         5. View Profile button
     ====================================================== -->
 
     <section
@@ -473,21 +446,16 @@
         aria-label="Available skilled workers"
     >
 
-        <!--
-            Worker cards are generated by script.js.
-        -->
+        <!-- Worker cards are inserted by script.js -->
 
     </section>
 
 
 
     <!-- =====================================================
-         EMPTY RESULTS MESSAGE
+         EMPTY RESULTS STATE
          
-         Hidden by default.
-         
-         JavaScript displays this when no workers
-         match the current search/filter.
+         Displayed when search/filter produces no workers.
     ====================================================== -->
 
     <section
@@ -496,7 +464,10 @@
         hidden
     >
 
-        <div class="empty-icon">
+        <div
+            class="empty-icon"
+            aria-hidden="true"
+        >
             🔎
         </div>
 
@@ -506,35 +477,12 @@
         </h2>
 
 
-        <p>
+        <p id="emptyStateText">
             Try changing your search or filter options.
         </p>
 
     </section>
-
-
-
-    <!-- =====================================================
-         LOADING STATE
-         
-         JavaScript displays this while workers are
-         being loaded from the backend.
-    ====================================================== -->
-
-    <section
-        id="loadingState"
-        class="loading-state"
-        hidden
-    >
-
-        <div class="loading-spinner"></div>
-
-
-        <p>
-            Finding skilled workers...
-        </p>
-
-    </section>
+    
 
 </main>
 
@@ -543,11 +491,16 @@
 <!-- =========================================================
      NOTIFICATION MODAL
      
-     IMPORTANT:
+     Used for:
      
-     Authentication errors, worker-search errors,
-     success messages and redirect messages should
-     use this modal.
+     1. Authentication errors
+     2. Account errors
+     3. Search errors
+     4. Success messages
+     5. Redirect messages
+     6. Logout confirmation
+     
+     JavaScript controls the modal buttons.
 ========================================================= -->
 
 <div
@@ -572,9 +525,7 @@
             class="notification-icon"
             aria-hidden="true"
         >
-
             ✓
-
         </div>
 
 
@@ -582,45 +533,64 @@
              MODAL TITLE
         ================================================== -->
 
-        <h2 id="notificationTitle">
-
-        </h2>
+        <h2 id="notificationTitle"></h2>
 
 
         <!-- =================================================
              MODAL MESSAGE
         ================================================== -->
 
-        <p id="notificationText">
-
-        </p>
+        <p id="notificationText"></p>
 
 
         <!-- =================================================
-             MODAL BUTTON
+             MODAL ACTIONS
+             
+             JavaScript controls which buttons are visible.
+             
+             Normal error/success:
+                 Close
+             
+             Redirect:
+                 Continue
+             
+             Logout confirmation:
+                 Cancel + Logout
         ================================================== -->
 
-        <button
-            type="button"
-            id="notificationButton"
+        <div
+            id="notificationActions"
+            class="notification-actions"
         >
 
-            Continue
+            <button
+                type="button"
+                id="notificationCancelButton"
+                class="notification-cancel-button"
+                hidden
+            >
+                Cancel
+            </button>
 
-        </button>
+
+            <button
+                type="button"
+                id="notificationButton"
+            >
+                Continue
+            </button>
+
+        </div>
 
     </div>
 
 </div>
 
 
-
 <!-- =========================================================
      PAGE JAVASCRIPT
 ========================================================= -->
-
 <script src="../config.js"></script>
-
 <script src="script.js"></script>
 
 
