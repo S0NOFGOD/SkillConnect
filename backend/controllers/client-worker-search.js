@@ -361,8 +361,9 @@ const getWorkers =
                         city:
                             worker.city,
 
-                        price:
-                            worker.startingPrice
+                        price: worker.startingPrice
+                         ? String(worker.startingPrice).trim()
+                         : null
 
                     })
                 );

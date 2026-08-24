@@ -586,23 +586,81 @@ function formatLocation(worker) {
 
 
 /* =========================================================
-   11. FORMAT PRICE
+   FORMAT WORKER PRICE
 ========================================================= */
 
 function formatPrice(price) {
 
-    const numericPrice =
-        Number(price);
+    /*
+        The Worker model stores startingPrice as a String.
 
+        Examples:
+
+        "5000"
+        "₦5000"
+        "₦5,000"
+        "5000 NGN"
+    */
 
     if (
-        Number.isNaN(numericPrice)
+        price === null ||
+        price === undefined ||
+        price === ""
     ) {
 
         return "Price unavailable";
 
     }
 
+
+    /*
+        Convert the value to a string first.
+    */
+
+    const priceText =
+        String(price).trim();
+
+
+    /*
+        Remove currency symbols, commas and
+        other non-numeric characters.
+
+        This allows values such as:
+
+        ₦5,000
+
+        to become:
+
+        5000
+    */
+
+    const numericPrice =
+        Number(
+            priceText.replace(
+                /[^0-9.]/g,
+                ""
+            )
+        );
+
+
+    /*
+        If the value cannot be converted into
+        a valid number, display the original
+        value instead of hiding the price.
+    */
+
+    if (
+        Number.isNaN(numericPrice)
+    ) {
+
+        return priceText;
+
+    }
+
+
+    /*
+        Display Nigerian Naira.
+    */
 
     return `₦${numericPrice.toLocaleString(
         "en-NG"
