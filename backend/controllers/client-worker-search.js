@@ -317,58 +317,81 @@ const getWorkers =
 
                 .lean();
 
+               /* =========================================================
+   13. FORMAT WORKER RESPONSE
+========================================================= */
 
-            /* =================================================
-               13. FORMAT WORKER RESPONSE
-            ================================================= */
+const formattedWorkers =
+    workers.map(
+        worker => ({
 
             /*
-               The database uses:
+                Unique worker ID.
 
-               fullName
-               primarySkill
-               startingPrice
-
-               The frontend receives:
-
-               name
-               skill
-               price
-
-               This keeps the frontend simple without changing
-               the existing Worker model.
+                The frontend uses this ID to identify
+                the selected worker.
             */
 
-            const formattedWorkers =
-                workers.map(
-                    worker => ({
-
-                        id:
-                            worker._id,
-
-                        profilePicture:
-                            worker.profilePicture,
-
-                        name:
-                            worker.fullName,
-
-                        skill:
-                            worker.primarySkill,
-
-                        state:
-                            worker.state,
-
-                        city:
-                            worker.city,
-
-                        price: worker.startingPrice
-                         ? String(worker.startingPrice).trim()
-                         : null
-
-                    })
-                );
+            workerId:
+                String(worker._id),
 
 
+            /*
+                Worker profile picture.
+            */
+
+            profilePicture:
+                worker.profilePicture || null,
+
+
+            /*
+                Worker name.
+            */
+
+            name:
+                worker.fullName || "Worker",
+
+
+            /*
+                Worker's primary skill.
+            */
+
+            primarySkill:
+                worker.primarySkill || "Skill unavailable",
+
+
+            /*
+                Worker state.
+            */
+
+            state:
+                worker.state || "",
+
+
+            /*
+                Worker city.
+            */
+
+            city:
+                worker.city || "",
+
+
+            /*
+                Worker starting price.
+            */
+
+            price:
+                worker.startingPrice
+                    ? String(
+                        worker.startingPrice
+                    ).trim()
+                    : null
+
+        })
+    );
+
+
+            
             /* =================================================
                14. RETURN WORKERS
             ================================================= */

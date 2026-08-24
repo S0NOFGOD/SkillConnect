@@ -1,21 +1,4 @@
 /* =========================================================
-   SKILLCONNECT WORKER MODEL
-
-   This file defines the MongoDB structure for a Worker.
-
-   The Worker document contains:
-
-   1. Account information
-   2. Email verification
-   3. Password reset
-   4. Profile completion
-   5. Worker profile information
-   6. Worker profile images
-   7. Authentication token information
-========================================================= */
-
-
-/* =========================================================
    1. IMPORT MONGOOSE
 ========================================================= */
 

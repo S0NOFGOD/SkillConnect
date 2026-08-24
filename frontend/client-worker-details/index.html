@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <!-- =====================================================
+         BASIC DOCUMENT CONFIGURATION
+    ====================================================== -->
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Worker Details | SkillConnect</title>
+
+
+    <!-- =====================================================
+         GOOGLE FONT
+    ====================================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =====================================================
+         PAGE STYLESHEET
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     BACKGROUND GLOWS
+========================================================= -->
+
+<div
+    class="green-glow"
+    aria-hidden="true"
+></div>
+
+<div
+    class="blue-glow"
+    aria-hidden="true"
+></div>
+
+
+
+<!-- =========================================================
+     WORKER DETAILS HEADER
+
+     Left:
+         Back
+
+     Right:
+         Verified
+========================================================= -->
+
+<header class="details-header">
+
+    <div class="details-header-inner">
+
+
+        <!-- =================================================
+             BACK BUTTON
+        ================================================== -->
+
+        <button
+            type="button"
+            id="backButton"
+            class="back-button"
+        >
+
+            <span
+                class="back-icon"
+                aria-hidden="true"
+            >
+                ←
+            </span>
+
+            <span>
+                Back
+            </span>
+
+        </button>
+
+
+
+        <!-- =================================================
+             VERIFIED BADGE
+        ================================================== -->
+
+        <div
+            class="verified-badge"
+            aria-label="Verified worker"
+        >
+
+            <span
+                class="verified-icon"
+                aria-hidden="true"
+            >
+                ✓
+            </span>
+
+            <span>
+                Verified
+            </span>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+
+<!-- =========================================================
+     MAIN WORKER DETAILS
+========================================================= -->
+
+<main class="worker-details-page">
+
+
+    <!-- =====================================================
+         PORTFOLIO IMAGES
+
+         The three portfolio images are displayed
+         side by side.
+
+         JavaScript will populate these images.
+    ====================================================== -->
+
+    <section
+        class="portfolio-section"
+        aria-label="Worker portfolio"
+    >
+
+        <div
+    id="portfolioImages"
+    class="portfolio-images"
+>
+
+    <!-- =================================================
+         EXAMPLE PORTFOLIO IMAGE 1
+    ================================================== -->
+
+    <img
+        src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=800&q=80"
+        alt="Example worker portfolio image"
+        class="portfolio-image"
+    >
+
+
+    <!-- =================================================
+         EXAMPLE PORTFOLIO IMAGE 2
+    ================================================== -->
+
+    <img
+        src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=800&q=80"
+        alt="Example worker portfolio image"
+        class="portfolio-image"
+    >
+
+
+    <!-- =================================================
+         EXAMPLE PORTFOLIO IMAGE 3
+    ================================================== -->
+
+    <img
+        src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=800&q=80"
+        alt="Example worker portfolio image"
+        class="portfolio-image"
+    >
+
+</div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         ABOUT / WORKER INFORMATION SECTION
+
+         All worker information is kept inside the
+         same section as requested.
+
+         Order:
+
+         About
+         Primary Skill + Experience
+         Starting Price + Location
+    ====================================================== -->
+
+    <section class="worker-info-section">
+
+
+        <!-- =================================================
+             ABOUT
+        ================================================== -->
+
+        <div class="about-block">
+
+            <h2>
+                About
+            </h2>
+
+            <p id="workerDescription">
+                Loading worker information...
+            </p>
+
+        </div>
+
+
+
+        <!-- =================================================
+             WORKER INFORMATION GRID
+        ================================================== -->
+
+        <div class="worker-info-grid">
+
+
+            <!-- =================================================
+                 PRIMARY SKILL
+            ================================================== -->
+
+            <div class="info-item">
+
+                <span class="info-label">
+                    Primary Skill
+                </span>
+
+                <strong id="workerSkill">
+                    —
+                </strong>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 EXPERIENCE
+            ================================================== -->
+
+            <div class="info-item">
+
+                <span class="info-label">
+                    Experience
+                </span>
+
+                <strong id="workerExperience">
+                    —
+                </strong>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 STARTING PRICE
+            ================================================== -->
+
+            <div class="info-item">
+
+                <span class="info-label">
+                    Starting Price
+                </span>
+
+                <strong
+                    id="workerPrice"
+                    class="price-value"
+                >
+                    —
+                </strong>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 LOCATION
+            ================================================== -->
+
+            <div class="info-item">
+
+                <span class="info-label">
+                    Location
+                </span>
+
+                <strong id="workerLocation">
+                    —
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         RATING AND REVIEWS
+    ====================================================== -->
+
+    <section class="reviews-section">
+
+
+        <!-- =================================================
+             SECTION HEADER
+        ================================================== -->
+
+        <div class="reviews-header">
+
+            <div>
+
+                <h2>
+                    Rating and reviews
+                </h2>
+
+                <p>
+                    See what clients say about this worker.
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             RATING SUMMARY
+        ================================================== -->
+
+        <div class="rating-summary">
+
+
+            <!-- =================================================
+                 RATING VALUE
+            ================================================== -->
+
+            <div class="rating-value">
+
+                <strong id="workerRating">
+                    —
+                </strong>
+
+                <div
+                    id="ratingStars"
+                    class="rating-stars"
+                    aria-label="Worker rating"
+                >
+                    ★★★★★
+                </div>
+
+                <span id="reviewCount">
+                    No reviews yet
+                </span>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 REVIEWS LIST
+
+                 JavaScript can populate this later.
+            ================================================== -->
+
+            <div
+                id="reviewsList"
+                class="reviews-list"
+            >
+
+                <!-- Reviews inserted by script.js -->
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+
+<!-- =========================================================
+     FIXED WORKER ACTION BAR
+
+     Contains:
+
+     1. Contact Worker
+        Opens the worker's phone dialer.
+
+     2. Rate Worker
+        Redirects to the client-worker-rating page.
+========================================================= -->
+
+<div class="worker-action-bar">
+
+    <!-- =====================================================
+         CONTACT WORKER
+
+         JavaScript will replace the phone number
+         inside the href when worker details load.
+
+         Default value prevents an invalid link
+         before the worker data is loaded.
+    ====================================================== -->
+
+    <a
+        href="#"
+        id="contactWorkerButton"
+        class="worker-action-button contact-worker-button"
+        aria-label="Contact worker"
+    >
+
+        <span
+            class="action-icon"
+            aria-hidden="true"
+        >
+            ☎
+        </span>
+
+        <span>
+            Contact Worker
+        </span>
+
+    </a>
+
+
+    <!-- =====================================================
+         RATE WORKER
+
+         Navigates to the client-worker-rating page.
+    ====================================================== -->
+
+    <a
+        href="../client-worker-rating/index.html"
+        id="rateWorkerButton"
+        class="worker-action-button rate-worker-button"
+        aria-label="Rate worker"
+    >
+
+        <span
+            class="action-icon"
+            aria-hidden="true"
+        >
+            ★
+        </span>
+
+        <span>
+            Rate Worker
+        </span>
+
+    </a>
+
+</div>
+
+
+
+<!-- =========================================================
+     NOTIFICATION MODAL
+
+     Used for:
+
+     1. Authentication errors
+     2. Account errors
+     3. Worker loading errors
+     4. Success messages
+     5. Redirect messages
+========================================================= -->
+
+<div
+    id="notificationOverlay"
+    class="notification-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="notificationTitle"
+    aria-describedby="notificationText"
+    hidden
+>
+
+    <div class="notification-card">
+
+
+        <!-- =================================================
+             MODAL ICON
+        ================================================== -->
+
+        <div
+            id="notificationIcon"
+            class="notification-icon"
+            aria-hidden="true"
+        >
+            ✓
+        </div>
+
+
+
+        <!-- =================================================
+             MODAL TITLE
+        ================================================== -->
+
+        <h2 id="notificationTitle"></h2>
+
+
+
+        <!-- =================================================
+             MODAL MESSAGE
+        ================================================== -->
+
+        <p id="notificationText"></p>
+
+
+
+        <!-- =================================================
+             MODAL ACTIONS
+        ================================================== -->
+
+        <div class="notification-actions">
+
+            <button
+                type="button"
+                id="notificationButton"
+            >
+                Continue
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<!-- =========================================================
+     PAGE JAVASCRIPT
+========================================================= -->
+
+<script src="../config.js"></script>
+
+<script src="script.js"></script>
+
+
+</body>
+
+</html>

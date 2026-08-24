@@ -302,7 +302,7 @@ async function authenticateAndLoadWorkers() {
         workers =
             Array.isArray(data.workers)
                 ? data.workers
-                : [];
+                : [];  
 
 
         /*
@@ -476,84 +476,119 @@ function createWorkerCard(worker) {
     location.textContent =
         formatLocation(worker);
 
+     /* -----------------------------------------------------
+   SKILL + PRICE ROW
+----------------------------------------------------- */
 
-    /* -----------------------------------------------------
-       PRICE
-    ----------------------------------------------------- */
-
-    const price =
-        document.createElement("p");
-
-
-    price.className =
-        "price";
+const skillPriceRow =
+    document.createElement("div");
 
 
-    price.textContent =
-        formatPrice(worker.price);
+skillPriceRow.className =
+    "skill-price-row";
 
 
-    /* -----------------------------------------------------
-       VIEW PROFILE BUTTON
-    ----------------------------------------------------- */
+/* -----------------------------------------------------
+   WORKER SKILL
+----------------------------------------------------- */
 
-    const viewButton =
-        document.createElement("button");
-
-
-    viewButton.type =
-        "button";
+const skill =
+    document.createElement("p");
 
 
-    viewButton.className =
-        "view-profile-btn";
+skill.className =
+    "skill";
 
 
-    viewButton.textContent =
-        "View Profile";
+skill.textContent =
+    worker.primarySkill || "Skill unavailable";
 
 
-    /*
-        Store the worker ID on the button.
+/* -----------------------------------------------------
+   WORKER PRICE
+----------------------------------------------------- */
 
-        The details page will use this ID
-        to retrieve the selected worker.
-    */
-
-    viewButton.dataset.workerId =
-        worker._id ||
-        worker.id ||
-        "";
+const price =
+    document.createElement("p");
 
 
-    viewButton.addEventListener(
-        "click",
-        function () {
-
-            viewWorkerProfile(
-                worker
-            );
-
-        }
-    );
+price.className =
+    "price";
 
 
-    /* -----------------------------------------------------
-       BUILD CARD
-    ----------------------------------------------------- */
-
-    card.appendChild(image);
-
-    card.appendChild(name);
-
-    card.appendChild(location);
-
-    card.appendChild(price);
-
-    card.appendChild(viewButton);
+price.textContent =
+    formatPrice(worker.price);
 
 
-    workerList.appendChild(card);
+/*
+    Put skill on the left and price on the right.
+*/
+
+skillPriceRow.appendChild(skill);
+
+skillPriceRow.appendChild(price);
+
+
+/* -----------------------------------------------------
+   VIEW PROFILE BUTTON
+----------------------------------------------------- */
+
+const viewButton =
+    document.createElement("button");
+
+
+viewButton.type =
+    "button";
+
+
+viewButton.className =
+    "view-profile-btn";
+
+
+viewButton.textContent =
+    "View Profile";
+
+
+/*
+    Store the worker ID.
+
+    The backend now returns:
+
+    worker.workerId
+*/
+
+viewButton.dataset.workerId =
+    worker.workerId || "";
+
+
+viewButton.addEventListener(
+    "click",
+    function () {
+
+        viewWorkerProfile(
+            worker
+        );
+
+    }
+);
+
+
+/* -----------------------------------------------------
+   BUILD CARD
+----------------------------------------------------- */
+
+card.appendChild(image);
+
+card.appendChild(name);
+
+card.appendChild(location);
+
+card.appendChild(skillPriceRow);
+
+card.appendChild(viewButton);
+
+
+workerList.appendChild(card);
 
 }
 
@@ -746,8 +781,8 @@ function applyFilters() {
 
                 const workerSkill =
                     String(
+                        worker.primarSkill ||
                         worker.skill ||
-                        worker.skills ||
                         ""
                     ).toLowerCase();
 
@@ -858,9 +893,14 @@ function applyFilters() {
 
 function viewWorkerProfile(worker) {
 
+    /*
+        The backend now returns workerId.
+
+        This is the unique ID of the selected worker.
+    */
+
     const workerId =
-        worker._id ||
-        worker.id;
+        worker.workerId;
 
 
     /*
@@ -885,7 +925,7 @@ function viewWorkerProfile(worker) {
     /*
         Store the selected worker ID temporarily.
 
-        This avoids placing authentication tokens
+        This avoids putting authentication tokens
         inside the URL.
     */
 
@@ -894,6 +934,10 @@ function viewWorkerProfile(worker) {
         workerId
     );
 
+
+    /*
+        Open the worker details page.
+    */
 
     window.location.href =
         "../client-worker-details/index.html";

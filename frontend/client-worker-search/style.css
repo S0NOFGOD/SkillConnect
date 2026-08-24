@@ -1077,18 +1077,66 @@ select {
 
 
 /* =========================================================
-   24. WORKER PRICE
+   24. SKILL + PRICE ROW
+========================================================= */
+
+.skill-price-row {
+
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 8px;
+
+    margin-bottom: 10px;
+
+}
+
+
+/* =========================================================
+   WORKER SKILL
+========================================================= */
+
+.worker-card .skill {
+
+    min-width: 0;
+
+    color: #94a3b8;
+
+    font-size: 12px;
+
+    line-height: 1.4;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+
+/* =========================================================
+   WORKER PRICE
 ========================================================= */
 
 .worker-card .price {
 
-    margin-bottom: 10px;
+    flex-shrink: 0;
+
+    margin: 0;
 
     color: #60a5fa;
 
     font-size: 13px;
 
     font-weight: 700;
+
+    white-space: nowrap;
 
 }
 
@@ -1977,16 +2025,40 @@ select {
 
 
     /* -----------------------------------------
-       Worker price
-    ----------------------------------------- */
+   Skill + price row
+----------------------------------------- */
 
-    .worker-card .price {
+.skill-price-row {
 
-        margin-bottom: 10px;
+    gap: 5px;
 
-        font-size: 12px;
+    margin-bottom: 10px;
 
-    }
+}
+
+
+/* -----------------------------------------
+   Worker skill
+----------------------------------------- */
+
+.worker-card .skill {
+
+    font-size: 11px;
+
+}
+
+
+/* -----------------------------------------
+   Worker price
+----------------------------------------- */
+
+.worker-card .price {
+
+    margin: 0;
+
+    font-size: 12px;
+
+}
 
 
     /* -----------------------------------------
@@ -2120,6 +2192,13 @@ select {
 
     .worker-card .location {
 
+        font-size: 10px;
+
+    }
+
+
+    .worker-card .skill {
+        
         font-size: 10px;
 
     }

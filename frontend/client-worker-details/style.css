@@ -1,0 +1,2116 @@
+/* =========================================================
+   SKILLCONNECT
+   CLIENT WORKER DETAILS STYLES
+
+   PURPOSE:
+   Styles the individual worker-details page.
+
+   DESIGN:
+   Premium dark client interface.
+
+   PAGE STRUCTURE:
+
+   1. Header
+      - Back
+      - Verified
+
+   2. Portfolio
+      - Three images side by side
+
+   3. Worker information
+      - About
+      - Primary Skill
+      - Experience
+      - Starting Price
+      - Location
+
+   4. Rating and reviews
+
+   IMPORTANT:
+   - No sidebar
+   - No hamburger menu
+   - No profile picture
+   - Three portfolio images remain side by side
+========================================================= */
+
+
+
+/* =========================================================
+   1. GLOBAL RESET
+========================================================= */
+
+* {
+
+    margin: 0;
+
+    padding: 0;
+
+    box-sizing: border-box;
+
+}
+
+
+
+/* =========================================================
+   2. HTML
+========================================================= */
+
+html {
+
+    scroll-behavior: smooth;
+
+}
+
+
+
+/* =========================================================
+   3. BODY
+========================================================= */
+
+body {
+
+    min-height: 100vh;
+
+    font-family: "Inter", sans-serif;
+
+    background: #020617;
+
+    color: #ffffff;
+
+    line-height: 1.6;
+
+    overflow-x: hidden;
+
+}
+
+
+
+/* =========================================================
+   4. BUTTONS
+========================================================= */
+
+button {
+
+    font-family: inherit;
+
+}
+
+
+
+/* =========================================================
+   5. BACKGROUND GLOWS
+========================================================= */
+
+.green-glow,
+.blue-glow {
+
+    position: fixed;
+
+    width: 350px;
+
+    height: 350px;
+
+    border-radius: 50%;
+
+    filter: blur(150px);
+
+    opacity: .15;
+
+    pointer-events: none;
+
+    z-index: -1;
+
+}
+
+
+
+/* =========================================================
+   GREEN GLOW
+========================================================= */
+
+.green-glow {
+
+    top: -120px;
+
+    left: -120px;
+
+    background: #22c55e;
+
+}
+
+
+
+/* =========================================================
+   BLUE GLOW
+========================================================= */
+
+.blue-glow {
+
+    right: -120px;
+
+    bottom: -120px;
+
+    background: #3b82f6;
+
+}
+
+
+
+/* =========================================================
+   6. DETAILS HEADER
+========================================================= */
+
+.details-header {
+
+    position: fixed;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 72px;
+
+    z-index: 1000;
+
+    background:
+        rgba(2, 6, 23, .90);
+
+    backdrop-filter: blur(15px);
+
+    -webkit-backdrop-filter: blur(15px);
+
+    border-bottom:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+}
+
+
+
+/* =========================================================
+   HEADER INNER
+========================================================= */
+
+.details-header-inner {
+
+    width: 100%;
+
+    max-width: 1200px;
+
+    height: 100%;
+
+    margin: 0 auto;
+
+    padding:
+        0 24px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+}
+
+
+
+/* =========================================================
+   7. BACK BUTTON
+========================================================= */
+
+.back-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    min-height: 42px;
+
+    padding:
+        8px 12px;
+
+    border: none;
+
+    border-radius: 11px;
+
+    background: transparent;
+
+    color: #cbd5e1;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: .2s ease;
+
+}
+
+
+
+/* =========================================================
+   BACK BUTTON HOVER
+========================================================= */
+
+.back-button:hover {
+
+    color: #ffffff;
+
+    background:
+        rgba(59, 130, 246, .10);
+
+}
+
+
+
+/* =========================================================
+   BACK ICON
+========================================================= */
+
+.back-icon {
+
+    font-size: 21px;
+
+    line-height: 1;
+
+}
+
+
+
+/* =========================================================
+   8. VERIFIED BADGE
+========================================================= */
+
+.verified-badge {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    min-height: 36px;
+
+    padding:
+        7px 12px;
+
+    border:
+        1px solid
+        rgba(34, 197, 94, .25);
+
+    border-radius: 999px;
+
+    background:
+        rgba(34, 197, 94, .10);
+
+    color: #86efac;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+}
+
+
+
+/* =========================================================
+   VERIFIED ICON
+========================================================= */
+
+.verified-icon {
+
+    width: 19px;
+
+    height: 19px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #22c55e;
+
+    color: #020617;
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+}
+
+
+
+/* =========================================================
+   9. MAIN WORKER DETAILS PAGE
+========================================================= */
+
+.worker-details-page {
+
+    width: 100%;
+
+    max-width: 1200px;
+
+    margin: 0 auto;
+
+    padding:
+        100px 24px 70px;
+
+}
+
+
+
+/* =========================================================
+   10. PORTFOLIO SECTION
+========================================================= */
+
+.portfolio-section {
+
+    width: 100%;
+
+    margin-bottom: 25px;
+
+}
+
+
+
+/* =========================================================
+   11. PORTFOLIO IMAGES
+
+   Three images ALWAYS remain side by side.
+========================================================= */
+
+.portfolio-images {
+
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 12px;
+
+}
+
+
+
+/* =========================================================
+   12. PORTFOLIO IMAGE
+========================================================= */
+
+.portfolio-image {
+
+    width: 100%;
+
+    aspect-ratio: 1 / 1;
+
+    display: block;
+
+    object-fit: cover;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+    border-radius: 16px;
+
+    background: #111827;
+
+    transition:
+        transform .2s ease,
+        border-color .2s ease,
+        box-shadow .2s ease;
+
+}
+
+
+
+/* =========================================================
+   PORTFOLIO IMAGE HOVER
+========================================================= */
+
+.portfolio-image:hover {
+
+    transform: translateY(-3px);
+
+    border-color:
+        rgba(59, 130, 246, .40);
+
+    box-shadow:
+        0 15px 35px
+        rgba(0, 0, 0, .25);
+
+}
+
+
+
+/* =========================================================
+   13. WORKER INFORMATION SECTION
+========================================================= */
+
+.worker-info-section {
+
+    width: 100%;
+
+    margin-bottom: 25px;
+
+    padding: 25px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+    border-radius: 20px;
+
+    background:
+        rgba(15, 23, 42, .78);
+
+    backdrop-filter: blur(12px);
+
+    -webkit-backdrop-filter: blur(12px);
+
+}
+
+
+
+/* =========================================================
+   14. ABOUT BLOCK
+========================================================= */
+
+.about-block {
+
+    padding-bottom: 24px;
+
+    margin-bottom: 24px;
+
+    border-bottom:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+}
+
+
+
+/* =========================================================
+   ABOUT TITLE
+========================================================= */
+
+.about-block h2 {
+
+    margin-bottom: 10px;
+
+    color: #ffffff;
+
+    font-size: 21px;
+
+    font-weight: 700;
+
+}
+
+
+
+/* =========================================================
+   ABOUT DESCRIPTION
+========================================================= */
+
+.about-block p {
+
+    color: #94a3b8;
+
+    font-size: 14px;
+
+    line-height: 1.8;
+
+    white-space: pre-line;
+
+}
+
+
+
+/* =========================================================
+   15. WORKER INFORMATION GRID
+
+   Information stays inside the same section.
+
+   Desktop:
+
+   Primary Skill       Experience
+
+   Starting Price      Location
+========================================================= */
+
+.worker-info-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 14px;
+
+}
+
+
+
+/* =========================================================
+   16. INFORMATION ITEM
+========================================================= */
+
+.info-item {
+
+    min-width: 0;
+
+    min-height: 82px;
+
+    padding: 16px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .06);
+
+    border-radius: 14px;
+
+    background:
+        rgba(2, 6, 23, .40);
+
+}
+
+
+
+/* =========================================================
+   17. INFORMATION LABEL
+========================================================= */
+
+.info-label {
+
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #64748b;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    letter-spacing: .4px;
+
+}
+
+
+
+/* =========================================================
+   18. INFORMATION VALUE
+========================================================= */
+
+.info-item strong {
+
+    display: block;
+
+    color: #ffffff;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    line-height: 1.4;
+
+    overflow-wrap: anywhere;
+
+}
+
+
+
+/* =========================================================
+   STARTING PRICE
+========================================================= */
+
+.info-item .price-value {
+
+    color: #60a5fa;
+
+}
+
+
+
+/* =========================================================
+   19. REVIEWS SECTION
+========================================================= */
+
+.reviews-section {
+
+    width: 100%;
+
+    padding: 25px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+    border-radius: 20px;
+
+    background:
+        rgba(15, 23, 42, .78);
+
+    backdrop-filter: blur(12px);
+
+    -webkit-backdrop-filter: blur(12px);
+
+}
+
+
+
+/* =========================================================
+   20. REVIEWS HEADER
+========================================================= */
+
+.reviews-header {
+
+    padding-bottom: 20px;
+
+    border-bottom:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+}
+
+
+
+/* =========================================================
+   REVIEWS TITLE
+========================================================= */
+
+.reviews-header h2 {
+
+    margin-bottom: 5px;
+
+    color: #ffffff;
+
+    font-size: 21px;
+
+    font-weight: 700;
+
+}
+
+
+
+/* =========================================================
+   REVIEWS SUBTITLE
+========================================================= */
+
+.reviews-header p {
+
+    color: #64748b;
+
+    font-size: 13px;
+
+}
+
+
+
+/* =========================================================
+   21. RATING SUMMARY
+========================================================= */
+
+.rating-summary {
+
+    padding-top: 20px;
+
+}
+
+
+
+/* =========================================================
+   22. RATING VALUE
+========================================================= */
+
+.rating-value {
+
+    display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+}
+
+
+
+/* =========================================================
+   RATING NUMBER
+========================================================= */
+
+.rating-value strong {
+
+    color: #ffffff;
+
+    font-size: 28px;
+
+    font-weight: 800;
+
+}
+
+
+
+/* =========================================================
+   23. RATING STARS
+========================================================= */
+
+.rating-stars {
+
+    color: #facc15;
+
+    font-size: 17px;
+
+    letter-spacing: 2px;
+
+}
+
+
+
+/* =========================================================
+   24. REVIEW COUNT
+========================================================= */
+
+#reviewCount {
+
+    color: #94a3b8;
+
+    font-size: 13px;
+
+}
+
+
+
+/* =========================================================
+   25. REVIEWS LIST
+========================================================= */
+
+.reviews-list {
+
+    width: 100%;
+
+    margin-top: 20px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+}
+
+
+
+/* =========================================================
+   26. INDIVIDUAL REVIEW
+========================================================= */
+
+.review-item {
+
+    padding: 16px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .06);
+
+    border-radius: 14px;
+
+    background:
+        rgba(2, 6, 23, .35);
+
+}
+
+
+
+/* =========================================================
+   REVIEW HEADER
+========================================================= */
+
+.review-item-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-bottom: 7px;
+
+}
+
+
+
+/* =========================================================
+   REVIEWER NAME
+========================================================= */
+
+.review-item-name {
+
+    color: #ffffff;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+}
+
+
+
+/* =========================================================
+   REVIEW RATING
+========================================================= */
+
+.review-item-rating {
+
+    color: #facc15;
+
+    font-size: 12px;
+
+}
+
+
+
+/* =========================================================
+   REVIEW TEXT
+========================================================= */
+
+.review-item-text {
+
+    color: #94a3b8;
+
+    font-size: 13px;
+
+    line-height: 1.7;
+
+}
+
+
+
+/* =========================================================
+   27. EMPTY REVIEWS
+========================================================= */
+
+.empty-reviews {
+
+    padding: 25px 10px;
+
+    text-align: center;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+}
+
+
+
+/* =========================================================
+   28. LOADING STATE
+========================================================= */
+
+.loading-state {
+
+    min-height: 250px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 15px;
+
+    color: #94a3b8;
+
+    font-size: 14px;
+
+}
+
+
+
+/* =========================================================
+   LOADING SPINNER
+========================================================= */
+
+.loading-spinner {
+
+    width: 42px;
+
+    height: 42px;
+
+    border:
+        3px solid
+        rgba(255, 255, 255, .10);
+
+    border-top-color: #3b82f6;
+
+    border-radius: 50%;
+
+    animation:
+        spin .8s linear infinite;
+
+}
+
+
+
+/* =========================================================
+   SPINNER ANIMATION
+========================================================= */
+
+@keyframes spin {
+
+    from {
+
+        transform: rotate(0deg);
+
+    }
+
+    to {
+
+        transform: rotate(360deg);
+
+    }
+
+}
+
+
+/* =========================================================
+   WORKER ACTION BAR
+
+   Desktop:
+   - Buttons stay together in the center.
+   - They do NOT stretch to opposite ends.
+========================================================= */
+
+.worker-action-bar {
+
+    position: fixed;
+
+    left: 0;
+
+    right: 0;
+
+    bottom: 0;
+
+    z-index: 5000;
+
+    width: 100%;
+
+    min-height: 76px;
+
+    padding:
+        12px
+        24px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 100px;
+
+    background:
+        rgba(2, 6, 23, .94);
+
+    backdrop-filter: blur(18px);
+
+    -webkit-backdrop-filter: blur(18px);
+
+    border-top:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+    box-shadow:
+        0 -15px 40px
+        rgba(0, 0, 0, .30);
+
+}
+
+
+/* =========================================================
+   WORKER ACTION BUTTON
+========================================================= */
+
+.worker-action-button {
+
+    min-height: 48px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    padding:
+        12px
+        20px;
+
+    border-radius: 13px;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    text-decoration: none;
+
+    transition: .2s ease;
+
+}
+
+
+/* =========================================================
+   ACTION ICON
+========================================================= */
+
+.action-icon {
+
+    font-size: 16px;
+
+    line-height: 1;
+
+}
+
+
+/* =========================================================
+   CONTACT WORKER BUTTON
+
+   Positioned on the left.
+========================================================= */
+
+.contact-worker-button {
+
+    background:
+        rgba(34, 197, 94, .12);
+
+    border:
+        1px solid
+        rgba(34, 197, 94, .25);
+
+    color: #86efac;
+
+}
+
+
+/* =========================================================
+   CONTACT WORKER HOVER
+========================================================= */
+
+.contact-worker-button:hover {
+
+    background:
+        rgba(34, 197, 94, .20);
+
+    border-color:
+        rgba(34, 197, 94, .45);
+
+    transform: translateY(-2px);
+
+}
+
+
+/* =========================================================
+   RATE WORKER BUTTON
+
+   Positioned on the right.
+========================================================= */
+
+.rate-worker-button {
+
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+
+    color: #ffffff;
+
+    border:
+        1px solid
+        rgba(59, 130, 246, .35);
+
+}
+
+
+/* =========================================================
+   RATE WORKER HOVER
+========================================================= */
+
+.rate-worker-button:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 25px
+        rgba(59, 130, 246, .25);
+
+}
+
+
+/* =========================================================
+   MAIN PAGE BOTTOM SPACE
+
+   Prevents the fixed action bar from covering
+   the bottom of the reviews section.
+========================================================= */
+
+.worker-details-page {
+
+    padding-bottom: 150px;
+
+}
+
+
+
+/* =========================================================
+   29. NOTIFICATION MODAL
+========================================================= */
+
+.notification-modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 99999;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(2, 6, 23, .78);
+
+    backdrop-filter: blur(10px);
+
+    -webkit-backdrop-filter: blur(10px);
+
+}
+
+
+
+/* =========================================================
+   HIDDEN MODAL
+========================================================= */
+
+.notification-modal[hidden] {
+
+    display: none;
+
+}
+
+
+
+/* =========================================================
+   30. NOTIFICATION CARD
+========================================================= */
+
+.notification-card {
+
+    width:
+        min(
+            390px,
+            calc(100vw - 40px)
+        );
+
+    max-height:
+        calc(100vh - 40px);
+
+    overflow-y: auto;
+
+    padding:
+        35px 30px;
+
+    text-align: center;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .10);
+
+    border-radius: 22px;
+
+    background: #0f172a;
+
+    box-shadow:
+        0 25px 80px
+        rgba(0, 0, 0, .55);
+
+}
+
+
+
+/* =========================================================
+   31. NOTIFICATION ICON
+========================================================= */
+
+.notification-icon {
+
+    width: 64px;
+
+    height: 64px;
+
+    margin:
+        0 auto 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+
+    color: #ffffff;
+
+    font-size: 30px;
+
+    font-weight: 800;
+
+}
+
+
+
+/* =========================================================
+   32. NOTIFICATION TITLE
+========================================================= */
+
+.notification-card h2 {
+
+    margin-bottom: 10px;
+
+    font-size: 24px;
+
+    font-weight: 800;
+
+    line-height: 1.3;
+
+}
+
+
+
+/* =========================================================
+   33. NOTIFICATION MESSAGE
+========================================================= */
+
+.notification-card p {
+
+    margin-bottom: 25px;
+
+    color: #cbd5e1;
+
+    font-size: 14px;
+
+    line-height: 1.7;
+
+    white-space: pre-line;
+
+}
+
+
+
+/* =========================================================
+   34. NOTIFICATION ACTIONS
+========================================================= */
+
+.notification-actions {
+
+    display: flex;
+
+    gap: 10px;
+
+}
+
+
+
+/* =========================================================
+   35. NOTIFICATION BUTTON
+========================================================= */
+
+.notification-actions button {
+
+    width: 100%;
+
+    min-height: 48px;
+
+    padding:
+        12px 16px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+
+    color: #ffffff;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .2s ease;
+
+}
+
+
+
+/* =========================================================
+   NOTIFICATION BUTTON HOVER
+========================================================= */
+
+.notification-actions button:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 25px
+        rgba(59, 130, 246, .20);
+
+}
+
+
+
+/* =========================================================
+   36. ERROR MODAL
+========================================================= */
+
+.notification-card.error {
+
+    border-color:
+        rgba(239, 68, 68, .25);
+
+}
+
+
+
+.notification-card.error .notification-icon {
+
+    background:
+        linear-gradient(
+            135deg,
+            #ef4444,
+            #dc2626
+        );
+
+}
+
+
+
+/* =========================================================
+   37. SUCCESS MODAL
+========================================================= */
+
+.notification-card.success {
+
+    border-color:
+        rgba(59, 130, 246, .25);
+
+}
+
+
+
+.notification-card.success .notification-icon {
+
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+
+}
+
+
+
+/* =========================================================
+   38. INFO MODAL
+========================================================= */
+
+.notification-card.info {
+
+    border-color:
+        rgba(59, 130, 246, .25);
+
+}
+
+
+
+.notification-card.info .notification-icon {
+
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+
+}
+
+
+
+/* =========================================================
+   39. TABLET
+========================================================= */
+
+@media (max-width: 700px) {
+
+    /* -----------------------------------------
+       Main page
+    ----------------------------------------- */
+
+    .worker-details-page {
+
+        padding:
+            92px 18px 50px;
+
+    }
+
+
+    /* -----------------------------------------
+       Header
+    ----------------------------------------- */
+
+    .details-header-inner {
+
+        padding:
+            0 18px;
+
+    }
+
+
+    /* -----------------------------------------
+       Portfolio
+    ----------------------------------------- */
+
+    .portfolio-images {
+
+        gap: 8px;
+
+    }
+
+
+    .portfolio-image {
+
+        border-radius: 13px;
+
+    }
+
+
+    /* -----------------------------------------
+       Information section
+    ----------------------------------------- */
+
+    .worker-info-section {
+
+        padding: 20px;
+
+    }
+
+
+    /* -----------------------------------------
+       Reviews section
+    ----------------------------------------- */
+
+    .reviews-section {
+
+        padding: 20px;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   40. MOBILE
+========================================================= */
+
+@media (max-width: 500px) {
+
+    /* -----------------------------------------
+       Header
+    ----------------------------------------- */
+
+    .details-header {
+
+        height: 66px;
+
+    }
+
+
+    .details-header-inner {
+
+        padding:
+            0 12px;
+
+    }
+
+
+    /* -----------------------------------------
+       Back button
+    ----------------------------------------- */
+
+    .back-button {
+
+        min-height: 40px;
+
+        padding:
+            7px 8px;
+
+        font-size: 13px;
+
+    }
+
+
+    .back-icon {
+
+        font-size: 19px;
+
+    }
+
+
+    /* -----------------------------------------
+       Verified badge
+    ----------------------------------------- */
+
+    .verified-badge {
+
+        min-height: 34px;
+
+        padding:
+            6px 10px;
+
+        font-size: 11px;
+
+    }
+
+
+    .verified-icon {
+
+        width: 18px;
+
+        height: 18px;
+
+        font-size: 11px;
+
+    }
+
+
+    /* -----------------------------------------
+       Main page
+    ----------------------------------------- */
+
+    .worker-details-page {
+
+        padding:
+            82px 12px 45px;
+
+    }
+
+
+    /* -----------------------------------------
+       Portfolio
+
+       Three images remain side by side.
+    ----------------------------------------- */
+
+    .portfolio-section {
+
+        margin-bottom: 18px;
+
+    }
+
+
+    .portfolio-images {
+
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+
+        gap: 6px;
+
+    }
+
+
+    .portfolio-image {
+
+        border-radius: 10px;
+
+    }
+
+
+    /* -----------------------------------------
+       Worker information section
+    ----------------------------------------- */
+
+    .worker-info-section {
+
+        padding: 18px;
+
+        margin-bottom: 18px;
+
+        border-radius: 17px;
+
+    }
+
+
+    /* -----------------------------------------
+       About
+    ----------------------------------------- */
+
+    .about-block {
+
+        padding-bottom: 18px;
+
+        margin-bottom: 18px;
+
+    }
+
+
+    .about-block h2 {
+
+        font-size: 19px;
+
+    }
+
+
+    .about-block p {
+
+        font-size: 13px;
+
+        line-height: 1.7;
+
+    }
+
+
+    /* -----------------------------------------
+       Information grid
+
+       Keep two columns on mobile.
+    ----------------------------------------- */
+
+    .worker-info-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 8px;
+
+    }
+
+
+    /* -----------------------------------------
+       Information item
+    ----------------------------------------- */
+
+    .info-item {
+
+        min-height: 75px;
+
+        padding: 12px;
+
+        border-radius: 12px;
+
+    }
+
+
+    /* -----------------------------------------
+       Information label
+    ----------------------------------------- */
+
+    .info-label {
+
+        margin-bottom: 4px;
+
+        font-size: 9px;
+
+    }
+
+
+    /* -----------------------------------------
+       Information value
+    ----------------------------------------- */
+
+    .info-item strong {
+
+        font-size: 12px;
+
+    }
+
+
+    /* -----------------------------------------
+       Reviews
+    ----------------------------------------- */
+
+    .reviews-section {
+
+        padding: 18px;
+
+        border-radius: 17px;
+
+    }
+
+
+    .reviews-header {
+
+        padding-bottom: 16px;
+
+    }
+
+
+    .reviews-header h2 {
+
+        font-size: 19px;
+
+    }
+
+
+    .reviews-header p {
+
+        font-size: 12px;
+
+    }
+
+
+    /* -----------------------------------------
+       Rating
+    ----------------------------------------- */
+
+    .rating-summary {
+
+        padding-top: 16px;
+
+    }
+
+
+    .rating-value {
+
+        gap: 7px;
+
+    }
+
+
+    .rating-value strong {
+
+        font-size: 25px;
+
+    }
+
+
+    .rating-stars {
+
+        font-size: 15px;
+
+        letter-spacing: 1px;
+
+    }
+
+
+    #reviewCount {
+
+        width: 100%;
+
+        font-size: 12px;
+
+    }
+
+
+    /* -----------------------------------------
+       Review item
+    ----------------------------------------- */
+
+    .review-item {
+
+        padding: 13px;
+
+        border-radius: 12px;
+
+    }
+
+
+    .review-item-name {
+
+        font-size: 12px;
+
+    }
+
+
+    .review-item-rating {
+
+        font-size: 11px;
+
+    }
+
+
+    .review-item-text {
+
+        font-size: 12px;
+
+    }
+
+
+    /* -----------------------------------------
+       Notification modal
+    ----------------------------------------- */
+
+    .notification-modal {
+
+        padding: 16px;
+
+    }
+
+
+    .notification-card {
+
+        width:
+            min(
+                390px,
+                calc(100vw - 32px)
+            );
+
+        padding:
+            30px 22px;
+
+    }
+
+
+    .notification-icon {
+
+        width: 60px;
+
+        height: 60px;
+
+        font-size: 28px;
+
+    }
+
+
+    .notification-card h2 {
+
+        font-size: 22px;
+
+    }
+
+
+    /* -----------------------------------------
+   Fixed worker action bar
+----------------------------------------- */
+
+.worker-action-bar {
+
+    min-height: 68px;
+
+    padding:
+        10px
+        12px;
+
+    gap: 8px;
+
+}
+
+
+/* -----------------------------------------
+   Worker action buttons
+----------------------------------------- */
+
+.worker-action-button {
+
+    flex: 1;
+
+    min-height: 46px;
+
+    padding:
+        10px
+        8px;
+
+    border-radius: 11px;
+
+    font-size: 12px;
+
+}
+
+
+/* -----------------------------------------
+   Action icons
+----------------------------------------- */
+
+.action-icon {
+
+    font-size: 14px;
+
+}
+
+
+/* -----------------------------------------
+   Bottom page spacing
+----------------------------------------- */
+
+.worker-details-page {
+
+    padding-bottom: 125px;
+
+}
+
+}
+
+
+
+/* =========================================================
+   41. VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width: 350px) {
+
+    /* -----------------------------------------
+       Main page
+    ----------------------------------------- */
+
+    .worker-details-page {
+
+        padding-left: 8px;
+
+        padding-right: 8px;
+
+    }
+
+
+    /* -----------------------------------------
+       Portfolio
+    ----------------------------------------- */
+
+    .portfolio-images {
+
+        gap: 4px;
+
+    }
+
+
+    .portfolio-image {
+
+        border-radius: 8px;
+
+    }
+
+
+    /* -----------------------------------------
+       Information section
+    ----------------------------------------- */
+
+    .worker-info-section {
+
+        padding: 14px;
+
+    }
+
+
+    /* -----------------------------------------
+       Information grid
+    ----------------------------------------- */
+
+    .worker-info-grid {
+
+        gap: 6px;
+
+    }
+
+
+    .info-item {
+
+        padding: 10px;
+
+    }
+
+
+    .info-label {
+
+        font-size: 8px;
+
+    }
+
+
+    .info-item strong {
+
+        font-size: 11px;
+
+    }
+
+
+    /* -----------------------------------------
+       Reviews
+    ----------------------------------------- */
+
+    .reviews-section {
+
+        padding: 14px;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   42. REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+
+        scroll-behavior: auto !important;
+
+        animation-duration: .01ms !important;
+
+        animation-iteration-count: 1 !important;
+
+        transition-duration: .01ms !important;
+
+    }
+
+}
+
+
+
+
