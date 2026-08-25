@@ -461,72 +461,124 @@ function createWorkerCard(worker) {
         worker.name || "Worker";
 
 
-    /* -----------------------------------------------------
-       LOCATION
-    ----------------------------------------------------- */
+        /* =====================================================
+   LOCATION + SKILL ROW
+===================================================== */
 
-    const location =
-        document.createElement("p");
-
-
-    location.className =
-        "location";
-
-
-    location.textContent =
-        formatLocation(worker);
-
-     /* -----------------------------------------------------
-   SKILL + PRICE ROW
------------------------------------------------------ */
-
-const skillPriceRow =
+const detailsRow =
     document.createElement("div");
 
-
-skillPriceRow.className =
-    "skill-price-row";
+detailsRow.className =
+    "worker-details-row";
 
 
 /* -----------------------------------------------------
-   WORKER SKILL
+   LOCATION
+----------------------------------------------------- */
+
+const location =
+    document.createElement("p");
+
+location.className =
+    "location";
+
+location.textContent =
+    formatLocation(worker);
+
+
+/* -----------------------------------------------------
+   PRIMARY SKILL
 ----------------------------------------------------- */
 
 const skill =
     document.createElement("p");
 
-
 skill.className =
     "skill";
 
-
 skill.textContent =
-    worker.primarySkill || "Skill unavailable";
+    worker.primarySkill ||
+    "Skill unavailable";
+
+
+/*
+   Put location on the left
+   and skill on the right.
+*/
+
+detailsRow.appendChild(location);
+
+detailsRow.appendChild(skill);
+
+
+/* =====================================================
+   VERIFICATION + PRICE ROW
+===================================================== */
+
+const verificationPriceRow =
+    document.createElement("div");
+
+verificationPriceRow.className =
+    "verification-price-row";
 
 
 /* -----------------------------------------------------
-   WORKER PRICE
+   VERIFICATION
+----------------------------------------------------- */
+
+const verification =
+    document.createElement("p");
+
+verification.className =
+    "verification";
+
+
+/*
+   Only display "Verified" when the backend
+   returns true.
+
+   If false, keep it blank.
+*/
+
+if (worker.isVerified === true) {
+
+    verification.textContent =
+        "Verified";
+
+} else {
+
+    verification.textContent =
+        "";
+
+}
+
+
+/* -----------------------------------------------------
+   PRICE
 ----------------------------------------------------- */
 
 const price =
     document.createElement("p");
 
-
 price.className =
     "price";
-
 
 price.textContent =
     formatPrice(worker.price);
 
 
 /*
-    Put skill on the left and price on the right.
+   Put verification on the left
+   and price on the right.
 */
 
-skillPriceRow.appendChild(skill);
+verificationPriceRow.appendChild(
+    verification
+);
 
-skillPriceRow.appendChild(price);
+verificationPriceRow.appendChild(
+    price
+);
 
 
 /* -----------------------------------------------------
@@ -549,14 +601,6 @@ viewButton.textContent =
     "View Profile";
 
 
-/*
-    Store the worker ID.
-
-    The backend now returns:
-
-    worker.workerId
-*/
-
 viewButton.dataset.workerId =
     worker.workerId || "";
 
@@ -573,17 +617,17 @@ viewButton.addEventListener(
 );
 
 
-/* -----------------------------------------------------
+/* =====================================================
    BUILD CARD
------------------------------------------------------ */
+===================================================== */
 
 card.appendChild(image);
 
 card.appendChild(name);
 
-card.appendChild(location);
+card.appendChild(detailsRow);
 
-card.appendChild(skillPriceRow);
+card.appendChild(verificationPriceRow);
 
 card.appendChild(viewButton);
 
@@ -781,7 +825,7 @@ function applyFilters() {
 
                 const workerSkill =
                     String(
-                        worker.primarSkill ||
+                        worker.primarySkill ||
                         worker.skill ||
                         ""
                     ).toLowerCase();
@@ -893,20 +937,21 @@ function applyFilters() {
 
 function viewWorkerProfile(worker) {
 
-    /*
-        The backend now returns workerId.
-
-        This is the unique ID of the selected worker.
-    */
-
     const workerId =
         worker.workerId;
 
 
-    /*
-        A worker ID is required so the details page
-        knows which worker the client selected.
-    */
+    console.log(
+        "CLIENT WORKER SEARCH - selected worker:",
+        worker
+    );
+
+
+    console.log(
+        "CLIENT WORKER SEARCH - workerId:",
+        workerId
+    );
+
 
     if (!workerId) {
 
@@ -922,28 +967,24 @@ function viewWorkerProfile(worker) {
     }
 
 
-    /*
-        Store the selected worker ID temporarily.
-
-        This avoids putting authentication tokens
-        inside the URL.
-    */
-
     sessionStorage.setItem(
         "selectedWorkerId",
-        workerId
+        String(workerId)
     );
 
 
-    /*
-        Open the worker details page.
-    */
+    console.log(
+        "CLIENT WORKER SEARCH - saved selectedWorkerId:",
+        sessionStorage.getItem(
+            "selectedWorkerId"
+        )
+    );
+
 
     window.location.href =
         "../client-worker-details/index.html";
 
 }
-
 
 /* =========================================================
    15. NAVIGATION SETUP

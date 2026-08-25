@@ -10,29 +10,33 @@
 
    PAGE STRUCTURE:
 
-   1. Header
-      - Back
-      - Verified
-
-   2. Portfolio
-      - Three images side by side
-
-   3. Worker information
-      - About
-      - Primary Skill
-      - Experience
-      - Starting Price
-      - Location
-
-   4. Rating and reviews
+   1. Global reset
+   2. Body
+   3. Background glows
+   4. Fixed details header
+   5. Back button
+   6. Verified badge
+   7. Main worker details page
+   8. Portfolio
+   9. Worker information
+   10. Rating and reviews
+   11. Fixed action bar
+   12. Notification modal
+   13. Error / success / info states
+   14. Tablet
+   15. Mobile
+   16. Very small mobile
+   17. Reduced motion
 
    IMPORTANT:
+   - No loading state
+   - No loading spinner
    - No sidebar
    - No hamburger menu
    - No profile picture
    - Three portfolio images remain side by side
+   - Worker information remains two columns on mobile
 ========================================================= */
-
 
 
 /* =========================================================
@@ -50,7 +54,6 @@
 }
 
 
-
 /* =========================================================
    2. HTML
 ========================================================= */
@@ -60,7 +63,6 @@ html {
     scroll-behavior: smooth;
 
 }
-
 
 
 /* =========================================================
@@ -84,7 +86,6 @@ body {
 }
 
 
-
 /* =========================================================
    4. BUTTONS
 ========================================================= */
@@ -96,9 +97,19 @@ button {
 }
 
 
+/* =========================================================
+   5. LINKS
+========================================================= */
+
+a {
+
+    color: inherit;
+
+}
+
 
 /* =========================================================
-   5. BACKGROUND GLOWS
+   6. BACKGROUND GLOWS
 ========================================================= */
 
 .green-glow,
@@ -123,7 +134,6 @@ button {
 }
 
 
-
 /* =========================================================
    GREEN GLOW
 ========================================================= */
@@ -137,7 +147,6 @@ button {
     background: #22c55e;
 
 }
-
 
 
 /* =========================================================
@@ -155,9 +164,10 @@ button {
 }
 
 
-
 /* =========================================================
-   6. DETAILS HEADER
+   7. DETAILS HEADER
+
+   The header remains fixed while the user scrolls.
 ========================================================= */
 
 .details-header {
@@ -188,7 +198,6 @@ button {
 }
 
 
-
 /* =========================================================
    HEADER INNER
 ========================================================= */
@@ -215,9 +224,8 @@ button {
 }
 
 
-
 /* =========================================================
-   7. BACK BUTTON
+   8. BACK BUTTON
 ========================================================= */
 
 .back-button {
@@ -249,10 +257,12 @@ button {
 
     cursor: pointer;
 
-    transition: .2s ease;
+    transition:
+        color .2s ease,
+        background .2s ease,
+        transform .2s ease;
 
 }
-
 
 
 /* =========================================================
@@ -269,6 +279,16 @@ button {
 }
 
 
+/* =========================================================
+   BACK BUTTON ACTIVE
+========================================================= */
+
+.back-button:active {
+
+    transform: scale(.97);
+
+}
+
 
 /* =========================================================
    BACK ICON
@@ -283,9 +303,8 @@ button {
 }
 
 
-
 /* =========================================================
-   8. VERIFIED BADGE
+   9. VERIFIED BADGE
 ========================================================= */
 
 .verified-badge {
@@ -321,6 +340,16 @@ button {
 }
 
 
+/* =========================================================
+   HIDDEN VERIFIED BADGE
+========================================================= */
+
+.verified-badge[hidden] {
+
+    display: none;
+
+}
+
 
 /* =========================================================
    VERIFIED ICON
@@ -351,9 +380,8 @@ button {
 }
 
 
-
 /* =========================================================
-   9. MAIN WORKER DETAILS PAGE
+   10. MAIN WORKER DETAILS PAGE
 ========================================================= */
 
 .worker-details-page {
@@ -365,14 +393,24 @@ button {
     margin: 0 auto;
 
     padding:
-        100px 24px 70px;
+        100px 24px 150px;
 
 }
 
 
+/* =========================================================
+   11. WORKER CONTENT
+========================================================= */
+
+#workerContent[hidden] {
+
+    display: none;
+
+}
+
 
 /* =========================================================
-   10. PORTFOLIO SECTION
+   12. PORTFOLIO SECTION
 ========================================================= */
 
 .portfolio-section {
@@ -384,11 +422,16 @@ button {
 }
 
 
-
 /* =========================================================
-   11. PORTFOLIO IMAGES
+   13. PORTFOLIO IMAGES
 
    Three images ALWAYS remain side by side.
+
+   Desktop:
+       Image 1 | Image 2 | Image 3
+
+   Mobile:
+       Image 1 | Image 2 | Image 3
 ========================================================= */
 
 .portfolio-images {
@@ -405,9 +448,8 @@ button {
 }
 
 
-
 /* =========================================================
-   12. PORTFOLIO IMAGE
+   14. PORTFOLIO IMAGE
 ========================================================= */
 
 .portfolio-image {
@@ -436,7 +478,6 @@ button {
 }
 
 
-
 /* =========================================================
    PORTFOLIO IMAGE HOVER
 ========================================================= */
@@ -455,9 +496,8 @@ button {
 }
 
 
-
 /* =========================================================
-   13. WORKER INFORMATION SECTION
+   15. WORKER INFORMATION SECTION
 ========================================================= */
 
 .worker-info-section {
@@ -484,9 +524,8 @@ button {
 }
 
 
-
 /* =========================================================
-   14. ABOUT BLOCK
+   16. ABOUT BLOCK
 ========================================================= */
 
 .about-block {
@@ -500,7 +539,6 @@ button {
         rgba(255, 255, 255, .08);
 
 }
-
 
 
 /* =========================================================
@@ -520,7 +558,6 @@ button {
 }
 
 
-
 /* =========================================================
    ABOUT DESCRIPTION
 ========================================================= */
@@ -535,20 +572,13 @@ button {
 
     white-space: pre-line;
 
+    overflow-wrap: anywhere;
+
 }
 
 
-
 /* =========================================================
-   15. WORKER INFORMATION GRID
-
-   Information stays inside the same section.
-
-   Desktop:
-
-   Primary Skill       Experience
-
-   Starting Price      Location
+   17. WORKER INFORMATION GRID
 ========================================================= */
 
 .worker-info-grid {
@@ -563,9 +593,8 @@ button {
 }
 
 
-
 /* =========================================================
-   16. INFORMATION ITEM
+   18. INFORMATION ITEM
 ========================================================= */
 
 .info-item {
@@ -588,9 +617,8 @@ button {
 }
 
 
-
 /* =========================================================
-   17. INFORMATION LABEL
+   19. INFORMATION LABEL
 ========================================================= */
 
 .info-label {
@@ -612,9 +640,8 @@ button {
 }
 
 
-
 /* =========================================================
-   18. INFORMATION VALUE
+   20. INFORMATION VALUE
 ========================================================= */
 
 .info-item strong {
@@ -634,7 +661,6 @@ button {
 }
 
 
-
 /* =========================================================
    STARTING PRICE
 ========================================================= */
@@ -646,9 +672,8 @@ button {
 }
 
 
-
 /* =========================================================
-   19. REVIEWS SECTION
+   21. REVIEWS SECTION
 ========================================================= */
 
 .reviews-section {
@@ -673,9 +698,8 @@ button {
 }
 
 
-
 /* =========================================================
-   20. REVIEWS HEADER
+   22. REVIEWS HEADER
 ========================================================= */
 
 .reviews-header {
@@ -687,7 +711,6 @@ button {
         rgba(255, 255, 255, .08);
 
 }
-
 
 
 /* =========================================================
@@ -707,7 +730,6 @@ button {
 }
 
 
-
 /* =========================================================
    REVIEWS SUBTITLE
 ========================================================= */
@@ -721,9 +743,8 @@ button {
 }
 
 
-
 /* =========================================================
-   21. RATING SUMMARY
+   23. RATING SUMMARY
 ========================================================= */
 
 .rating-summary {
@@ -733,9 +754,8 @@ button {
 }
 
 
-
 /* =========================================================
-   22. RATING VALUE
+   24. RATING VALUE
 ========================================================= */
 
 .rating-value {
@@ -749,7 +769,6 @@ button {
     gap: 10px;
 
 }
-
 
 
 /* =========================================================
@@ -767,9 +786,8 @@ button {
 }
 
 
-
 /* =========================================================
-   23. RATING STARS
+   25. RATING STARS
 ========================================================= */
 
 .rating-stars {
@@ -783,9 +801,8 @@ button {
 }
 
 
-
 /* =========================================================
-   24. REVIEW COUNT
+   26. REVIEW COUNT
 ========================================================= */
 
 #reviewCount {
@@ -797,9 +814,8 @@ button {
 }
 
 
-
 /* =========================================================
-   25. REVIEWS LIST
+   27. REVIEWS LIST
 ========================================================= */
 
 .reviews-list {
@@ -817,9 +833,8 @@ button {
 }
 
 
-
 /* =========================================================
-   26. INDIVIDUAL REVIEW
+   28. INDIVIDUAL REVIEW
 ========================================================= */
 
 .review-item {
@@ -836,7 +851,6 @@ button {
         rgba(2, 6, 23, .35);
 
 }
-
 
 
 /* =========================================================
@@ -858,7 +872,6 @@ button {
 }
 
 
-
 /* =========================================================
    REVIEWER NAME
 ========================================================= */
@@ -874,7 +887,6 @@ button {
 }
 
 
-
 /* =========================================================
    REVIEW RATING
 ========================================================= */
@@ -886,7 +898,6 @@ button {
     font-size: 12px;
 
 }
-
 
 
 /* =========================================================
@@ -901,12 +912,13 @@ button {
 
     line-height: 1.7;
 
+    overflow-wrap: anywhere;
+
 }
 
 
-
 /* =========================================================
-   27. EMPTY REVIEWS
+   29. EMPTY REVIEWS
 ========================================================= */
 
 .empty-reviews {
@@ -922,85 +934,16 @@ button {
 }
 
 
-
 /* =========================================================
-   28. LOADING STATE
-========================================================= */
-
-.loading-state {
-
-    min-height: 250px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-
-    justify-content: center;
-
-    gap: 15px;
-
-    color: #94a3b8;
-
-    font-size: 14px;
-
-}
-
-
-
-/* =========================================================
-   LOADING SPINNER
-========================================================= */
-
-.loading-spinner {
-
-    width: 42px;
-
-    height: 42px;
-
-    border:
-        3px solid
-        rgba(255, 255, 255, .10);
-
-    border-top-color: #3b82f6;
-
-    border-radius: 50%;
-
-    animation:
-        spin .8s linear infinite;
-
-}
-
-
-
-/* =========================================================
-   SPINNER ANIMATION
-========================================================= */
-
-@keyframes spin {
-
-    from {
-
-        transform: rotate(0deg);
-
-    }
-
-    to {
-
-        transform: rotate(360deg);
-
-    }
-
-}
-
-
-/* =========================================================
-   WORKER ACTION BAR
+   30. FIXED WORKER ACTION BAR
 
    Desktop:
-   - Buttons stay together in the center.
-   - They do NOT stretch to opposite ends.
+
+       Contact Worker       Rate Worker
+
+   The buttons remain together in the center.
+
+   The action bar stays fixed at the bottom.
 ========================================================= */
 
 .worker-action-bar {
@@ -1020,8 +963,7 @@ button {
     min-height: 76px;
 
     padding:
-        12px
-        24px;
+        12px 24px;
 
     display: flex;
 
@@ -1050,7 +992,7 @@ button {
 
 
 /* =========================================================
-   WORKER ACTION BUTTON
+   31. WORKER ACTION BUTTON
 ========================================================= */
 
 .worker-action-button {
@@ -1066,8 +1008,7 @@ button {
     gap: 8px;
 
     padding:
-        12px
-        20px;
+        12px 20px;
 
     border-radius: 13px;
 
@@ -1077,13 +1018,19 @@ button {
 
     text-decoration: none;
 
-    transition: .2s ease;
+    cursor: pointer;
+
+    transition:
+        transform .2s ease,
+        background .2s ease,
+        border-color .2s ease,
+        box-shadow .2s ease;
 
 }
 
 
 /* =========================================================
-   ACTION ICON
+   32. ACTION ICON
 ========================================================= */
 
 .action-icon {
@@ -1096,9 +1043,7 @@ button {
 
 
 /* =========================================================
-   CONTACT WORKER BUTTON
-
-   Positioned on the left.
+   33. CONTACT WORKER BUTTON
 ========================================================= */
 
 .contact-worker-button {
@@ -1133,9 +1078,18 @@ button {
 
 
 /* =========================================================
-   RATE WORKER BUTTON
+   CONTACT WORKER ACTIVE
+========================================================= */
 
-   Positioned on the right.
+.contact-worker-button:active {
+
+    transform: translateY(0);
+
+}
+
+
+/* =========================================================
+   34. RATE WORKER BUTTON
 ========================================================= */
 
 .rate-worker-button {
@@ -1172,22 +1126,18 @@ button {
 
 
 /* =========================================================
-   MAIN PAGE BOTTOM SPACE
-
-   Prevents the fixed action bar from covering
-   the bottom of the reviews section.
+   RATE WORKER ACTIVE
 ========================================================= */
 
-.worker-details-page {
+.rate-worker-button:active {
 
-    padding-bottom: 150px;
+    transform: translateY(0);
 
 }
 
 
-
 /* =========================================================
-   29. NOTIFICATION MODAL
+   35. NOTIFICATION MODAL
 ========================================================= */
 
 .notification-modal {
@@ -1216,7 +1166,6 @@ button {
 }
 
 
-
 /* =========================================================
    HIDDEN MODAL
 ========================================================= */
@@ -1228,9 +1177,8 @@ button {
 }
 
 
-
 /* =========================================================
-   30. NOTIFICATION CARD
+   36. NOTIFICATION CARD
 ========================================================= */
 
 .notification-card {
@@ -1266,9 +1214,8 @@ button {
 }
 
 
-
 /* =========================================================
-   31. NOTIFICATION ICON
+   37. NOTIFICATION ICON
 ========================================================= */
 
 .notification-icon {
@@ -1304,14 +1251,15 @@ button {
 }
 
 
-
 /* =========================================================
-   32. NOTIFICATION TITLE
+   38. NOTIFICATION TITLE
 ========================================================= */
 
 .notification-card h2 {
 
     margin-bottom: 10px;
+
+    color: #ffffff;
 
     font-size: 24px;
 
@@ -1322,9 +1270,8 @@ button {
 }
 
 
-
 /* =========================================================
-   33. NOTIFICATION MESSAGE
+   39. NOTIFICATION MESSAGE
 ========================================================= */
 
 .notification-card p {
@@ -1342,9 +1289,8 @@ button {
 }
 
 
-
 /* =========================================================
-   34. NOTIFICATION ACTIONS
+   40. NOTIFICATION ACTIONS
 ========================================================= */
 
 .notification-actions {
@@ -1356,9 +1302,8 @@ button {
 }
 
 
-
 /* =========================================================
-   35. NOTIFICATION BUTTON
+   41. NOTIFICATION BUTTON
 ========================================================= */
 
 .notification-actions button {
@@ -1389,10 +1334,11 @@ button {
 
     cursor: pointer;
 
-    transition: .2s ease;
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
 
 }
-
 
 
 /* =========================================================
@@ -1410,9 +1356,19 @@ button {
 }
 
 
+/* =========================================================
+   NOTIFICATION BUTTON ACTIVE
+========================================================= */
+
+.notification-actions button:active {
+
+    transform: translateY(0);
+
+}
+
 
 /* =========================================================
-   36. ERROR MODAL
+   42. ERROR MODAL
 ========================================================= */
 
 .notification-card.error {
@@ -1423,6 +1379,9 @@ button {
 }
 
 
+/* =========================================================
+   ERROR ICON
+========================================================= */
 
 .notification-card.error .notification-icon {
 
@@ -1436,9 +1395,8 @@ button {
 }
 
 
-
 /* =========================================================
-   37. SUCCESS MODAL
+   43. SUCCESS MODAL
 ========================================================= */
 
 .notification-card.success {
@@ -1449,6 +1407,9 @@ button {
 }
 
 
+/* =========================================================
+   SUCCESS ICON
+========================================================= */
 
 .notification-card.success .notification-icon {
 
@@ -1462,9 +1423,8 @@ button {
 }
 
 
-
 /* =========================================================
-   38. INFO MODAL
+   44. INFO MODAL
 ========================================================= */
 
 .notification-card.info {
@@ -1475,6 +1435,9 @@ button {
 }
 
 
+/* =========================================================
+   INFO ICON
+========================================================= */
 
 .notification-card.info .notification-icon {
 
@@ -1488,12 +1451,12 @@ button {
 }
 
 
-
 /* =========================================================
-   39. TABLET
+   45. TABLET
 ========================================================= */
 
 @media (max-width: 700px) {
+
 
     /* -----------------------------------------
        Main page
@@ -1502,7 +1465,7 @@ button {
     .worker-details-page {
 
         padding:
-            92px 18px 50px;
+            92px 18px 140px;
 
     }
 
@@ -1558,15 +1521,26 @@ button {
 
     }
 
+
+    /* -----------------------------------------
+       Action bar
+    ----------------------------------------- */
+
+    .worker-action-bar {
+
+        gap: 50px;
+
+    }
+
 }
 
 
-
 /* =========================================================
-   40. MOBILE
+   46. MOBILE
 ========================================================= */
 
 @media (max-width: 500px) {
+
 
     /* -----------------------------------------
        Header
@@ -1644,15 +1618,13 @@ button {
     .worker-details-page {
 
         padding:
-            82px 12px 45px;
+            82px 12px 125px;
 
     }
 
 
     /* -----------------------------------------
        Portfolio
-
-       Three images remain side by side.
     ----------------------------------------- */
 
     .portfolio-section {
@@ -1868,6 +1840,13 @@ button {
     }
 
 
+    .review-item-header {
+
+        gap: 6px;
+
+    }
+
+
     .review-item-name {
 
         font-size: 12px;
@@ -1885,6 +1864,53 @@ button {
     .review-item-text {
 
         font-size: 12px;
+
+    }
+
+
+    /* -----------------------------------------
+       Fixed worker action bar
+    ----------------------------------------- */
+
+    .worker-action-bar {
+
+        min-height: 68px;
+
+        padding:
+            10px 12px;
+
+        gap: 8px;
+
+    }
+
+
+    /* -----------------------------------------
+       Worker action buttons
+    ----------------------------------------- */
+
+    .worker-action-button {
+
+        flex: 1;
+
+        min-height: 46px;
+
+        padding:
+            10px 8px;
+
+        border-radius: 11px;
+
+        font-size: 12px;
+
+    }
+
+
+    /* -----------------------------------------
+       Action icons
+    ----------------------------------------- */
+
+    .action-icon {
+
+        font-size: 14px;
 
     }
 
@@ -1911,6 +1937,8 @@ button {
         padding:
             30px 22px;
 
+        border-radius: 20px;
+
     }
 
 
@@ -1932,74 +1960,30 @@ button {
     }
 
 
-    /* -----------------------------------------
-   Fixed worker action bar
------------------------------------------ */
+    .notification-card p {
 
-.worker-action-bar {
+        font-size: 13px;
 
-    min-height: 68px;
-
-    padding:
-        10px
-        12px;
-
-    gap: 8px;
-
-}
+    }
 
 
-/* -----------------------------------------
-   Worker action buttons
------------------------------------------ */
+    .notification-actions button {
 
-.worker-action-button {
+        min-height: 46px;
 
-    flex: 1;
+        font-size: 13px;
 
-    min-height: 46px;
-
-    padding:
-        10px
-        8px;
-
-    border-radius: 11px;
-
-    font-size: 12px;
+    }
 
 }
-
-
-/* -----------------------------------------
-   Action icons
------------------------------------------ */
-
-.action-icon {
-
-    font-size: 14px;
-
-}
-
-
-/* -----------------------------------------
-   Bottom page spacing
------------------------------------------ */
-
-.worker-details-page {
-
-    padding-bottom: 125px;
-
-}
-
-}
-
 
 
 /* =========================================================
-   41. VERY SMALL MOBILE
+   47. VERY SMALL MOBILE
 ========================================================= */
 
 @media (max-width: 350px) {
+
 
     /* -----------------------------------------
        Main page
@@ -2085,12 +2069,42 @@ button {
 
     }
 
+
+    /* -----------------------------------------
+       Action bar
+    ----------------------------------------- */
+
+    .worker-action-bar {
+
+        padding:
+            8px;
+
+        gap: 5px;
+
+    }
+
+
+    .worker-action-button {
+
+        padding:
+            9px 5px;
+
+        font-size: 10px;
+
+    }
+
+
+    .action-icon {
+
+        font-size: 12px;
+
+    }
+
 }
 
 
-
 /* =========================================================
-   42. REDUCED MOTION
+   48. REDUCED MOTION
 ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
@@ -2110,7 +2124,3 @@ button {
     }
 
 }
-
-
-
-

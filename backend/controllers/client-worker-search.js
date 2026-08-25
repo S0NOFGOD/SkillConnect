@@ -308,6 +308,7 @@ const getWorkers =
                         "_id",
                         "profilePicture",
                         "fullName",
+                        "isVerified",
                         "primarySkill",
                         "state",
                         "city",
@@ -350,6 +351,15 @@ const formattedWorkers =
 
             name:
                 worker.fullName || "Worker",
+
+                
+            /*
+               worker verification
+            */
+
+
+                isVerified:
+                worker.isVerified === true,
 
 
             /*

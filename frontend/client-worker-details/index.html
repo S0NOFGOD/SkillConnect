@@ -71,12 +71,6 @@
 
 <!-- =========================================================
      WORKER DETAILS HEADER
-
-     Left:
-         Back
-
-     Right:
-         Verified
 ========================================================= -->
 
 <header class="details-header">
@@ -111,11 +105,16 @@
 
         <!-- =================================================
              VERIFIED BADGE
+
+             JavaScript displays this when the worker
+             is verified.
         ================================================== -->
 
         <div
             class="verified-badge"
+            id="verifiedBadge"
             aria-label="Verified worker"
+            hidden
         >
 
             <span
@@ -143,265 +142,222 @@
 
 <main class="worker-details-page">
 
-
-    <!-- =====================================================
-         PORTFOLIO IMAGES
-
-         The three portfolio images are displayed
-         side by side.
-
-         JavaScript will populate these images.
-    ====================================================== -->
-
-    <section
-        class="portfolio-section"
-        aria-label="Worker portfolio"
-    >
-
-        <div
-    id="portfolioImages"
-    class="portfolio-images"
->
-
-    <!-- =================================================
-         EXAMPLE PORTFOLIO IMAGE 1
-    ================================================== -->
-
-    <img
-        src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=800&q=80"
-        alt="Example worker portfolio image"
-        class="portfolio-image"
-    >
-
-
-    <!-- =================================================
-         EXAMPLE PORTFOLIO IMAGE 2
-    ================================================== -->
-
-    <img
-        src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=800&q=80"
-        alt="Example worker portfolio image"
-        class="portfolio-image"
-    >
-
-
-    <!-- =================================================
-         EXAMPLE PORTFOLIO IMAGE 3
-    ================================================== -->
-
-    <img
-        src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=800&q=80"
-        alt="Example worker portfolio image"
-        class="portfolio-image"
-    >
-
-</div>
-
-    </section>
-
-
-
-    <!-- =====================================================
-         ABOUT / WORKER INFORMATION SECTION
-
-         All worker information is kept inside the
-         same section as requested.
-
-         Order:
-
-         About
-         Primary Skill + Experience
-         Starting Price + Location
-    ====================================================== -->
-
-    <section class="worker-info-section">
+    <div id="workerContent">
 
 
         <!-- =================================================
-             ABOUT
+             PORTFOLIO
         ================================================== -->
 
-        <div class="about-block">
+        <section
+            class="portfolio-section"
+            aria-label="Worker portfolio"
+        >
 
-            <h2>
-                About
-            </h2>
+            <div
+                id="portfolioImages"
+                class="portfolio-images"
+            >
 
-            <p id="workerDescription">
-                Loading worker information...
-            </p>
+                <!-- Portfolio images inserted by JavaScript -->
 
-        </div>
+            </div>
+
+        </section>
 
 
 
         <!-- =================================================
-             WORKER INFORMATION GRID
+             WORKER INFORMATION
         ================================================== -->
 
-        <div class="worker-info-grid">
+        <section class="worker-info-section">
 
 
-            <!-- =================================================
-                 PRIMARY SKILL
-            ================================================== -->
+            <!-- =============================================
+                 ABOUT
+            ============================================== -->
 
-            <div class="info-item">
-
-                <span class="info-label">
-                    Primary Skill
-                </span>
-
-                <strong id="workerSkill">
-                    —
-                </strong>
-
-            </div>
-
-
-
-            <!-- =================================================
-                 EXPERIENCE
-            ================================================== -->
-
-            <div class="info-item">
-
-                <span class="info-label">
-                    Experience
-                </span>
-
-                <strong id="workerExperience">
-                    —
-                </strong>
-
-            </div>
-
-
-
-            <!-- =================================================
-                 STARTING PRICE
-            ================================================== -->
-
-            <div class="info-item">
-
-                <span class="info-label">
-                    Starting Price
-                </span>
-
-                <strong
-                    id="workerPrice"
-                    class="price-value"
-                >
-                    —
-                </strong>
-
-            </div>
-
-
-
-            <!-- =================================================
-                 LOCATION
-            ================================================== -->
-
-            <div class="info-item">
-
-                <span class="info-label">
-                    Location
-                </span>
-
-                <strong id="workerLocation">
-                    —
-                </strong>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- =====================================================
-         RATING AND REVIEWS
-    ====================================================== -->
-
-    <section class="reviews-section">
-
-
-        <!-- =================================================
-             SECTION HEADER
-        ================================================== -->
-
-        <div class="reviews-header">
-
-            <div>
+            <div class="about-block">
 
                 <h2>
-                    Rating and reviews
+                    About
                 </h2>
 
-                <p>
-                    See what clients say about this worker.
+                <p id="workerDescription">
+                    —
                 </p>
 
             </div>
 
-        </div>
+
+
+            <!-- =============================================
+                 WORKER INFORMATION GRID
+            ============================================== -->
+
+            <div class="worker-info-grid">
+
+
+                <!-- =========================================
+                     PRIMARY SKILL
+                ========================================== -->
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        Primary Skill
+                    </span>
+
+                    <strong id="workerSkill">
+                        —
+                    </strong>
+
+                </div>
+
+
+
+                <!-- =========================================
+                     EXPERIENCE
+                ========================================== -->
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        Experience
+                    </span>
+
+                    <strong id="workerExperience">
+                        —
+                    </strong>
+
+                </div>
+
+
+
+                <!-- =========================================
+                     STARTING PRICE
+                ========================================== -->
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        Starting Price
+                    </span>
+
+                    <strong
+                        id="workerPrice"
+                        class="price-value"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+
+
+                <!-- =========================================
+                     LOCATION
+                ========================================== -->
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        Location
+                    </span>
+
+                    <strong id="workerLocation">
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
 
 
 
         <!-- =================================================
-             RATING SUMMARY
+             RATING AND REVIEWS
         ================================================== -->
 
-        <div class="rating-summary">
+        <section class="reviews-section">
 
 
-            <!-- =================================================
-                 RATING VALUE
-            ================================================== -->
+            <!-- =============================================
+                 SECTION HEADER
+            ============================================== -->
 
-            <div class="rating-value">
+            <div class="reviews-header">
 
-                <strong id="workerRating">
-                    —
-                </strong>
+                <div>
 
-                <div
-                    id="ratingStars"
-                    class="rating-stars"
-                    aria-label="Worker rating"
-                >
-                    ★★★★★
+                    <h2>
+                        Rating and reviews
+                    </h2>
+
+                    <p>
+                        See what clients say about this worker.
+                    </p>
+
                 </div>
 
-                <span id="reviewCount">
-                    No reviews yet
-                </span>
-
             </div>
 
 
 
-            <!-- =================================================
-                 REVIEWS LIST
+            <!-- =============================================
+                 RATING SUMMARY
+            ============================================== -->
 
-                 JavaScript can populate this later.
-            ================================================== -->
+            <div class="rating-summary">
 
-            <div
-                id="reviewsList"
-                class="reviews-list"
-            >
 
-                <!-- Reviews inserted by script.js -->
+                <!-- =========================================
+                     RATING VALUE
+                ========================================== -->
+
+                <div class="rating-value">
+
+                    <strong id="workerRating">
+                        —
+                    </strong>
+
+                    <div
+                        id="ratingStars"
+                        class="rating-stars"
+                        aria-label="Worker rating"
+                    >
+                        ★★★★★
+                    </div>
+
+                    <span id="reviewCount">
+                        No reviews yet
+                    </span>
+
+                </div>
+
+
+
+                <!-- =========================================
+                     REVIEWS LIST
+                ========================================== -->
+
+                <div
+                    id="reviewsList"
+                    class="reviews-list"
+                >
+
+                    <!-- Reviews inserted by JavaScript -->
+
+                </div>
 
             </div>
 
-        </div>
+        </section>
 
-    </section>
-
+    </div>
 
 </main>
 
@@ -409,26 +365,13 @@
 
 <!-- =========================================================
      FIXED WORKER ACTION BAR
-
-     Contains:
-
-     1. Contact Worker
-        Opens the worker's phone dialer.
-
-     2. Rate Worker
-        Redirects to the client-worker-rating page.
 ========================================================= -->
 
 <div class="worker-action-bar">
 
+
     <!-- =====================================================
          CONTACT WORKER
-
-         JavaScript will replace the phone number
-         inside the href when worker details load.
-
-         Default value prevents an invalid link
-         before the worker data is loaded.
     ====================================================== -->
 
     <a
@@ -452,14 +395,13 @@
     </a>
 
 
+
     <!-- =====================================================
          RATE WORKER
-
-         Navigates to the client-worker-rating page.
     ====================================================== -->
 
     <a
-        href="../client-worker-rating/index.html"
+        href="#"
         id="rateWorkerButton"
         class="worker-action-button rate-worker-button"
         aria-label="Rate worker"
@@ -484,14 +426,6 @@
 
 <!-- =========================================================
      NOTIFICATION MODAL
-
-     Used for:
-
-     1. Authentication errors
-     2. Account errors
-     3. Worker loading errors
-     4. Success messages
-     5. Redirect messages
 ========================================================= -->
 
 <div
@@ -504,7 +438,10 @@
     hidden
 >
 
-    <div class="notification-card">
+    <div
+        id="notificationCard"
+        class="notification-card"
+    >
 
 
         <!-- =================================================
@@ -538,7 +475,7 @@
 
 
         <!-- =================================================
-             MODAL ACTIONS
+             MODAL ACTION
         ================================================== -->
 
         <div class="notification-actions">
@@ -558,14 +495,17 @@
 
 
 
+<!-- =========================================================
+     FRONTEND API CONFIGURATION
+========================================================= -->
+
+<script src="../config.js"></script>
 
 
 
 <!-- =========================================================
      PAGE JAVASCRIPT
 ========================================================= -->
-
-<script src="../config.js"></script>
 
 <script src="script.js"></script>
 

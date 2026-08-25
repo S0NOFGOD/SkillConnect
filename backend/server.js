@@ -136,14 +136,6 @@ const clientCreateProfileRoutes =
    16. IMPORT CLIENT PASSWORD CHANGE ROUTES
 ========================================================= */
 
-/*
-   These routes handle changing the client's password
-   after successful password-reset OTP verification.
-
-   Example:
-
-   POST /api/client-password-change
-*/
 
 const clientPasswordChangeRoutes =
     require("./routes/client-password-change");
@@ -154,22 +146,17 @@ const clientPasswordChangeRoutes =
    17. IMPORT CLIENT WORKER SEARCH ROUTES
 ========================================================= */
 
-/*
-   These routes handle the client's worker search
-   and dashboard operations.
-
-   They will handle:
-
-   - Access-token authentication
-   - Client account verification
-   - Account-status verification
-   - Nearby worker retrieval
-   - Client profile retrieval
-   - Client profile updates
-*/
 
 const clientWorkerSearchRoutes =
     require("./routes/client-worker-search");
+
+
+    /* =========================================================
+     18. IMPORT CLIENT WORKER DETAILS ROUTES
+    ========================================================= */
+
+const clientWorkerDetailsRoutes =
+    require("./routes/client-worker-details");
 
 
 
@@ -489,6 +476,19 @@ app.use(
     "/api/client/worker-search",
 
     clientWorkerSearchRoutes
+
+);
+
+
+/* =========================================================
+   39. CLIENT WORKER DETAILS ROUTES
+========================================================= */
+
+app.use(
+
+    "/api/client/worker-details",
+
+    clientWorkerDetailsRoutes
 
 );
 

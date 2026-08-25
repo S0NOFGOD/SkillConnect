@@ -160,7 +160,9 @@ const workerSchema =
 
                 trim: true,
 
-                default: null
+                unique: true,
+
+                sparse: true
 
             },
 
@@ -481,16 +483,25 @@ const workerSchema =
             },
 
 
+
+            /* ==========================================
+             WORKER VERIFICATION
+            ========================================== */
+
+            isVerified: {
+
+               type: Boolean,
+
+               default: false,
+
+               required: true
+
+            },
+
+
             /* ==========================================
                26. PASSWORD RESET AUTHORIZATION
             ========================================== */
-
-            /*
-               Temporary authorization generated after
-               successful password-reset OTP verification.
-
-               This is NOT the OTP.
-            */
 
             resetAuthorization: {
 
@@ -504,11 +515,6 @@ const workerSchema =
             /* ==========================================
                27. PASSWORD RESET AUTHORIZATION EXPIRATION
             ========================================== */
-
-            /*
-               Stores when the temporary password-reset
-               authorization becomes invalid.
-            */
 
             resetAuthorizationExpires: {
 
@@ -527,13 +533,6 @@ const workerSchema =
 
         {
 
-            /*
-               Automatically creates:
-
-               createdAt
-               updatedAt
-            */
-
             timestamps: true
 
         }
@@ -541,23 +540,10 @@ const workerSchema =
     );
 
 
-/* =========================================================
-   29. EXPORT WORKER MODEL
-========================================================= */
+        /* =========================================================
+        29. EXPORT WORKER MODEL
+        ========================================================= */
 
-/*
-   Other backend files can now use:
-
-   const Worker =
-       require("../models/worker");
-*/
-
-const Worker =
-    mongoose.model(
-        "Worker",
-        workerSchema
-    );
-
-
-module.exports =
-    Worker;
+        const Worker = mongoose.model("Worker", workerSchema);
+        
+        module.exports = Worker;

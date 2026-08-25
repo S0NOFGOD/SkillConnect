@@ -1053,13 +1053,41 @@ select {
 }
 
 
+
+
 /* =========================================================
-   23. WORKER LOCATION
+   23. WORKER DETAILS ROW
+   LOCATION LEFT + SKILL RIGHT
+========================================================= */
+
+.worker-details-row {
+
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 8px;
+
+    margin-bottom: 7px;
+
+}
+
+
+/* =========================================================
+   WORKER LOCATION
 ========================================================= */
 
 .worker-card .location {
 
-    margin-bottom: 6px;
+    min-width: 0;
+
+    flex: 1;
+
+    margin: 0;
 
     color: #94a3b8;
 
@@ -1077,10 +1105,43 @@ select {
 
 
 /* =========================================================
-   24. SKILL + PRICE ROW
+   WORKER SKILL
 ========================================================= */
 
-.skill-price-row {
+.worker-card .skill {
+
+    min-width: 0;
+
+    max-width: 50%;
+
+    flex-shrink: 0;
+
+    margin: 0;
+
+    color: #cbd5e1;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    line-height: 1.4;
+
+    text-align: right;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+
+/* =========================================================
+   24. VERIFICATION + PRICE ROW
+========================================================= */
+
+.verification-price-row {
 
     width: 100%;
 
@@ -1098,16 +1159,20 @@ select {
 
 
 /* =========================================================
-   WORKER SKILL
+   VERIFICATION
 ========================================================= */
 
-.worker-card .skill {
+.worker-card .verification {
 
     min-width: 0;
 
-    color: #94a3b8;
+    margin: 0;
 
-    font-size: 12px;
+    color: #22c55e;
+
+    font-size: 11px;
+
+    font-weight: 700;
 
     line-height: 1.4;
 
@@ -1121,7 +1186,7 @@ select {
 
 
 /* =========================================================
-   WORKER PRICE
+   PRICE
 ========================================================= */
 
 .worker-card .price {
@@ -1139,6 +1204,8 @@ select {
     white-space: nowrap;
 
 }
+
+
 
 
 /* =========================================================
@@ -2025,14 +2092,25 @@ select {
 
 
     /* -----------------------------------------
-   Skill + price row
+   Location + skill row
 ----------------------------------------- */
 
-.skill-price-row {
+.worker-details-row {
 
     gap: 5px;
 
-    margin-bottom: 10px;
+    margin-bottom: 6px;
+
+}
+
+
+/* -----------------------------------------
+   Worker location
+----------------------------------------- */
+
+.worker-card .location {
+
+    font-size: 11px;
 
 }
 
@@ -2043,7 +2121,33 @@ select {
 
 .worker-card .skill {
 
+    max-width: 50%;
+
     font-size: 11px;
+
+}
+
+
+/* -----------------------------------------
+   Verification + price row
+----------------------------------------- */
+
+.verification-price-row {
+
+    gap: 5px;
+
+    margin-bottom: 9px;
+
+}
+
+
+/* -----------------------------------------
+   Verification
+----------------------------------------- */
+
+.worker-card .verification {
+
+    font-size: 10px;
 
 }
 
@@ -2054,11 +2158,11 @@ select {
 
 .worker-card .price {
 
-    margin: 0;
-
     font-size: 12px;
 
 }
+
+
 
 
     /* -----------------------------------------
@@ -2202,6 +2306,13 @@ select {
         font-size: 10px;
 
     }
+
+
+    .worker-card .verification {
+
+    font-size: 9px;
+
+}
 
 
     .worker-card .price {

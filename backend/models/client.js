@@ -165,7 +165,91 @@ const clientSchema =
 
 
             /* =================================================
-               2.7 ACCOUNT STATUS
+               2.7 CLIENT PHONE
+            ================================================= */
+
+            /*
+               Stores the client's phone number.
+
+               The phone number should be stored in its
+               normalized format, including the country code.
+
+               Example:
+
+                   +2348012345678
+            */
+
+            phone: {
+
+                type: String,
+
+                trim: true,
+
+                default: null
+
+            },
+
+
+            /* =================================================
+               2.8 CLIENT PHONE VERIFICATION STATUS
+            ================================================= */
+
+            /*
+               false:
+                   Client has not verified their phone.
+
+               true:
+                   Client has successfully verified
+                   their phone number.
+            */
+
+            phoneVerified: {
+
+                type: Boolean,
+
+                default: false
+
+            },
+
+
+            /* =================================================
+               2.9 CLIENT PHONE OTP
+            ================================================= */
+
+            /*
+               Stores the temporary OTP generated for
+               client phone-number verification.
+            */
+
+            phoneOtp: {
+
+                type: String,
+
+                default: null
+
+            },
+
+
+            /* =================================================
+               2.10 CLIENT PHONE OTP EXPIRY
+            ================================================= */
+
+            /*
+               Determines when the phone verification OTP
+               becomes invalid.
+            */
+
+            phoneOtpExpires: {
+
+                type: Date,
+
+                default: null
+
+            },
+
+
+            /* =================================================
+               2.11 ACCOUNT STATUS
             ================================================= */
 
             /*
@@ -197,7 +281,7 @@ const clientSchema =
 
 
             /* =================================================
-               2.8 EMAIL VERIFICATION STATUS
+               2.12 EMAIL VERIFICATION STATUS
             ================================================= */
 
             /*
@@ -218,7 +302,7 @@ const clientSchema =
 
 
             /* =================================================
-               2.9 EMAIL OTP
+               2.13 EMAIL OTP
             ================================================= */
 
             /*
@@ -235,7 +319,7 @@ const clientSchema =
 
 
             /* =================================================
-               2.10 EMAIL OTP EXPIRY
+               2.14 EMAIL OTP EXPIRY
             ================================================= */
 
             /*
@@ -253,7 +337,7 @@ const clientSchema =
 
 
             /* =================================================
-               2.11 PASSWORD RESET OTP
+               2.15 PASSWORD RESET OTP
             ================================================= */
 
             /*
@@ -271,7 +355,7 @@ const clientSchema =
 
 
             /* =================================================
-               2.12 PASSWORD RESET OTP EXPIRY
+               2.16 PASSWORD RESET OTP EXPIRY
             ================================================= */
 
             /*
@@ -289,7 +373,7 @@ const clientSchema =
 
 
             /* =================================================
-               2.13 RESET AUTHORIZATION
+               2.17 RESET AUTHORIZATION
             ================================================= */
 
             resetAuthorization: {
@@ -302,7 +386,7 @@ const clientSchema =
 
 
             /* =================================================
-               2.14 RESET AUTHORIZATION EXPIRY
+               2.18 RESET AUTHORIZATION EXPIRY
             ================================================= */
 
             /*
@@ -320,7 +404,7 @@ const clientSchema =
 
 
             /* =================================================
-               2.15 PROFILE COMPLETION STATUS
+               2.19 PROFILE COMPLETION STATUS
             ================================================= */
 
             /*
@@ -341,7 +425,7 @@ const clientSchema =
 
 
             /* =================================================
-               2.16 REFRESH TOKEN HASH
+               2.20 REFRESH TOKEN HASH
             ================================================= */
 
             /*
@@ -369,7 +453,6 @@ const clientSchema =
             }
 
         },
-
 
 
         /* =====================================================
