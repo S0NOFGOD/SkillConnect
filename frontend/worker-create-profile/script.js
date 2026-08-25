@@ -1917,7 +1917,7 @@ if (
                         */
 
                         window.location.href =
-                            "../worker-client-chats/index.html";
+                            "../worker-dashboard/index.html";
 
                     }
 

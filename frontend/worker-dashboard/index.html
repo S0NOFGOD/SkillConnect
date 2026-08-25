@@ -1,0 +1,686 @@
+<!DOCTYPE html><html lang="en"><head><!-- =====================================================
+     BASIC DOCUMENT CONFIGURATION
+====================================================== -->
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+    Worker Dashboard | SkillConnect
+</title>
+
+
+<!-- =====================================================
+     GOOGLE FONT
+====================================================== -->
+
+<link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+>
+
+<link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+    crossorigin
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+>
+
+
+<!-- =====================================================
+     PAGE STYLESHEET
+====================================================== -->
+
+<link
+    rel="stylesheet"
+    href="style.css"
+>
+
+</head>
+
+<body>
+    
+    <!-- =========================================================
+     BACKGROUND GLOWS
+    ========================================================= -->
+    
+    <div
+    class="green-glow"
+    aria-hidden="true">
+
+   </div>
+   
+   <div
+    class="blue-glow"
+    aria-hidden="true"
+></div>
+
+<!-- =========================================================
+     TOP NAVBAR
+
+     Mobile:
+         Logo + hamburger menu
+
+     Desktop:
+         Logo remains visible while sidebar is displayed.
+========================================================= -->
+
+<header class="topbar">
+    
+    <div class="topbar-inner">
+
+    <a
+        href="../index.html"
+        class="logo"
+    >
+        Worker Dashboard
+    </a>
+
+
+
+    <!-- =================================================
+         MOBILE HAMBURGER
+    ================================================== -->
+
+    <button
+        type="button"
+        id="menuBtn"
+        class="menu-btn"
+        aria-label="Open navigation menu"
+        aria-controls="sidebar"
+        aria-expanded="false"
+    >
+
+        <span></span>
+        <span></span>
+        <span></span>
+
+    </button>
+
+</div>
+
+</header><!-- =========================================================
+     WORKER SIDEBAR
+========================================================= -->
+
+<aside
+    id="sidebar"
+    class="sidebar"
+    aria-label="Worker navigation"
+
+
+>
+
+<!-- =====================================================
+     SIDEBAR HEADER
+====================================================== -->
+
+<div class="sidebar-header">
+
+    <button
+        type="button"
+        id="closeMenuBtn"
+        class="close-menu-btn"
+        aria-label="Close navigation menu"
+    >
+        ×
+    </button>
+
+</div>
+
+
+
+<!-- =====================================================
+     WORKER NAVIGATION
+====================================================== -->
+
+<nav class="sidebar-nav">
+
+
+    <!-- =================================================
+         DASHBOARD
+    ================================================== -->
+
+    <a
+        href="index.html"
+        class="nav-link active"
+    >
+
+        <span class="nav-icon">
+            🏠
+        </span>
+
+        <span>
+            Dashboard
+        </span>
+
+    </a>
+
+
+
+    <!-- =================================================
+         FIND CLIENTS
+    ================================================== -->
+
+    <a
+        href="../worker-client-search/index.html"
+        class="nav-link"
+    >
+
+        <span class="nav-icon">
+            🔎
+        </span>
+
+        <span>
+            Find Clients
+        </span>
+
+    </a>
+
+
+
+    <!-- =================================================
+         CHATS
+    ================================================== -->
+
+    <a
+        href="../worker-client-chats/index.html"
+        class="nav-link"
+    >
+
+        <span class="nav-icon">
+            💬
+        </span>
+
+        <span>
+            Chats
+        </span>
+
+    </a>
+
+
+
+    <!-- =================================================
+         PROFILE SETTINGS
+    ================================================== -->
+
+    <a
+        href="../worker-profile-settings/index.html"
+        class="nav-link"
+    >
+
+        <span class="nav-icon">
+            ⚙️
+        </span>
+
+        <span>
+            Profile Settings
+        </span>
+
+    </a>
+
+</nav>
+
+
+
+<!-- =====================================================
+     SIDEBAR FOOTER
+====================================================== -->
+
+<div class="sidebar-footer">
+
+
+    <!-- =================================================
+         HOME
+    ================================================== -->
+
+    <a
+        href="../index.html"
+        class="nav-link"
+    >
+
+        <span class="nav-icon">
+            🌐
+        </span>
+
+        <span>
+            Home
+        </span>
+
+    </a>
+
+
+
+    <!-- =================================================
+         LOGOUT
+    ================================================== -->
+
+    <button
+        type="button"
+        id="logoutBtn"
+        class="nav-link logout-link"
+    >
+
+        <span class="nav-icon">
+            ↪
+        </span>
+
+        <span>
+            Logout
+        </span>
+
+    </button>
+
+</div>
+
+</aside>
+
+<!-- =========================================================
+     SIDEBAR OVERLAY
+========================================================= -->
+
+<div
+    id="overlay"
+    class="overlay"
+    aria-hidden="true"
+></div>
+
+<!-- =========================================================
+     MAIN WORKER DASHBOARD
+========================================================= -->
+
+<main class="dashboard">
+    
+    <!-- =====================================================
+     DASHBOARD HEADER
+    ====================================================== -->
+
+<section class="dashboard-header">
+
+    <div>
+        <h1>
+            Welcome,
+            <span id="workerFirstName">
+                Worker
+            </span>
+        </h1>
+
+
+        <p class="dashboard-description">
+            You are now visible to nearby clients in need of your service
+        </p>
+
+    </div>
+
+</section>
+
+
+
+
+
+    <!-- =================================================
+         PROFILE PHOTO
+    ================================================== -->
+
+    <div class="profile-photo-container">
+
+    <img
+        src=""
+        alt="Worker profile picture"
+    >
+
+    <span class="profile-verification-badge">
+        Unverified
+    </span>
+
+</div>
+
+
+
+
+<!-- =====================================================
+     PERSONAL INFORMATION
+====================================================== -->
+
+<section class="dashboard-section">
+
+    <div class="section-heading">
+
+
+        <h2>
+            Personal Information
+        </h2>
+
+    </div>
+
+
+    <div class="information-grid">
+
+
+        <!-- =================================================
+             FULL NAME
+        ================================================== -->
+
+        <div class="information-card">
+
+            <span class="information-label">
+                Full Name
+            </span>
+
+
+            <strong id="fullName">
+                —
+            </strong>
+
+        </div>
+
+
+
+        <!-- =================================================
+             PHONE NUMBER
+        ================================================== -->
+
+        <div class="information-card">
+
+            <span class="information-label">
+                Phone Number
+            </span>
+
+
+            <strong id="phoneNumber">
+                —
+            </strong>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     PROFESSIONAL INFORMATION
+====================================================== -->
+
+<section class="dashboard-section">
+
+    <div class="section-heading">
+
+
+        <h2>
+            Professional Information
+        </h2>
+
+    </div>
+
+
+    <div class="information-grid">
+
+
+        <!-- =================================================
+             PRIMARY SKILL
+        ================================================== -->
+
+        <div class="information-card">
+
+            <span class="information-label">
+                Primary Skill
+            </span>
+
+
+            <strong id="primarySkill">
+                —
+            </strong>
+
+        </div>
+
+
+
+        <!-- =================================================
+             EXPERIENCE
+        ================================================== -->
+
+        <div class="information-card">
+
+            <span class="information-label">
+                Years of Experience
+            </span>
+
+
+            <strong id="yearsExperience">
+                —
+            </strong>
+
+        </div>
+
+
+
+        <!-- =================================================
+             STARTING PRICE
+        ================================================== -->
+
+        <div class="information-card">
+
+            <span class="information-label">
+                Starting Price
+            </span>
+
+
+            <strong id="startingPrice">
+                —
+            </strong>
+
+        </div>
+
+
+
+        <!-- =================================================
+             LOCATION
+        ================================================== -->
+
+        <div class="information-card">
+
+            <span class="information-label">
+                Location
+            </span>
+
+
+            <strong id="startingPrice">
+                —
+            </strong>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     SERVICE DESCRIPTION
+====================================================== -->
+
+<section class="dashboard-section">
+
+    <div class="section-heading">
+
+        <h2>
+            About My Service
+        </h2>
+
+    </div>
+
+
+    <div class="description-card">
+
+        <p id="serviceDescription">
+            No service description available.
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     PORTFOLIO
+====================================================== -->
+
+<section class="dashboard-section">
+
+    <div class="section-heading">
+
+
+        <h2>
+            My Previous Work
+        </h2>
+
+    </div>
+
+
+    <div
+        id="portfolioGrid"
+        class="portfolio-grid"
+    >
+
+        <!-- Portfolio items are created by script.js -->
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     EMPTY PORTFOLIO STATE
+====================================================== -->
+
+<section
+    id="portfolioEmptyState"
+    class="empty-state"
+    hidden
+>
+
+    <div
+        class="empty-icon"
+        aria-hidden="true"
+    >
+        🛠️
+    </div>
+
+
+    <h2>
+        No Portfolio Images
+    </h2>
+
+
+    <p>
+        Add examples of your previous work from
+        Profile Settings.
+    </p>
+
+</section>
+
+</main><!-- =========================================================
+     NOTIFICATION MODAL
+
+     Used for:
+
+     1. Authentication errors
+     2. Account errors
+     3. Dashboard errors
+     4. Success messages
+     5. Redirect messages
+     6. Logout confirmation
+========================================================= --><div
+    id="notificationOverlay"
+    class="notification-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="notificationTitle"
+    aria-describedby="notificationText"
+    hidden
+><div class="notification-card">
+
+
+    <!-- =================================================
+         MODAL ICON
+    ================================================== -->
+
+    <div
+        id="notificationIcon"
+        class="notification-icon"
+        aria-hidden="true"
+    >
+        ✓
+    </div>
+
+
+
+    <!-- =================================================
+         MODAL TITLE
+    ================================================== -->
+
+    <h2 id="notificationTitle"></h2>
+
+
+
+    <!-- =================================================
+         MODAL MESSAGE
+    ================================================== -->
+
+    <p id="notificationText"></p>
+
+
+
+    <!-- =================================================
+         MODAL ACTIONS
+    ================================================== -->
+
+    <div
+        id="notificationActions"
+        class="notification-actions"
+    >
+
+        <button
+            type="button"
+            id="notificationCancelButton"
+            class="notification-cancel-button"
+            hidden
+        >
+            Cancel
+        </button>
+
+
+        <button
+            type="button"
+            id="notificationButton"
+        >
+            Continue
+        </button>
+
+    </div>
+
+</div>
+
+</div>
+
+<!-- =========================================================
+     PAGE JAVASCRIPT
+========================================================= -->
+
+<script src="../config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
