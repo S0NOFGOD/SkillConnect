@@ -967,7 +967,7 @@ async function handleLogin(event) {
                 showSuccessModal(
                     "Login Successful",
                     "Welcome back. Redirecting you to your client chats.",
-                    "../worker-client-chats/index.html"
+                    "../worker-dashboard/index.html"
                 );
 
                 return;
