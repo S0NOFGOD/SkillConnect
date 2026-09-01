@@ -159,9 +159,16 @@ const clientWorkerDetailsRoutes =
     require("./routes/client-worker-details");
 
 
+/* =========================================================
+   18. IMPORT WORKER DASHBOARD ROUTES
+========================================================= */
+
+const workerDashboardRoutes =
+    require("./routes/worker-dashboard");
+
 
 /* =========================================================
-   18. CREATE EXPRESS APPLICATION
+   19. CREATE EXPRESS APPLICATION
 ========================================================= */
 
 const app =
@@ -492,6 +499,18 @@ app.use(
 
 );
 
+
+/* =========================================================
+   38. WORKER DASHBOARD ROUTES
+========================================================= */
+
+app.use(
+
+    "/api/worker-dashboard",
+
+    workerDashboardRoutes
+
+);
 
 
 /* =========================================================

@@ -171,14 +171,6 @@ const workerSchema =
                12. PRIMARY SKILL
             ========================================== */
 
-            /*
-               Stores the worker's main professional skill.
-
-               Example:
-
-               "Electrician"
-            */
-
             primarySkill: {
 
                 type: String,
@@ -333,26 +325,6 @@ const workerSchema =
             /* ==========================================
                19. PORTFOLIO IMAGES
             ========================================== */
-
-            /*
-               Stores the worker's portfolio images.
-
-               Each portfolio image contains:
-
-               - url
-               - publicId
-
-               Example:
-
-               portfolioImages: [
-
-                   {
-                       url: "...",
-                       publicId: "..."
-                   }
-
-               ]
-            */
 
             portfolioImages: [
 
