@@ -62,26 +62,8 @@ const Client =
    2. IMPORT CRYPTO
 ========================================================= */
 
-/*
-   Node's built-in crypto module is used to:
-
-   - Generate secure OTPs
-   - Generate secure reset authorization
-
-   No external utility file is required.
-*/
-
 const crypto =
     require("crypto");
-
-
-
-/* =========================================================
-   3. IMPORT NODEMAILER
-========================================================= */
-
-const nodemailer =
-    require("nodemailer");
 
 /* =========================================================
    3. IMPORT NODEMAILER
@@ -95,16 +77,6 @@ const nodemailer =
 /* =========================================================
    4. LOAD ENVIRONMENT VARIABLES
 ========================================================= */
-
-/*
-   Loads variables from the backend .env file.
-
-   Examples:
-
-   GMAIL_USER=yourgmail@gmail.com
-
-   GMAIL_APP_PASSWORD=your16characterapppassword
-*/
 
 require("dotenv").config();
 

@@ -198,15 +198,6 @@ const PORT =
    22. TRUST RENDER PROXY
 ========================================================= */
 
-/*
-   Render runs the application behind a proxy.
-
-   This allows Express to correctly understand
-   HTTPS requests in production.
-
-   This is important when using secure cookies.
-*/
-
 app.set(
     "trust proxy",
     1
@@ -240,15 +231,6 @@ app.use(
             origin,
             callback
         ) {
-
-            /*
-               Allow requests without an Origin header.
-
-               Examples:
-
-               Postman
-               Server-to-server requests
-            */
 
             if (!origin) {
 
@@ -288,11 +270,6 @@ app.use(
             );
 
         },
-
-        /*
-           Allows HTTP-only refresh-token cookies
-           to be sent between frontend and backend.
-        */
 
         credentials: true
 
@@ -341,14 +318,6 @@ app.use(
 /* =========================================================
    28. PASSPORT INITIALIZATION
 ========================================================= */
-
-/*
-   Passport is used for Google OAuth.
-
-   We intentionally do not use express-session
-   because SkillConnect uses a stateless OAuth
-   exchange-code flow.
-*/
 
 app.use(
     passport.initialize()

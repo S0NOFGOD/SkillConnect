@@ -44,19 +44,6 @@ const Worker =
     require("../models/worker");
 
 
-/* =========================================================
-   4. IMPORT NODEMAILER
-========================================================= */
-
-/*
-   Nodemailer is used to send emails
-   through Gmail SMTP.
-*/
-
-const nodemailer =
-    require("nodemailer");
-
-
     /* =========================================================
    4. IMPORT BREVO
 ========================================================= */
