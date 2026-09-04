@@ -6,7 +6,7 @@ const Worker =
     require("../models/worker");
 
 const {
-    createGoogleExchangeCode,
+    generateGoogleExchangeCode,
     consumeGoogleExchangeCode
 } =
     require("../utils/googleExchangeCode");
@@ -17,31 +17,9 @@ const {
     require("../utils/generateTokens");
 
 
-
 /* =========================================================
    2. GOOGLE CALLBACK
 ========================================================= */
-
-/*
-   Google redirects the user back to this endpoint after
-   successful authentication.
-
-   Passport places the authenticated Google profile in
-   req.user.
-
-   We then:
-
-   1. Find the worker by Google ID/email.
-   2. Create the account if it does not exist.
-   3. Handle existing accounts.
-   4. Generate a short-lived one-time exchange code.
-   5. Redirect the browser to the frontend.
-
-   IMPORTANT:
-
-   Access tokens and refresh tokens are NEVER placed
-   inside the Google redirect URL.
-*/
 
 const googleCallback = async (
     req,
@@ -149,12 +127,9 @@ const googleCallback = async (
         ) {
 
             const exchangeCode =
-                await createGoogleExchangeCode({
-
-                    workerId:
-                        worker._id
-
-                });
+                await generateGoogleExchangeCode(
+                    worker._id
+                );
 
 
             return res.redirect(
@@ -200,12 +175,9 @@ const googleCallback = async (
         ) {
 
             const exchangeCode =
-                await createGoogleExchangeCode({
-
-                    workerId:
-                        worker._id
-
-                });
+                await generateGoogleExchangeCode(
+                    worker._id
+                );
 
 
             return res.redirect(
@@ -222,12 +194,9 @@ const googleCallback = async (
         ------------------------------------------------- */
 
         const exchangeCode =
-            await createGoogleExchangeCode({
-
-                workerId:
-                    worker._id
-
-            });
+            await generateGoogleExchangeCode(
+                worker._id
+            );
 
 
         /* -------------------------------------------------
@@ -260,21 +229,9 @@ const googleCallback = async (
 };
 
 
-
 /* =========================================================
    3. EXCHANGE GOOGLE CODE
 ========================================================= */
-
-/*
-   The frontend receives only the short-lived exchange code.
-
-   It sends that code back to the backend.
-
-   The backend consumes the code exactly once.
-
-   No access token or refresh token is placed inside
-   the Google redirect URL.
-*/
 
 const exchangeGoogleCode = async (
     req,
@@ -311,11 +268,9 @@ const exchangeGoogleCode = async (
         ------------------------------------------------- */
 
         const googleData =
-            await consumeGoogleExchangeCode({
-
+            await consumeGoogleExchangeCode(
                 code
-
-            });
+            );
 
 
         if (!googleData) {
@@ -526,7 +481,6 @@ const exchangeGoogleCode = async (
     }
 
 };
-
 
 
 /* =========================================================
