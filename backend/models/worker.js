@@ -6,14 +6,10 @@ const mongoose =
     require("mongoose");
 
 
+
 /* =========================================================
    2. CREATE WORKER SCHEMA
 ========================================================= */
-
-/*
-   A schema defines the fields that every Worker
-   document can contain.
-*/
 
 const workerSchema =
     new mongoose.Schema(
@@ -45,19 +41,65 @@ const workerSchema =
                4. PASSWORD
             ========================================== */
 
-            password: {
+            passwordHash: {
 
                 type: String,
 
-                required: true,
+                default: null,
 
-                minlength: 8
+                select: false
 
             },
 
 
             /* ==========================================
-               5. ACCOUNT STATUS
+               5. GOOGLE ID
+            ========================================== */
+
+            googleId: {
+
+                type: String,
+
+                unique: true,
+
+                sparse: true,
+
+                default: null,
+
+                index: true,
+
+                select: false
+
+            },
+
+
+            /* ==========================================
+               6. AUTHENTICATION METHOD
+            ========================================== */
+
+            authenticationMethod: {
+
+                type: String,
+
+                enum: [
+
+                    "password",
+
+                    "google",
+
+                    "both"
+
+                ],
+
+                required: true,
+
+                default: "password"
+
+            },
+
+
+            /* ==========================================
+               7. ACCOUNT STATUS
             ========================================== */
 
             accountStatus: {
@@ -80,7 +122,7 @@ const workerSchema =
 
 
             /* ==========================================
-               6. EMAIL VERIFICATION
+               8. EMAIL VERIFICATION
             ========================================== */
 
             isEmailVerified: {
@@ -95,42 +137,83 @@ const workerSchema =
 
 
             /* ==========================================
-               7. EMAIL OTP
+               9. EMAIL OTP
             ========================================== */
 
             emailOtp: {
 
                 type: String,
 
-                default: null
+                default: null,
+
+                select: false
 
             },
 
 
             /* ==========================================
-               8. EMAIL OTP EXPIRATION
+               10. EMAIL OTP EXPIRATION
             ========================================== */
 
             emailOtpExpires: {
 
                 type: Date,
 
-                default: null
+                default: null,
+
+                select: false
 
             },
 
 
             /* ==========================================
-               10. WORKER FULL NAME
+               11. PHONE OTP
             ========================================== */
 
-            /*
-               Stores the worker's full name.
+            phoneOtp: {
 
-               Example:
+                type: String,
 
-               "John Doe"
-            */
+                default: null,
+
+                select: false
+
+            },
+
+
+            /* ==========================================
+               12. PHONE OTP EXPIRATION
+            ========================================== */
+
+            phoneOtpExpires: {
+
+                type: Date,
+
+                default: null,
+
+                select: false
+
+            },
+
+
+            /* ==========================================
+               13. PHONE VERIFICATION
+            ========================================== */
+
+            isPhoneVerified: {
+
+                type: Boolean,
+
+                default: false,
+
+                required: true
+
+            },
+
+
+            /* ==========================================
+               14. WORKER FULL NAME
+            ========================================== */
 
             fullName: {
 
@@ -144,15 +227,8 @@ const workerSchema =
 
 
             /* ==========================================
-               11. WORKER PHONE
+               15. WORKER PHONE
             ========================================== */
-
-            /*
-               Stores the worker's phone number.
-
-               The create-profile controller saves
-               the normalized phone number here.
-            */
 
             phone: {
 
@@ -162,13 +238,15 @@ const workerSchema =
 
                 unique: true,
 
-                sparse: true
+                sparse: true,
+
+                default: null
 
             },
 
 
             /* ==========================================
-               12. PRIMARY SKILL
+               16. PRIMARY SKILL
             ========================================== */
 
             primarySkill: {
@@ -183,16 +261,8 @@ const workerSchema =
 
 
             /* ==========================================
-               13. EXPERIENCE
+               17. EXPERIENCE
             ========================================== */
-
-            /*
-               Stores the worker's experience.
-
-               Example:
-
-               "5 years"
-            */
 
             experience: {
 
@@ -206,16 +276,8 @@ const workerSchema =
 
 
             /* ==========================================
-               14. STARTING PRICE
+               18. STARTING PRICE
             ========================================== */
-
-            /*
-               Stores the worker's starting service price.
-
-               Example:
-
-               "₦20,000"
-            */
 
             startingPrice: {
 
@@ -229,17 +291,8 @@ const workerSchema =
 
 
             /* ==========================================
-               15. STATE
+               19. STATE
             ========================================== */
-
-            /*
-               Stores the Nigerian state where the
-               worker provides services.
-
-               Example:
-
-               "Oyo"
-            */
 
             state: {
 
@@ -247,22 +300,16 @@ const workerSchema =
 
                 trim: true,
 
-                default: null
+                default: null,
+
+                index: true
 
             },
 
 
             /* ==========================================
-               16. CITY
+               20. CITY
             ========================================== */
-
-            /*
-               Stores the worker's selected city.
-
-               Example:
-
-               "Ogbomoso"
-            */
 
             city: {
 
@@ -270,24 +317,16 @@ const workerSchema =
 
                 trim: true,
 
-                default: null
+                default: null,
+
+                index: true
 
             },
 
 
             /* ==========================================
-               17. SERVICE DESCRIPTION
+               21. SERVICE DESCRIPTION
             ========================================== */
-
-            /*
-               Stores the worker's description of
-               their service.
-
-               Example:
-
-               "I provide professional electrical
-               installation and repair services."
-            */
 
             description: {
 
@@ -301,17 +340,8 @@ const workerSchema =
 
 
             /* ==========================================
-               18. PROFILE PICTURE
+               22. PROFILE PICTURE
             ========================================== */
-
-            /*
-               Stores the Cloudinary URL of the
-               worker's profile picture.
-
-               Example:
-
-               https://res.cloudinary.com/...
-            */
 
             profilePicture: {
 
@@ -323,7 +353,7 @@ const workerSchema =
 
 
             /* ==========================================
-               19. PORTFOLIO IMAGES
+               23. PORTFOLIO IMAGES
             ========================================== */
 
             portfolioImages: [
@@ -352,13 +382,8 @@ const workerSchema =
 
 
             /* ==========================================
-               20. PROFILE COMPLETION
+               24. PROFILE COMPLETION
             ========================================== */
-
-            /*
-               Becomes true after the worker successfully
-               completes the entire create-profile process.
-            */
 
             profileCompleted: {
 
@@ -372,61 +397,83 @@ const workerSchema =
 
 
             /* ==========================================
-               21. REFRESH TOKEN HASH
+               25. REFRESH TOKEN HASH
             ========================================== */
 
             refreshTokenHash: {
 
                 type: String,
 
-                default: null
+                default: null,
+
+                select: false
 
             },
 
 
             /* ==========================================
-               22. PASSWORD RESET OTP
+               26. GOOGLE EXCHANGE CODE
             ========================================== */
 
-            /*
-               Stores the temporary OTP used to verify
-               a password-reset request.
-            */
+            googleExchangeCode: {
+
+                type: String,
+
+                default: null,
+
+                select: false
+
+            },
+
+
+            /* ==========================================
+               27. GOOGLE EXCHANGE CODE EXPIRATION
+            ========================================== */
+
+            googleExchangeCodeExpires: {
+
+                type: Date,
+
+                default: null,
+
+                select: false
+
+            },
+
+
+            /* ==========================================
+               28. PASSWORD RESET OTP
+            ========================================== */
 
             passwordResetOtp: {
 
                 type: String,
 
-                default: null
+                default: null,
+
+                select: false
 
             },
 
 
             /* ==========================================
-               23. PASSWORD RESET OTP EXPIRATION
+               29. PASSWORD RESET OTP EXPIRATION
             ========================================== */
-
-            /*
-               Stores when the password-reset OTP expires.
-            */
 
             passwordResetOtpExpires: {
 
                 type: Date,
 
-                default: null
+                default: null,
+
+                select: false
 
             },
 
 
             /* ==========================================
-               24. PASSWORD RESET VERIFICATION
+               30. PASSWORD RESET VERIFICATION
             ========================================== */
-
-            /*
-               Becomes true after the worker successfully
-               verifies the password-reset OTP.
-            */
 
             passwordResetVerified: {
 
@@ -438,13 +485,8 @@ const workerSchema =
 
 
             /* ==========================================
-               25. PASSWORD RESET VERIFIED AT
+               31. PASSWORD RESET VERIFIED AT
             ========================================== */
-
-            /*
-               Stores when password-reset OTP verification
-               was successfully completed.
-            */
 
             passwordResetVerifiedAt: {
 
@@ -455,44 +497,32 @@ const workerSchema =
             },
 
 
-
             /* ==========================================
-             WORKER VERIFICATION
-            ========================================== */
-
-            isVerified: {
-
-               type: Boolean,
-
-               default: false,
-
-               required: true
-
-            },
-
-
-            /* ==========================================
-               26. PASSWORD RESET AUTHORIZATION
+               32. PASSWORD RESET AUTHORIZATION
             ========================================== */
 
             resetAuthorization: {
 
                 type: String,
 
-                default: null
+                default: null,
+
+                select: false
 
             },
 
 
             /* ==========================================
-               27. PASSWORD RESET AUTHORIZATION EXPIRATION
+               33. PASSWORD RESET AUTHORIZATION EXPIRATION
             ========================================== */
 
             resetAuthorizationExpires: {
 
                 type: Date,
 
-                default: null
+                default: null,
+
+                select: false
 
             }
 
@@ -500,7 +530,7 @@ const workerSchema =
 
 
         /* =================================================
-           28. SCHEMA OPTIONS
+           34. SCHEMA OPTIONS
         ================================================= */
 
         {
@@ -512,10 +542,38 @@ const workerSchema =
     );
 
 
-        /* =========================================================
-        29. EXPORT WORKER MODEL
-        ========================================================= */
 
-        const Worker = mongoose.model("Worker", workerSchema);
-        
-        module.exports = Worker;
+/* =========================================================
+   35. WORKER SEARCH INDEXES
+========================================================= */
+
+/*
+   These indexes will help the future client worker
+   search/filter functionality.
+*/
+
+workerSchema.index({
+
+    primarySkill: 1,
+
+    city: 1,
+
+    state: 1
+
+});
+
+
+
+/* =========================================================
+   36. EXPORT WORKER MODEL
+========================================================= */
+
+const Worker =
+    mongoose.model(
+        "Worker",
+        workerSchema
+    );
+
+
+module.exports =
+    Worker;

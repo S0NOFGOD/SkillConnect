@@ -136,7 +136,6 @@ const clientCreateProfileRoutes =
    16. IMPORT CLIENT PASSWORD CHANGE ROUTES
 ========================================================= */
 
-
 const clientPasswordChangeRoutes =
     require("./routes/client-password-change");
 
@@ -146,29 +145,39 @@ const clientPasswordChangeRoutes =
    17. IMPORT CLIENT WORKER SEARCH ROUTES
 ========================================================= */
 
-
 const clientWorkerSearchRoutes =
     require("./routes/client-worker-search");
 
 
-    /* =========================================================
-     18. IMPORT CLIENT WORKER DETAILS ROUTES
-    ========================================================= */
+
+/* =========================================================
+   18. IMPORT CLIENT WORKER DETAILS ROUTES
+========================================================= */
 
 const clientWorkerDetailsRoutes =
     require("./routes/client-worker-details");
 
 
+
 /* =========================================================
-   18. IMPORT WORKER DASHBOARD ROUTES
+   19. IMPORT WORKER DASHBOARD ROUTES
 ========================================================= */
 
 const workerDashboardRoutes =
     require("./routes/worker-dashboard");
 
 
+
+    /* =========================================================
+       IMPORT RefreshToken ROUTE
+    ========================================================= */
+
+     const refreshTokenRoutes = require("./routes/refreshToken");
+
+
+
 /* =========================================================
-   19. CREATE EXPRESS APPLICATION
+   20. CREATE EXPRESS APPLICATION
 ========================================================= */
 
 const app =
@@ -177,7 +186,7 @@ const app =
 
 
 /* =========================================================
-   19. SERVER PORT
+   21. SERVER PORT
 ========================================================= */
 
 const PORT =
@@ -186,7 +195,27 @@ const PORT =
 
 
 /* =========================================================
-   20. FRONTEND URLS
+   22. TRUST RENDER PROXY
+========================================================= */
+
+/*
+   Render runs the application behind a proxy.
+
+   This allows Express to correctly understand
+   HTTPS requests in production.
+
+   This is important when using secure cookies.
+*/
+
+app.set(
+    "trust proxy",
+    1
+);
+
+
+
+/* =========================================================
+   23. FRONTEND URLS
 ========================================================= */
 
 const allowedOrigins = [
@@ -200,7 +229,7 @@ const allowedOrigins = [
 
 
 /* =========================================================
-   21. CORS CONFIGURATION
+   24. CORS CONFIGURATION
 ========================================================= */
 
 app.use(
@@ -215,7 +244,7 @@ app.use(
             /*
                Allow requests without an Origin header.
 
-               Example:
+               Examples:
 
                Postman
                Server-to-server requests
@@ -274,7 +303,7 @@ app.use(
 
 
 /* =========================================================
-   22. JSON BODY PARSER
+   25. JSON BODY PARSER
 ========================================================= */
 
 app.use(
@@ -284,19 +313,23 @@ app.use(
 
 
 /* =========================================================
-   23. URL-ENCODED BODY PARSER
+   26. URL-ENCODED BODY PARSER
 ========================================================= */
 
 app.use(
+
     express.urlencoded({
+
         extended: true
+
     })
+
 );
 
 
 
 /* =========================================================
-   24. COOKIE PARSER
+   27. COOKIE PARSER
 ========================================================= */
 
 app.use(
@@ -306,8 +339,16 @@ app.use(
 
 
 /* =========================================================
-   25. PASSPORT INITIALIZATION
+   28. PASSPORT INITIALIZATION
 ========================================================= */
+
+/*
+   Passport is used for Google OAuth.
+
+   We intentionally do not use express-session
+   because SkillConnect uses a stateless OAuth
+   exchange-code flow.
+*/
 
 app.use(
     passport.initialize()
@@ -316,11 +357,13 @@ app.use(
 
 
 /* =========================================================
-   26. HEALTH CHECK ROUTE
+   29. HEALTH CHECK ROUTE
 ========================================================= */
 
 app.get(
+
     "/",
+
     (req, res) => {
 
         res.status(200).json({
@@ -333,12 +376,13 @@ app.get(
         });
 
     }
+
 );
 
 
 
 /* =========================================================
-   27. WORKER AUTHENTICATION ROUTES
+   30. WORKER AUTHENTICATION ROUTES
 ========================================================= */
 
 app.use(
@@ -351,8 +395,15 @@ app.use(
 
 
 
+app.use(
+    "/api/auth/worker",
+    refreshTokenRoutes
+);
+
+
+
 /* =========================================================
-   28. WORKER EMAIL OTP ROUTES
+   31. WORKER EMAIL OTP ROUTES
 ========================================================= */
 
 app.use(
@@ -366,7 +417,7 @@ app.use(
 
 
 /* =========================================================
-   29. WORKER PASSWORD RESET OTP ROUTES
+   32. WORKER PASSWORD RESET OTP ROUTES
 ========================================================= */
 
 app.use(
@@ -380,7 +431,7 @@ app.use(
 
 
 /* =========================================================
-   30. WORKER CREATE PROFILE ROUTES
+   33. WORKER CREATE PROFILE ROUTES
 ========================================================= */
 
 app.use(
@@ -394,7 +445,7 @@ app.use(
 
 
 /* =========================================================
-   31. WORKER PASSWORD CHANGE ROUTES
+   34. WORKER PASSWORD CHANGE ROUTES
 ========================================================= */
 
 app.use(
@@ -408,7 +459,7 @@ app.use(
 
 
 /* =========================================================
-   32. CLIENT AUTHENTICATION ROUTES
+   35. CLIENT AUTHENTICATION ROUTES
 ========================================================= */
 
 app.use(
@@ -422,7 +473,7 @@ app.use(
 
 
 /* =========================================================
-   33. CLIENT EMAIL OTP ROUTES
+   36. CLIENT EMAIL OTP ROUTES
 ========================================================= */
 
 app.use(
@@ -436,7 +487,7 @@ app.use(
 
 
 /* =========================================================
-   34. CLIENT PASSWORD RESET OTP ROUTES
+   37. CLIENT PASSWORD RESET OTP ROUTES
 ========================================================= */
 
 app.use(
@@ -450,7 +501,7 @@ app.use(
 
 
 /* =========================================================
-   35. CLIENT CREATE PROFILE ROUTES
+   38. CLIENT CREATE PROFILE ROUTES
 ========================================================= */
 
 app.use(
@@ -463,6 +514,10 @@ app.use(
 
 
 
+/* =========================================================
+   39. CLIENT PASSWORD CHANGE ROUTES
+========================================================= */
+
 app.use(
 
     "/api/client-password-change",
@@ -474,9 +529,8 @@ app.use(
 
 
 /* =========================================================
-   37. CLIENT WORKER SEARCH ROUTES
+   40. CLIENT WORKER SEARCH ROUTES
 ========================================================= */
-
 
 app.use(
 
@@ -487,8 +541,9 @@ app.use(
 );
 
 
+
 /* =========================================================
-   39. CLIENT WORKER DETAILS ROUTES
+   41. CLIENT WORKER DETAILS ROUTES
 ========================================================= */
 
 app.use(
@@ -500,8 +555,9 @@ app.use(
 );
 
 
+
 /* =========================================================
-   38. WORKER DASHBOARD ROUTES
+   42. WORKER DASHBOARD ROUTES
 ========================================================= */
 
 app.use(
@@ -513,11 +569,13 @@ app.use(
 );
 
 
+
 /* =========================================================
-   38. UNKNOWN ROUTE HANDLER
+   43. UNKNOWN ROUTE HANDLER
 ========================================================= */
 
 app.use(
+
     (req, res) => {
 
         res.status(404).json({
@@ -530,12 +588,13 @@ app.use(
         });
 
     }
+
 );
 
 
 
 /* =========================================================
-   39. GLOBAL ERROR HANDLER
+   44. GLOBAL ERROR HANDLER
 ========================================================= */
 
 app.use(
@@ -585,8 +644,12 @@ app.use(
             success: false,
 
             message:
-                process.env.NODE_ENV === "development"
+
+                process.env.NODE_ENV ===
+                "development"
+
                     ? error.message
+
                     : "An internal server error occurred."
 
         });
@@ -598,7 +661,7 @@ app.use(
 
 
 /* =========================================================
-   40. START SERVER
+   45. START SERVER
 ========================================================= */
 
 const startServer = async () => {
@@ -606,7 +669,7 @@ const startServer = async () => {
     try {
 
         /* ==========================================
-           CONNECT TO MONGODB
+           CONNECT TO MONGODB ATLAS
         ========================================== */
 
         await connectDB();
@@ -617,7 +680,9 @@ const startServer = async () => {
         ========================================== */
 
         app.listen(
+
             PORT,
+
             () => {
 
                 console.log(
@@ -625,6 +690,7 @@ const startServer = async () => {
                 );
 
             }
+
         );
 
     }
@@ -632,8 +698,11 @@ const startServer = async () => {
     catch (error) {
 
         console.error(
+
             "Failed to start SkillConnect server:",
+
             error.message
+
         );
 
 
@@ -646,7 +715,7 @@ const startServer = async () => {
 
 
 /* =========================================================
-   41. START APPLICATION
+   46. START APPLICATION
 ========================================================= */
 
 startServer();

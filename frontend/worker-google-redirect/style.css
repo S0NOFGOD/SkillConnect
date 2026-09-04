@@ -1,0 +1,442 @@
+/* =========================================================
+   SKILLCONNECT GOOGLE REDIRECT
+   PAGE STYLES
+========================================================= */
+
+
+/* =========================================================
+   1. GLOBAL VARIABLES
+========================================================= */
+
+:root {
+
+    --background: #020617;
+    --surface: #0f172a;
+
+    --border: rgba(255, 255, 255, 0.10);
+
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+
+    --worker-green: #22c55e;
+    --client-blue: #3b82f6;
+
+    --white: #ffffff;
+
+}
+
+
+/* =========================================================
+   2. RESET
+========================================================= */
+
+* {
+
+    margin: 0;
+    padding: 0;
+
+    box-sizing: border-box;
+
+}
+
+
+body {
+
+    min-height: 100vh;
+
+    display: grid;
+
+    place-items: center;
+
+    padding: 20px;
+
+    font-family: "Inter", sans-serif;
+
+    color: var(--text);
+
+    background:
+        radial-gradient(
+            circle at 20% 20%,
+            rgba(34, 197, 94, 0.12),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 80% 80%,
+            rgba(59, 130, 246, 0.12),
+            transparent 35%
+        ),
+        var(--background);
+
+}
+
+
+/* =========================================================
+   3. REDIRECT PAGE
+========================================================= */
+
+.redirect-page {
+
+    width: 100%;
+
+    display: flex;
+
+    justify-content: center;
+
+}
+
+
+.redirect-card {
+
+    width: min(430px, 100%);
+
+    padding: 40px 30px;
+
+    text-align: center;
+
+    border: 1px solid var(--border);
+
+    border-radius: 24px;
+
+    background:
+        rgba(15, 23, 42, 0.88);
+
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.4);
+
+    backdrop-filter: blur(18px);
+
+}
+
+
+/* =========================================================
+   4. GOOGLE ICON
+========================================================= */
+
+.google-icon {
+
+    width: 58px;
+    height: 58px;
+
+    margin: 0 auto 22px;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 50%;
+
+    color: #4285f4;
+
+    background: var(--white);
+
+    font-size: 1.5rem;
+
+    font-weight: 800;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.25);
+
+}
+
+
+/* =========================================================
+   5. TEXT
+========================================================= */
+
+.redirect-card h1 {
+
+    margin-bottom: 12px;
+
+    font-size: 1.5rem;
+
+    font-weight: 800;
+
+}
+
+
+.redirect-card p {
+
+    color: var(--text-muted);
+
+    font-size: 0.88rem;
+
+    line-height: 1.6;
+
+}
+
+
+/* =========================================================
+   6. LOADING SPINNER
+========================================================= */
+
+.loading-spinner {
+
+    width: 30px;
+    height: 30px;
+
+    margin: 25px auto;
+
+    border: 3px solid
+        rgba(255, 255, 255, 0.15);
+
+    border-top-color:
+        var(--worker-green);
+
+    border-radius: 50%;
+
+    animation:
+        spin 0.75s linear infinite;
+
+}
+
+
+@keyframes spin {
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
+
+/* =========================================================
+   7. ACTION BUTTONS
+========================================================= */
+
+.action-button {
+
+    width: 100%;
+
+    padding: 12px;
+
+    margin-top: 12px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    color: var(--white);
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--worker-green),
+            var(--client-blue)
+        );
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+}
+
+
+.action-button.secondary {
+
+    background:
+        rgba(255, 255, 255, 0.06);
+
+    border: 1px solid var(--border);
+
+}
+
+
+.hidden {
+    display: none !important;
+}
+
+
+/* =========================================================
+   8. AUTHENTICATION MODAL
+========================================================= */
+
+.modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1000;
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+}
+
+
+.modal.show {
+    display: flex;
+}
+
+
+.modal-overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        rgba(0, 0, 0, 0.72);
+
+    backdrop-filter: blur(5px);
+
+}
+
+
+.modal-card {
+
+    position: relative;
+
+    z-index: 1;
+
+    width: min(400px, 100%);
+
+    padding: 30px;
+
+    text-align: center;
+
+    border: 1px solid var(--border);
+
+    border-radius: 20px;
+
+    background: var(--surface);
+
+    box-shadow:
+        0 25px 80px rgba(0, 0, 0, 0.45);
+
+}
+
+
+.modal-close {
+
+    position: absolute;
+
+    top: 12px;
+    right: 14px;
+
+    width: 32px;
+    height: 32px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    color: var(--text-muted);
+
+    background:
+        rgba(255, 255, 255, 0.06);
+
+    font-size: 1.3rem;
+
+    cursor: pointer;
+
+}
+
+
+.modal-icon {
+
+    width: 50px;
+    height: 50px;
+
+    margin: 0 auto 16px;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 50%;
+
+    color: var(--white);
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--worker-green),
+            var(--client-blue)
+        );
+
+    font-size: 1.2rem;
+
+    font-weight: 800;
+
+}
+
+
+.modal-card h2 {
+
+    margin-bottom: 8px;
+
+    font-size: 1.2rem;
+
+}
+
+
+.modal-card p {
+
+    margin-bottom: 20px;
+
+    color: var(--text-muted);
+
+    font-size: 0.85rem;
+
+    line-height: 1.6;
+
+}
+
+
+/* =========================================================
+   9. MODAL BUTTON
+========================================================= */
+
+.modal-button {
+
+    width: 100%;
+
+    padding: 12px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    color: var(--white);
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--worker-green),
+            var(--client-blue)
+        );
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+}
+
+
+/* =========================================================
+   10. MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .redirect-card {
+
+        padding: 32px 22px;
+
+        border-radius: 20px;
+
+    }
+
+    .redirect-card h1 {
+
+        font-size: 1.35rem;
+
+    }
+
+}

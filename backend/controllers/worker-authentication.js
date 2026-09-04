@@ -1,460 +1,28 @@
-
-
 /* =========================================================
-   1. IMPORT WORKER MODEL
+   1. IMPORT DEPENDENCIES
 ========================================================= */
-
-/*
-   The Worker model communicates with MongoDB.
-*/
-
-const Worker =
-    require("../models/worker");
-
-
-
-/* =========================================================
-   2. IMPORT BCRYPT
-========================================================= */
-
-/*
-   bcryptjs is used for:
-
-   - Hashing passwords
-   - Comparing passwords
-   - Hashing refresh tokens
-*/
 
 const bcrypt =
     require("bcryptjs");
 
-
-
-/* =========================================================
-   3. IMPORT JSON WEB TOKEN
-========================================================= */
-
-/*
-   jsonwebtoken creates:
-
-   - Access tokens
-   - Refresh tokens
-*/
-
-const jwt =
-    require("jsonwebtoken");
-
-
-
-/* =========================================================
-   4. LOAD ENVIRONMENT VARIABLES
-========================================================= */
-
-require("dotenv").config();
-
-
-/* =========================================================
-   5. IMPORT NODEMAILER
-========================================================= */
-
-
-const nodemailer =
-    require("nodemailer");
-
-
-    /* =========================================================
-   5. IMPORT BREVO
-========================================================= */
+const Worker =
+    require("../models/worker");
 
 const {
-    BrevoClient
-} = require("@getbrevo/brevo");
+    sendOTP
+} =
+    require("../utils/generateOtp");
 
-
-/* =========================================================
-   5. GENERATE RANDOM OTP
-========================================================= */
-
-/*
-   Creates a six-digit OTP.
-
-   Example:
-
-   483921
-*/
-
-const generateOTP = () => {
-
-    return Math.floor(
-        100000 +
-        Math.random() * 900000
-    ).toString();
-
-};
+const {
+    generateTokens
+} =
+    require("../utils/generateTokens");
 
 
 
 /* =========================================================
-   6. CALCULATE OTP EXPIRATION
+   2. CREATE WORKER ACCOUNT
 ========================================================= */
-
-/*
-   OTPs remain valid for 10 minutes.
-*/
-
-const getOTPExpiration = () => {
-
-    return new Date(
-        Date.now() +
-        10 * 60 * 1000
-    );
-
-};
-
-
-
-/* =========================================================
-   7. SEND EMAIL OTP
-========================================================= */
-
-/*
-   This function sends SkillConnect OTP emails
-   through the Brevo HTTPS API.
-
-   We use Brevo instead of Gmail SMTP because
-   Render Free blocks outbound SMTP connections.
-*/
-
-const sendEmailOTP = async (
-    email,
-    otp,
-    purpose = "signup"
-) => {
-
-
-    /* =====================================================
-       1. CREATE BREVO CLIENT
-    ===================================================== */
-
-    /*
-       Brevo uses HTTPS instead of Gmail SMTP.
-
-       The API key is stored in the backend
-       environment variables.
-    */
-
-    const brevo =
-        new BrevoClient({
-
-            apiKey:
-                process.env.BREVO_API_KEY
-
-        });
-
-
-    /* =====================================================
-       2. DETERMINE EMAIL CONTENT
-    ===================================================== */
-
-    /*
-       Default email content is for account
-       email verification.
-    */
-
-    let subject =
-        "SkillConnect Email Verification";
-
-    let heading =
-        "Verify Your SkillConnect Account";
-
-    let description =
-        "Use the OTP below to verify your email address.";
-
-
-    /* =====================================================
-       3. PASSWORD RESET EMAIL CONTENT
-    ===================================================== */
-
-    /*
-       Password-reset emails use different wording.
-    */
-
-    if (
-        purpose === "password-reset"
-    ) {
-
-        subject =
-            "SkillConnect Password Reset OTP";
-
-        heading =
-            "Reset Your SkillConnect Password";
-
-        description =
-            "Use the OTP below to reset your SkillConnect password.";
-
-    }
-
-
-    /* =====================================================
-       4. CREATE AND SEND EMAIL
-    ===================================================== */
-
-    try {
-
-        /*
-           Brevo sends this email through its HTTPS API.
-
-           No Gmail SMTP connection is made.
-           Therefore, Render Free's SMTP restriction
-           does not affect this request.
-        */
-
-        const result =
-            await brevo.transactionalEmails
-                .sendTransacEmail({
-
-                    /* -------------------------------------
-                       EMAIL SUBJECT
-                    ------------------------------------- */
-
-                    subject:
-                        subject,
-
-
-                    /* -------------------------------------
-                       EMAIL SENDER
-                    ------------------------------------- */
-
-                    sender: {
-
-                        name:
-                            process.env.BREVO_SENDER_NAME ||
-                            "SkillConnect",
-
-                        email:
-                            process.env.BREVO_SENDER_EMAIL
-
-                    },
-
-
-                    /* -------------------------------------
-                       EMAIL RECIPIENT
-                    ------------------------------------- */
-
-                    to: [
-
-                        {
-
-                            email:
-                                email
-
-                        }
-
-                    ],
-
-
-                    /* -------------------------------------
-                       EMAIL HTML
-                    ------------------------------------- */
-
-                    htmlContent: `
-
-                        <div
-                            style="
-                                font-family: Arial, sans-serif;
-                                max-width: 600px;
-                                margin: auto;
-                                padding: 30px;
-                            "
-                        >
-
-                            <h2>
-                                ${heading}
-                            </h2>
-
-                            <p>
-                                ${description}
-                            </p>
-
-                            <div
-                                style="
-                                    font-size: 32px;
-                                    font-weight: bold;
-                                    letter-spacing: 8px;
-                                    margin: 25px 0;
-                                "
-                            >
-
-                                ${otp}
-
-                            </div>
-
-                            <p>
-                                This OTP expires in 10 minutes.
-                            </p>
-
-                            <p>
-                                If you did not request this,
-                                you can safely ignore this email.
-                            </p>
-
-                        </div>
-
-                    `
-
-                });
-
-
-        /* =================================================
-           5. SUCCESS LOG
-        ================================================= */
-
-        console.log(
-            `SkillConnect OTP email sent to ${email}`
-        );
-
-        console.log(
-            "Brevo message ID:",
-            result.messageId
-        );
-
-
-        return true;
-
-    }
-
-
-    /* =====================================================
-       6. ERROR HANDLING
-    ===================================================== */
-
-    catch (error) {
-
-        console.error(
-            "Brevo email error:",
-            error
-        );
-
-
-        throw new Error(
-            "Unable to send authentication email."
-        );
-
-    }
-
-};
-
-/* =========================================================
-   8. CREATE ACCESS TOKEN
-========================================================= */
-
-/*
-   Access tokens are short-lived.
-
-   The expiration comes from:
-
-   ACCESS_TOKEN_EXPIRE
-
-   in .env.
-*/
-
-const generateAccessToken = (
-    workerId
-) => {
-
-    return jwt.sign(
-
-        {
-            workerId: workerId.toString()
-        },
-
-        process.env.ACCESS_TOKEN_SECRET,
-
-        {
-            expiresIn:
-                process.env.ACCESS_TOKEN_EXPIRE || "15m"
-        }
-
-    );
-
-};
-
-
-
-/* =========================================================
-   9. CREATE REFRESH TOKEN
-========================================================= */
-
-/*
-   Refresh tokens live longer than access tokens.
-
-   The expiration comes from:
-
-   REFRESH_TOKEN_EXPIRE
-
-   in .env.
-*/
-
-const generateRefreshToken = (
-    workerId
-) => {
-
-    return jwt.sign(
-
-        {
-            workerId: workerId.toString()
-        },
-
-        process.env.REFRESH_TOKEN_SECRET,
-
-        {
-            expiresIn:
-                process.env.REFRESH_TOKEN_EXPIRE || "7d"
-        }
-
-    );
-
-};
-
-
-
-/* =========================================================
-   10. CREATE ACCOUNT
-========================================================= */
-
-/*
-   FLOW:
-
-   Frontend validation
-          ↓
-   Backend validation
-          ↓
-   Check email
-          ↓
-   Email exists → error
-          ↓
-   Hash password
-          ↓
-   Create worker
-          ↓
-   Active account
-          ↓
-   Email unverified
-          ↓
-   Profile incomplete
-          ↓
-   Generate email OTP
-          ↓
-   Save OTP + expiry
-          ↓
-   Send OTP
-          ↓
-   Success response
-          ↓
-   Frontend saves email
-          ↓
-   worker-email-otp/index.html
-*/
 
 const signupWorker = async (
     req,
@@ -463,303 +31,15 @@ const signupWorker = async (
 
     try {
 
-        /* ==========================================
-           10.1 Read request data
-        ========================================== */
-
-        const {
-            email,
-            password,
-            confirmPassword
-        } = req.body;
-
-
-        /* ==========================================
-           10.2 Backend validation
-        ========================================== */
-
-        if (
-            !email ||
-            !password ||
-            !confirmPassword
-        ) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Email, password and confirm password are required."
-
-            });
-
-        }
-
-
-        /* ==========================================
-           10.3 Normalize email
-        ========================================== */
-
-        const normalizedEmail =
-            email.trim().toLowerCase();
-
-
-        /* ==========================================
-           10.4 Validate email format
-        ========================================== */
-
-        const emailRegex =
-            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-
-        if (
-            !emailRegex.test(
-                normalizedEmail
-            )
-        ) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Please enter a valid email address."
-
-            });
-
-        }
-
-
-        /* ==========================================
-           10.5 Validate password confirmation
-        ========================================== */
-
-        if (
-            password !== confirmPassword
-        ) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Passwords do not match."
-
-            });
-
-        }
-
-
-        /* ==========================================
-           10.6 Validate password strength
-        ========================================== */
-
-        if (
-            password.length < 8
-        ) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Password must contain at least 8 characters."
-
-            });
-
-        }
-
-
-        /* ==========================================
-           10.7 Check existing worker
-        ========================================== */
-
-        const existingWorker =
-            await Worker.findOne({
-
-                email:
-                    normalizedEmail
-
-            });
-
-
-        if (existingWorker) {
-
-            return res.status(409).json({
-
-                success: false,
-
-                message:
-                    "An account with this email already exists."
-
-            });
-
-        }
-
-
-        /* ==========================================
-           10.8 Hash password
-        ========================================== */
-
-        const hashedPassword =
-            await bcrypt.hash(
-                password,
-                12
-            );
-
-
-        /* ==========================================
-           10.9 Generate email OTP
-        ========================================== */
-
-        const emailOTP =
-            generateOTP();
-
-
-        const emailOTPExpires =
-            getOTPExpiration();
-
-
-        /* ==========================================
-           10.10 Create worker
-        ========================================== */
-
-        const worker =
-            await Worker.create({
-
-                email:
-                    normalizedEmail,
-
-                password:
-                    hashedPassword,
-
-                accountStatus:
-                    "active",
-
-                isEmailVerified:
-                    false,
-
-                profileCompleted:
-                    false,
-
-                emailOtp:
-                    emailOTP,
-
-                emailOtpExpires:
-                    emailOTPExpires,
-            });
-
-
-        /* ==========================================
-           10.11 Send email OTP
-        ========================================== */
-
-        try {
-
-            await sendEmailOTP(
-
-                worker.email,
-
-                emailOTP,
-
-                "signup"
-
-            );
-
-        }
-
-        catch (emailError) {
-
-            /*
-               Remove the newly created account if
-               the verification email could not be sent.
-
-               This prevents creating an account that
-               cannot proceed through verification.
-            */
-
-            await Worker.findByIdAndDelete(
-                worker._id
-            );
-
-
-            throw emailError;
-
-        }
-
-
-        /* ==========================================
-           10.12 Success response
-        ========================================== */
-
-        return res.status(201).json({
-
-            success: true,
-
-            message:
-                "Account created successfully. A verification OTP has been sent to your email.",
-
-            email:
-                worker.email,
-
-            redirect:
-                "../worker-email-otp/index.html"
-
-        });
-
-    }
-
-    catch (error) {
-
-        /* ==========================================
-           Handle unexpected errors
-        ========================================== */
-
-        console.error(
-            "Worker signup error:",
-            error
-        );
-
-
-        return res.status(500).json({
-
-            success: false,
-
-            message:
-                "Unable to create your account right now. Please try again."
-
-        });
-
-    }
-
-};
-
-
-
-/* =========================================================
-   11. LOGIN
-========================================================= */
-
-const loginWorker = async (
-    req,
-    res
-) => {
-
-    try {
-
-        /* ==========================================
-           11.1 Read request data
-        ========================================== */
-
         const {
             email,
             password
         } = req.body;
 
 
-        /* ==========================================
-           11.2 Backend validation
-        ========================================== */
+        /* -------------------------------------------------
+           Validate required fields
+        ------------------------------------------------- */
 
         if (
             !email ||
@@ -778,30 +58,225 @@ const loginWorker = async (
         }
 
 
-        /* ==========================================
-           11.3 Normalize email
-        ========================================== */
+        /* -------------------------------------------------
+           Validate password length
+        ------------------------------------------------- */
+
+        if (
+            password.length < 8
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Password must be at least 8 characters."
+
+            });
+
+        }
+
+
+        /* -------------------------------------------------
+           Normalize email
+        ------------------------------------------------- */
 
         const normalizedEmail =
-            email.trim().toLowerCase();
+            email
+                .trim()
+                .toLowerCase();
 
 
-        /* ==========================================
-           11.4 Find worker
-        ========================================== */
+        /* -------------------------------------------------
+           Check whether worker already exists
+        ------------------------------------------------- */
+
+        const existingWorker =
+            await Worker.findOne({
+                email: normalizedEmail
+            });
+
+
+        if (existingWorker) {
+
+            return res.status(409).json({
+
+                success: false,
+
+                message:
+                    "An account with this email already exists."
+
+            });
+
+        }
+
+
+        /* -------------------------------------------------
+           Hash password
+        ------------------------------------------------- */
+
+        const passwordHash =
+            await bcrypt.hash(
+                password,
+                12
+            );
+
+
+        /* -------------------------------------------------
+           Create worker
+        ------------------------------------------------- */
 
         const worker =
-            await Worker.findOne({
+            await Worker.create({
 
                 email:
-                    normalizedEmail
+                    normalizedEmail,
+
+                passwordHash:
+                    passwordHash,
+
+                authenticationMethod:
+                    "password",
+
+                accountStatus:
+                    "active",
+
+                isEmailVerified:
+                    false,
+
+                profileCompleted:
+                    false
 
             });
 
 
-        /* ==========================================
-           11.5 Email does not exist
-        ========================================== */
+        /* -------------------------------------------------
+           Generate and send email OTP
+        ------------------------------------------------- */
+
+        await sendOTP({
+
+            workerId:
+                worker._id,
+
+            type:
+                "email-verification"
+
+        });
+
+
+        /* -------------------------------------------------
+           Send response
+        ------------------------------------------------- */
+
+        return res.status(201).json({
+
+            success: true,
+
+            message:
+                "Account created successfully. A verification code has been sent to your email.",
+
+            email:
+                worker.email,
+
+            nextStep:
+                "email-verification"
+
+        });
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Worker signup error:",
+            error
+        );
+
+        return res.status(500).json({
+
+            success: false,
+
+            message:
+                "Unable to create your account. Please try again."
+
+        });
+
+    }
+
+};
+
+
+
+/* =========================================================
+   3. WORKER LOGIN
+========================================================= */
+
+const loginWorker = async (
+    req,
+    res
+) => {
+
+    try {
+
+        const {
+            email,
+            password
+        } = req.body;
+
+
+        /* -------------------------------------------------
+           Validate required fields
+        ------------------------------------------------- */
+
+        if (
+            !email ||
+            !password
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Email and password are required."
+
+            });
+
+        }
+
+
+        /* -------------------------------------------------
+           Normalize email
+        ------------------------------------------------- */
+
+        const normalizedEmail =
+            email
+                .trim()
+                .toLowerCase();
+
+
+        /* -------------------------------------------------
+           Find worker
+           
+           passwordHash is select:false in the model,
+           so explicitly include it.
+        ------------------------------------------------- */
+
+        const worker =
+            await Worker
+                .findOne({
+                    email: normalizedEmail
+                })
+                .select("+passwordHash");
+
+
+        /* -------------------------------------------------
+           Generic authentication error
+           
+           Do not reveal whether the email exists.
+        ------------------------------------------------- */
 
         if (!worker) {
 
@@ -817,17 +292,35 @@ const loginWorker = async (
         }
 
 
-        /* ==========================================
-           11.6 Compare password
-        ========================================== */
+        /* -------------------------------------------------
+           Check authentication method
+        ------------------------------------------------- */
+
+        if (
+            worker.authenticationMethod ===
+            "google"
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "This account was created with Google. Please continue with Google."
+
+            });
+
+        }
+
+
+        /* -------------------------------------------------
+           Check password
+        ------------------------------------------------- */
 
         const passwordMatches =
             await bcrypt.compare(
-
                 password,
-
-                worker.password
-
+                worker.passwordHash
             );
 
 
@@ -845,9 +338,9 @@ const loginWorker = async (
         }
 
 
-        /* ==========================================
-           11.7 Check account status
-        ========================================== */
+        /* -------------------------------------------------
+           Check account status
+        ------------------------------------------------- */
 
         if (
             worker.accountStatus ===
@@ -866,160 +359,94 @@ const loginWorker = async (
         }
 
 
-        /* ==========================================
-           11.8 Check email verification
-        ========================================== */
+        /* -------------------------------------------------
+           Check email verification
+        ------------------------------------------------- */
 
         if (
-            worker.isEmailVerified !== true
+            !worker.isEmailVerified
         ) {
 
-            const emailOTP =
-    generateOTP();
+            await sendOTP({
 
+                workerId:
+                    worker._id,
 
-/* =========================================================
-   GENERATE OTP EXPIRATION
-========================================================= */
+                type:
+                    "email-verification"
 
-/*
-   The email verification OTP expires after 10 minutes.
-*/
+            });
 
-const emailOTPExpires =
-    getOTPExpiration();
-
-
-/* =========================================================
-   SAVE EMAIL VERIFICATION OTP
-========================================================= */
-
-
-worker.emailOtp =
-    emailOTP;
-
-worker.emailOtpExpires =
-    emailOTPExpires;
-
-
-/*
-   Save the worker document.
-*/
-
-await worker.save();
-
-
-/* =========================================================
-   SEND EMAIL VERIFICATION OTP
-========================================================= */
-
-/*
-   Send the newly generated OTP to the worker's email.
-*/
-
-await sendEmailOTP(
-
-    worker.email,
-
-    emailOTP,
-
-    "signup"
-
-);
-
-
-            /*
-               The frontend will:
-
-               1. Save worker email
-               2. Show redirect modal
-               3. Wait 1.5 seconds
-               4. Redirect to OTP page
-            */
 
             return res.status(200).json({
-                
+
                 success: true,
-                nextStep: "email-verification",
-                message: "Your email has not been verified. A new verification OTP has been sent.",
-                email: worker.email
+
+                message:
+                    "Your email is not verified. A new verification code has been sent to your email.",
+
+                email:
+                    worker.email,
+
+                nextStep:
+                    "email-verification"
+
             });
 
         }
 
 
-        /* ==========================================
-           11.9 Check profile completion
-        ========================================== */
+        /* -------------------------------------------------
+           Check profile completion
+        ------------------------------------------------- */
 
         if (
-            worker.profileCompleted !== true
+            !worker.profileCompleted
         ) {
 
             return res.status(200).json({
 
-    success: true,
+                success: true,
 
-    nextStep: "profile",
+                message:
+                    "Please complete your worker profile.",
 
-    message:
-        "Login successful. Please complete your worker profile.",
+                email:
+                    worker.email,
 
-    email:
-        worker.email
+                nextStep:
+                    "profile"
 
-});
+            });
+
         }
 
 
-        /* ==========================================
-           11.10 Generate access token
-        ========================================== */
+        /* -------------------------------------------------
+           Generate access and refresh tokens
+           
+           generateTokens() also hashes the refresh
+           token and saves refreshTokenHash in MongoDB.
+        ------------------------------------------------- */
 
-        const accessToken =
-            generateAccessToken(
-                worker._id
-            );
+        const {
+            accessToken,
+            refreshToken
+        } =
+            await generateTokens({
 
+                userId:
+                    worker._id.toString(),
 
-        /* ==========================================
-           11.11 Generate refresh token
-        ========================================== */
+                userType:
+                    "worker"
 
-        const refreshToken =
-            generateRefreshToken(
-                worker._id
-            );
-
-
-        /* ==========================================
-           11.12 Hash refresh token
-        ========================================== */
-
-        const hashedRefreshToken =
-            await bcrypt.hash(
-
-                refreshToken,
-
-                12
-
-            );
+            });
 
 
-        /* ==========================================
-           11.13 Save hashed refresh token
-        ========================================== */
-
-        worker.refreshTokenHash =
-            hashedRefreshToken;
-
-
-        await worker.save();
-
-
-        /* ==========================================
-           11.14 Set refresh token cookie
-        ========================================== */
+        /* -------------------------------------------------
+           Set HTTP-only refresh token cookie
+        ------------------------------------------------- */
 
         res.cookie(
 
@@ -1042,57 +469,52 @@ await sendEmailOTP(
                         : "lax",
 
                 maxAge:
-                    7 *
-                    24 *
-                    60 *
-                    60 *
-                    1000
+                    7 * 24 * 60 * 60 * 1000,
+
+                path:
+                    "/"
 
             }
 
         );
 
 
-        /* ==========================================
-           11.15 Return successful login
-        ========================================== */
+        /* -------------------------------------------------
+           Send authenticated response
+        ------------------------------------------------- */
 
         return res.status(200).json({
 
-    success: true,
+            success: true,
 
-    nextStep: "authenticated",
+            message:
+                "Login successful.",
 
-    message:
-        "Login successful. Welcome back to SkillConnect.",
+            accessToken,
 
-    accessToken,
+            email:
+                worker.email,
 
-    email:
-        worker.email
+            nextStep:
+                "authenticated"
 
-});
+        });
 
     }
 
     catch (error) {
-
-        /* ==========================================
-           Handle login errors
-        ========================================== */
 
         console.error(
             "Worker login error:",
             error
         );
 
-
         return res.status(500).json({
 
             success: false,
 
             message:
-                "Unable to complete login right now. Please try again."
+                "Unable to log you in. Please try again."
 
         });
 
@@ -1103,42 +525,8 @@ await sendEmailOTP(
 
 
 /* =========================================================
-   12. FORGOT PASSWORD
+   4. FORGOT PASSWORD
 ========================================================= */
-
-/*
-   FLOW:
-
-   User clicks Forgot Password
-          ↓
-   Modal opens
-          ↓
-   Enter email
-          ↓
-   Frontend validation
-          ↓
-   Backend
-          ↓
-   Check email
-          ↓
-   Doesn't exist
-          ↓
-   Generic response
-
-   OR
-
-   Exists
-          ↓
-   Generate reset OTP
-          ↓
-   Save OTP + expiry
-          ↓
-   Send OTP
-          ↓
-   Save email on frontend
-          ↓
-   worker-password-reset-otp/index.html
-*/
 
 const forgotPassword = async (
     req,
@@ -1147,18 +535,14 @@ const forgotPassword = async (
 
     try {
 
-        /* ==========================================
-           12.1 Read email
-        ========================================== */
-
         const {
             email
         } = req.body;
 
 
-        /* ==========================================
-           12.2 Backend validation
-        ========================================== */
+        /* -------------------------------------------------
+           Validate email
+        ------------------------------------------------- */
 
         if (!email) {
 
@@ -1167,24 +551,26 @@ const forgotPassword = async (
                 success: false,
 
                 message:
-                    "Please enter your email address."
+                    "Email is required."
 
             });
 
         }
 
 
-        /* ==========================================
-           12.3 Normalize email
-        ========================================== */
+        /* -------------------------------------------------
+           Normalize email
+        ------------------------------------------------- */
 
         const normalizedEmail =
-            email.trim().toLowerCase();
+            email
+                .trim()
+                .toLowerCase();
 
 
-        /* ==========================================
-           12.4 Find worker
-        ========================================== */
+        /* -------------------------------------------------
+           Find worker
+        ------------------------------------------------- */
 
         const worker =
             await Worker.findOne({
@@ -1195,99 +581,79 @@ const forgotPassword = async (
             });
 
 
-        /* ==========================================
-           12.5 Generic response for unknown email
-        ========================================== */
+        /* -------------------------------------------------
+           Do not reveal whether account exists
+        ------------------------------------------------- */
 
         if (!worker) {
-
-            /*
-               Do not reveal whether an email is
-               registered.
-
-               This prevents account enumeration.
-            */
 
             return res.status(200).json({
 
                 success: true,
 
-                otpSent: false,
+                emailExists: false,
 
                 message:
-                    "If an account with that email exists, a password reset OTP has been sent.",
-
-                email:
-                    normalizedEmail
+                    "If an account with this email exists, you will receive a password reset code."
 
             });
 
         }
 
 
-        /* ==========================================
-   12.6 Generate password reset OTP
-========================================== */
+        /* -------------------------------------------------
+           Google-only account
+        ------------------------------------------------- */
 
-const resetOTP =
-    generateOTP();
+        if (
+            worker.authenticationMethod ===
+            "google"
+        ) {
 
+            return res.status(200).json({
 
-/* ==========================================
-   12.7 Generate password reset OTP expiration
-========================================== */
+                success: true,
 
-const resetOTPExpires =
-    getOTPExpiration();
+                emailExists: true,
 
+                message:
+                    "This account uses Google authentication. Please continue with Google."
 
-/* ==========================================
-   12.8 Save password reset OTP
-========================================== */
+            });
 
-worker.passwordResetOtp =
-    resetOTP;
-
-worker.passwordResetOtpExpires =
-    resetOTPExpires;
+        }
 
 
-await worker.save();
+        /* -------------------------------------------------
+           Generate and send password reset OTP
+        ------------------------------------------------- */
+
+        await sendOTP({
+
+            workerId:
+                worker._id,
+
+            type:
+                "password-reset"
+
+        });
 
 
-/* ==========================================
-   12.9 Send password reset OTP
-========================================== */
-
-await sendEmailOTP(
-
-    worker.email,
-
-    resetOTP,
-
-    "password-reset"
-
-);
-
-
-        /* ==========================================
-           12.10 Success response
-        ========================================== */
+        /* -------------------------------------------------
+           Send response
+        ------------------------------------------------- */
 
         return res.status(200).json({
 
             success: true,
 
-            otpSent: true,
-
-            message:
-                "If an account with that email exists, a password reset OTP has been sent.",
+            emailExists: true,
 
             email:
                 worker.email,
 
-            redirect:
-                "../worker-password-reset-otp/index.html"
+            message:
+                "A password reset code has been sent to your email."
 
         });
 
@@ -1295,22 +661,17 @@ await sendEmailOTP(
 
     catch (error) {
 
-        /* ==========================================
-           Handle forgot-password errors
-        ========================================== */
-
         console.error(
-            "Worker forgot-password error:",
+            "Worker forgot password error:",
             error
         );
-
 
         return res.status(500).json({
 
             success: false,
 
             message:
-                "Unable to process your password reset request right now. Please try again."
+                "Unable to process your password reset request. Please try again."
 
         });
 
@@ -1321,13 +682,8 @@ await sendEmailOTP(
 
 
 /* =========================================================
-   13. EXPORT CONTROLLERS
+   5. EXPORT CONTROLLERS
 ========================================================= */
-
-/*
-   routes/worker-authentication.js imports these
-   controller functions.
-*/
 
 module.exports = {
 

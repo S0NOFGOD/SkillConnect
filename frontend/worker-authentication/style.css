@@ -1,223 +1,187 @@
-/* ==========================================
-    SkillConnect Worker Authentication Styles
-    Clean + Easy Memorization Version
-========================================== */
+/* =========================================================
+   SKILLCONNECT WORKER AUTHENTICATION
+   PAGE STYLES
+========================================================= */
 
 
-/* ==========================================
-   1. Global Reset
-========================================== */
+/* =========================================================
+   1. GLOBAL VARIABLES
+========================================================= */
 
-* {
+:root {
 
-    margin: 0;
+    --background: #020617;
+    --surface: #0f172a;
+    --surface-light: #172033;
 
-    padding: 0;
+    --border: rgba(255, 255, 255, 0.10);
 
-    box-sizing: border-box;
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+
+    --worker-green: #22c55e;
+    --worker-green-dark: #16a34a;
+
+    --client-blue: #3b82f6;
+
+    --danger: #ef4444;
+
+    --white: #ffffff;
+
+    --radius: 16px;
 
 }
 
 
+/* =========================================================
+   2. RESET
+========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
 html {
-
     scroll-behavior: smooth;
-
 }
 
 
 body {
 
+    min-height: 100vh;
+
     font-family: "Inter", sans-serif;
 
-    background: #020617;
+    color: var(--text);
 
-    color: #ffffff;
+    background:
+        radial-gradient(
+            circle at 10% 20%,
+            rgba(34, 197, 94, 0.12),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 90% 80%,
+            rgba(59, 130, 246, 0.12),
+            transparent 30%
+        ),
+        var(--background);
 
-    line-height: 1.6;
+}
 
-    overflow-x: hidden;
 
+button,
+input {
+    font: inherit;
+}
+
+
+button {
+    cursor: pointer;
 }
 
 
 a {
-
-    text-decoration: none;
-
     color: inherit;
-
+    text-decoration: none;
 }
 
 
-
-/* ==========================================
-   2. Fixed Navbar
-========================================== */
-
-header {
-
-    position: fixed;
-
-    top: 0;
-
-    left: 0;
-
-    width: 100%;
-
-    z-index: 1000;
-
-    background: rgba(2, 6, 23, .85);
-
-    backdrop-filter: blur(15px);
-
-    border-bottom: 1px solid rgba(255, 255, 255, .08);
-
-}
-
+/* =========================================================
+   3. NAVBAR
+========================================================= */
 
 .navbar {
 
-    width: 90%;
+    width: 100%;
 
-    max-width: 1200px;
-
-    height: 70px;
-
-    margin: auto;
+    padding: 20px 6%;
 
     display: flex;
-
-    justify-content: space-between;
 
     align-items: center;
 
+    justify-content: space-between;
+
+    border-bottom: 1px solid var(--border);
+
+    background: rgba(2, 6, 23, 0.75);
+
+    backdrop-filter: blur(14px);
+
 }
 
-
-
-/* ==========================================
-   Logo
-========================================== */
 
 .logo {
 
-    font-size: 24px;
+    font-size: 1.35rem;
 
     font-weight: 800;
 
-    letter-spacing: -1px;
-
-    background: linear-gradient(
-        135deg,
-        #22c55e,
-        #3b82f6
-    );
+    background:
+        linear-gradient(
+            135deg,
+            var(--worker-green),
+            var(--client-blue)
+        );
 
     -webkit-background-clip: text;
-
     -webkit-text-fill-color: transparent;
-
-}
-
-
-
-/* ==========================================
-   Navigation
-========================================== */
-
-.nav-links {
-
-    display: flex;
-
-    gap: 30px;
 
 }
 
 
 .nav-links a {
 
-    color: #cbd5e1;
+    color: var(--text-muted);
 
-    font-size: 15px;
+    font-size: 0.9rem;
 
-    font-weight: 600;
-
-    transition: .3s;
+    transition: 0.2s ease;
 
 }
 
 
 .nav-links a:hover {
-
-    color: #22c55e;
-
+    color: var(--white);
 }
 
 
-
-/* ==========================================
-   3. Main Authentication Layout
-========================================== */
+/* =========================================================
+   4. MAIN AUTH PAGE
+========================================================= */
 
 .auth-page {
 
-    width: 90%;
+    width: min(1150px, 92%);
+
+    min-height: calc(100vh - 81px);
 
     margin: auto;
 
-    padding-top: 110px;
+    padding: 60px 0;
 
-    padding-bottom: 70px;
+    display: grid;
 
-    display: flex;
+    grid-template-columns: 1fr 430px;
 
-    flex-direction: column;
+    gap: 70px;
 
-    gap: 40px;
-
-    position: relative;
+    align-items: center;
 
 }
 
 
-.auth-page::before {
+/* =========================================================
+   5. HERO SECTION
+========================================================= */
 
-    content: "";
+.hero-section {
 
-    position: absolute;
-
-    width: 320px;
-
-    height: 320px;
-
-    background: #22c55e;
-
-    filter: blur(170px);
-
-    opacity: .18;
-
-    top: 70px;
-
-    left: 50%;
-
-    transform: translateX(-50%);
-
-}
-
-
-
-/* ==========================================
-   4. Hero Section
-========================================== */
-
-.hero-content {
-
-    position: relative;
-
-    z-index: 2;
-
-    text-align: center;
+    max-width: 620px;
 
 }
 
@@ -226,714 +190,521 @@ header {
 
     display: inline-block;
 
-    padding: 8px 18px;
+    padding: 8px 14px;
 
-    margin-bottom: 20px;
+    margin-bottom: 22px;
 
-    border-radius: 30px;
+    border: 1px solid rgba(34, 197, 94, 0.25);
 
-    color: #22c55e;
+    border-radius: 999px;
 
-    background: rgba(34, 197, 94, .15);
+    color: #86efac;
 
-    border: 1px solid rgba(34, 197, 94, .3);
+    background: rgba(34, 197, 94, 0.08);
 
-    font-size: 14px;
+    font-size: 0.78rem;
 
-}
-
-
-.hero-content h1 {
-
-    font-size: 38px;
-
-    line-height: 1.15;
-
-    font-weight: 800;
-
-    margin-bottom: 20px;
+    font-weight: 600;
 
 }
 
 
-.hero-content h1 span {
+.hero-section h1 {
 
-    background: linear-gradient(
-        135deg,
-        #22c55e,
-        #3b82f6
-    );
+    font-size: clamp(2.4rem, 5vw, 4.2rem);
+
+    line-height: 1.05;
+
+    letter-spacing: -0.04em;
+
+}
+
+
+.hero-section h1 span {
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--worker-green),
+            var(--client-blue)
+        );
 
     -webkit-background-clip: text;
-
     -webkit-text-fill-color: transparent;
 
 }
 
 
-.hero-content p {
+.hero-description {
 
-    color: #cbd5e1;
+    max-width: 550px;
 
-    font-size: 16px;
+    margin-top: 22px;
 
-    margin-bottom: 35px;
+    color: var(--text-muted);
 
-}
-
-
-
-/* ==========================================
-   5. Benefits Cards
-========================================== */
-
-.benefits {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 18px;
+    line-height: 1.7;
 
 }
 
 
 /* =========================================================
-   12. BENEFIT CARD
+   6. BENEFITS
 ========================================================= */
 
-.benefit-card {
+.benefits {
 
-    display: flex;
+    margin-top: 35px;
 
-    gap: 18px;
-
-    align-items: center;
-
-    padding: 10px;
-
-    padding-bottom: 0px;
-
-    border-radius: 20px;
-
-    background:
-        rgba(255, 255, 255, 0.05);
-
-    border:
-        1px solid rgba(255, 255, 255, 0.08);
-
-    transition: 0.3s ease;
-
-}
-
-
-.benefit-card:hover {
-
-    transform: translateY(-5px);
-
-    border-color:
-        rgba(59, 130, 246, 0.65);
-
-    box-shadow:
-        0 15px 35px rgba(59, 130, 246, 0.08);
-
-}
-
-
-
-.icon {
-
-    font-size: 36px;
-
-    flex-shrink: 0;
-
-}
-
-
-.benefit-card h3 {
-
-    color: #22c55e;
-
-    margin-bottom: 5px;
-
-}
-
-
-.benefit-card p {
-
-    color: #cbd5e1;
-
-    font-size: 14px;
-
-}
-
-
-
-/* ==========================================
-   6. Authentication Card
-========================================== */
-
-.auth-card {
-
-    position: relative;
-
-    z-index: 2;
-
-    padding: 30px;
-
-    border-radius: 24px;
-
-    background: rgba(255, 255, 255, .05);
-
-    border: 1px solid rgba(255, 255, 255, .08);
-
-    backdrop-filter: blur(15px);
-
-}
-
-
-.auth-header {
-
-    text-align: center;
-
-    margin-bottom: 25px;
-
-}
-
-
-.auth-header h2 {
-
-    font-size: 30px;
-
-    margin-bottom: 8px;
-
-}
-
-
-.auth-header p {
-
-    color: #cbd5e1;
-
-}
-
-
-
-/* ==========================================
-   7. Authentication Tabs
-========================================== */
-
-.tabs {
-
-    display: flex;
-
-    gap: 8px;
-
-    padding: 6px;
-
-    margin-bottom: 25px;
-
-    border-radius: 16px;
-
-    background: #111827;
-
-}
-
-
-.tab {
-
-    flex: 1;
-
-    border: none;
-
-    background: transparent;
-
-    color: #cbd5e1;
-
-    font-weight: 600;
-
-    font-size: 15px;
-
-    padding: 14px;
-
-    border-radius: 12px;
-
-    cursor: pointer;
-
-    transition: .3s;
-
-}
-
-
-.tab.active {
-
-    background: linear-gradient(
-        135deg,
-        #22c55e,
-        #16a34a
-    );
-
-    color: #ffffff;
-
-}
-
-
-
-/* ==========================================
-   8. Form Sections
-========================================== */
-
-.form-section {
-
-    display: none;
-
-}
-
-
-.form-section.active {
-
-    display: block;
-
-}
-
-
-form {
-
-    display: flex;
-
-    flex-direction: column;
+    display: grid;
 
     gap: 14px;
 
 }
 
 
-label {
+.benefit-card {
 
-    font-size: 14px;
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 14px;
+
+    padding: 16px;
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    background: rgba(15, 23, 42, 0.65);
+
+}
+
+
+.benefit-icon {
+
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 10px;
+
+    color: var(--white);
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--worker-green),
+            var(--client-blue)
+        );
+
+    font-weight: 800;
+
+}
+
+
+.benefit-card h3 {
+
+    margin-bottom: 4px;
+
+    font-size: 0.95rem;
+
+}
+
+
+.benefit-card p {
+
+    color: var(--text-muted);
+
+    font-size: 0.82rem;
+
+    line-height: 1.5;
+
+}
+
+
+/* =========================================================
+   7. AUTH CARD
+========================================================= */
+
+.auth-card {
+
+    padding: 30px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 24px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15, 23, 42, 0.96),
+            rgba(15, 23, 42, 0.78)
+        );
+
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.35);
+
+    backdrop-filter: blur(20px);
+
+}
+
+
+.auth-header {
+    margin-bottom: 22px;
+}
+
+
+.auth-header h2 {
+
+    font-size: 1.45rem;
+
+    margin-bottom: 6px;
+
+}
+
+
+.auth-header p {
+
+    color: var(--text-muted);
+
+    font-size: 0.85rem;
+
+}
+
+
+/* =========================================================
+   8. AUTH TABS
+========================================================= */
+
+.tabs {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 5px;
+
+    padding: 5px;
+
+    margin-bottom: 25px;
+
+    border-radius: 12px;
+
+    background: rgba(255, 255, 255, 0.05);
+
+}
+
+
+.tab {
+
+    padding: 11px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    color: var(--text-muted);
+
+    background: transparent;
 
     font-weight: 600;
 
 }
 
 
+.tab.active {
 
-/* ==========================================
-   9. Standard Inputs
-========================================== */
+    color: var(--white);
 
-input {
+    background:
+        linear-gradient(
+            135deg,
+            var(--worker-green),
+            var(--client-blue)
+        );
+
+}
+
+
+/* =========================================================
+   9. AUTH FORMS
+========================================================= */
+
+.auth-form {
+    display: none;
+}
+
+
+.auth-form.active {
+    display: block;
+}
+
+
+.form-group {
+    margin-bottom: 17px;
+}
+
+
+.form-group label {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-size: 0.82rem;
+
+    font-weight: 600;
+
+}
+
+
+.form-group input {
 
     width: 100%;
 
-    padding: 15px;
+    padding: 13px 14px;
 
-    border: 1px solid transparent;
+    border: 1px solid var(--border);
 
-    border-radius: 14px;
-
-    background: #111827;
-
-    color: #ffffff;
-
-    font-size: 15px;
+    border-radius: 11px;
 
     outline: none;
 
-    transition: .3s;
+    color: var(--white);
+
+    background: rgba(2, 6, 23, 0.65);
+
+    transition: 0.2s ease;
 
 }
 
 
-input::placeholder {
-
+.form-group input::placeholder {
     color: #64748b;
-
 }
 
 
-input:focus {
+.form-group input:focus {
 
-    border-color: #22c55e;
+    border-color: var(--worker-green);
 
     box-shadow:
-        0 0 0 3px rgba(34, 197, 94, .15);
+        0 0 0 3px rgba(34, 197, 94, 0.10);
 
 }
 
 
+/* =========================================================
+   10. PASSWORD INPUT
+========================================================= */
 
-/* ==========================================
-   10. Password Container
-========================================== */
-
-.password-container {
-
+.password-wrapper {
     position: relative;
-
-    width: 100%;
-
 }
 
 
-
-/* ==========================================
-   Password Input Inside Container
-========================================== */
-
-.password-container input {
-
-    padding-right: 55px;
-
+.password-wrapper input {
+    padding-right: 65px;
 }
 
-
-
-/* ==========================================
-   Password Toggle Button
-========================================== */
 
 .password-toggle {
 
     position: absolute;
 
     top: 50%;
-
-    right: 15px;
+    right: 10px;
 
     transform: translateY(-50%);
 
-    width: 30px;
-
-    height: 30px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    padding: 0;
+    padding: 5px;
 
     border: none;
+
+    color: var(--worker-green);
 
     background: transparent;
 
-    color: #94a3b8;
-
-    font-size: 18px;
-
-    cursor: pointer;
-
-    transition: .3s;
-
-}
-
-
-.password-toggle:hover {
-
-    color: #22c55e;
-
-}
-
-
-.password-toggle:focus {
-
-    outline: none;
-
-    color: #22c55e;
-
-}
-
-
-
-/* ==========================================
-   11. Forgot Password Link
-========================================== */
-
-.forgot-link {
-
-    color: #3b82f6;
-
-    font-size: 14px;
+    font-size: 0.75rem;
 
     font-weight: 600;
 
-    transition: .3s;
-
 }
 
 
-.forgot-link:hover {
+/* =========================================================
+   11. FORGOT PASSWORD
+========================================================= */
 
-    color: #22c55e;
+.forgot-password {
 
-}
+    display: block;
 
-
-
-/* ==========================================
-   12. Terms & Privacy
-========================================== */
-
-.terms {
-
-    display: flex;
-
-    gap: 10px;
-
-    align-items: flex-start;
-
-    font-size: 14px;
-
-}
-
-
-.terms input {
-
-    width: auto;
-
-    margin-top: 3px;
-
-    flex-shrink: 0;
-
-}
-
-
-.terms a {
-
-    color: #22c55e;
-
-    font-weight: 600;
-
-    transition: .3s;
-
-}
-
-
-.terms a:hover {
-
-    color: #3b82f6;
-
-}
-
-
-
-/* ==========================================
-   13. Main Buttons
-========================================== */
-
-.submit-btn {
-
-    margin-top: 10px;
-
-    width: 100%;
+    margin: -4px 0 18px auto;
 
     border: none;
 
-    border-radius: 14px;
+    color: var(--worker-green);
 
-    padding: 15px;
+    background: transparent;
 
-    font-size: 16px;
+    font-size: 0.78rem;
 
-    font-weight: 700;
+}
 
-    cursor: pointer;
 
-    color: #ffffff;
+.forgot-password:hover {
+    text-decoration: underline;
+}
 
-    background: linear-gradient(
-        135deg,
-        #22c55e,
-        #16a34a
-    );
 
-    transition: .3s;
+/* =========================================================
+   12. TERMS
+========================================================= */
+
+.terms-label {
 
     display: flex;
 
-    justify-content: center;
+    align-items: flex-start;
 
-    align-items: center;
+    gap: 9px;
 
-    gap: 10px;
+    margin: 4px 0 18px;
+
+    color: var(--text-muted);
+
+    font-size: 0.75rem;
+
+    line-height: 1.5;
 
 }
 
 
-.submit-btn:hover {
+.terms-label input {
 
-    transform: translateY(-3px);
+    width: 16px;
+    height: 16px;
+
+    margin-top: 2px;
+
+    accent-color: var(--worker-green);
 
 }
 
 
-.submit-btn:disabled {
+.terms-label a {
 
-    opacity: .7;
+    color: var(--worker-green);
+
+}
+
+
+.terms-label a:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================================================
+   13. MAIN AUTH BUTTON
+========================================================= */
+
+.auth-button {
+
+    width: 100%;
+
+    padding: 13px;
+
+    border: none;
+
+    border-radius: 11px;
+
+    color: var(--white);
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--worker-green),
+            var(--client-blue)
+        );
+
+    font-weight: 700;
+
+    transition: 0.2s ease;
+
+}
+
+
+.auth-button:hover {
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 10px 25px rgba(34, 197, 94, 0.18);
+
+}
+
+
+.auth-button:disabled,
+.google-button:disabled,
+.modal-button:disabled {
 
     cursor: not-allowed;
+
+    opacity: 0.65;
 
     transform: none;
 
 }
 
 
+/* =========================================================
+   14. GOOGLE BUTTON
+========================================================= */
 
-/* ==========================================
-   14. Loading State
-========================================== */
-
-.loading-spinner {
-
-    width: 18px;
-
-    height: 18px;
-
-    border-radius: 50%;
-
-    border: 3px solid rgba(255, 255, 255, .35);
-
-    border-top-color: #ffffff;
-
-    animation: spin .8s linear infinite;
-
-}
-
-
-@keyframes spin {
-
-    from {
-
-        transform: rotate(0deg);
-
-    }
-
-    to {
-
-        transform: rotate(360deg);
-
-    }
-
-}
-
-
-.btn-loading {
-
-    pointer-events: none;
-
-    opacity: .75;
-
-}
-
-
-
-/* ==========================================
-   15. Notification Modal
-========================================== */
-
-.notification-modal {
-
-    display: none;
-
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 3000;
-
-    background: rgba(2, 6, 23, .75);
-
-    backdrop-filter: blur(10px);
-
-    justify-content: center;
-
-    align-items: center;
-
-    padding: 20px;
-
-}
-
-
-.notification-modal.show {
+.auth-divider {
 
     display: flex;
 
-    animation: fadeIn .3s ease;
+    align-items: center;
+
+    gap: 12px;
+
+    margin: 20px 0;
+
+    color: #64748b;
+
+    font-size: 0.72rem;
 
 }
 
 
-.notification-card {
+.auth-divider::before,
+.auth-divider::after {
+
+    content: "";
+
+    flex: 1;
+
+    height: 1px;
+
+    background: var(--border);
+
+}
+
+
+.google-button {
 
     width: 100%;
 
-    max-width: 420px;
-
-    position: relative;
-
-    padding: 35px 30px;
-
-    border-radius: 26px;
-
-    text-align: center;
-
-    background: rgba(15, 23, 42, .95);
-
-    border: 1px solid rgba(255, 255, 255, .1);
-
-    backdrop-filter: blur(20px);
-
-    box-shadow:
-        0 25px 70px rgba(0, 0, 0, .45);
-
-    animation: scaleIn .3s ease;
-
-}
-
-
-.notification-card.success {
-
-    border-color: rgba(34, 197, 94, .5);
-
-}
-
-
-.notification-card.error {
-
-    border-color: rgba(239, 68, 68, .5);
-
-}
-
-
-.notification-close {
-
-    position: absolute;
-
-    top: 15px;
-
-    right: 18px;
-
-    background: none;
-
-    border: none;
-
-    color: #ffffff;
-
-    font-size: 28px;
-
-    cursor: pointer;
-
-}
-
-
-.notification-icon {
-
-    width: 65px;
-
-    height: 65px;
-
-    margin: 0 auto 18px;
+    padding: 12px;
 
     display: flex;
 
@@ -941,109 +712,71 @@ input:focus {
 
     justify-content: center;
 
+    gap: 10px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 11px;
+
+    color: var(--white);
+
+    background: rgba(255, 255, 255, 0.04);
+
+    font-weight: 600;
+
+    transition: 0.2s ease;
+
+}
+
+
+.google-button:hover {
+
+    background: rgba(255, 255, 255, 0.08);
+
+    border-color: rgba(255, 255, 255, 0.18);
+
+}
+
+
+.google-icon {
+
+    width: 22px;
+    height: 22px;
+
+    display: grid;
+
+    place-items: center;
+
     border-radius: 50%;
 
-    font-size: 32px;
+    color: #4285f4;
+
+    background: var(--white);
+
+    font-size: 0.85rem;
+
+    font-weight: 800;
 
 }
 
 
-.notification-card.success .notification-icon {
-
-    background: rgba(34, 197, 94, .15);
-
-    color: #22c55e;
-
-}
-
-
-.notification-card.error .notification-icon {
-
-    background: rgba(239, 68, 68, .15);
-
-    color: #ef4444;
-
-}
-
-
-.notification-card h3 {
-
-    font-size: 24px;
-
-    margin-bottom: 12px;
-
-}
-
-
-.notification-card p {
-
-    color: #cbd5e1;
-
-    font-size: 15px;
-
-    margin-bottom: 25px;
-
-}
-
-
-.notification-button {
-
-    width: 100%;
-
-    padding: 14px;
-
-    border: none;
-
-    border-radius: 14px;
-
-    background: linear-gradient(
-        135deg,
-        #22c55e,
-        #3b82f6
-    );
-
-    color: #ffffff;
-
-    font-size: 15px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition: .3s;
-
-}
-
-
-.notification-button:hover {
-
-    transform: translateY(-2px);
-
-}
-
-
-
-/* ==========================================
-   16. Forgot Password Modal
-========================================== */
+/* =========================================================
+   15. MODAL
+========================================================= */
 
 .modal {
 
-    display: none;
-
     position: fixed;
 
     inset: 0;
 
-    z-index: 2000;
+    z-index: 1000;
 
-    background: rgba(2, 6, 23, .75);
-
-    backdrop-filter: blur(10px);
-
-    justify-content: center;
+    display: none;
 
     align-items: center;
+
+    justify-content: center;
 
     padding: 20px;
 
@@ -1051,245 +784,289 @@ input:focus {
 
 
 .modal.show {
-
     display: flex;
+}
 
-    animation: fadeIn .3s ease;
+
+.modal-overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.72);
+
+    backdrop-filter: blur(5px);
 
 }
 
 
 .modal-card {
 
-    width: 100%;
+    position: relative;
 
-    max-width: 420px;
+    z-index: 1;
+
+    width: min(400px, 100%);
 
     padding: 30px;
 
-    border-radius: 24px;
+    text-align: center;
 
-    background: #0f172a;
+    border: 1px solid var(--border);
 
-    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 20px;
+
+    background: var(--surface);
 
     box-shadow:
-        0 25px 70px rgba(0, 0, 0, .45);
-
-    animation: scaleIn .3s ease;
+        0 25px 80px rgba(0, 0, 0, 0.45);
 
 }
 
 
-.modal-card h2 {
+.modal-close {
 
-    margin-bottom: 10px;
+    position: absolute;
+
+    top: 12px;
+    right: 14px;
+
+    width: 32px;
+    height: 32px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    color: var(--text-muted);
+
+    background: rgba(255, 255, 255, 0.06);
+
+    font-size: 1.3rem;
+
+}
+
+
+.modal-icon {
+
+    width: 50px;
+    height: 50px;
+
+    margin: 0 auto 16px;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 50%;
+
+    color: var(--white);
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--worker-green),
+            var(--client-blue)
+        );
+
+    font-size: 1.2rem;
+
+    font-weight: 800;
+
+}
+
+
+.modal-card h3 {
+
+    margin-bottom: 8px;
+
+    font-size: 1.2rem;
 
 }
 
 
 .modal-card p {
 
-    color: #cbd5e1;
-
     margin-bottom: 20px;
+
+    color: var(--text-muted);
+
+    font-size: 0.85rem;
+
+    line-height: 1.6;
 
 }
 
 
-.close {
+/* =========================================================
+   16. MODAL BUTTON
+========================================================= */
 
-    float: right;
+.modal-button {
 
-    background: none;
+    width: 100%;
+
+    padding: 12px;
 
     border: none;
 
-    color: #ffffff;
+    border-radius: 10px;
 
-    font-size: 30px;
+    color: var(--white);
 
-    cursor: pointer;
+    background:
+        linear-gradient(
+            135deg,
+            var(--worker-green),
+            var(--client-blue)
+        );
 
-    line-height: 1;
-
-}
-
-
-.close:hover {
-
-    color: #22c55e;
+    font-weight: 700;
 
 }
 
 
+/* =========================================================
+   17. LOADING STATE
+========================================================= */
 
-/* ==========================================
-   17. Footer
-========================================== */
+.loading {
 
-footer {
+    position: relative;
 
-    padding: 30px;
+    color: transparent !important;
 
-    text-align: center;
-
-    color: #94a3b8;
-
-    border-top: 1px solid rgba(255, 255, 255, .08);
+    pointer-events: none;
 
 }
 
 
+.loading::after {
 
-/* ==========================================
-   18. Animations
-========================================== */
+    content: "";
 
-@keyframes fadeIn {
+    position: absolute;
 
-    from {
+    width: 18px;
+    height: 18px;
 
-        opacity: 0;
+    top: 50%;
+    left: 50%;
 
-    }
+    margin:
+        -9px
+        0
+        0
+        -9px;
+
+    border: 2px solid rgba(255, 255, 255, 0.35);
+
+    border-top-color: var(--white);
+
+    border-radius: 50%;
+
+    animation:
+        spin 0.7s linear infinite;
+
+}
+
+
+@keyframes spin {
 
     to {
-
-        opacity: 1;
-
+        transform: rotate(360deg);
     }
 
 }
 
 
-@keyframes scaleIn {
+/* =========================================================
+   18. MOBILE RESPONSIVENESS
+========================================================= */
 
-    from {
-
-        transform: scale(.85);
-
-        opacity: 0;
-
-    }
-
-    to {
-
-        transform: scale(1);
-
-        opacity: 1;
-
-    }
-
-}
-
-
-
-/* ==========================================
-   19. Tablet
-========================================== */
-
-@media (min-width: 768px) {
-
+@media (max-width: 900px) {
 
     .auth-page {
 
-        width: 85%;
+        grid-template-columns: 1fr;
+
+        gap: 40px;
+
+        padding: 40px 0;
 
     }
 
+    .hero-section {
 
-    .hero-content h1 {
+        max-width: 100%;
 
-        font-size: 52px;
-
-    }
-
-
-}
-
-
-
-/* ==========================================
-   20. Desktop
-========================================== */
-
-@media (min-width: 1024px) {
-
-
-    .auth-page {
-
-        max-width: 1200px;
-
-        display: grid;
-
-        grid-template-columns: 1fr 460px;
-
-        gap: 60px;
-
-        align-items: center;
+        text-align: center;
 
     }
 
+    .hero-description {
 
-    .hero-content {
+        margin-left: auto;
+        margin-right: auto;
+
+    }
+
+    .benefit-card {
 
         text-align: left;
 
     }
 
-
-    .hero-content h1 {
-
-        font-size: 64px;
-
-    }
-
-
 }
 
 
+@media (max-width: 520px) {
 
-/* ==========================================
-   21. Small Mobile
-========================================== */
+    .navbar {
 
-@media (max-width: 400px) {
-
-
-    .logo {
-
-        font-size: 22px;
+        padding: 17px 5%;
 
     }
 
+    .auth-page {
 
-    .hero-content h1 {
+        width: 94%;
 
-        font-size: 34px;
+        padding: 30px 0;
 
     }
-
 
     .auth-card {
 
         padding: 22px;
 
-    }
-
-
-    .password-toggle {
-
-        right: 12px;
+        border-radius: 18px;
 
     }
 
+    .hero-section h1 {
 
-    .password-container input {
-
-        padding-right: 50px;
+        font-size: 2.3rem;
 
     }
 
+    .hero-badge {
+
+        font-size: 0.7rem;
+
+    }
+
+    .benefit-card {
+
+        padding: 13px;
+
+    }
+
+    .modal-card {
+
+        padding: 25px 20px;
+
+    }
 
 }

@@ -1,140 +1,59 @@
 /* =========================================================
-   2. PAGE INITIALIZATION
+   1. INITIALIZE PAGE
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    /*
-       Start all authentication functionality
-       after the HTML has completely loaded.
-    */
-
     initializeTabs();
-
     initializePasswordToggles();
-
+    initializeLogin();
+    initializeSignup();
     initializeForgotPassword();
-
+    initializeGoogleButtons();
     initializeNotificationModal();
-
-    initializeLoginForm();
-
-    initializeSignupForm();
+    initializeForgotModal();
 
 });
 
 
-
 /* =========================================================
-   3. DOM HELPER
+   2. ELEMENT HELPER
 ========================================================= */
 
-/*
-   Small helper function for finding elements.
-
-   Example:
-
-   const button = getElement("loginButton");
-*/
-
-function getElement(id) {
-
-    return document.getElementById(id);
-
-}
-
+const getElement = (id) =>
+    document.getElementById(id);
 
 
 /* =========================================================
-   4. AUTHENTICATION TABS
+   3. TAB SWITCHING
 ========================================================= */
 
 function initializeTabs() {
 
-    /*
-       Get all authentication tabs.
-    */
-
-    const tabs = document.querySelectorAll(".tab");
-
-
-    /*
-       Get all authentication form sections.
-    */
-
-    const formSections =
-        document.querySelectorAll(".form-section");
-
-
-    /*
-       Add click event to every tab.
-    */
-
-    tabs.forEach(tab => {
+    document.querySelectorAll(".tab").forEach(tab => {
 
         tab.addEventListener("click", () => {
 
-            /*
-               Get the form section connected
-               to this tab.
+            document.querySelectorAll(".tab")
+                .forEach(item =>
+                    item.classList.remove("active")
+                );
 
-               Example:
-
-               data-tab="login"
-
-               connects to:
-
-               id="login"
-            */
-
-            const targetTab =
-                tab.dataset.tab;
-
-
-            /*
-               Remove active state from
-               every tab.
-            */
-
-            tabs.forEach(item => {
-
-                item.classList.remove("active");
-
-            });
-
-
-            /*
-               Remove active state from
-               every form section.
-            */
-
-            formSections.forEach(section => {
-
-                section.classList.remove("active");
-
-            });
-
-
-            /*
-               Activate the clicked tab.
-            */
+            document.querySelectorAll(".auth-form")
+                .forEach(form =>
+                    form.classList.remove("active")
+                );
 
             tab.classList.add("active");
 
+            const form =
+                getElement(
+                    tab.dataset.tab === "login"
+                        ? "loginForm"
+                        : "signupForm"
+                );
 
-            /*
-               Activate the matching form.
-            */
-
-            const targetSection =
-                getElement(targetTab);
-
-
-            if (targetSection) {
-
-                targetSection.classList.add("active");
-
-            }
+            form.classList.add("active");
 
         });
 
@@ -143,506 +62,81 @@ function initializeTabs() {
 }
 
 
-
 /* =========================================================
-   5. PASSWORD TOGGLES
+   4. PASSWORD TOGGLES
 ========================================================= */
-
-/*
-   Every password field has its own toggle.
-
-   Login:
-   loginPassword
-
-   Signup:
-   signupPassword
-
-   Confirm:
-   confirmPassword
-*/
 
 function initializePasswordToggles() {
 
-    setupPasswordToggle(
-        "loginPassword",
-        "toggleLoginPassword"
-    );
+    const toggles = [
+        ["toggleLoginPassword", "loginPassword"],
+        ["toggleSignupPassword", "signupPassword"],
+        ["toggleConfirmPassword", "confirmPassword"]
+    ];
 
+    toggles.forEach(([buttonId, inputId]) => {
 
-    setupPasswordToggle(
-        "signupPassword",
-        "toggleSignupPassword"
-    );
+        const button = getElement(buttonId);
+        const input = getElement(inputId);
 
+        button.addEventListener("click", () => {
 
-    setupPasswordToggle(
-        "confirmPassword",
-        "toggleConfirmPassword"
-    );
+            const hidden =
+                input.type === "password";
 
-}
+            input.type =
+                hidden ? "text" : "password";
 
+            button.textContent =
+                hidden ? "Hide" : "Show";
 
-
-/* =========================================================
-   6. PASSWORD TOGGLE HELPER
-========================================================= */
-
-function setupPasswordToggle(
-    passwordId,
-    toggleId
-) {
-
-    const passwordInput =
-        getElement(passwordId);
-
-
-    const toggleButton =
-        getElement(toggleId);
-
-
-    /*
-       Stop if either element does not exist.
-    */
-
-    if (!passwordInput || !toggleButton) {
-
-        return;
-
-    }
-
-
-    /*
-       When the eye button is clicked,
-       switch between password and text.
-    */
-
-    toggleButton.addEventListener("click", () => {
-
-        const isPassword =
-            passwordInput.type === "password";
-
-
-        /*
-           Show password.
-        */
-
-        if (isPassword) {
-
-            passwordInput.type = "text";
-
-            toggleButton.textContent = "🙈";
-
-            toggleButton.setAttribute(
-                "aria-label",
-                "Hide password"
-            );
-
-            toggleButton.setAttribute(
-                "aria-pressed",
-                "true"
-            );
-
-        }
-
-        /*
-           Hide password.
-        */
-
-        else {
-
-            passwordInput.type = "password";
-
-            toggleButton.textContent = "👁";
-
-            toggleButton.setAttribute(
-                "aria-label",
-                "Show password"
-            );
-
-            toggleButton.setAttribute(
-                "aria-pressed",
-                "false"
-            );
-
-        }
+        });
 
     });
 
 }
 
 
-
 /* =========================================================
-   7. EMAIL VALIDATION
+   5. EMAIL VALIDATION
 ========================================================= */
 
-function isValidEmail(email) {
+function validEmail(email) {
 
-    /*
-       Basic email validation.
-
-       Example of valid email:
-
-       user@example.com
-    */
-
-    const emailPattern =
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-
-    return emailPattern.test(email);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        .test(email);
 
 }
 
 
 /* =========================================================
-   9. LOADING STATE
+   6. LOADING STATE
 ========================================================= */
 
-/*
-   This function changes a button into a loading state.
+function setLoading(button, loading, text) {
 
-   Example:
-
-   Login
-       ↓
-   Spinner + Processing...
-*/
-
-function setLoading(
-    button,
-    isLoading,
-    loadingText
-) {
-
-    if (!button) {
-
-        return;
-
-    }
-
-
-    const buttonText =
-        button.querySelector(".btn-text");
-
-
-    if (isLoading) {
-
-        /*
-           Disable the button so the user
-           cannot submit the form repeatedly.
-        */
+    if (loading) {
 
         button.disabled = true;
+        button.dataset.text = button.textContent;
+        button.textContent = text;
+        button.classList.add("loading");
 
-
-        button.classList.add("btn-loading");
-
-
-        /*
-           Replace button text with spinner.
-        */
-
-        if (buttonText) {
-
-            buttonText.innerHTML = `
-                <span class="loading-spinner"></span>
-                ${loadingText}
-            `;
-
-        }
-
-    }
-
-    else {
-
-        /*
-           Enable button again.
-        */
+    } else {
 
         button.disabled = false;
-
-
-        button.classList.remove("btn-loading");
-
-    }
-
-}
-
-
-
-/* =========================================================
-   10. NOTIFICATION MODAL ELEMENTS
-========================================================= */
-
-function getNotificationElements() {
-
-    return {
-
-        modal:
-            getElement("notificationModal"),
-
-        card:
-            document.querySelector(
-                ".notification-card"
-            ),
-
-        icon:
-            getElement("notificationIcon"),
-
-        title:
-            getElement("notificationTitle"),
-
-        message:
-            getElement("notificationMessage"),
-
-        closeButton:
-            getElement("closeNotification"),
-
-        notificationButton:
-            getElement("notificationButton")
-
-    };
-
-}
-
-
-
-/* =========================================================
-   11. NOTIFICATION MODAL INITIALIZATION
-========================================================= */
-
-function initializeNotificationModal() {
-
-    const elements =
-        getNotificationElements();
-
-
-    /*
-       Close button.
-    */
-
-    if (elements.closeButton) {
-
-        elements.closeButton.addEventListener(
-            "click",
-            closeNotificationModal
-        );
-
-    }
-
-
-    /*
-       Bottom Close button.
-    */
-
-    if (elements.notificationButton) {
-
-        elements.notificationButton.addEventListener(
-            "click",
-            closeNotificationModal
-        );
+        button.textContent =
+            button.dataset.text || text;
+        button.classList.remove("loading");
 
     }
 
 }
 
 
-
 /* =========================================================
-   12. SHOW ERROR MODAL
+   7. SESSION STORAGE
 ========================================================= */
-
-/*
-   Error modal behavior:
-
-   The user MUST close it.
-
-   There is NO automatic timeout.
-*/
-
-function showErrorModal(
-    title,
-    message
-) {
-
-    const elements =
-        getNotificationElements();
-
-
-    /*
-       Remove previous modal classes.
-    */
-
-    elements.card.classList.remove(
-        "success"
-    );
-
-    elements.card.classList.remove(
-        "error"
-    );
-
-
-    /*
-       Add error styling.
-    */
-
-    elements.card.classList.add(
-        "error"
-    );
-
-
-    /*
-       Error icon.
-    */
-
-    elements.icon.textContent = "✕";
-
-
-    /*
-       Set title and message.
-    */
-
-    elements.title.textContent =
-        title || "Authentication Error";
-
-
-    elements.message.textContent =
-        message || "Something went wrong.";
-
-
-    /*
-       Show modal.
-    */
-
-    elements.modal.classList.add("show");
-
-}
-
-
-
-/* =========================================================
-   13. SHOW SUCCESS MODAL
-========================================================= */
-
-/*
-   Success modal can have two behaviors:
-
-   1. Normal success:
-      User closes it.
-
-   2. Redirect success:
-      Automatically redirects after 1.5 seconds.
-*/
-
-function showSuccessModal(
-    title,
-    message,
-    redirectUrl = null
-) {
-
-    const elements =
-        getNotificationElements();
-
-
-    /*
-       Remove previous modal classes.
-    */
-
-    elements.card.classList.remove(
-        "success"
-    );
-
-    elements.card.classList.remove(
-        "error"
-    );
-
-
-    /*
-       Add success styling.
-    */
-
-    elements.card.classList.add(
-        "success"
-    );
-
-
-    /*
-       Success icon.
-    */
-
-    elements.icon.textContent = "✓";
-
-
-    /*
-       Set title and message.
-    */
-
-    elements.title.textContent =
-        title || "Success";
-
-
-    elements.message.textContent =
-        message || "Operation completed successfully.";
-
-
-    /*
-       Show modal.
-    */
-
-    elements.modal.classList.add("show");
-
-
-    /*
-       Redirect after 1.5 seconds
-       when a redirect URL exists.
-    */
-
-    if (redirectUrl) {
-
-        setTimeout(() => {
-
-            window.location.href =
-                redirectUrl;
-
-        }, 1500);
-
-    }
-
-}
-
-
-
-/* =========================================================
-   14. CLOSE NOTIFICATION MODAL
-========================================================= */
-
-function closeNotificationModal() {
-
-    const modal =
-        getElement("notificationModal");
-
-
-    if (modal) {
-
-        modal.classList.remove("show");
-
-    }
-
-}
-
-
-
-/* =========================================================
-   15. SAVE WORKER EMAIL
-========================================================= */
-
-/*
-   The worker's email is temporarily stored
-   so the following OTP/profile page knows
-   which worker is continuing the process.
-*/
 
 function saveWorkerEmail(email) {
 
@@ -654,1275 +148,707 @@ function saveWorkerEmail(email) {
 }
 
 
-
-/* =========================================================
-   16. SAVE ACCESS TOKEN
-========================================================= */
-
-/*
-   IMPORTANT:
-
-   Access token:
-   - Stored in sessionStorage.
-
-   Refresh token:
-   - NOT stored here.
-   - Backend sends it as an httpOnly cookie.
-
-   JavaScript cannot access the refresh token,
-   which is intentional for security.
-*/
-
-function saveAccessToken(accessToken) {
-
-    if (!accessToken) {
-
-        return;
-
-    }
-
+function saveAccessToken(token) {
 
     sessionStorage.setItem(
         "accessToken",
-        accessToken
+        token
     );
 
 }
 
 
-
 /* =========================================================
-   17. LOGIN FORM
+   8. NOTIFICATION MODAL
 ========================================================= */
 
-function initializeLoginForm() {
-
-    const loginForm =
-        getElement("loginForm");
+let pendingRedirect = null;
 
 
-    if (!loginForm) {
+function showModal(
+    title,
+    message,
+    type = "error",
+    redirect = null
+) {
 
-        return;
+    getElement("notificationTitle")
+        .textContent = title;
 
-    }
+    getElement("notificationMessage")
+        .textContent = message;
 
+    getElement("notificationIcon")
+        .textContent =
+            type === "success" ? "✓" : "!";
 
-    loginForm.addEventListener(
-        "submit",
-        handleLogin
-    );
+    pendingRedirect = redirect;
+
+    const modal =
+        getElement("notificationModal");
+
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
 
 }
 
 
+function closeNotificationModal() {
+
+    const modal =
+        getElement("notificationModal");
+
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden", "true");
+
+    const redirect = pendingRedirect;
+
+    pendingRedirect = null;
+
+    if (redirect) {
+        window.location.href = redirect;
+    }
+
+}
+
 
 /* =========================================================
-   18. LOGIN HANDLER
+   9. NOTIFICATION MODAL EVENTS
 ========================================================= */
 
-async function handleLogin(event) {
+function initializeNotificationModal() {
 
-    /*
-       Prevent normal browser form submission.
-    */
-
-    event.preventDefault();
-
-
-    /*
-       Get form values.
-    */
-
-    const email =
-        getElement("loginEmail")
-            .value
-            .trim()
-            .toLowerCase();
-
-
-    const password =
-        getElement("loginPassword")
-            .value;
-
-
-    const loginButton =
-        getElement("loginButton");
-
-
-    /* ==========================================
-       FRONTEND VALIDATION
-    ========================================== */
-
-
-    /*
-       Check email.
-    */
-
-    if (!email) {
-
-        showErrorModal(
-            "Email Required",
-            "Please enter your email address."
+    getElement("closeNotification")
+        .addEventListener(
+            "click",
+            closeNotificationModal
         );
 
-        return;
-
-    }
-
-
-    /*
-       Check email format.
-    */
-
-    if (!isValidEmail(email)) {
-
-        showErrorModal(
-            "Invalid Email",
-            "Please enter a valid email address."
+    getElement("notificationButton")
+        .addEventListener(
+            "click",
+            closeNotificationModal
         );
 
-        return;
-
-    }
+}
 
 
-    /*
-       Check password.
-    */
+/* =========================================================
+   10. LOGIN FLOW
+========================================================= */
 
-    if (!password) {
+function initializeLogin() {
 
-        showErrorModal(
-            "Password Required",
-            "Please enter your password."
-        );
+    getElement("loginForm")
+        .addEventListener("submit", async event => {
 
-        return;
+            event.preventDefault();
 
-    }
+            const button =
+                getElement("loginButton");
+
+            const email =
+                getElement("loginEmail")
+                    .value.trim()
+                    .toLowerCase();
+
+            const password =
+                getElement("loginPassword")
+                    .value;
+
+            setLoading(
+                button,
+                true,
+                "Logging in..."
+            );
 
 
-    /* ==========================================
-       START LOADING
-    ========================================== */
+            /* ---------------------------------------------
+               FRONTEND VALIDATION
+            --------------------------------------------- */
 
-    setLoading(
-        loginButton,
-        true,
-        "Logging in..."
-    );
+            if (!validEmail(email)) {
+
+                setLoading(button, false);
+
+                showModal(
+                    "Invalid Email",
+                    "Please enter a valid email address."
+                );
+
+                return;
+            }
 
 
-    try {
+            if (!password) {
 
-        /* ======================================
-           SEND LOGIN REQUEST
-        ======================================= */
+                setLoading(button, false);
 
-        const response =
-            await fetch(
-                API_ENDPOINT("/api/worker-authentication/login"),
-                {
+                showModal(
+                    "Password Required",
+                    "Please enter your password."
+                );
 
-                    method: "POST",
+                return;
+            }
 
-                    headers: {
 
-                        "Content-Type":
-                            "application/json"
+            /* ---------------------------------------------
+               SEND LOGIN REQUEST
+            --------------------------------------------- */
 
-                    },
+            try {
 
-                    /*
-                       Required so the browser
-                       accepts the httpOnly
-                       refresh-token cookie.
-                    */
+                const response =
+                    await fetch(
+                        API_ENDPOINT(
+                            "/api/worker-authentication/login"
+                        ),
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+                            credentials: "include",
+                            body: JSON.stringify({
+                                email,
+                                password
+                            })
+                        }
+                    );
 
-                    credentials: "include",
+                const data =
+                    await response.json();
 
-                    body: JSON.stringify({
 
-                        email: email,
+                if (!response.ok) {
 
-                        password: password
+                    setLoading(button, false);
 
-                    })
+                    showModal(
+                        "Login Failed",
+                        data.message ||
+                        "Unable to authenticate your account."
+                    );
 
+                    return;
                 }
-            );
 
 
-        /* ======================================
-           READ BACKEND RESPONSE
-        ======================================= */
-
-        const data =
-            await response.json();
-
-
-        /* ======================================
-           BACKEND ERROR
-        ======================================= */
-
-        if (!response.ok) {
-
-            showErrorModal(
-                "Login Failed",
-                data.message ||
-                "Unable to login. Please try again."
-            );
-
-            return;
-
-        }
-
-
-        /* ======================================
-           SAVE EMAIL
-        ======================================= */
-
-        saveWorkerEmail(email);
-
-
-        /* ======================================
-           DETERMINE NEXT STEP
-        ======================================= */
-
-        /*
-           The backend tells the frontend
-           where the worker should continue.
-
-           Possible values:
-
-           "email-verification"
-           "profile"
-           "authenticated"
-        */
-
-        switch (data.nextStep) {
-
-
-            /* ==================================
-               EMAIL NOT VERIFIED
-            ================================== */
-
-            case "email-verification":
-
-                showSuccessModal(
-                    "Verification Required",
-                    "Your email is not verified. We have sent you a new OTP.",
-                    "../worker-email-otp/index.html"
+                saveWorkerEmail(
+                    data.email || email
                 );
 
-                return;
+
+                /* -----------------------------------------
+                   EMAIL NOT VERIFIED
+                ------------------------------------------ */
+
+                if (
+                    data.nextStep ===
+                    "email-verification"
+                ) {
+
+                    setLoading(button, false);
+
+                    showModal(
+                        "Verify Your Email",
+                        data.message ||
+                        "A new verification code has been sent to your email.",
+                        "success",
+                        "../worker-email-otp/index.html"
+                    );
+
+                    return;
+                }
 
 
+                /* -----------------------------------------
+                   PROFILE NOT COMPLETED
+                ------------------------------------------ */
 
-            /* ==================================
-               PROFILE NOT COMPLETED
-            ================================== */
+                if (
+                    data.nextStep ===
+                    "profile"
+                ) {
 
-            case "profile":
+                    setLoading(button, false);
 
-                showSuccessModal(
-                    "Continue Your Profile",
-                    "Your email is verified. Continue by completing your worker profile.",
-                    "../worker-create-profile/index.html"
-                );
+                    showModal(
+                        "Complete Your Profile",
+                        data.message ||
+                        "Your email is verified. Please complete your worker profile.",
+                        "success",
+                        "../worker-create-profile/index.html"
+                    );
 
-                return;
-
-
-
-            /* ==================================
-               FULLY AUTHENTICATED
-            ================================== */
-
-            case "authenticated":
+                    return;
+                }
 
 
-                /*
-                   Backend returns the access token.
-                */
+                /* -----------------------------------------
+                   FULLY AUTHENTICATED
+                ------------------------------------------ */
 
-                if (data.accessToken) {
+                if (
+                    data.nextStep ===
+                    "authenticated"
+                ) {
+
+                    if (!data.accessToken) {
+
+                        setLoading(button, false);
+
+                        showModal(
+                            "Login Failed",
+                            "Authentication was successful, but no access token was received."
+                        );
+
+                        return;
+                    }
 
                     saveAccessToken(
                         data.accessToken
                     );
 
+                    setLoading(button, false);
+
+                    showModal(
+                        "Login Successful",
+                        "Welcome back. You can now access your dashboard.",
+                        "success",
+                        "../worker-dashboard/index.html"
+                    );
+
+                    return;
                 }
 
 
-                /*
-                   Refresh token is intentionally
-                   NOT handled by JavaScript.
+                setLoading(button, false);
 
-                   It is stored by the browser
-                   as an httpOnly cookie.
-                */
-
-                showSuccessModal(
-                    "Login Successful",
-                    "Welcome back. Redirecting you to your client chats.",
-                    "../worker-dashboard/index.html"
-                );
-
-                return;
-
-
-
-            /* ==================================
-               UNKNOWN NEXT STEP
-            ================================== */
-
-            default:
-
-                showErrorModal(
+                showModal(
                     "Authentication Error",
-                    "The server returned an unexpected authentication state."
+                    data.message ||
+                    "Unable to determine your account status."
+                );
+
+            } catch (error) {
+
+                console.error(error);
+
+                setLoading(button, false);
+
+                showModal(
+                    "Connection Error",
+                    "Unable to connect to the server. Please try again."
+                );
+
+            }
+
+        });
+
+}
+
+
+/* =========================================================
+   11. CREATE ACCOUNT FLOW
+========================================================= */
+
+function initializeSignup() {
+
+    getElement("signupForm")
+        .addEventListener("submit", async event => {
+
+            event.preventDefault();
+
+            const button =
+                getElement("signupButton");
+
+            const email =
+                getElement("signupEmail")
+                    .value.trim()
+                    .toLowerCase();
+
+            const password =
+                getElement("signupPassword")
+                    .value;
+
+            const confirmPassword =
+                getElement("confirmPassword")
+                    .value;
+
+            const termsAccepted =
+                getElement("termsCheckbox")
+                    .checked;
+
+            setLoading(
+                button,
+                true,
+                "Creating..."
+            );
+
+
+            /* ---------------------------------------------
+               FRONTEND VALIDATION
+            --------------------------------------------- */
+
+            if (!validEmail(email)) {
+
+                setLoading(button, false);
+
+                showModal(
+                    "Invalid Email",
+                    "Please enter a valid email address."
                 );
 
                 return;
+            }
 
-        }
 
-    }
+            if (password.length < 8) {
 
-    catch (error) {
+                setLoading(button, false);
 
-        /*
-           Handles network/server connection errors.
-        */
+                showModal(
+                    "Invalid Password",
+                    "Password must contain at least 8 characters."
+                );
 
-        console.error(
-            "Worker login error:",
-            error
-        );
+                return;
+            }
 
 
-        showErrorModal(
-            "Connection Error",
-            "Unable to connect to the server. Please check your connection and try again."
-        );
+            if (password !== confirmPassword) {
 
-    }
+                setLoading(button, false);
 
-    finally {
+                showModal(
+                    "Passwords Do Not Match",
+                    "Please make sure both passwords are identical."
+                );
 
-        /*
-           Stop loading after the request
-           has finished.
-        */
+                return;
+            }
 
-        setLoading(
-            loginButton,
-            false
-        );
 
+            if (!termsAccepted) {
 
-        /*
-           Restore the original button text.
-        */
+                setLoading(button, false);
 
-        const buttonText =
-            loginButton.querySelector(
-                ".btn-text"
-            );
+                showModal(
+                    "Agreement Required",
+                    "Please agree to the Terms and Privacy Policy."
+                );
 
+                return;
+            }
 
-        if (buttonText) {
 
-            buttonText.textContent =
-                "Login";
+            /* ---------------------------------------------
+               SEND SIGNUP REQUEST
+            --------------------------------------------- */
 
-        }
+            try {
 
-    }
+                const response =
+                    await fetch(
+                        API_ENDPOINT(
+                            "/api/worker-authentication/signup"
+                        ),
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+                            credentials: "include",
+                            body: JSON.stringify({
+                                email,
+                                password,
+                                confirmPassword,
+                                termsAccepted
+                            })
+                        }
+                    );
 
-}
+                const data =
+                    await response.json();
 
 
+                if (!response.ok) {
 
-/* =========================================================
-   19. SIGNUP FORM
-========================================================= */
+                    setLoading(button, false);
 
-function initializeSignupForm() {
+                    showModal(
+                        "Account Creation Failed",
+                        data.message ||
+                        "Unable to create your account."
+                    );
 
-    const signupForm =
-        getElement("signupForm");
-
-
-    if (!signupForm) {
-
-        return;
-
-    }
-
-
-    signupForm.addEventListener(
-        "submit",
-        handleSignup
-    );
-
-}
-
-
-
-/* =========================================================
-   20. SIGNUP HANDLER
-========================================================= */
-
-async function handleSignup(event) {
-
-    /*
-       Prevent normal browser form submission.
-    */
-
-    event.preventDefault();
-
-
-    /*
-       Get form values.
-    */
-
-    const email =
-        getElement("signupEmail")
-            .value
-            .trim()
-            .toLowerCase();
-
-
-    const password =
-        getElement("signupPassword")
-            .value;
-
-
-    const confirmPassword =
-        getElement("confirmPassword")
-            .value;
-
-
-    const termsAccepted =
-        getElement("termsCheckbox")
-            .checked;
-
-
-    const signupButton =
-        getElement("signupButton");
-
-
-    /* ==========================================
-       FRONTEND VALIDATION
-    ========================================== */
-
-
-    /*
-       Check email.
-    */
-
-    if (!email) {
-
-        showErrorModal(
-            "Email Required",
-            "Please enter your email address."
-        );
-
-        return;
-
-    }
-
-
-    /*
-       Validate email format.
-    */
-
-    if (!isValidEmail(email)) {
-
-        showErrorModal(
-            "Invalid Email",
-            "Please enter a valid email address."
-        );
-
-        return;
-
-    }
-
-
-    /*
-       Check password.
-    */
-
-    if (!password) {
-
-        showErrorModal(
-            "Password Required",
-            "Please create a password."
-        );
-
-        return;
-
-    }
-
-
-    /* ==========================================
-   Validate password length
-========================================== */
-
-if (password.length < 8) {
-
-    showErrorModal(
-        "Invalid Password",
-        "Password must contain at least 8 characters."
-    );
-
-    return;
-
-}
-
-    /*
-       Check confirm password.
-    */
-
-    if (!confirmPassword) {
-
-        showErrorModal(
-            "Confirm Password",
-            "Please confirm your password."
-        );
-
-        return;
-
-    }
-
-
-    /*
-       Compare passwords.
-    */
-
-    if (password !== confirmPassword) {
-
-        showErrorModal(
-            "Passwords Do Not Match",
-            "Your password and confirm password must match."
-        );
-
-        return;
-
-    }
-
-
-    /*
-       Check Terms & Privacy.
-    */
-
-    if (!termsAccepted) {
-
-        showErrorModal(
-            "Terms Required",
-            "Please agree to the Terms & Privacy Policy before creating your account."
-        );
-
-        return;
-
-    }
-
-
-    /* ==========================================
-       START LOADING
-    ========================================== */
-
-    setLoading(
-        signupButton,
-        true,
-        "Creating account..."
-    );
-
-
-    try {
-
-        /* ======================================
-           SEND SIGNUP REQUEST
-        ======================================= */
-
-        const response =
-            await fetch(
-                API_ENDPOINT("/api/worker-authentication/signup"),
-                {
-
-                    method: "POST",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    /*
-                       Signup does not need the
-                       refresh-token cookie yet,
-                       but credentials is kept
-                       consistent for authentication.
-                    */
-
-                    credentials: "include",
-
-                    body: JSON.stringify({
-
-                        email: email,
-
-                        password: password,
-
-                        confirmPassword:
-                            confirmPassword,
-
-                        termsAccepted:
-                            termsAccepted
-
-                    })
-
+                    return;
                 }
-            );
 
 
-        /* ======================================
-           READ BACKEND RESPONSE
-        ======================================= */
+                saveWorkerEmail(
+                    data.email || email
+                );
 
-        const data =
-            await response.json();
+                setLoading(button, false);
 
+                showModal(
+                    "Account Created",
+                    data.message ||
+                    "Your verification code has been sent to your email.",
+                    "success",
+                    "../worker-email-otp/index.html"
+                );
 
-        /* ======================================
-           BACKEND ERROR
-        ======================================= */
+            } catch (error) {
 
-        if (!response.ok) {
+                console.error(error);
 
-            showErrorModal(
-                "Account Creation Failed",
-                data.message ||
-                "Unable to create your account. Please try again."
-            );
+                setLoading(button, false);
 
-            return;
+                showModal(
+                    "Connection Error",
+                    "Unable to connect to the server. Please try again."
+                );
 
-        }
+            }
 
-
-        /* ======================================
-           SAVE WORKER EMAIL
-        ======================================= */
-
-        saveWorkerEmail(
-            data.email || email
-        );
-
-
-        /* ======================================
-           SUCCESS
-        ======================================= */
-
-        showSuccessModal(
-            "Account Created",
-            "Your account has been created. We have sent an email verification OTP to your email address.",
-            "../worker-email-otp/index.html"
-        );
-
-    }
-
-    catch (error) {
-
-        /*
-           Handles network/server errors.
-        */
-
-        console.error(
-            "Worker signup error:",
-            error
-        );
-
-
-        showErrorModal(
-            "Connection Error",
-            "Unable to connect to the server. Please check your connection and try again."
-        );
-
-    }
-
-    finally {
-
-        /*
-           Stop loading.
-        */
-
-        setLoading(
-            signupButton,
-            false
-        );
-
-
-        /*
-           Restore button text.
-        */
-
-        const buttonText =
-            signupButton.querySelector(
-                ".btn-text"
-            );
-
-
-        if (buttonText) {
-
-            buttonText.textContent =
-                "Create Account";
-
-        }
-
-    }
+        });
 
 }
 
 
-
 /* =========================================================
-   21. FORGOT PASSWORD
+   12. FORGOT PASSWORD FLOW
 ========================================================= */
 
 function initializeForgotPassword() {
 
-    const forgotPassword =
-        getElement("forgotPassword");
+    getElement("forgotForm")
+        .addEventListener("submit", async event => {
+
+            event.preventDefault();
+
+            const button =
+                getElement("forgotButton");
+
+            const email =
+                getElement("resetEmail")
+                    .value.trim()
+                    .toLowerCase();
+
+            setLoading(
+                button,
+                true,
+                "Verifying..."
+            );
 
 
-    const forgotModal =
-        getElement("forgotModal");
+            if (!validEmail(email)) {
+
+                setLoading(button, false);
+
+                showModal(
+                    "Invalid Email",
+                    "Please enter a valid email address."
+                );
+
+                return;
+            }
 
 
-    const closeModal =
-        getElement("closeModal");
+            try {
+
+                const response =
+                    await fetch(
+                        API_ENDPOINT(
+                            "/api/worker-authentication/forgot-password"
+                        ),
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+                            credentials: "include",
+                            body: JSON.stringify({
+                                email
+                            })
+                        }
+                    );
+
+                const data =
+                    await response.json();
 
 
-    const forgotForm =
-        getElement("forgotForm");
+                setLoading(button, false);
 
 
-    /*
-       Open Forgot Password modal.
-    */
+                /* -----------------------------------------
+                   GENERIC RESPONSE
+                ------------------------------------------ */
 
-    if (forgotPassword) {
+                if (
+                    data.emailExists === false
+                ) {
 
-        forgotPassword.addEventListener(
-            "click",
-            event => {
+                    showModal(
+                        "Request Received",
+                        data.message ||
+                        "If an account exists for this email, further instructions will be provided."
+                    );
 
-                event.preventDefault();
-
-
-                /*
-                   Clear previous email.
-                */
-
-                const resetEmail =
-                    getElement("resetEmail");
-
-
-                if (resetEmail) {
-
-                    resetEmail.value = "";
-
+                    return;
                 }
 
 
-                /*
-                   Open modal.
-                */
+                if (!response.ok) {
 
-                forgotModal.classList.add(
-                    "show"
-                );
+                    showModal(
+                        "Request Failed",
+                        data.message ||
+                        "Unable to process your request."
+                    );
 
-            }
-        );
-
-    }
-
-
-    /*
-       Close Forgot Password modal.
-    */
-
-    if (closeModal) {
-
-        closeModal.addEventListener(
-            "click",
-            () => {
-
-                forgotModal.classList.remove(
-                    "show"
-                );
-
-            }
-        );
-
-    }
-
-
-    /*
-       Submit Forgot Password form.
-    */
-
-    if (forgotForm) {
-
-        forgotForm.addEventListener(
-            "submit",
-            handleForgotPassword
-        );
-
-    }
-
-}
-
-
-
-/* =========================================================
-   22. FORGOT PASSWORD HANDLER
-========================================================= */
-
-async function handleForgotPassword(event) {
-
-    /*
-       Prevent normal browser form submission.
-    */
-
-    event.preventDefault();
-
-
-    const resetEmail =
-        getElement("resetEmail");
-
-
-    const forgotButton =
-        getElement("forgotButton");
-
-
-    const email =
-        resetEmail
-            .value
-            .trim()
-            .toLowerCase();
-
-
-    /* ==========================================
-       FRONTEND VALIDATION
-    ========================================== */
-
-    if (!email) {
-
-        showErrorModal(
-            "Email Required",
-            "Please enter your email address."
-        );
-
-        return;
-
-    }
-
-
-    if (!isValidEmail(email)) {
-
-        showErrorModal(
-            "Invalid Email",
-            "Please enter a valid email address."
-        );
-
-        return;
-
-    }
-
-
-    /* ==========================================
-       CLOSE FORGOT MODAL
-    ========================================== */
-
-    const forgotModal =
-        getElement("forgotModal");
-
-
-    forgotModal.classList.remove(
-        "show"
-    );
-
-
-    /* ==========================================
-       START LOADING
-    ========================================== */
-
-    setLoading(
-        forgotButton,
-        true,
-        "Sending OTP..."
-    );
-
-
-    try {
-
-        /* ======================================
-           SEND RESET REQUEST
-        ======================================= */
-
-        const response =
-            await fetch(
-                API_ENDPOINT("/api/worker-authentication/forgot-password"),
-                {
-
-                    method: "POST",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    credentials: "include",
-
-                    body: JSON.stringify({
-
-                        email: email
-
-                    })
-
+                    return;
                 }
-            );
 
 
-        /* ======================================
-           READ BACKEND RESPONSE
-        ======================================= */
+                saveWorkerEmail(
+                    data.email || email
+                );
 
-        const data =
-            await response.json();
+                showModal(
+                    "Verification Code Sent",
+                    data.message ||
+                    "A password reset code has been sent to your email.",
+                    "success",
+                    "../worker-password-reset-otp/index.html"
+                );
 
+            } catch (error) {
 
-        /* ======================================
-           SERVER ERROR
-        ======================================= */
+                console.error(error);
 
-        if (!response.ok) {
+                setLoading(button, false);
 
-            showErrorModal(
-                "Request Failed",
-                data.message ||
-                "Unable to process your request. Please try again."
-            );
-
-            return;
-
-        }
-
-
-        /*
-           IMPORTANT:
-
-           The backend can return:
-
-           otpSent: true
-               -> email exists and OTP was sent
-
-           otpSent: false
-               -> email does not exist
-
-           This lets the backend give a generic
-           response without exposing account data.
-        */
-
-        if (data.otpSent === true) {
-
-            /*
-               Save email for the
-               password reset OTP page.
-            */
-
-            saveWorkerEmail(
-                data.email || email
-            );
-
-
-            /*
-               Redirect after success modal.
-            */
-
-            showSuccessModal(
-                "OTP Sent",
-                "If the account exists, a password reset OTP has been sent to your email.",
-                "../worker-password-reset-otp/index.html"
-            );
-
-        }
-
-        else {
-
-            /*
-               Generic response for an
-               email that does not exist.
-
-               No OTP page redirect occurs.
-            */
-
-            showSuccessModal(
-                "Request Received",
-                "If an account exists for this email address, you will receive a password reset OTP."
-            );
-
-        }
-
-    }
-
-    catch (error) {
-
-        /*
-           Handles network/server errors.
-        */
-
-        console.error(
-            "Forgot password error:",
-            error
-        );
-
-
-        showErrorModal(
-            "Connection Error",
-            "Unable to connect to the server. Please check your connection and try again."
-        );
-
-    }
-
-    finally {
-
-        /*
-           Stop loading.
-        */
-
-        setLoading(
-            forgotButton,
-            false
-        );
-
-
-        /*
-           Restore button text.
-        */
-
-        const buttonText =
-            forgotButton.querySelector(
-                ".btn-text"
-            );
-
-
-        if (buttonText) {
-
-            buttonText.textContent =
-                "Send OTP";
-
-        }
-
-    }
-
-}
-
-
-
-/* =========================================================
-   23. CLOSE MODALS WHEN CLICKING OUTSIDE
-========================================================= */
-
-/*
-   We intentionally DO NOT automatically close
-   authentication error modals when the user clicks
-   outside them.
-
-   The user must explicitly close an error modal
-   using:
-
-   - X button
-   - Close button
-*/
-
-
-/*
-   Forgot-password modal may be closed by clicking
-   outside the card because it is only an input modal.
-*/
-
-const forgotModal =
-    getElement("forgotModal");
-
-
-if (forgotModal) {
-
-    forgotModal.addEventListener(
-        "click",
-        event => {
-
-            if (
-                event.target ===
-                forgotModal
-            ) {
-
-                forgotModal.classList.remove(
-                    "show"
+                showModal(
+                    "Connection Error",
+                    "Unable to connect to the server. Please try again."
                 );
 
             }
 
-        }
+        });
+
+}
+
+
+/* =========================================================
+   13. FORGOT PASSWORD MODAL
+========================================================= */
+
+function initializeForgotModal() {
+
+    const modal =
+        getElement("forgotModal");
+
+    getElement("forgotPassword")
+        .addEventListener("click", () => {
+
+            modal.classList.add("show");
+
+            modal.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+        });
+
+
+    getElement("closeModal")
+        .addEventListener("click", closeForgotModal);
+
+
+    getElement("forgotOverlay")
+        .addEventListener("click", closeForgotModal);
+
+}
+
+
+function closeForgotModal() {
+
+    const modal =
+        getElement("forgotModal");
+
+    modal.classList.remove("show");
+
+    modal.setAttribute(
+        "aria-hidden",
+        "true"
     );
 
 }
 
 
-
 /* =========================================================
-   24. PREVENT BACKGROUND SCROLL WHEN MODAL IS OPEN
+   14. CONTINUE WITH GOOGLE
 ========================================================= */
 
-function updateBodyScroll() {
+function initializeGoogleButtons() {
 
-    const notificationModal =
-        getElement("notificationModal");
-
-
-    const passwordModal =
-        getElement("forgotModal");
+    const buttons = [
+        getElement("googleLoginButton"),
+        getElement("googleSignupButton")
+    ];
 
 
-    const notificationOpen =
-        notificationModal &&
-        notificationModal.classList.contains(
-            "show"
-        );
+    buttons.forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            button.disabled = true;
+
+            button.dataset.text =
+                button.textContent;
+
+            button.textContent =
+                "Connecting...";
+
+            button.classList.add("loading");
 
 
-    const passwordOpen =
-        passwordModal &&
-        passwordModal.classList.contains(
-            "show"
-        );
+            window.location.href =
+                API_ENDPOINT(
+                    "/api/worker-authentication/google"
+                );
 
-
-    /*
-       Prevent background scrolling when
-       either modal is open.
-    */
-
-    document.body.style.overflow =
-        notificationOpen || passwordOpen
-            ? "hidden"
-            : "";
-
-}
-
-
-
-/* =========================================================
-   25. MODAL OBSERVER
-========================================================= */
-
-const modalObserver =
-    new MutationObserver(() => {
-
-        updateBodyScroll();
+        });
 
     });
 
-
-const notificationModalElement =
-    getElement("notificationModal");
-
-
-const forgotModalElement =
-    getElement("forgotModal");
-
-
-if (notificationModalElement) {
-
-    modalObserver.observe(
-        notificationModalElement,
-        {
-            attributes: true,
-            attributeFilter: [
-                "class"
-            ]
-        }
-    );
-
 }
-
-
-if (forgotModalElement) {
-
-    modalObserver.observe(
-        forgotModalElement,
-        {
-            attributes: true,
-            attributeFilter: [
-                "class"
-            ]
-        }
-    );
-
-}
-
 
 
 /* =========================================================
-   26. KEYBOARD ESCAPE
+   15. ESCAPE KEY
 ========================================================= */
 
-/*
-   ESC is allowed to close the Forgot Password
-   input modal.
+document.addEventListener("keydown", event => {
 
-   It does NOT close authentication
-   notification/error modals automatically.
+    if (event.key !== "Escape") return;
 
-   This preserves the requirement that the
-   user must close authentication messages.
-*/
+    const forgotModal =
+        getElement("forgotModal");
 
-document.addEventListener(
-    "keydown",
-    event => {
-
-        if (event.key !== "Escape") {
-
-            return;
-
-        }
-
-
-        const forgotModal =
-            getElement("forgotModal");
-
-
-        if (
-            forgotModal &&
-            forgotModal.classList.contains(
-                "show"
-            )
-        ) {
-
-            forgotModal.classList.remove(
-                "show"
-            );
-
-        }
-
+    if (
+        forgotModal.classList.contains("show")
+    ) {
+        closeForgotModal();
     }
-);
+
+});
