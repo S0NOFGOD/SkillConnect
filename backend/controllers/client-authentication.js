@@ -79,23 +79,8 @@ const jwt =
    4. IMPORT CRYPTO
 ========================================================= */
 
-/*
-   crypto is used to generate secure random OTPs.
-
-   We do not use Math.random() for authentication OTPs.
-*/
-
 const crypto =
     require("crypto");
-
-
-
-/* =========================================================
-   5. IMPORT NODEMAILER
-========================================================= */
-
-const nodemailer =
-    require("nodemailer");
 
 /* =========================================================
    5. IMPORT BREVO
