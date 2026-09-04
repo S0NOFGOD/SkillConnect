@@ -467,13 +467,6 @@ if (!workerEmail) {
     workerEmailElement.textContent =
         workerEmail;
 
-
-    /* =====================================================
-       START RESEND COUNTDOWN
-    ===================================================== */
-
-    startCountdown();
-
 }
 
 
@@ -840,6 +833,10 @@ const setResendLoading = (
 
     } else {
 
+        resendOTP.classList.remove(
+            "disabled"
+        );
+
         resendOTP.textContent =
             "Resend OTP";
 
@@ -1020,62 +1017,24 @@ otpForm.addEventListener(
             }
 
 
-            /* =================================================
+            /* =========================================================
                EMAIL VERIFICATION SUCCESS
-            ================================================= */
-
-            /*
-                At this point the backend has:
-
-                isEmailVerified = true
-
-                emailOTP = null
-
-                emailOTPExpires = null
-
-                and saved the worker.
-            */
-
-
-            /* =================================================
-               SHOW SUCCESS MODAL
-            ================================================= */
-
+            ========================================================= */
             showNotification(
 
-                "success",
+               "success",
 
-                "Email Verified",
+               "Email Verified",
 
-                data.message ||
-                "Your email has been successfully verified.",
+               data.message || "Your email has been successfully verified.",
 
-                () => {
-
-                    /* =====================================
-                       CHECK PROFILE COMPLETION
-                    ================ */
-
-                    if (data.nextPage) {
-                        window.location.href = data.nextPage;
-                    } 
-                    else {
-                    
-                        /* Safety fallback.
-
-                         If the backend somehow does not
-                          provide a nextPage, return the worker
-                         to authentication instead of guessing
-                         the destination.
-                        */
-
-                       window.location.href = authenticationPage;
-                    }
+               () => {
+                
+                  window.location.href = "../worker-create-profile/index.html";
 
                 }
 
             );
-
 
         } catch (error) {
 

@@ -240,8 +240,6 @@ const workerSchema =
 
                 sparse: true,
 
-                default: null
-
             },
 
 
