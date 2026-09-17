@@ -1,9 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-
-<!-- =====================================================
+<!DOCTYPE html><html lang="en"><head><!-- =====================================================
      META INFORMATION
 ====================================================== -->
 
@@ -19,19 +14,14 @@
     content="Complete your SkillConnect worker profile."
 >
 
-<title>
-    Complete Worker Profile | SkillConnect
-</title>
+<title>Complete Worker Profile | SkillConnect</title>
 
 
 <!-- =====================================================
-     GOOGLE FONTS
+     GOOGLE FONT
 ====================================================== -->
 
-<link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
->
+<link rel="preconnect" href="https://fonts.googleapis.com">
 
 <link
     rel="preconnect"
@@ -49,29 +39,15 @@
      PAGE STYLESHEET
 ====================================================== -->
 
-<link
-    rel="stylesheet"
-    href="style.css"
->
+<link rel="stylesheet" href="style.css">
 
-</head>
-
-
-<body>
-
-
-<!-- =====================================================
+</head><body><!-- =====================================================
      HEADER / NAVIGATION
 ====================================================== -->
 
 <header>
 
     <nav class="navbar">
-
-
-        <!-- =================================================
-             SKILLCONNECT LOGO
-        ================================================== -->
 
         <a
             href="../index.html"
@@ -80,10 +56,6 @@
             SkillConnect
         </a>
 
-
-        <!-- =================================================
-             NAVIGATION LINKS
-        ================================================== -->
 
         <div class="nav-links">
 
@@ -100,10 +72,6 @@
 
 <!-- =====================================================
      MAIN PROFILE PAGE
-
-     The "protected-page" class allows JavaScript/CSS to
-     keep the profile content hidden until the worker
-     session has been confirmed.
 ====================================================== -->
 
 <main
@@ -112,335 +80,64 @@
     hidden
 >
 
-    <section class="profile-container">
+    <section class="profile-section">
+
+        <div class="profile-card">
 
 
-        <!-- =================================================
-             PROFILE HEADER
-        ================================================== -->
+            <!-- =================================================
+                 PROFILE HEADER
+            ================================================== -->
 
-        <div class="profile-header">
+            <div class="profile-header">
 
-            <span class="profile-badge">
-                Worker Profile
-            </span>
-
-
-            <h1>
-                Complete Your Profile
-            </h1>
-
-
-            <p>
-                Tell clients about yourself and the services
-                you offer.
-            </p>
-
-        </div>
-
-
-        <!-- =================================================
-             PROFILE COMPLETION
-        ================================================== -->
-
-        <div class="progress-container">
-
-            <div class="progress-info">
-
-                <span>
-                    Profile completion
+                <span class="profile-badge">
+                    Worker Profile
                 </span>
 
-                <span id="progressPercentage">
-                    0%
-                </span>
+                <h1>
+                    Complete Your Profile
+                </h1>
+
+                <p>
+                    Tell clients about yourself and the
+                    services you offer.
+                </p>
 
             </div>
 
 
-            <div class="progress-bar">
+            <!-- =================================================
+                 PROFILE PROGRESS
 
-                <div
-                    class="progress-fill"
-                    id="progressFill"
-                ></div>
+                 This remains inside the profile card so it
+                 stays aligned with the form.
 
-            </div>
+                 CSS makes it sticky when it reaches the
+                 bottom of the fixed navbar.
+            ================================================== -->
 
-        </div>
+            <div class="progress-container">
 
+                <div class="progress-info">
 
-        <!-- =================================================
-             PROFILE FORM
-        ================================================== -->
+                    <span>
+                        Profile completion
+                    </span>
 
-        <form
-            id="workerProfileForm"
-            class="profile-form"
-            novalidate
-        >
-
-
-            <!-- =============================================
-                 PROFILE PHOTO
-            ============================================== -->
-
-            <div class="form-section">
-
-                <div class="section-heading">
-
-                    <h2>
-                        Profile Photo
-                    </h2>
-
-                    <p>
-                        Upload a clear photo that clients can
-                        use to recognize you.
-                    </p>
+                    <span id="progressPercentage">
+                        0%
+                    </span>
 
                 </div>
 
 
-                <!-- =========================================
-                     PROFILE PHOTO PREVIEW
-                ========================================== -->
-
-                <div class="profile-photo-container">
+                <div class="progress-bar">
 
                     <div
-                        class="profile-photo-preview"
-                        id="profilePhotoPreview"
-                    >
-
-                        <span
-                            id="profilePhotoPlaceholder"
-                        >
-                            Add Photo
-                        </span>
-
-                        <img
-                            id="profilePhotoImage"
-                            src=""
-                            alt="Profile photo preview"
-                            hidden
-                        >
-
-                    </div>
-
-                </div>
-
-
-                <!-- =========================================
-                     PROFILE PHOTO INPUT
-                ========================================== -->
-
-                <div class="form-group">
-
-                    <label for="profilePhoto">
-                        Profile Photo
-                    </label>
-
-                    <input
-                        type="file"
-                        id="profilePhoto"
-                        name="profilePhoto"
-                        accept="image/jpeg,image/png,image/webp"
-                        required
-                    >
-
-                    <small>
-                        JPG, PNG, or WebP. Maximum file size:
-                        5 MB.
-                    </small>
-
-                </div>
-
-            </div>
-
-
-            <!-- =============================================
-                 PERSONAL INFORMATION
-            ============================================== -->
-
-            <div class="form-section">
-
-                <div class="section-heading">
-
-                    <h2>
-                        Personal Information
-                    </h2>
-
-                    <p>
-                        Basic information clients will see.
-                    </p>
-
-                </div>
-
-
-                <!-- =========================================
-                     FULL NAME
-                ========================================== -->
-
-                <div class="form-group">
-
-                    <label for="fullName">
-                        Full Name
-                    </label>
-
-                    <input
-                        type="text"
-                        id="fullName"
-                        name="fullName"
-                        placeholder="Enter your full name"
-                        autocomplete="name"
-                        required
-                    >
-
-                </div>
-
-
-                <!-- =========================================
-                     PHONE
-                ========================================== -->
-
-                <div class="form-group">
-
-                    <label for="phone">
-                        Phone Number
-                    </label>
-
-                    <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        placeholder="Enter your phone number"
-                        autocomplete="tel"
-                        required
-                    >
-
-                </div>
-
-            </div>
-
-
-            <!-- =============================================
-                 LOCATION
-            ============================================== -->
-
-            <div class="form-section">
-
-                <div class="section-heading">
-
-                    <h2>
-                        Location
-                    </h2>
-
-                    <p>
-                        Select where you provide your services.
-                    </p>
-
-                </div>
-
-
-                <!-- =========================================
-                     COUNTRY
-                ========================================== -->
-
-                <div class="form-group">
-
-                    <label for="country">
-                        Country
-                    </label>
-
-                    <select
-                        id="country"
-                        name="country"
-                        required
-                    >
-
-                        <option value="">
-                            Select country
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- =========================================
-                     STATE
-                ========================================== -->
-
-                <div class="form-group">
-
-                    <label for="state">
-                        State
-                    </label>
-
-                    <select
-                        id="state"
-                        name="state"
-                        required
-                        disabled
-                    >
-
-                        <option value="">
-                            Select state
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- =========================================
-                     CITY
-                ========================================== -->
-
-                <div class="form-group">
-
-                    <label for="city">
-                        City
-                    </label>
-
-                    <select
-                        id="city"
-                        name="city"
-                        required
-                        disabled
-                    >
-
-                        <option value="">
-                            Select city
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- =========================================
-                     LOCAL GOVERNMENT AREA
-                ========================================== -->
-
-                <div class="form-group">
-
-                    <label for="lga">
-                        Local Government Area
-                    </label>
-
-                    <select
-                        id="lga"
-                        name="lga"
-                        required
-                        disabled
-                    >
-
-                        <option value="">
-                            Select LGA
-                        </option>
-
-                    </select>
+                        class="progress-fill"
+                        id="progressFill"
+                    ></div>
 
                 </div>
 
@@ -448,27 +145,272 @@
 
 
             <!-- =================================================
-                 SUBMIT BUTTON
+                 PROFILE FORM
             ================================================== -->
 
-            <button
-                type="submit"
-                id="continueBtn"
-                class="continue-btn"
+            <form
+                id="workerProfileForm"
+                class="profile-form"
+                novalidate
             >
 
-                <span class="button-text">
-                    Complete Profile
-                </span>
 
-                <span
-                    class="button-loader"
-                    aria-hidden="true"
-                ></span>
+                <!-- =============================================
+                     PROFILE PHOTO
+                ============================================== -->
 
-            </button>
+                <div class="form-section">
 
-        </form>
+                    <div class="section-heading">
+
+                        <h2>
+                            Profile Photo
+                        </h2>
+
+                        <p>
+                            Upload a clear photo clients can
+                            use to recognize you.
+                        </p>
+
+                    </div>
+
+
+                    <div class="profile-photo-container">
+
+                        <div
+                            class="profile-photo-preview"
+                            id="profilePhotoPreview"
+                        >
+
+                            <span id="profilePhotoPlaceholder">
+                                Add Photo
+                            </span>
+
+                            <img
+                                id="profilePhotoImage"
+                                src=""
+                                alt="Profile photo preview"
+                                hidden
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="profilePhoto">
+                            Profile Photo
+                        </label>
+
+                        <input
+                            type="file"
+                            id="profilePhoto"
+                            name="profilePhoto"
+                            accept="image/jpeg,image/png,image/webp"
+                            required
+                        >
+
+                        <small>
+                            JPG, PNG, or WebP. Maximum file size:
+                            5 MB.
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =============================================
+                     PERSONAL INFORMATION
+                ============================================== -->
+
+                <div class="form-section">
+
+                    <div class="section-heading">
+
+                        <h2>
+                            Personal Information
+                        </h2>
+
+                        <p>
+                            Basic information clients will see.
+                        </p>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="fullName">
+                            Full Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="fullName"
+                            name="fullName"
+                            placeholder="Enter your full name"
+                            autocomplete="name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="phone">
+                            Phone Number
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            placeholder="Enter your phone number"
+                            autocomplete="tel"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- =============================================
+                     LOCATION
+                ============================================== -->
+
+                <div class="form-section">
+
+                    <div class="section-heading">
+
+                        <h2>
+                            Location
+                        </h2>
+
+                        <p>
+                            Select where you provide your services.
+                        </p>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="country">
+                            Country
+                        </label>
+
+                        <select
+                            id="country"
+                            name="country"
+                            required
+                        >
+
+                            <option value="">
+                                Select country
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="state">
+                            State
+                        </label>
+
+                        <select
+                            id="state"
+                            name="state"
+                            required
+                            disabled
+                        >
+
+                            <option value="">
+                                Select state
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="city">
+                            City
+                        </label>
+
+                        <select
+                            id="city"
+                            name="city"
+                            required
+                            disabled
+                        >
+
+                            <option value="">
+                                Select city
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="lga">
+                            Local Government Area
+                        </label>
+
+                        <select
+                            id="lga"
+                            name="lga"
+                            required
+                            disabled
+                        >
+
+                            <option value="">
+                                Select LGA
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     SUBMIT BUTTON
+                ================================================== -->
+
+                <button
+                    type="submit"
+                    id="continueBtn"
+                    class="continue-btn"
+                >
+
+                    <span class="button-text">
+                        Complete Profile
+                    </span>
+
+                    <span
+                        class="button-loader"
+                        aria-hidden="true"
+                    ></span>
+
+                </button>
+
+            </form>
+
+        </div>
 
     </section>
 
@@ -477,13 +419,6 @@
 
 <!-- =====================================================
      SUCCESS / ERROR NOTIFICATION MODAL
-
-     Authentication errors, validation errors, backend
-     errors, and successful profile completion messages
-     are displayed through this modal.
-
-     The user must manually close the modal before any
-     callback such as a redirect is executed.
 ====================================================== -->
 
 <div
@@ -501,11 +436,6 @@
         aria-describedby="notificationText"
     >
 
-
-        <!-- =================================================
-             NOTIFICATION ICON
-        ================================================== -->
-
         <div
             class="notification-icon"
             id="notificationIcon"
@@ -513,32 +443,13 @@
             !
         </div>
 
-
-        <!-- =================================================
-             NOTIFICATION TITLE
-        ================================================== -->
-
         <h2 id="notificationTitle">
             Notification
         </h2>
 
-
-        <!-- =================================================
-             NOTIFICATION MESSAGE
-        ================================================== -->
-
         <p id="notificationText">
             Something happened.
         </p>
-
-
-        <!-- =================================================
-             NOTIFICATION BUTTON
-
-             The user must click this button to close the
-             modal. Redirect callbacks execute only after
-             the user closes the modal.
-        ================================================== -->
 
         <button
             type="button"
@@ -567,26 +478,14 @@
 
 
 <!-- =====================================================
-     JAVASCRIPT CONFIGURATION
+     JAVASCRIPT
 ====================================================== -->
 
 <script src="../config.js"></script>
 
-
-<!-- =====================================================
-     NIGERIAN LOCATION DATA
-====================================================== -->
-
 <script src="nigeria-location.js"></script>
-
-
-<!-- =====================================================
-     PAGE JAVASCRIPT
-====================================================== -->
 
 <script src="script.js"></script>
 
-
 </body>
-
 </html>

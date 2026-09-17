@@ -1,1649 +1,851 @@
 /* =========================================================
-   SKILLCONNECT WORKER CREATE PROFILE
-   PROFILE PAGE STYLING
+SKILLCONNECT WORKER CREATE PROFILE
+CONSISTENT WITH WORKER EMAIL OTP
 ========================================================= */
-
 
 /* =========================================================
-   1. GLOBAL RESET
-========================================================= */
+
+1. GLOBAL RESET
+   ========================================================= */
 
 * {
-
-    margin: 0;
-
-    padding: 0;
-
-    box-sizing: border-box;
-
-}
-
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  }
 
 html {
-
-    scroll-behavior: smooth;
-
+scroll-behavior: smooth;
 }
-
 
 body {
-
-    min-height: 100vh;
-
-    font-family: "Inter", sans-serif;
-
-    background: #020617;
-
-    color: #ffffff;
-
-    line-height: 1.6;
-
-    overflow-x: hidden;
-
+min-height: 100vh;
+font-family: "Inter", sans-serif;
+background: #020617;
+color: #ffffff;
+line-height: 1.6;
+overflow-x: hidden;
 }
-
 
 body.modal-open {
-
-    overflow: hidden;
-
+overflow: hidden;
 }
-
-
-/* =========================================================
-   LINKS
-========================================================= */
 
 a {
-
-    text-decoration: none;
-
-    color: inherit;
-
+text-decoration: none;
+color: inherit;
 }
 
-
 /* =========================================================
-   2. FIXED NAVBAR
+2. FIXED NAVBAR
 ========================================================= */
 
 header {
-
-    position: fixed;
-
-    top: 0;
-
-    left: 0;
-
-    width: 100%;
-
-    z-index: 1000;
-
-    background:
-        rgba(2, 6, 23, .85);
-
-    backdrop-filter:
-        blur(15px);
-
-    -webkit-backdrop-filter:
-        blur(15px);
-
-    border-bottom:
-        1px solid
-        rgba(255, 255, 255, .08);
-
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+z-index: 1000;
+background: rgba(2, 6, 23, .85);
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(15px);
+border-bottom: 1px solid rgba(255, 255, 255, .08);
 }
-
-
-/* =========================================================
-   NAVBAR CONTAINER
-========================================================= */
 
 .navbar {
-
-    width: 90%;
-
-    max-width: 1200px;
-
-    height: 70px;
-
-    margin: auto;
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
+width: 90%;
+max-width: 1200px;
+height: 70px;
+margin: auto;
+display: flex;
+justify-content: space-between;
+align-items: center;
 }
-
-
-/* =========================================================
-   LOGO
-========================================================= */
 
 .logo {
-
-    font-size: 24px;
-
-    font-weight: 800;
-
-    letter-spacing: -1px;
-
-    color: #16a34a;
-
-    background-clip: text;
-
+font-size: 24px;
+font-weight: 800;
+letter-spacing: -1px;
+color: #16a34a;
 }
-
-
-/* =========================================================
-   NAVIGATION LINKS
-========================================================= */
 
 .nav-links {
-
-    display: flex;
-
-    gap: 30px;
-
+display: flex;
+gap: 30px;
 }
-
 
 .nav-links a {
-
-    color: #cbd5e1;
-
-    font-size: 15px;
-
-    font-weight: 600;
-
-    transition: .3s;
-
+color: #cbd5e1;
+font-size: 15px;
+font-weight: 600;
+transition: .3s;
 }
-
 
 .nav-links a:hover {
-
-    color: #22c55e;
-
+color: #22c55e;
 }
 
-
 /* =========================================================
-   3. MAIN PROFILE PAGE
+3. MAIN PROFILE PAGE
 ========================================================= */
 
 .profile-page {
-
-    width: 90%;
-
-    max-width: 900px;
-
-    min-height:
-        calc(100vh - 70px);
-
-    margin: auto;
-
-    padding-top: 110px;
-
-    padding-bottom: 70px;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: flex-start;
-
-    position: relative;
-
+width: 90%;
+max-width: 1200px;
+min-height: calc(100vh - 70px);
+margin: auto;
+padding-top: 110px;
+padding-bottom: 70px;
+display: flex;
+justify-content: center;
+align-items: flex-start;
+position: relative;
 }
-
-
-/* =========================================================
-   BACKGROUND GREEN / BLUE GLOW
-========================================================= */
 
 .profile-page::before {
-
-    content: "";
-
-    position: absolute;
-
-    width: 420px;
-
-    height: 420px;
-
-    background: #22c55e;
-
-    filter: blur(180px);
-
-    opacity: .13;
-
-    top: 100px;
-
-    left: 50%;
-
-    transform:
-        translateX(-50%);
-
-    pointer-events: none;
-
+content: "";
+position: absolute;
+width: 360px;
+height: 360px;
+background: #22c55e;
+filter: blur(170px);
+opacity: .18;
+top: 100px;
+left: 50%;
+transform: translateX(-50%);
+pointer-events: none;
 }
-
-
-.profile-page::after {
-
-    content: "";
-
-    position: absolute;
-
-    width: 300px;
-
-    height: 300px;
-
-    background: #3b82f6;
-
-    filter: blur(180px);
-
-    opacity: .10;
-
-    bottom: 100px;
-
-    right: -100px;
-
-    pointer-events: none;
-
-}
-
 
 /* =========================================================
-   4. PROFILE CONTAINER
+4. PROFILE SECTION
 ========================================================= */
 
-.profile-container {
-
-    width: 100%;
-
-    padding: 35px;
-
-    border-radius: 24px;
-
-    background:
-        rgba(255, 255, 255, .05);
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .08);
-
-    backdrop-filter:
-        blur(15px);
-
-    -webkit-backdrop-filter:
-        blur(15px);
-
-    box-shadow:
-        0 25px 70px
-        rgba(0, 0, 0, .45);
-
-    position: relative;
-
-    z-index: 2;
-
+.profile-section {
+width: 100%;
+display: flex;
+justify-content: center;
+position: relative;
+z-index: 2;
 }
 
+/* =========================================================
+5. PROFILE CARD
+========================================================= */
+
+.profile-card {
+width: 100%;
+max-width: 700px;
+padding: 35px;
+border-radius: 24px;
+background: rgba(255, 255, 255, .05);
+border: 1px solid rgba(255, 255, 255, .08);
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(15px);
+box-shadow: 0 25px 70px rgba(0, 0, 0, .45);
+}
 
 /* =========================================================
-   5. PROFILE HEADER
+6. PROFILE HEADER
 ========================================================= */
 
 .profile-header {
-
-    text-align: center;
-
-    margin-bottom: 30px;
-
+text-align: center;
+margin-bottom: 30px;
 }
-
-
-/* =========================================================
-   PROFILE BADGE
-========================================================= */
 
 .profile-badge {
-
-    display: inline-block;
-
-    padding: 8px 18px;
-
-    margin-bottom: 18px;
-
-    border-radius: 30px;
-
-    color: #22c55e;
-
-    background:
-        rgba(34, 197, 94, .15);
-
-    border:
-        1px solid
-        rgba(34, 197, 94, .3);
-
-    font-size: 14px;
-
-    font-weight: 600;
-
+display: inline-block;
+padding: 8px 18px;
+margin-bottom: 18px;
+border-radius: 30px;
+color: #22c55e;
+background: rgba(34, 197, 94, .15);
+border: 1px solid rgba(34, 197, 94, .3);
+font-size: 14px;
+font-weight: 600;
 }
-
-
-/* =========================================================
-   PROFILE HEADING
-========================================================= */
 
 .profile-header h1 {
-
-    margin-bottom: 10px;
-
-    color: #ffffff;
-
-    font-size:
-        clamp(1.8rem, 4vw, 2.4rem);
-
-    font-weight: 800;
-
-    letter-spacing: -.8px;
-
-    line-height: 1.2;
-
+margin-bottom: 10px;
+font-size: 32px;
+font-weight: 800;
+letter-spacing: -.8px;
 }
-
 
 .profile-header p {
-
-    max-width: 600px;
-
-    margin: auto;
-
-    color: #cbd5e1;
-
-    font-size: 15px;
-
+color: #cbd5e1;
+font-size: 15px;
 }
 
-
 /* =========================================================
-   6. PROFILE PROGRESS
+7. PROFILE PROGRESS
+
+The progress container stays inside the profile card,
+but becomes sticky after reaching the fixed navbar.
+
+The 85px top value keeps it below the 70px navbar with
+a small 15px gap.
 ========================================================= */
 
 .progress-container {
+position: sticky;
+top: 85px;
+z-index: 20;
 
-    margin-bottom: 28px;
+margin-bottom: 25px;
+padding: 18px;
 
-    padding: 18px;
+border-radius: 16px;
 
-    border-radius: 16px;
+background: rgba(15, 23, 42, .94);
 
-    background:
-        rgba(255, 255, 255, .05);
+border: 1px solid rgba(255, 255, 255, .08);
 
-    border:
-        1px solid
-        rgba(255, 255, 255, .08);
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(15px);
+
+box-shadow:
+    0 15px 40px
+    rgba(0, 0, 0, .25);
 
 }
-
 
 .progress-info {
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    gap: 15px;
-
-    margin-bottom: 10px;
-
-    color: #cbd5e1;
-
-    font-size: 13px;
-
-    font-weight: 600;
-
+display: flex;
+justify-content: space-between;
+align-items: center;
+gap: 15px;
+margin-bottom: 10px;
+color: #cbd5e1;
+font-size: 13px;
+font-weight: 600;
 }
-
 
 #progressPercentage {
-
-    color: #22c55e;
-
-    font-weight: 800;
-
+color: #22c55e;
+font-weight: 800;
 }
-
-
-/* =========================================================
-   PROGRESS BAR
-========================================================= */
 
 .progress-bar {
-
-    width: 100%;
-
-    height: 8px;
-
-    overflow: hidden;
-
-    border-radius: 999px;
-
-    background:
-        rgba(255, 255, 255, .08);
-
+width: 100%;
+height: 8px;
+overflow: hidden;
+border-radius: 999px;
+background: rgba(255, 255, 255, .08);
 }
-
 
 .progress-fill {
-
-    width: 0;
-
-    height: 100%;
-
-    border-radius: inherit;
-
-    background:
-        linear-gradient(
-            90deg,
-            #22c55e,
-            #3b82f6
-        );
-
-    transition:
-        width .3s ease;
-
+width: 0;
+height: 100%;
+border-radius: inherit;
+background: linear-gradient(90deg, #22c55e, #16a34a);
+transition: width .3s ease;
 }
 
-
 /* =========================================================
-   7. PROFILE FORM
+8. PROFILE FORM
 ========================================================= */
 
 .profile-form {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 22px;
-
+display: flex;
+flex-direction: column;
+gap: 20px;
 }
-
-
-/* =========================================================
-   8. FORM SECTIONS
-========================================================= */
 
 .form-section {
-
-    padding: 24px;
-
-    border-radius: 18px;
-
-    background:
-        rgba(255, 255, 255, .035);
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .08);
-
+padding: 24px;
+border-radius: 18px;
+background: rgba(255, 255, 255, .035);
+border: 1px solid rgba(255, 255, 255, .08);
 }
-
-
-/* =========================================================
-   SECTION HEADING
-========================================================= */
 
 .section-heading {
-
-    margin-bottom: 20px;
-
+margin-bottom: 20px;
 }
-
 
 .section-heading h2 {
-
-    margin-bottom: 6px;
-
-    color: #ffffff;
-
-    font-size: 18px;
-
-    font-weight: 700;
-
+margin-bottom: 6px;
+font-size: 18px;
+font-weight: 700;
 }
-
 
 .section-heading p {
-
-    color: #94a3b8;
-
-    font-size: 14px;
-
+color: #94a3b8;
+font-size: 14px;
 }
 
-
 /* =========================================================
-   9. PROFILE PHOTO CONTAINER
+9. PROFILE PHOTO
 ========================================================= */
 
 .profile-photo-container {
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    margin-bottom: 22px;
-
+display: flex;
+justify-content: center;
+align-items: center;
+margin-bottom: 22px;
 }
-
-
-/* =========================================================
-   PROFILE PHOTO PREVIEW
-========================================================= */
 
 .profile-photo-preview {
-
-    width: 150px;
-
-    height: 150px;
-
-    overflow: hidden;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    border-radius: 50%;
-
-    border:
-        3px solid
-        rgba(34, 197, 94, .45);
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(34, 197, 94, .15),
-            rgba(59, 130, 246, .15)
-        );
-
-    color: #94a3b8;
-
-    font-size: 14px;
-
-    font-weight: 600;
-
-    box-shadow:
-        0 15px 40px
-        rgba(0, 0, 0, .30);
-
+width: 150px;
+height: 150px;
+overflow: hidden;
+display: flex;
+justify-content: center;
+align-items: center;
+border-radius: 50%;
+border: 3px solid rgba(34, 197, 94, .45);
+background: rgba(34, 197, 94, .10);
+color: #94a3b8;
+font-size: 14px;
+font-weight: 600;
+box-shadow: 0 15px 40px rgba(0, 0, 0, .30);
 }
-
-
-/* =========================================================
-   PROFILE PHOTO IMAGE
-========================================================= */
 
 #profilePhotoImage {
-
-    width: 100%;
-
-    height: 100%;
-
-    display: block;
-
-    object-fit: cover;
-
+width: 100%;
+height: 100%;
+display: block;
+object-fit: cover;
 }
-
-
-/* =========================================================
-   PROFILE PHOTO PLACEHOLDER
-========================================================= */
 
 #profilePhotoPlaceholder {
-
-    text-align: center;
-
-    color: #94a3b8;
-
-    user-select: none;
-
+text-align: center;
+color: #94a3b8;
 }
 
-
 /* =========================================================
-   10. FORM GROUP
+10. FORM GROUPS
 ========================================================= */
 
 .form-group {
-
-    margin-bottom: 18px;
-
+margin-bottom: 18px;
 }
-
 
 .form-group:last-child {
-
-    margin-bottom: 0;
-
+margin-bottom: 0;
 }
-
-
-/* =========================================================
-   11. LABELS
-========================================================= */
 
 .form-group label {
-
-    display: block;
-
-    margin-bottom: 8px;
-
-    color: #e2e8f0;
-
-    font-size: 14px;
-
-    font-weight: 600;
-
+display: block;
+margin-bottom: 8px;
+color: #e2e8f0;
+font-size: 14px;
+font-weight: 600;
 }
 
-
 /* =========================================================
-   12. INPUTS / SELECTS / TEXTAREA
+11. INPUTS / SELECTS / TEXTAREA
 ========================================================= */
 
 input,
 select,
 textarea {
-
-    width: 100%;
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .10);
-
-    border-radius: 12px;
-
-    outline: none;
-
-    background:
-        #111827;
-
-    color: #ffffff;
-
-    font-family: "Inter", sans-serif;
-
-    font-size: 14px;
-
-    transition: .3s;
-
+width: 100%;
+border: 1px solid rgba(255, 255, 255, .10);
+border-radius: 12px;
+outline: none;
+background: #111827;
+color: #ffffff;
+font-family: "Inter", sans-serif;
+font-size: 14px;
+transition: .3s;
 }
-
 
 input,
 select {
-
-    min-height: 50px;
-
-    padding:
-        0 14px;
-
+min-height: 50px;
+padding: 0 14px;
 }
-
 
 textarea {
-
-    min-height: 150px;
-
-    padding: 14px;
-
-    resize: vertical;
-
-    line-height: 1.6;
-
+min-height: 150px;
+padding: 14px;
+resize: vertical;
+line-height: 1.6;
 }
-
 
 input::placeholder,
 textarea::placeholder {
-
-    color: #64748b;
-
+color: #64748b;
 }
-
 
 input:hover,
 select:hover,
 textarea:hover {
-
-    border-color:
-        rgba(255, 255, 255, .18);
-
+border-color: rgba(255, 255, 255, .18);
 }
-
 
 input:focus,
 select:focus,
 textarea:focus {
-
-    border-color:
-        #22c55e;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(34, 197, 94, .15);
-
+border-color: #22c55e;
+box-shadow: 0 0 0 3px rgba(34, 197, 94, .15);
 }
-
 
 select {
-
-    cursor: pointer;
-
+cursor: pointer;
 }
-
 
 select:disabled {
-
-    opacity: .5;
-
-    cursor: not-allowed;
-
+opacity: .5;
+cursor: not-allowed;
 }
 
-
 /* =========================================================
-   PROFILE PHOTO FILE INPUT
+12. FILE INPUT
 ========================================================= */
 
 input[type="file"] {
-
-    min-height: auto;
-
-    padding: 12px;
-
-    cursor: pointer;
-
+min-height: auto;
+padding: 12px;
+cursor: pointer;
 }
-
 
 input[type="file"]::file-selector-button {
-
-    margin-right: 12px;
-
-    padding:
-        9px 14px;
-
-    border: none;
-
-    border-radius: 8px;
-
-    background:
-        rgba(34, 197, 94, .15);
-
-    color: #22c55e;
-
-    font-family: "Inter", sans-serif;
-
-    font-size: 13px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition: .3s;
-
+margin-right: 12px;
+padding: 9px 14px;
+border: none;
+border-radius: 8px;
+background: rgba(34, 197, 94, .15);
+color: #22c55e;
+font-family: "Inter", sans-serif;
+font-size: 13px;
+font-weight: 700;
+cursor: pointer;
 }
-
-
-input[type="file"]::file-selector-button:hover {
-
-    background:
-        rgba(34, 197, 94, .25);
-
-}
-
-
-/* =========================================================
-   13. FORM HELPER TEXT
-========================================================= */
 
 .form-group small {
-
-    display: block;
-
-    margin-top: 7px;
-
-    color: #64748b;
-
-    font-size: 12px;
-
-    line-height: 1.5;
-
+display: block;
+margin-top: 7px;
+color: #64748b;
+font-size: 12px;
 }
 
-
 /* =========================================================
-   14. DESCRIPTION WORD COUNTER
+13. WORD COUNTER
 ========================================================= */
 
 .word-counter {
-
-    display: flex;
-
-    justify-content: flex-end;
-
-    margin-top: 8px;
-
+display: flex;
+justify-content: flex-end;
+margin-top: 8px;
 }
-
 
 #wordCounter {
-
-    color: #64748b;
-
-    font-size: 12px;
-
-    font-weight: 600;
-
-    transition: .2s;
-
+color: #64748b;
+font-size: 12px;
+font-weight: 600;
 }
-
 
 #wordCounter.limit-reached {
-
-    color: #ef4444;
-
+color: #ef4444;
 }
 
-
 /* =========================================================
-   15. SUBMIT BUTTON
+14. CONTINUE BUTTON
 ========================================================= */
 
 .continue-btn {
-
-    position: relative;
-
-    width: 100%;
-
-    min-height: 54px;
-
-    border: none;
-
-    border-radius: 14px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #3b82f6
-        );
-
-    color: #ffffff;
-
-    font-family: "Inter", sans-serif;
-
-    font-size: 15px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    box-shadow:
-        0 14px 30px
-        rgba(34, 197, 94, .15);
-
-    transition: .3s;
-
+position: relative;
+width: 100%;
+min-height: 54px;
+border: none;
+border-radius: 14px;
+background: linear-gradient(135deg, #22c55e, #16a34a);
+color: #ffffff;
+font-family: "Inter", sans-serif;
+font-size: 15px;
+font-weight: 700;
+cursor: pointer;
+transition: .3s;
 }
-
 
 .continue-btn:hover {
-
-    transform:
-        translateY(-3px);
-
-    box-shadow:
-        0 18px 35px
-        rgba(34, 197, 94, .22);
-
+transform: translateY(-3px);
+box-shadow: 0 10px 30px rgba(34, 197, 94, .20);
 }
-
 
 .continue-btn:active {
-
-    transform:
-        translateY(0);
-
+transform: translateY(0);
 }
-
 
 .continue-btn:disabled {
-
-    opacity: .7;
-
-    cursor: not-allowed;
-
-    transform: none;
-
+opacity: .7;
+cursor: not-allowed;
+transform: none;
 }
-
-
-/* =========================================================
-   16. BUTTON LOADING STATE
-========================================================= */
 
 .continue-btn.loading {
-
-    pointer-events: none;
-
-    opacity: .75;
-
+pointer-events: none;
+opacity: .75;
 }
-
 
 .button-loader {
-
-    display: none;
-
-    width: 18px;
-
-    height: 18px;
-
-    margin-left: 8px;
-
-    vertical-align: middle;
-
-    border-radius: 50%;
-
-    border:
-        3px solid
-        rgba(255, 255, 255, .35);
-
-    border-top-color:
-        #ffffff;
-
-    animation:
-        spin .8s linear infinite;
-
+display: none;
+width: 18px;
+height: 18px;
+margin-left: 8px;
+vertical-align: middle;
+border-radius: 50%;
+border: 3px solid rgba(255, 255, 255, .35);
+border-top-color: #ffffff;
+animation: spin .8s linear infinite;
 }
-
 
 .continue-btn.loading .button-loader {
-
-    display: inline-block;
-
+display: inline-block;
 }
-
 
 .continue-btn.loading .button-text {
-
-    opacity: .8;
-
+opacity: .8;
 }
 
-
 /* =========================================================
-   17. NOTIFICATION OVERLAY
+15. NOTIFICATION MODAL
 ========================================================= */
 
 .notification-overlay {
-
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 2000;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    padding: 20px;
-
-    background:
-        rgba(2, 6, 23, .78);
-
-    backdrop-filter:
-        blur(10px);
-
-    -webkit-backdrop-filter:
-        blur(10px);
-
-    animation:
-        fadeIn .25s ease;
-
+position: fixed;
+inset: 0;
+z-index: 2000;
+display: flex;
+justify-content: center;
+align-items: center;
+padding: 20px;
+background: rgba(2, 6, 23, .78);
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+animation: fadeIn .25s ease;
 }
-
 
 .notification-overlay[hidden] {
-
-    display: none;
-
+display: none;
 }
-
-
-/* =========================================================
-   18. NOTIFICATION CARD
-========================================================= */
 
 .notification-card {
-
-    width: 100%;
-
-    max-width: 390px;
-
-    padding: 35px 30px;
-
-    text-align: center;
-
-    border-radius: 22px;
-
-    background:
-        rgba(15, 23, 42, .96);
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .10);
-
-    box-shadow:
-        0 25px 80px
-        rgba(0, 0, 0, .55);
-
-    animation:
-        scaleIn .25s ease;
-
+width: 100%;
+max-width: 390px;
+padding: 35px 30px;
+text-align: center;
+border-radius: 22px;
+background: rgba(15, 23, 42, .96);
+border: 1px solid rgba(255, 255, 255, .10);
+box-shadow: 0 25px 80px rgba(0, 0, 0, .55);
+animation: scaleIn .25s ease;
 }
-
-
-/* =========================================================
-   19. NOTIFICATION ICON
-========================================================= */
 
 .notification-icon {
-
-    width: 64px;
-
-    height: 64px;
-
-    margin:
-        0 auto 20px;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    border-radius: 50%;
-
-    color: #ffffff;
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
-    font-size: 30px;
-
-    font-weight: 800;
-
+width: 64px;
+height: 64px;
+margin: 0 auto 20px;
+display: flex;
+justify-content: center;
+align-items: center;
+border-radius: 50%;
+color: #ffffff;
+background: linear-gradient(135deg, #22c55e, #16a34a);
+font-size: 30px;
+font-weight: 800;
 }
 
-
-/* =========================================================
-   SUCCESS ICON
-========================================================= */
-
-.notification-card.success
-.notification-icon {
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
+.notification-card.success .notification-icon {
+background: linear-gradient(135deg, #22c55e, #16a34a);
 }
 
-
-/* =========================================================
-   ERROR ICON
-========================================================= */
-
-.notification-card.error
-.notification-icon {
-
-    background:
-        linear-gradient(
-            135deg,
-            #ef4444,
-            #dc2626
-        );
-
+.notification-card.error .notification-icon {
+background: linear-gradient(135deg, #ef4444, #dc2626);
 }
 
-
-/* =========================================================
-   INFO ICON
-========================================================= */
-
-.notification-card.info
-.notification-icon {
-
-    background:
-        linear-gradient(
-            135deg,
-            #3b82f6,
-            #2563eb
-        );
-
+.notification-card.info .notification-icon {
+background: linear-gradient(135deg, #3b82f6, #2563eb);
 }
-
-
-/* =========================================================
-   20. NOTIFICATION TEXT
-========================================================= */
 
 .notification-card h2 {
-
-    margin-bottom: 10px;
-
-    color: #ffffff;
-
-    font-size: 24px;
-
-    font-weight: 800;
-
+margin-bottom: 10px;
+font-size: 24px;
+font-weight: 800;
 }
-
 
 .notification-card p {
-
-    color: #cbd5e1;
-
-    font-size: 14px;
-
-    line-height: 1.7;
-
+color: #cbd5e1;
+font-size: 14px;
+line-height: 1.7;
 }
-
-
-/* =========================================================
-   21. NOTIFICATION BUTTON
-========================================================= */
 
 .notification-button {
-
-    width: 100%;
-
-    margin-top: 25px;
-
-    min-height: 48px;
-
-    padding:
-        14px 20px;
-
-    border: none;
-
-    border-radius: 12px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
-    color: #ffffff;
-
-    font-family: "Inter", sans-serif;
-
-    font-size: 15px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition: .3s;
-
+width: 100%;
+margin-top: 25px;
+min-height: 48px;
+padding: 14px 20px;
+border: none;
+border-radius: 12px;
+background: linear-gradient(135deg, #22c55e, #16a34a);
+color: #ffffff;
+font-family: "Inter", sans-serif;
+font-size: 15px;
+font-weight: 700;
+cursor: pointer;
+transition: .3s;
 }
-
 
 .notification-button:hover {
-
-    transform:
-        translateY(-2px);
-
-    box-shadow:
-        0 10px 25px
-        rgba(34, 197, 94, .20);
-
+transform: translateY(-2px);
+box-shadow: 0 10px 25px rgba(34, 197, 94, .20);
 }
-
 
 .notification-button:active {
-
-    transform:
-        translateY(0);
-
+transform: translateY(0);
 }
 
-
 /* =========================================================
-   22. FOOTER
+16. FOOTER
 ========================================================= */
 
 footer {
-
-    padding: 30px;
-
-    text-align: center;
-
-    color: #94a3b8;
-
-    border-top:
-        1px solid
-        rgba(255, 255, 255, .08);
-
+padding: 30px;
+text-align: center;
+color: #94a3b8;
+border-top: 1px solid rgba(255, 255, 255, .08);
 }
 
-
 /* =========================================================
-   23. ACCESSIBILITY
+17. ACCESSIBILITY
 ========================================================= */
 
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-
-    outline:
-        2px solid
-        #22c55e;
-
-    outline-offset:
-        2px;
-
+outline: 2px solid #22c55e;
+outline-offset: 2px;
 }
 
-
 /* =========================================================
-   24. ANIMATIONS
+18. ANIMATIONS
 ========================================================= */
 
 @keyframes fadeIn {
 
-    from {
-
-        opacity: 0;
-
-    }
-
-    to {
-
-        opacity: 1;
-
-    }
-
+from {
+    opacity: 0;
 }
 
+to {
+    opacity: 1;
+}
+
+}
 
 @keyframes scaleIn {
 
-    from {
-
-        transform:
-            scale(.85);
-
-        opacity: 0;
-
-    }
-
-    to {
-
-        transform:
-            scale(1);
-
-        opacity: 1;
-
-    }
-
+from {
+    transform: scale(.85);
+    opacity: 0;
 }
 
+to {
+    transform: scale(1);
+    opacity: 1;
+}
+
+}
 
 @keyframes spin {
 
-    from {
+from {
+    transform: rotate(0deg);
+}
 
-        transform:
-            rotate(0deg);
-
-    }
-
-    to {
-
-        transform:
-            rotate(360deg);
-
-    }
+to {
+    transform: rotate(360deg);
+}
 
 }
 
-
 /* =========================================================
-   25. TABLET
+19. TABLET
 ========================================================= */
 
 @media (min-width: 768px) {
 
-    .profile-page {
-
-        width: 85%;
-
-    }
-
-
-    .profile-container {
-
-        padding: 40px;
-
-    }
-
-
-    .profile-header h1 {
-
-        font-size: 38px;
-
-    }
-
-
-    .profile-photo-preview {
-
-        width: 170px;
-
-        height: 170px;
-
-    }
-
+.profile-page {
+    width: 85%;
 }
 
 
+.profile-card {
+    padding: 40px;
+}
+
+
+.profile-header h1 {
+    font-size: 38px;
+}
+
+
+.profile-photo-preview {
+    width: 170px;
+    height: 170px;
+}
+
+}
+
 /* =========================================================
-   26. DESKTOP
+20. DESKTOP
 ========================================================= */
 
 @media (min-width: 1024px) {
 
-    .profile-page {
-
-        max-width: 1000px;
-
-    }
-
-
-    .profile-container {
-
-        padding: 42px;
-
-    }
-
-
-    .profile-photo-preview {
-
-        width: 180px;
-
-        height: 180px;
-
-    }
-
+.profile-page {
+    max-width: 1200px;
 }
 
 
+.profile-card {
+    max-width: 720px;
+}
+
+
+.profile-photo-preview {
+    width: 180px;
+    height: 180px;
+}
+
+}
+
 /* =========================================================
-   27. MOBILE
+21. MOBILE
 ========================================================= */
 
 @media (max-width: 600px) {
 
-    .navbar {
-
-        width: 90%;
-
-        height: 65px;
-
-    }
-
-
-    .logo {
-
-        font-size: 22px;
-
-    }
-
-
-    .nav-links {
-
-        gap: 15px;
-
-    }
-
-
-    .nav-links a {
-
-        font-size: 14px;
-
-    }
-
-
-    .profile-page {
-
-        width: 92%;
-
-        padding-top: 95px;
-
-        padding-bottom: 50px;
-
-    }
-
-
-    .profile-container {
-
-        padding: 25px 20px;
-
-        border-radius: 22px;
-
-    }
-
-
-    .profile-header h1 {
-
-        font-size: 28px;
-
-    }
-
-
-    .profile-header p {
-
-        font-size: 14px;
-
-    }
-
-
-    .profile-badge {
-
-        font-size: 13px;
-
-        padding: 7px 16px;
-
-    }
-
-
-    .form-section {
-
-        padding: 20px;
-
-        border-radius: 16px;
-
-    }
-
-
-    .section-heading h2 {
-
-        font-size: 17px;
-
-    }
-
-
-    .section-heading p {
-
-        font-size: 13px;
-
-    }
-
-
-    .profile-photo-preview {
-
-        width: 140px;
-
-        height: 140px;
-
-    }
-
-
-    input,
-    select {
-
-        min-height: 48px;
-
-    }
-
-
-    textarea {
-
-        min-height: 140px;
-
-    }
-
-
-    .continue-btn {
-
-        min-height: 52px;
-
-    }
-
-
-    .notification-card {
-
-        padding: 30px 22px;
-
-    }
-
+.navbar {
+    width: 100%;
+    height: 65px;
+    padding: 0 16px;
 }
 
 
+.logo {
+    font-size: 21px;
+    letter-spacing: -.8px;
+    white-space: nowrap;
+}
+
+
+.nav-links {
+    gap: 0;
+}
+
+
+.nav-links a {
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+
+.profile-page {
+    width: 92%;
+    padding-top: 95px;
+    padding-bottom: 50px;
+}
+
+
+.profile-card {
+    padding: 25px 20px;
+    border-radius: 22px;
+}
+
+
+.profile-header h1 {
+    font-size: 28px;
+}
+
+
+.profile-header p {
+    font-size: 14px;
+}
+
+
+.profile-badge {
+    padding: 7px 16px;
+    font-size: 13px;
+}
+
+
+.progress-container {
+    top: 80px;
+    padding: 15px;
+}
+
+
+.form-section {
+    padding: 20px;
+    border-radius: 16px;
+}
+
+
+.section-heading h2 {
+    font-size: 17px;
+}
+
+
+.section-heading p {
+    font-size: 13px;
+}
+
+
+.profile-photo-preview {
+    width: 140px;
+    height: 140px;
+}
+
+
+input,
+select {
+    min-height: 48px;
+}
+
+
+textarea {
+    min-height: 140px;
+}
+
+
+.notification-card {
+    padding: 30px 22px;
+}
+
+}
+
 /* =========================================================
-   28. SMALL MOBILE
+22. SMALL MOBILE
 ========================================================= */
 
 @media (max-width: 400px) {
 
-    .navbar {
-
-        width: 92%;
-
-    }
+.profile-card {
+    padding: 22px 16px;
+}
 
 
-    .logo {
-
-        font-size: 21px;
-
-    }
+.profile-header h1 {
+    font-size: 25px;
+}
 
 
-    .nav-links a {
-
-        font-size: 13px;
-
-    }
+.nav-links a {
+    font-size: 13px;
+}
 
 
-    .profile-page {
-
-        width: 94%;
-
-        padding-top: 88px;
-
-    }
+.progress-container {
+    top: 80px;
+}
 
 
-    .profile-container {
-
-        padding: 22px 16px;
-
-        border-radius: 18px;
-
-    }
-
-
-    .profile-header h1 {
-
-        font-size: 25px;
-
-    }
-
-
-    .profile-header p {
-
-        font-size: 13px;
-
-    }
-
-
-    .form-section {
-
-        padding: 17px;
-
-    }
-
-
-    .profile-photo-preview {
-
-        width: 125px;
-
-        height: 125px;
-
-    }
-
-
-    .notification-card {
-
-        max-width: 340px;
-
-        padding: 28px 18px;
-
-    }
+.notification-card {
+    max-width: 340px;
+}
 
 }

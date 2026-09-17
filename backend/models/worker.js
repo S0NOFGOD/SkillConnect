@@ -246,10 +246,6 @@ const workerSchema = new mongoose.Schema(
 
             trim: true,
 
-            unique: true,
-
-            sparse: true,
-
             default: null
 
         },
