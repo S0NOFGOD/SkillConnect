@@ -123,15 +123,7 @@ button {
 
     font-weight: 800;
 
-    background:
-        linear-gradient(
-            40deg,
-            #22c55e,
-            #3b82f6
-        );
-
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #16a34a;
 }
 
 

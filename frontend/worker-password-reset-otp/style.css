@@ -1,22 +1,4 @@
 /* =========================================================
-   SKILLCONNECT WORKER PASSWORD RESET OTP STYLES
-
-   This file controls:
-
-   1. Global page styling
-   2. Navigation
-   3. Password reset OTP card
-   4. OTP inputs
-   5. Verify button
-   6. Loading state
-   7. Resend OTP
-   8. Countdown
-   9. Success / Error modal
-   10. Responsive design
-========================================================= */
-
-
-/* =========================================================
    1. GLOBAL RESET
 ========================================================= */
 
@@ -169,18 +151,7 @@ header {
     letter-spacing:
         -1px;
 
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #3b82f6
-        );
-
-    -webkit-background-clip:
-        text;
-
-    -webkit-text-fill-color:
-        transparent;
+    color: #16a34a;
 
 }
 

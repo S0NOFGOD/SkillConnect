@@ -1,29 +1,4 @@
 /* =========================================================
-   SKILLCONNECT WORKER PASSWORD CHANGE STYLES
-
-   This file controls:
-
-   1. Global page styling
-   2. Fixed navigation
-   3. SkillConnect logo
-   4. Password-change page
-   5. Password-change card
-   6. Password inputs
-   7. Password visibility buttons
-   8. Password requirements
-   9. Security information
-   10. Change-password button
-   11. Loading state
-   12. Login link
-   13. Success / error modal
-   14. Responsive design
-
-   IMPORTANT:
-   There is NO password-strength bar.
-   ========================================================= */
-
-
-/* =========================================================
    1. GLOBAL RESET
 ========================================================= */
 
@@ -176,19 +151,7 @@ header {
     letter-spacing:
         -1px;
 
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #3b82f6
-        );
-
-    -webkit-background-clip:
-        text;
-
-    -webkit-text-fill-color:
-        transparent;
-
+    color: #16a34a;
 }
 
 

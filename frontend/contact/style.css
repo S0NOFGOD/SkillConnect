@@ -116,15 +116,7 @@ a{
 
     white-space:nowrap;
 
-    background:linear-gradient(
-        135deg,
-        #22c55e,
-        #3b82f6
-    );
-
-    -webkit-background-clip:text;
-
-    -webkit-text-fill-color:transparent;
+    color: #16a34a;
 
 }
 
@@ -491,15 +483,7 @@ a{
 
 .hero h1 span{
 
-    background:linear-gradient(
-        135deg,
-        #22c55e,
-        #3b82f6
-    );
-
-    -webkit-background-clip:text;
-
-    -webkit-text-fill-color:transparent;
+    color: #16a34a;
 
 }
 
@@ -884,22 +868,14 @@ a{
 
 .worker-btn{
 
-    background:linear-gradient(
-        135deg,
-        #22c55e,
-        #16a34a
-    );
+    background:#16a34a;
 
 }
 
 
 .client-btn{
 
-    background:linear-gradient(
-        135deg,
-        #3b82f6,
-        #2563eb
-    );
+    background:#2563eb;
 
 }
 

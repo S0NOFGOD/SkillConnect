@@ -160,7 +160,7 @@ a {
 
     white-space: nowrap;
 
-    background: var(--brand-gradient);
+    background: var(--worker-green-dark);
 
     -webkit-background-clip: text;
 
@@ -632,8 +632,6 @@ a {
 
     background:
         linear-gradient(
-            135deg,
-            var(--worker-green),
             var(--worker-green-dark)
         );
 
@@ -648,8 +646,6 @@ a {
 
     background:
         linear-gradient(
-            135deg,
-            var(--client-blue),
             var(--client-blue-dark)
         );
 
@@ -1085,7 +1081,7 @@ footer {
 
     .stats {
 
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
 
     }
 
