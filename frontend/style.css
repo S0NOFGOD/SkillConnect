@@ -559,11 +559,13 @@ a {
 
 .hero h1 span {
 
-    background: var(--brand-gradient);
+    color: #16a34a;
 
-    -webkit-background-clip: text;
+}
 
-    -webkit-text-fill-color: transparent;
+.hero h1 spann {
+
+    color: #2563eb;
 
 }
 
@@ -617,10 +619,6 @@ a {
 
     text-align: center;
 
-    transition:
-        transform 0.3s ease,
-        box-shadow 0.3s ease;
-
 }
 
 
@@ -644,10 +642,7 @@ a {
 
 .client-btn {
 
-    background:
-        linear-gradient(
-            var(--client-blue-dark)
-        );
+    background: #2563eb;
 
 }
 
