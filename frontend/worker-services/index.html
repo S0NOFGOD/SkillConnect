@@ -15,7 +15,7 @@
     >
 
     <title>
-        Worker Dashboard | SkillConnect
+        View Services | SkillConnect
     </title>
 
 
@@ -30,7 +30,7 @@
 
     <link
         rel="preconnect"
-        href="https://fonts.gstatic.com"
+        href="https://fonts.googleapis.com"
         crossorigin
     >
 
@@ -41,7 +41,7 @@
 
 
     <!-- =====================================================
-         DASHBOARD STYLES
+         PAGE STYLES
     ====================================================== -->
 
     <link
@@ -77,13 +77,21 @@
 
         <div class="topbar-inner">
 
+            <!-- =================================================
+                 SKILLCONNECT LOGO
+            ================================================== -->
+
             <a
-                href="index.html"
+                href="../worker-dashboard/index.html"
                 class="logo"
             >
                 SkillConnect
             </a>
 
+
+            <!-- =================================================
+                 MOBILE MENU BUTTON
+            ================================================== -->
 
             <button
                 type="button"
@@ -93,9 +101,11 @@
                 aria-controls="sidebar"
                 aria-expanded="false"
             >
+
                 <span></span>
                 <span></span>
                 <span></span>
+
             </button>
 
         </div>
@@ -119,6 +129,10 @@
 
         <div class="sidebar-header">
 
+            <!-- =================================================
+                 MOBILE CLOSE BUTTON
+            ================================================== -->
+
             <button
                 type="button"
                 id="closeMenuBtn"
@@ -137,11 +151,14 @@
 
         <nav class="sidebar-nav">
 
-            <!-- Dashboard -->
+            <!-- =================================================
+                 DASHBOARD
+            ================================================== -->
 
-            <a
-                href="index.html"
-                class="nav-link active"
+            <button
+                type="button"
+                id="dashboardBtn"
+                class="nav-link"
             >
 
                 <span
@@ -155,7 +172,7 @@
                     Dashboard
                 </span>
 
-            </a>
+            </button>
 
 
             <!-- =================================================
@@ -165,14 +182,14 @@
             <button
                 type="button"
                 id="viewServicesBtn"
-                class="nav-link verify-profile-link"
+                class="nav-link active"
             >
 
                 <span
-                class="nav-icon"
-                aria-hidden="true">
-                
-                🛠️
+                    class="nav-icon"
+                    aria-hidden="true"
+                >
+                    🛠️
                 </span>
 
                 <span>
@@ -208,13 +225,15 @@
         </nav>
 
 
-        <!-- =====================================================
+        <!-- =================================================
              SIDEBAR FOOTER
-        ====================================================== -->
+        ================================================== -->
 
         <div class="sidebar-footer">
 
-            <!-- Logout -->
+            <!-- =================================================
+                 LOGOUT
+            ================================================== -->
 
             <button
                 type="button"
@@ -252,16 +271,16 @@
 
 
     <!-- =====================================================
-         MAIN DASHBOARD
+         MAIN SERVICES PAGE
     ====================================================== -->
 
     <main
         class="dashboard"
-        id="dashboardContent"
+        id="servicesPage"
     >
 
         <!-- =================================================
-             DASHBOARD HEADER
+             PAGE HEADER
         ================================================== -->
 
         <section class="dashboard-header">
@@ -269,103 +288,33 @@
             <div>
 
                 <h1>
-                    Welcome,
-                    <span id="workerFirstName">
-                        Worker
-                    </span>
+                    My Services
                 </h1>
+
+                <p class="page-description">
+                    Manage the services you offer to clients.
+                </p>
 
             </div>
 
 
             <!-- =================================================
-                 PROFILE VERIFICATION BUTTON
+                 ADD A SERVICE BUTTON
             ================================================== -->
 
             <button
                 type="button"
-                id="verificationActionBtn"
-                class="verification-action-btn"
+                id="addServiceBtn"
+                class="add-service-btn"
             >
-                Verify Profile
+                Add A Service
             </button>
 
         </section>
 
 
         <!-- =====================================================
-             PERSONAL INFORMATION
-        ====================================================== -->
-
-        <section class="dashboard-section">
-
-            <div class="profile-photo-card">
-
-                <div class="profile-photo-wrapper">
-
-                    <img
-                        id="profilePhoto"
-                        class="profile-photo"
-                        src=""
-                        alt="Worker profile photo"
-                        hidden
-                    >
-
-                    <div
-                        id="profilePhotoPlaceholder"
-                        class="profile-photo-placeholder"
-                        aria-hidden="true"
-                    >
-                        👤
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="section-heading">
-
-                <h2>
-                    Personal Information
-                </h2>
-
-            </div>
-
-
-            <div class="information-grid">
-
-                <div class="information-card">
-
-                    <span class="information-label">
-                        Full Name
-                    </span>
-
-                    <strong id="fullName">
-                        —
-                    </strong>
-
-                </div>
-
-
-                <div class="information-card">
-
-                    <span class="information-label">
-                        Phone Number
-                    </span>
-
-                    <strong id="phoneNumber">
-                        —
-                    </strong>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =====================================================
-             LOCATION INFORMATION
+             SERVICES SECTION
         ====================================================== -->
 
         <section class="dashboard-section">
@@ -373,111 +322,77 @@
             <div class="section-heading">
 
                 <h2>
-                    Location
+                    Your Services
                 </h2>
 
             </div>
 
 
-            <div class="information-grid">
+            <!-- =================================================
+                 SERVICES LOADING STATE
 
-                <div class="information-card">
+                 This is displayed while the frontend is
+                 waiting for the backend services request.
+            ================================================== -->
 
-                    <span class="information-label">
-                        Country
-                    </span>
+            <div
+                id="servicesLoading"
+                class="services-loading"
+                hidden
+            >
 
-                    <strong id="country">
-                        —
-                    </strong>
+                <div
+                    class="loading-spinner"
+                    aria-hidden="true"
+                ></div>
 
-                </div>
-
-
-                <div class="information-card">
-
-                    <span class="information-label">
-                        State
-                    </span>
-
-                    <strong id="state">
-                        —
-                    </strong>
-
-                </div>
-
-
-                <div class="information-card">
-
-                    <span class="information-label">
-                        City
-                    </span>
-
-                    <strong id="city">
-                        —
-                    </strong>
-
-                </div>
-
-
-                <div class="information-card">
-
-                    <span class="information-label">
-                        LGA
-                    </span>
-
-                    <strong id="lga">
-                        —
-                    </strong>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =====================================================
-             PROFESSIONAL INFORMATION
-        ====================================================== -->
-
-        <section class="dashboard-section">
-
-            <div class="section-heading">
-
-                <h2>
-                    Professional Information
-                </h2>
+                <p>
+                    Loading your services...
+                </p>
 
             </div>
 
 
-            <div class="information-grid">
+            <!-- =================================================
+                 SERVICES CONTAINER
 
-                <div class="information-card">
+                 Service cards will be inserted here
+                 dynamically by script.js.
+            ================================================== -->
 
-                    <span class="information-label">
-                        Total Skills
-                    </span>
+            <div
+                id="servicesContainer"
+                class="services-container"
+            ></div>
 
-                    <strong id="totalSkills">
-                        —
-                    </strong>
 
+            <!-- =================================================
+                 EMPTY SERVICES MESSAGE
+
+                 This is displayed when the backend returns
+                 services as null or no services.
+            ================================================== -->
+
+            <div
+                id="servicesEmpty"
+                class="services-empty"
+                hidden
+            >
+
+                <div
+                    class="empty-icon"
+                    aria-hidden="true"
+                >
+                    🛠️
                 </div>
 
+                <h3>
+                    No Services Yet
+                </h3>
 
-                <div class="information-card">
-
-                    <span class="information-label">
-                        Verification
-                    </span>
-
-                    <strong id="phoneVerification">
-                        —
-                    </strong>
-
-                </div>
+                <p>
+                    Your services will be shown here
+                </p>
 
             </div>
 
@@ -489,9 +404,18 @@
     <!-- =====================================================
          NOTIFICATION MODAL
 
-         All dashboard errors, confirmations,
-         success messages and authentication
-         messages will use this modal.
+         Used for:
+         - Authentication errors
+         - Backend errors
+         - Connection errors
+         - Logout confirmation
+         - Logout success
+         - Redirect messages
+
+         The user must manually close error messages.
+
+         Redirects happen only after the user closes
+         the modal.
     ====================================================== -->
 
     <div
@@ -580,7 +504,7 @@
 
 
     <!-- =====================================================
-         DASHBOARD JAVASCRIPT
+         VIEW SERVICES JAVASCRIPT
     ====================================================== -->
 
     <script

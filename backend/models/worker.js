@@ -5,6 +5,7 @@
 const mongoose = require("mongoose");
 
 
+
 /* =========================================================
    2. CREATE WORKER SCHEMA
 ========================================================= */
@@ -194,7 +195,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           14. PHONE VERIFICATION EXPIRATION
+           13. PHONE VERIFICATION EXPIRATION
         ================================================= */
 
         phoneVerificationExpires: {
@@ -207,7 +208,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           15. FULL NAME
+           14. FULL NAME
         ================================================= */
 
         fullName: {
@@ -222,7 +223,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           16. PROFILE PHOTO
+           15. PROFILE PHOTO
         ================================================= */
 
         profilePhoto: {
@@ -237,7 +238,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           17. PHONE NUMBER
+           16. PHONE NUMBER
         ================================================= */
 
         phone: {
@@ -252,7 +253,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           18. COUNTRY
+           17. COUNTRY
         ================================================= */
 
         country: {
@@ -267,7 +268,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           19. STATE
+           18. STATE
         ================================================= */
 
         state: {
@@ -284,7 +285,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           20. CITY
+           19. CITY
         ================================================= */
 
         city: {
@@ -301,7 +302,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           21. LOCAL GOVERNMENT AREA
+           20. LOCAL GOVERNMENT AREA
         ================================================= */
 
         lga: {
@@ -318,7 +319,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           22. SKILLS
+           21. SKILLS
         ================================================= */
 
         skills: {
@@ -341,7 +342,94 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           23. EXPERIENCE
+           22. WORKER SERVICES
+        ================================================= */
+           
+
+        services: {
+
+            type: [
+
+                {
+
+                    id: {
+
+                        type: Number,
+
+                        required: true
+
+                    },
+
+                    skill: {
+
+                        type: String,
+
+                        trim: true,
+
+                        required: true
+
+                    },
+
+
+                    experience: {
+
+                        type: String,
+
+                        trim: true,
+
+                        default: null
+
+                    },
+
+
+                    description: {
+
+                        type: String,
+
+                        trim: true,
+
+                        default: null
+
+                    },
+
+
+                    portfolios: {
+
+                        type: [
+
+                            {
+
+                                type: String,
+
+                                trim: true
+
+                            }
+
+                        ],
+
+                        default: []
+
+                    },
+
+                    date: {
+
+                        type: Date,
+
+                        default: Date.now
+
+                    }
+
+                }
+
+            ],
+
+            default: null
+
+        },
+
+
+        /* =================================================
+           23. WORKER EXPERIENCE
         ================================================= */
 
         experience: {
@@ -386,7 +474,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           28. PROFILE COMPLETION
+           26. PROFILE COMPLETION
         ================================================= */
 
         profileCompleted: {
@@ -401,7 +489,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           29. REFRESH TOKEN HASH
+           27. REFRESH TOKEN HASH
         ================================================= */
 
         refreshTokenHash: {
@@ -416,7 +504,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           30. GOOGLE EXCHANGE CODE
+           28. GOOGLE EXCHANGE CODE
         ================================================= */
 
         googleExchangeCode: {
@@ -431,7 +519,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           31. GOOGLE EXCHANGE CODE EXPIRATION
+           29. GOOGLE EXCHANGE CODE EXPIRATION
         ================================================= */
 
         googleExchangeCodeExpires: {
@@ -446,7 +534,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           32. PASSWORD RESET OTP
+           30. PASSWORD RESET OTP
         ================================================= */
 
         passwordResetOtp: {
@@ -461,7 +549,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           33. PASSWORD RESET OTP EXPIRATION
+           31. PASSWORD RESET OTP EXPIRATION
         ================================================= */
 
         passwordResetOtpExpires: {
@@ -476,7 +564,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           34. PASSWORD RESET VERIFICATION
+           32. PASSWORD RESET VERIFICATION
         ================================================= */
 
         passwordResetVerified: {
@@ -489,7 +577,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           35. PASSWORD RESET VERIFIED AT
+           33. PASSWORD RESET VERIFIED AT
         ================================================= */
 
         passwordResetVerifiedAt: {
@@ -502,7 +590,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           36. PASSWORD RESET AUTHORIZATION
+           34. PASSWORD RESET AUTHORIZATION
         ================================================= */
 
         resetAuthorization: {
@@ -517,7 +605,7 @@ const workerSchema = new mongoose.Schema(
 
 
         /* =================================================
-           37. PASSWORD RESET AUTHORIZATION EXPIRATION
+           35. PASSWORD RESET AUTHORIZATION EXPIRATION
         ================================================= */
 
         resetAuthorizationExpires: {
@@ -534,7 +622,7 @@ const workerSchema = new mongoose.Schema(
 
 
     /* =================================================
-       38. SCHEMA OPTIONS
+       36. SCHEMA OPTIONS
     ================================================= */
 
     {
@@ -546,8 +634,9 @@ const workerSchema = new mongoose.Schema(
 );
 
 
+
 /* =========================================================
-   41. EXPORT MODEL
+   37. EXPORT MODEL
 ========================================================= */
 
 const Worker =
