@@ -1022,6 +1022,8 @@ a {
 
         align-self: center;
 
+        margin-bottom: 1px;
+
     }
 
 
@@ -1043,6 +1045,8 @@ a {
         margin-right: auto;
 
         text-align: center;
+
+        margin-top: 1px;
 
     }
 
