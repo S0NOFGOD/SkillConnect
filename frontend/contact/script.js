@@ -24,11 +24,6 @@ const API_URL = "http://localhost:5000";
    WAIT FOR THE HTML DOCUMENT TO LOAD
 ========================================================= */
 
-/*
-    DOMContentLoaded makes sure the HTML elements exist
-    before JavaScript tries to access them.
-*/
-
 document.addEventListener("DOMContentLoaded", () => {
 
 
@@ -87,6 +82,301 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
 
     }
+
+
+    /* =====================================================
+       MOBILE SIDEBAR
+    ===================================================== */
+
+    /*
+        Get the hamburger button.
+    */
+
+    const menuToggle =
+        document.getElementById(
+            "menuToggle"
+        );
+
+
+    /*
+        Get the mobile sidebar.
+    */
+
+    const mobileSidebar =
+        document.getElementById(
+            "mobileSidebar"
+        );
+
+
+    /*
+        Get the sidebar overlay.
+    */
+
+    const sidebarOverlay =
+        document.getElementById(
+            "sidebarOverlay"
+        );
+
+
+    /*
+        Get the sidebar close button.
+    */
+
+    const sidebarClose =
+        document.getElementById(
+            "sidebarClose"
+        );
+
+
+    /*
+        Get the mobile sidebar links.
+    */
+
+    const sidebarLinks =
+        document.querySelectorAll(
+            ".sidebar-links a"
+        );
+
+
+    /* =====================================================
+       OPEN MOBILE SIDEBAR
+    ===================================================== */
+
+    function openSidebar() {
+
+        /*
+            Add the open class to the sidebar.
+        */
+
+        mobileSidebar.classList.add(
+            "open"
+        );
+
+
+        /*
+            Show the dark overlay.
+        */
+
+        sidebarOverlay.classList.add(
+            "show"
+        );
+
+
+        /*
+            Update accessibility state.
+        */
+
+        menuToggle.setAttribute(
+            "aria-expanded",
+            "true"
+        );
+
+
+        menuToggle.setAttribute(
+            "aria-label",
+            "Close navigation menu"
+        );
+
+
+        /*
+            Prevent the page behind the sidebar
+            from scrolling.
+        */
+
+        document.body.style.overflow =
+            "hidden";
+
+    }
+
+
+    /* =====================================================
+       CLOSE MOBILE SIDEBAR
+    ===================================================== */
+
+    function closeSidebar() {
+
+        /*
+            Remove the open class.
+        */
+
+        mobileSidebar.classList.remove(
+            "open"
+        );
+
+
+        /*
+            Hide the overlay.
+        */
+
+        sidebarOverlay.classList.remove(
+            "show"
+        );
+
+
+        /*
+            Update accessibility state.
+        */
+
+        menuToggle.setAttribute(
+            "aria-expanded",
+            "false"
+        );
+
+
+        menuToggle.setAttribute(
+            "aria-label",
+            "Open navigation menu"
+        );
+
+
+        /*
+            Restore page scrolling.
+        */
+
+        document.body.style.overflow =
+            "";
+
+    }
+
+
+    /* =====================================================
+       HAMBURGER BUTTON
+    ===================================================== */
+
+    if (menuToggle) {
+
+        menuToggle.addEventListener(
+            "click",
+            () => {
+
+                /*
+                    Check whether the sidebar
+                    is currently open.
+                */
+
+                const isOpen =
+                    mobileSidebar.classList.contains(
+                        "open"
+                    );
+
+
+                /*
+                    Toggle the sidebar state.
+                */
+
+                if (isOpen) {
+
+                    closeSidebar();
+
+                } else {
+
+                    openSidebar();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       SIDEBAR CLOSE BUTTON
+    ===================================================== */
+
+    if (sidebarClose) {
+
+        sidebarClose.addEventListener(
+            "click",
+            closeSidebar
+        );
+
+    }
+
+
+    /* =====================================================
+       SIDEBAR OVERLAY
+    ===================================================== */
+
+    if (sidebarOverlay) {
+
+        sidebarOverlay.addEventListener(
+            "click",
+            closeSidebar
+        );
+
+    }
+
+
+    /* =====================================================
+       MOBILE SIDEBAR LINKS
+    ===================================================== */
+
+    if (sidebarLinks.length > 0) {
+
+        sidebarLinks.forEach((link) => {
+
+            link.addEventListener(
+                "click",
+                () => {
+
+                    /*
+                        Close the sidebar before
+                        following the selected link.
+                    */
+
+                    closeSidebar();
+
+
+                    /*
+                        Update the active state.
+                    */
+
+                    sidebarLinks.forEach((item) => {
+
+                        item.classList.remove(
+                            "active"
+                        );
+
+                    });
+
+
+                    link.classList.add(
+                        "active"
+                    );
+
+                }
+            );
+
+        });
+
+    }
+
+
+    /* =====================================================
+       ESCAPE KEY
+    ===================================================== */
+
+    document.addEventListener(
+        "keydown",
+        (event) => {
+
+            /*
+                Allow the user to close the
+                mobile sidebar with Escape.
+            */
+
+            if (
+                event.key === "Escape" &&
+                mobileSidebar.classList.contains("open")
+            ) {
+
+                closeSidebar();
+
+            }
+
+        }
+    );
 
 
     /* =====================================================
@@ -198,7 +488,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 formMessage.textContent =
                     "Please fill in all fields.";
 
-                formMessage.classList.add("error");
+                formMessage.classList.add(
+                    "error"
+                );
 
                 return;
 
@@ -220,7 +512,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 formMessage.textContent =
                     "Please enter a message of at least 10 characters.";
 
-                formMessage.classList.add("error");
+                formMessage.classList.add(
+                    "error"
+                );
 
                 return;
 

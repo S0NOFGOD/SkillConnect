@@ -19,7 +19,7 @@
 
     <!-- Browser page title -->
     <title>
-        Client Email Verification | SkillConnect
+        Worker Phone Verification | SkillConnect
     </title>
 
 
@@ -68,38 +68,33 @@
 
         <nav class="navbar">
 
-
-            <!-- =================================================
-                 SKILLCONNECT LOGO
-
-                 IMPORTANT:
-                 The logo uses exactly 50% green
-                 and 50% blue.
-            ================================================== -->
-
             <a
-                href="../index.html"
-                class="logo">
+                href="../worker-dashboard/index.html"
+                class="navbar-brand"
+                aria-label="Back to Worker Dashboard">
 
-                SkillConnect
+
+                <!-- Back arrow -->
+
+                <span
+                    class="back-arrow"
+                    aria-hidden="true">
+
+                    ←
+
+                </span>
+
+
+                <!-- SkillConnect name -->
+
+                <span class="back">
+
+                    Back
+
+                </span>
+
 
             </a>
-
-
-            <!-- =================================================
-                 NAVIGATION LINKS
-            ================================================== -->
-
-            <div class="nav-links">
-
-                <a href="../index.html">
-
-                    Home
-
-                </a>
-
-            </div>
-
 
         </nav>
 
@@ -115,7 +110,7 @@
 
 
         <!-- =================================================
-             EMAIL OTP SECTION
+             PHONE OTP SECTION
         ================================================== -->
 
         <section class="otp-section">
@@ -135,23 +130,26 @@
                 <div class="otp-header">
 
 
-                    <!-- Client verification badge -->
+                    <!-- Verification badge -->
+
                     <span class="otp-badge">
 
-                        Email Verification
+                        Phone Verification
 
                     </span>
 
 
                     <!-- Main heading -->
+
                     <h1>
 
-                        Verify Your Email
+                        Verify Your Phone
 
                     </h1>
 
 
                     <!-- Verification explanation -->
+
                     <p>
 
                         Enter the 6-digit verification
@@ -160,21 +158,13 @@
                     </p>
 
 
-                    <!-- =================================================
-                         CLIENT EMAIL
-
-                         script.js will replace:
-
-                         "Loading email..."
-
-                         with the client's email.
-                    ================================================== -->
+                    <!-- Worker phone number -->
 
                     <p
-                        id="clientEmail"
-                        class="client-email">
+                        id="workerPhone"
+                        class="worker-phone">
 
-                        Loading email...
+                        Loading phone number...
 
                     </p>
 
@@ -269,17 +259,8 @@
                     </div>
 
 
-
                     <!-- =================================================
-                         VERIFY EMAIL BUTTON
-
-                         script.js will:
-
-                         1. Validate the OTP
-                         2. Disable this button
-                         3. Show loading state
-                         4. Send OTP to backend
-                         5. Show success/error modal
+                         VERIFY BUTTON
                     ================================================== -->
 
                     <button
@@ -287,15 +268,11 @@
                         type="submit"
                         class="submit-btn">
 
-
-                        <!-- Button text changes while loading -->
-
                         <span class="btn-text">
 
-                            Verify Email
+                            Verify Phone
 
                         </span>
-
 
                     </button>
 
@@ -348,9 +325,7 @@
     <!-- =====================================================
          SUCCESS / ERROR NOTIFICATION MODAL
 
-         IMPORTANT:
-
-         All authentication responses must use this modal.
+         Authentication responses MUST use this modal.
 
          JavaScript dynamically changes:
 
@@ -378,12 +353,6 @@
 
             <!-- =================================================
                  NOTIFICATION ICON
-
-                 JavaScript displays:
-
-                 ✓ = success
-
-                 ! = error
             ================================================== -->
 
             <div
@@ -399,7 +368,7 @@
 
             <h2 id="notificationTitle">
 
-                Email Verified
+                Phone Verified
 
             </h2>
 
@@ -408,9 +377,23 @@
 
             <p id="notificationMessage">
 
-                Your email has been successfully verified.
+                Your phone number has been successfully verified.
 
             </p>
+
+
+            <!-- =================================================
+                 NOTIFICATION CLOSE / CONTINUE BUTTON
+            ================================================== -->
+
+            <button
+                id="notificationCloseButton"
+                type="button"
+                class="notification-close-button">
+
+                Continue
+
+            </button>
 
 
         </div>
@@ -437,12 +420,10 @@
 
     <!-- =====================================================
          PAGE JAVASCRIPT
-
-         Authentication logic is contained inside:
-
-         client-email-otp/script.js
     ====================================================== -->
+
     <script src="../config.js"></script>
+
     <script src="script.js"></script>
 
 

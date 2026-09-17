@@ -1,17 +1,28 @@
 /* =========================================================
+   SKILLCONNECT
+   CONTROLLER — WORKER AUTHENTICATION
+========================================================= */
+
+
+/* =========================================================
    1. IMPORT DEPENDENCIES
 ========================================================= */
 
 const bcrypt =
-    require("bcryptjs");
+    require("bcrypt");
 
 const Worker =
     require("../models/worker");
 
 const {
-    sendOTP
+    generateOTPData
 } =
     require("../utils/generateOtp");
+
+const {
+    sendOTPEmail
+} =
+    require("../utils/sendEmailOtp");
 
 const {
     generateTokens
@@ -19,358 +30,164 @@ const {
     require("../utils/generateTokens");
 
 
-
 /* =========================================================
-   2. CREATE WORKER ACCOUNT
+   2. SIGN UP WORKER
 ========================================================= */
 
-const signupWorker = async (
-    req,
-    res
-) => {
+const signupWorker =
+    async (req, res) => {
 
-    try {
+        try {
 
-        const {
-            email,
-            password
-        } = req.body;
-
-
-        /* -------------------------------------------------
-           Validate required fields
-        ------------------------------------------------- */
-
-        if (
-            !email ||
-            !password
-        ) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Email and password are required."
-
-            });
-
-        }
+            const {
+                email,
+                password
+            } =
+                req.body;
 
 
-        /* -------------------------------------------------
-           Validate password length
-        ------------------------------------------------- */
+            /* -------------------------------------------------
+               VALIDATION
+            ------------------------------------------------- */
 
-        if (
-            password.length < 8
-        ) {
+            if (
+                !email ||
+                !password
+            ) {
 
-            return res.status(400).json({
+                return res.status(400).json({
 
-                success: false,
+                    success:
+                        false,
 
-                message:
-                    "Password must be at least 8 characters."
+                    message:
+                        "Email and password are required."
 
-            });
+                });
 
-        }
-
-
-        /* -------------------------------------------------
-           Normalize email
-        ------------------------------------------------- */
-
-        const normalizedEmail =
-            email
-                .trim()
-                .toLowerCase();
+            }
 
 
-        /* -------------------------------------------------
-           Check whether worker already exists
-        ------------------------------------------------- */
+            if (
+                password.length < 8
+            ) {
 
-        const existingWorker =
-            await Worker.findOne({
-                email: normalizedEmail
-            });
+                return res.status(400).json({
 
+                    success:
+                        false,
 
-        if (existingWorker) {
+                    message:
+                        "Password must be at least 8 characters."
 
-            return res.status(409).json({
+                });
 
-                success: false,
-
-                message:
-                    "An account with this email already exists."
-
-            });
-
-        }
+            }
 
 
-        /* -------------------------------------------------
-           Hash password
-        ------------------------------------------------- */
-
-        const passwordHash =
-            await bcrypt.hash(
-                password,
-                12
-            );
+            const normalizedEmail =
+                email
+                    .trim()
+                    .toLowerCase();
 
 
-        /* -------------------------------------------------
-           Create worker
-        ------------------------------------------------- */
+            /* -------------------------------------------------
+               CHECK EXISTING WORKER
+            ------------------------------------------------- */
 
-        const worker =
-            await Worker.create({
+            const existingWorker =
+                await Worker.findOne({
 
-                email:
-                    normalizedEmail,
+                    email:
+                        normalizedEmail
 
-                passwordHash:
+                });
+
+
+            if (existingWorker) {
+
+                return res.status(400).json({
+
+                    success:
+                        false,
+
+                    message:
+                        "An account with this email already exists."
+
+                });
+
+            }
+
+
+            /* -------------------------------------------------
+               HASH PASSWORD
+            ------------------------------------------------- */
+
+            const passwordHash =
+                await bcrypt.hash(
+                    password,
+                    10
+                );
+
+
+            /* -------------------------------------------------
+               CREATE WORKER
+            ------------------------------------------------- */
+
+            const worker =
+                await Worker.create({
+
+                    email:
+                        normalizedEmail,
+
                     passwordHash,
 
-                authenticationMethod:
-                    "password",
+                    authenticationMethod:
+                        "password",
 
-                accountStatus:
-                    "active",
+                    accountStatus:
+                        "active",
 
-                isEmailVerified:
-                    false,
+                    isEmailVerified:
+                        false,
 
-                profileCompleted:
-                    false
+                    profileCompleted:
+                        false
 
-            });
+                });
 
 
-        /* -------------------------------------------------
-           Generate and send email OTP
-        ------------------------------------------------- */
+            /* =================================================
+               GENERATE EMAIL VERIFICATION OTP
+            ================================================= */
 
-        await sendOTP({
+            const {
+                otp,
+                expiresAt
+            } =
+                generateOTPData();
 
-            workerId:
-                worker._id,
 
-            type:
-                "email-verification"
+            worker.emailOtp =
+                otp;
 
-        });
+            worker.emailOtpExpires =
+                expiresAt;
 
 
-        /* -------------------------------------------------
-           Send response
-        ------------------------------------------------- */
+            await worker.save();
 
-        return res.status(201).json({
 
-            success: true,
+            /* =================================================
+               SEND EMAIL VERIFICATION OTP
+            ================================================= */
 
-            message:
-                "Account created successfully. A verification code has been sent to your email.",
+            await sendOTPEmail({
 
-            email:
-                worker.email,
+                email:
+                    worker.email,
 
-            nextStep:
-                "email-verification"
-
-        });
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Worker signup error:",
-            error
-        );
-
-        return res.status(500).json({
-
-            success: false,
-
-            message:
-                "Unable to create your account. Please try again."
-
-        });
-
-    }
-
-};
-
-
-
-/* =========================================================
-   3. WORKER LOGIN
-========================================================= */
-
-const loginWorker = async (
-    req,
-    res
-) => {
-
-    try {
-
-        const {
-            email,
-            password
-        } = req.body;
-
-
-        /* -------------------------------------------------
-           Validate required fields
-        ------------------------------------------------- */
-
-        if (
-            !email ||
-            !password
-        ) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Email and password are required."
-
-            });
-
-        }
-
-
-        /* -------------------------------------------------
-           Normalize email
-        ------------------------------------------------- */
-
-        const normalizedEmail =
-            email
-                .trim()
-                .toLowerCase();
-
-
-        /* -------------------------------------------------
-           Find worker
-           
-           passwordHash is select:false in the model,
-           so explicitly include it.
-        ------------------------------------------------- */
-
-        const worker =
-            await Worker
-                .findOne({
-                    email: normalizedEmail
-                })
-                .select("+passwordHash");
-
-
-        /* -------------------------------------------------
-           Generic authentication error
-           
-           Do not reveal whether the email exists.
-        ------------------------------------------------- */
-
-        if (!worker) {
-
-            return res.status(401).json({
-
-                success: false,
-
-                message:
-                    "Invalid email or password."
-
-            });
-
-        }
-
-
-        /* -------------------------------------------------
-           Check authentication method
-        ------------------------------------------------- */
-
-        if (
-            worker.authenticationMethod ===
-            "google"
-        ) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "This account was created with Google. Please continue with Google."
-
-            });
-
-        }
-
-
-        /* -------------------------------------------------
-           Check password
-        ------------------------------------------------- */
-
-        const passwordMatches =
-            await bcrypt.compare(
-                password,
-                worker.passwordHash
-            );
-
-
-        if (!passwordMatches) {
-
-            return res.status(401).json({
-
-                success: false,
-
-                message:
-                    "Invalid email or password."
-
-            });
-
-        }
-
-
-        /* -------------------------------------------------
-           Check account status
-        ------------------------------------------------- */
-
-        if (
-            worker.accountStatus ===
-            "suspended"
-        ) {
-
-            return res.status(403).json({
-
-                success: false,
-
-                message:
-                    "Your account has been suspended. Please contact SkillConnect support."
-
-            });
-
-        }
-
-
-        /* -------------------------------------------------
-           Check email verification
-        ------------------------------------------------- */
-
-        if (
-            !worker.isEmailVerified
-        ) {
-
-            await sendOTP({
-
-                workerId:
-                    worker._id,
+                otp,
 
                 type:
                     "email-verification"
@@ -378,12 +195,17 @@ const loginWorker = async (
             });
 
 
-            return res.status(200).json({
+            /* -------------------------------------------------
+               RESPONSE
+            ------------------------------------------------- */
 
-                success: true,
+            return res.status(201).json({
+
+                success:
+                    true,
 
                 message:
-                    "Your email is not verified. A new verification code has been sent to your email.",
+                    "Worker account created successfully. A verification code has been sent to your email.",
 
                 email:
                     worker.email,
@@ -395,294 +217,564 @@ const loginWorker = async (
 
         }
 
+        catch (error) {
 
-        /* -------------------------------------------------
-           Check profile completion
-        ------------------------------------------------- */
+            console.error(
+                "Worker signup error:",
+                error
+            );
 
-        if (
-            !worker.profileCompleted
-        ) {
 
-            return res.status(200).json({
+            return res.status(500).json({
 
-                success: true,
+                success:
+                    false,
 
                 message:
-                    "Please complete your worker profile.",
-
-                email:
-                    worker.email,
-
-                nextStep:
-                    "profile"
+                    "An error occurred while creating your worker account."
 
             });
 
         }
 
-
-        /* -------------------------------------------------
-           Generate access and refresh tokens
-           
-           generateTokens() also hashes the refresh
-           token and saves refreshTokenHash in MongoDB.
-        ------------------------------------------------- */
-
-        const {
-            accessToken,
-            refreshToken
-        } =
-            await generateTokens({
-
-                userId:
-                    worker._id.toString(),
-
-                userType:
-                    "worker"
-
-            });
+    };
 
 
-        /* -------------------------------------------------
-           Set HTTP-only refresh token cookie
-        ------------------------------------------------- */
+/* =========================================================
+   3. LOGIN WORKER
+========================================================= */
 
-        res.cookie(
+const loginWorker =
+    async (req, res) => {
 
-            "refreshToken",
+        try {
 
-            refreshToken,
+            const {
+                email,
+                password
+            } =
+                req.body;
 
-            {
 
-                httpOnly: true,
+            /* -------------------------------------------------
+               VALIDATION
+            ------------------------------------------------- */
 
-                secure:
-                    process.env.NODE_ENV ===
-                    "production",
+            if (
+                !email ||
+                !password
+            ) {
 
-                sameSite:
-                    process.env.NODE_ENV ===
-                    "production"
-                        ? "none"
-                        : "lax",
+                return res.status(400).json({
 
-                maxAge:
-                    7 * 24 * 60 * 60 * 1000,
+                    success:
+                        false,
 
-                path:
-                    "/"
+                    message:
+                        "Email and password are required."
+
+                });
 
             }
 
-        );
+
+            const normalizedEmail =
+                email
+                    .trim()
+                    .toLowerCase();
 
 
-        /* -------------------------------------------------
-           Send authenticated response
-        ------------------------------------------------- */
+            /* -------------------------------------------------
+               FIND WORKER
+            ------------------------------------------------- */
 
-        return res.status(200).json({
+            const worker =
+                await Worker.findOne({
 
-            success: true,
+                    email:
+                        normalizedEmail
 
-            message:
-                "Login successful.",
+                })
+                .select(
+                    "+passwordHash"
+                );
 
-            accessToken,
 
-            email:
-                worker.email,
+            if (!worker) {
 
-            nextStep:
-                "authenticated"
+                return res.status(401).json({
 
-        });
+                    success:
+                        false,
 
-    }
+                    message:
+                        "Invalid email or password."
 
-    catch (error) {
+                });
 
-        console.error(
-            "Worker login error:",
-            error
-        );
+            }
 
-        return res.status(500).json({
 
-            success: false,
+            /* -------------------------------------------------
+               CHECK AUTHENTICATION METHOD
+            ------------------------------------------------- */
 
-            message:
-                "Unable to log you in. Please try again."
+            if (
+                worker.authenticationMethod ===
+                "google"
+            ) {
 
-        });
+                return res.status(400).json({
 
-    }
+                    success:
+                        false,
 
-};
+                    message:
+                        "This account uses Google authentication. Please continue with Google."
 
+                });
+
+            }
+
+
+            /* -------------------------------------------------
+               COMPARE PASSWORD
+            ------------------------------------------------- */
+
+            const passwordMatch =
+                await bcrypt.compare(
+
+                    password,
+
+                    worker.passwordHash
+
+                );
+
+
+            if (!passwordMatch) {
+
+                return res.status(401).json({
+
+                    success:
+                        false,
+
+                    message:
+                        "Invalid email or password."
+
+                });
+
+            }
+
+
+            /* -------------------------------------------------
+               CHECK ACCOUNT STATUS
+            ------------------------------------------------- */
+
+            if (
+                worker.accountStatus ===
+                "suspended"
+            ) {
+
+                return res.status(403).json({
+
+                    success:
+                        false,
+
+                    message:
+                        "Your account has been suspended."
+
+                });
+
+            }
+
+
+            /* =================================================
+               EMAIL VERIFICATION
+            ================================================= */
+
+            if (
+                !worker.isEmailVerified
+            ) {
+
+                const {
+                    otp,
+                    expiresAt
+                } =
+                    generateOTPData();
+
+
+                worker.emailOtp =
+                    otp;
+
+                worker.emailOtpExpires =
+                    expiresAt;
+
+
+                await worker.save();
+
+
+                await sendOTPEmail({
+
+                    email:
+                        worker.email,
+
+                    otp,
+
+                    type:
+                        "email-verification"
+
+                });
+
+
+                return res.status(200).json({
+
+                    success:
+                        true,
+
+                    message:
+                        "Your email is not verified. A new verification code has been sent to your email.",
+
+                    email:
+                        worker.email,
+
+                    nextStep:
+                        "email-verification"
+
+                });
+
+            }
+
+
+            /* =================================================
+               PROFILE COMPLETION
+            ================================================= */
+
+            if (
+                !worker.profileCompleted
+            ) {
+
+                return res.status(200).json({
+
+                    success:
+                        true,
+
+                    message:
+                        "Please complete your worker profile.",
+
+                    email:
+                        worker.email,
+
+                    nextStep:
+                        "profile"
+
+                });
+
+            }
+
+
+            /* =================================================
+               GENERATE TOKENS
+            ================================================= */
+
+            const {
+                accessToken,
+                refreshToken
+            } =
+                await generateTokens({
+
+                    userId:
+                        worker._id,
+
+                    userType:
+                        "worker"
+
+                });
+
+
+            /* =================================================
+               SET REFRESH TOKEN COOKIE
+            ================================================= */
+
+            res.cookie(
+
+                "refreshToken",
+
+                refreshToken,
+
+                {
+
+                    httpOnly:
+                        true,
+
+                    secure:
+                        process.env.NODE_ENV ===
+                        "production",
+
+                    sameSite:
+                        process.env.NODE_ENV ===
+                        "production"
+                            ? "none"
+                            : "lax",
+
+                    maxAge:
+                        7 *
+                        24 *
+                        60 *
+                        60 *
+                        1000,
+
+                    path:
+                        "/"
+
+                }
+
+            );
+
+
+            /* -------------------------------------------------
+               RESPONSE
+            ------------------------------------------------- */
+
+            return res.status(200).json({
+
+                success:
+                    true,
+
+                message:
+                    "Login successful.",
+
+                accessToken,
+
+                email:
+                    worker.email,
+
+                nextStep:
+                    "authenticated"
+
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Worker login error:",
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success:
+                    false,
+
+                message:
+                    "An error occurred while logging in."
+
+            });
+
+        }
+
+    };
 
 
 /* =========================================================
    4. FORGOT PASSWORD
 ========================================================= */
 
-const forgotPassword = async (
-    req,
-    res
-) => {
+const forgotPassword =
+    async (req, res) => {
 
-    try {
+        try {
 
-        const {
-            email
-        } = req.body;
-
-
-        /* -------------------------------------------------
-           Validate email
-        ------------------------------------------------- */
-
-        if (!email) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Email is required."
-
-            });
-
-        }
+            const {
+                email
+            } =
+                req.body;
 
 
-        /* -------------------------------------------------
-           Normalize email
-        ------------------------------------------------- */
+            /* -------------------------------------------------
+               VALIDATION
+            ------------------------------------------------- */
 
-        const normalizedEmail =
-            email
-                .trim()
-                .toLowerCase();
+            if (!email) {
+
+                return res.status(400).json({
+
+                    success:
+                        false,
+
+                    message:
+                        "Email is required."
+
+                });
+
+            }
 
 
-        /* -------------------------------------------------
-           Find worker
-        ------------------------------------------------- */
+            const normalizedEmail =
+                email
+                    .trim()
+                    .toLowerCase();
 
-        const worker =
-            await Worker.findOne({
+
+            /* -------------------------------------------------
+               FIND WORKER
+            ------------------------------------------------- */
+
+            const worker =
+                await Worker.findOne({
+
+                    email:
+                        normalizedEmail
+
+                });
+
+
+            /* -------------------------------------------------
+               ACCOUNT NOT FOUND
+            ------------------------------------------------- */
+
+            if (!worker) {
+
+                return res.status(200).json({
+
+                    success:
+                        true,
+
+                    emailExists:
+                        false,
+
+                    message:
+                        "If an account exists with this email, password reset instructions will be sent."
+
+                });
+
+            }
+
+
+            /* -------------------------------------------------
+               GOOGLE AUTHENTICATION
+            ------------------------------------------------- */
+
+            if (
+                worker.authenticationMethod ===
+                "google"
+            ) {
+
+                return res.status(200).json({
+
+                    success:
+                        true,
+
+                    emailExists:
+                        true,
+
+                    message:
+                        "This account uses Google authentication. Please continue with Google."
+
+                });
+
+            }
+
+
+            /* =================================================
+               GENERATE PASSWORD RESET OTP
+            ================================================= */
+
+            const {
+                otp,
+                expiresAt
+            } =
+                generateOTPData();
+
+
+            worker.passwordResetOtp =
+                otp;
+
+            worker.passwordResetOtpExpires =
+                expiresAt;
+
+            worker.passwordResetVerified =
+                false;
+
+            worker.passwordResetVerifiedAt =
+                null;
+
+            worker.resetAuthorization =
+                null;
+
+            worker.resetAuthorizationExpires =
+                null;
+
+
+            await worker.save();
+
+
+            /* =================================================
+               SEND PASSWORD RESET OTP
+            ================================================= */
+
+            await sendOTPEmail({
 
                 email:
-                    normalizedEmail
+                    worker.email,
+
+                otp,
+
+                type:
+                    "password-reset"
 
             });
 
 
-        /* -------------------------------------------------
-           Do not reveal whether account exists
-        ------------------------------------------------- */
-
-        if (!worker) {
+            /* -------------------------------------------------
+               RESPONSE
+            ------------------------------------------------- */
 
             return res.status(200).json({
 
-                success: true,
+                success:
+                    true,
 
-                emailExists: false,
+                emailExists:
+                    true,
+
+                email:
+                    worker.email,
 
                 message:
-                    "If an account with this email exists, you will receive a password reset code."
+                    "A password reset verification code has been sent to your email."
 
             });
 
         }
 
+        catch (error) {
 
-        /* -------------------------------------------------
-           Google-only account
-        ------------------------------------------------- */
+            console.error(
+                "Worker forgot password error:",
+                error
+            );
 
-        if (
-            worker.authenticationMethod ===
-            "google"
-        ) {
 
-            return res.status(200).json({
+            return res.status(500).json({
 
-                success: true,
-
-                emailExists: true,
+                success:
+                    false,
 
                 message:
-                    "This account uses Google authentication. Please continue with Google."
+                    "An error occurred while processing your password reset request."
 
             });
 
         }
 
-
-        /* -------------------------------------------------
-           Generate and send password reset OTP
-        ------------------------------------------------- */
-
-        await sendOTP({
-
-            workerId:
-                worker._id,
-
-            type:
-                "password-reset"
-
-        });
-
-
-        /* -------------------------------------------------
-           Send response
-        ------------------------------------------------- */
-
-        return res.status(200).json({
-
-            success: true,
-
-            emailExists: true,
-
-            email:
-                worker.email,
-
-            message:
-                "A password reset code has been sent to your email."
-
-        });
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Worker forgot password error:",
-            error
-        );
-
-        return res.status(500).json({
-
-            success: false,
-
-            message:
-                "Unable to process your password reset request. Please try again."
-
-        });
-
-    }
-
-};
-
+    };
 
 
 /* =========================================================
-   5. EXPORT CONTROLLERS
+   5. EXPORT
 ========================================================= */
 
 module.exports = {

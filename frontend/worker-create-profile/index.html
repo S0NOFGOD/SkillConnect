@@ -3,51 +3,56 @@
 
 <head>
 
-    <!-- =====================================================
-         BASIC DOCUMENT CONFIGURATION
-    ====================================================== -->
+<!-- =====================================================
+     META INFORMATION
+====================================================== -->
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <title>
-        Complete Worker Profile | SkillConnect
-    </title>
+<meta
+    name="description"
+    content="Complete your SkillConnect worker profile."
+>
 
-
-    <!-- =====================================================
-         GOOGLE FONT
-    ====================================================== -->
-
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
-
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
+<title>
+    Complete Worker Profile | SkillConnect
+</title>
 
 
-    <!-- =====================================================
-         PAGE STYLESHEET
-    ====================================================== -->
+<!-- =====================================================
+     GOOGLE FONTS
+====================================================== -->
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
+<link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+>
+
+<link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+>
+
+
+<!-- =====================================================
+     PAGE STYLESHEET
+====================================================== -->
+
+<link
+    rel="stylesheet"
+    href="style.css"
+>
 
 </head>
 
@@ -55,50 +60,59 @@
 <body>
 
 
-<!-- =========================================================
-     HEADER
-========================================================= -->
+<!-- =====================================================
+     HEADER / NAVIGATION
+====================================================== -->
 
 <header>
 
     <nav class="navbar">
 
-        <!-- SkillConnect logo -->
+
+        <!-- =================================================
+             SKILLCONNECT LOGO
+        ================================================== -->
 
         <a
             href="../index.html"
             class="logo"
         >
-
             SkillConnect
-
         </a>
 
 
-        <!-- Home link -->
+        <!-- =================================================
+             NAVIGATION LINKS
+        ================================================== -->
 
-        <a
-            href="../index.html"
-            class="back-link"
-        >
+        <div class="nav-links">
 
-            Home
+            <a href="../index.html">
+                Home
+            </a>
 
-        </a>
+        </div>
 
     </nav>
 
 </header>
 
 
-
-<!-- =========================================================
+<!-- =====================================================
      MAIN PROFILE PAGE
-========================================================= -->
 
-<main class="profile-page">
+     The "protected-page" class allows JavaScript/CSS to
+     keep the profile content hidden until the worker
+     session has been confirmed.
+====================================================== -->
 
-    <section class="profile-card">
+<main
+    class="profile-page protected-page"
+    id="profilePage"
+    hidden
+>
+
+    <section class="profile-container">
 
 
         <!-- =================================================
@@ -107,65 +121,53 @@
 
         <div class="profile-header">
 
-            <div class="profile-icon">
-
-                👷
-
-            </div>
+            <span class="profile-badge">
+                Worker Profile
+            </span>
 
 
             <h1>
-
-                Complete Your Worker Profile
-
+                Complete Your Profile
             </h1>
 
 
             <p>
-
-                Add your information so clients can discover
-                and trust your services.
-
+                Tell clients about yourself and the services
+                you offer.
             </p>
 
         </div>
-
 
 
         <!-- =================================================
              PROFILE COMPLETION
         ================================================== -->
 
-        <div class="completion-card">
+        <div class="progress-container">
 
-            <div>
+            <div class="progress-info">
 
-                <h3>
+                <span>
+                    Profile completion
+                </span>
 
-                    Profile Completion
-
-                </h3>
-
-
-                <p>
-
-                    Complete all required fields to continue.
-
-                </p>
+                <span id="progressPercentage">
+                    0%
+                </span>
 
             </div>
 
 
-            <!-- JavaScript updates this percentage -->
+            <div class="progress-bar">
 
-            <strong id="completionPercent">
+                <div
+                    class="progress-fill"
+                    id="progressFill"
+                ></div>
 
-                0%
-
-            </strong>
+            </div>
 
         </div>
-
 
 
         <!-- =================================================
@@ -173,524 +175,276 @@
         ================================================== -->
 
         <form
-            id="profileForm"
-            enctype="multipart/form-data"
+            id="workerProfileForm"
+            class="profile-form"
             novalidate
         >
 
 
-            <!-- =================================================
-                 PERSONAL INFORMATION
-            ================================================== -->
+            <!-- =============================================
+                 PROFILE PHOTO
+            ============================================== -->
 
-            <div class="form-card">
+            <div class="form-section">
 
-                <h2>
+                <div class="section-heading">
 
-                    Personal Information
+                    <h2>
+                        Profile Photo
+                    </h2>
 
-                </h2>
+                    <p>
+                        Upload a clear photo that clients can
+                        use to recognize you.
+                    </p>
 
-
-                <p class="section-text">
-
-                    Tell clients who you are.
-
-                </p>
-
-
-
-                <!-- =================================================
-                     PROFILE PHOTO
-                ================================================== -->
-
-                <label for="profilePhoto">
-
-                    Profile Photo *
-
-                </label>
+                </div>
 
 
-                <div class="upload-box">
+                <!-- =========================================
+                     PROFILE PHOTO PREVIEW
+                ========================================== -->
+
+                <div class="profile-photo-container">
+
+                    <div
+                        class="profile-photo-preview"
+                        id="profilePhotoPreview"
+                    >
+
+                        <span
+                            id="profilePhotoPlaceholder"
+                        >
+                            Add Photo
+                        </span>
+
+                        <img
+                            id="profilePhotoImage"
+                            src=""
+                            alt="Profile photo preview"
+                            hidden
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     PROFILE PHOTO INPUT
+                ========================================== -->
+
+                <div class="form-group">
+
+                    <label for="profilePhoto">
+                        Profile Photo
+                    </label>
 
                     <input
                         type="file"
                         id="profilePhoto"
-                        name="profilePicture"
-                        accept="image/png,image/jpeg,image/webp"
+                        name="profilePhoto"
+                        accept="image/jpeg,image/png,image/webp"
                         required
                     >
 
+                    <small>
+                        JPG, PNG, or WebP. Maximum file size:
+                        5 MB.
+                    </small>
 
-                    <label
-                        for="profilePhoto"
-                        class="upload-area"
-                    >
+                </div>
 
-                        <div
-                            id="profilePreview"
-                            class="preview"
-                        >
-
-                            📷
-
-                            <h3>
-
-                                Upload Photo
-
-                            </h3>
+            </div>
 
 
-                            <p>
+            <!-- =============================================
+                 PERSONAL INFORMATION
+            ============================================== -->
 
-                                PNG, JPG or WEBP
+            <div class="form-section">
 
-                            </p>
+                <div class="section-heading">
 
-                        </div>
+                    <h2>
+                        Personal Information
+                    </h2>
 
+                    <p>
+                        Basic information clients will see.
+                    </p>
+
+                </div>
+
+
+                <!-- =========================================
+                     FULL NAME
+                ========================================== -->
+
+                <div class="form-group">
+
+                    <label for="fullName">
+                        Full Name
                     </label>
 
+                    <input
+                        type="text"
+                        id="fullName"
+                        name="fullName"
+                        placeholder="Enter your full name"
+                        autocomplete="name"
+                        required
+                    >
+
                 </div>
 
 
-
-                <!-- =================================================
-                     FULL NAME
-                ================================================== -->
-
-                <label for="fullName">
-
-                    Full Name *
-
-                </label>
-
-
-                <input
-                    type="text"
-                    id="fullName"
-                    name="fullName"
-                    placeholder="Enter your full name"
-                    autocomplete="name"
-                    required
-                >
-
-
-
-                <!-- =================================================
-                     PHONE NUMBER
-                ================================================== -->
-
-                <label for="phone">
-
-                    Phone Number *
-
-                </label>
-
-
-                <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    placeholder="08012345678"
-                    autocomplete="tel"
-                    inputmode="tel"
-                    maxlength="14"
-                    required
-                >
-
-            </div>
-
-
-
-            <!-- =================================================
-                 PROFESSIONAL INFORMATION
-            ================================================== -->
-
-            <div class="form-card">
-
-                <h2>
-
-                    Professional Information
-
-                </h2>
-
-
-                <p class="section-text">
-
-                    Tell clients about your skills.
-
-                </p>
-
-
-
-                <!-- =================================================
-                     PRIMARY SKILL
-                ================================================== -->
-
-                <label for="primarySkill">
-
-                    Primary Skill *
-
-                </label>
-
-
-                <select
-                    id="primarySkill"
-                    name="primarySkill"
-                    required
-                >
-
-                    <option value="">
-
-                        Select skill
-
-                    </option>
-
-                </select>
-
-
-
-                <!-- =================================================
-                     YEARS OF EXPERIENCE
-                ================================================== -->
-
-                <label for="experience">
-
-                    Years of Experience *
-
-                </label>
-
-
-                <select
-                    id="experience"
-                    name="experience"
-                    required
-                >
-
-                    <option value="">
-
-                        Select experience
-
-                    </option>
-
-                </select>
-
-
-
-                <!-- =================================================
-                     STARTING PRICE
-                ================================================== -->
-
-                <label for="price">
-
-                    Starting Price *
-
-                </label>
-
-
-                <select
-                    id="price"
-                    name="startingPrice"
-                    required
-                >
-
-                    <option value="">
-
-                        Select price
-
-                    </option>
-
-                </select>
-
-            </div>
-
-
-
-            <!-- =================================================
-                 LOCATION INFORMATION
-            ================================================== -->
-
-            <div class="form-card">
-
-                <h2>
-
-                    Location Information
-
-                </h2>
-
-
-                <p class="section-text">
-
-                    Help nearby clients find you.
-
-                </p>
-
-
-
-                <!-- =================================================
-                     NIGERIAN STATE
-                ================================================== -->
-
-                <label for="state">
-
-                    State *
-
-                </label>
-
-
-                <select
-                    id="state"
-                    name="state"
-                    required
-                >
-
-                    <option value="">
-
-                        Select state
-
-                    </option>
-
-                </select>
-
-
-
-                <!-- =================================================
-                     NIGERIAN CITY
-                ================================================== -->
-
-                <label for="city">
-
-                    City *
-
-                </label>
-
-
-                <select
-                    id="city"
-                    name="city"
-                    required
-                    disabled
-                >
-
-                    <option value="">
-
-                        Select state first
-
-                    </option>
-
-                </select>
-
-
-
-                <!-- =================================================
-                     FINAL LOCATION VALUE
-                     
-                     JavaScript automatically creates:
-
-                     State, City
-
-                     Example:
-
-                     Oyo, Ogbomoso
-                ================================================== -->
-
-                <input
-                    type="hidden"
-                    id="location"
-                    name="location"
-                >
-
-            </div>
-
-
-
-            <!-- =================================================
-                 SERVICE DESCRIPTION
-            ================================================== -->
-
-            <div class="form-card">
-
-                <h2>
-
-                    About Your Service
-
-                </h2>
-
-
-                <p class="section-text">
-
-                    Describe your experience and services.
-
-                </p>
-
-
-                <textarea
-                    id="bio"
-                    name="description"
-                    maxlength="1500"
-                    placeholder="Describe your experience and services..."
-                    required
-                ></textarea>
-
-
-                <div class="counter">
-
-                    <span id="wordCounter">
-
-                        0
-
-                    </span>
-
-                    /150 words
+                <!-- =========================================
+                     PHONE
+                ========================================== -->
+
+                <div class="form-group">
+
+                    <label for="phone">
+                        Phone Number
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        placeholder="Enter your phone number"
+                        autocomplete="tel"
+                        required
+                    >
 
                 </div>
 
             </div>
 
 
+            <!-- =============================================
+                 LOCATION
+            ============================================== -->
 
-            <!-- =================================================
-                 PORTFOLIO
-            ================================================== -->
+            <div class="form-section">
 
-            <div class="form-card">
+                <div class="section-heading">
 
-                <h2>
+                    <h2>
+                        Location
+                    </h2>
 
-                    Portfolio
+                    <p>
+                        Select where you provide your services.
+                    </p>
 
-                </h2>
-
-
-                <p class="section-text">
-
-                    Upload exactly 3 examples of your
-                    previous work.
-
-                </p>
+                </div>
 
 
+                <!-- =========================================
+                     COUNTRY
+                ========================================== -->
 
-                <div class="portfolio">
+                <div class="form-group">
 
+                    <label for="country">
+                        Country
+                    </label>
 
-                    <!-- =================================================
-                         PORTFOLIO IMAGE 1
-                    ================================================== -->
+                    <select
+                        id="country"
+                        name="country"
+                        required
+                    >
 
-                    <div class="portfolio-item">
+                        <option value="">
+                            Select country
+                        </option>
 
-                        <input
-                            type="file"
-                            id="portfolio1"
-                            name="portfolioImages"
-                            accept="image/png,image/jpeg,image/webp"
-                            required
-                        >
+                    </select>
 
-
-                        <label for="portfolio1">
-
-                            <div
-                                id="portfolioPreview1"
-                                class="portfolio-preview"
-                            >
-
-                                🖼️
-
-                                <span>
-
-                                    Portfolio 1
-
-                                </span>
-
-                            </div>
-
-                        </label>
-
-                    </div>
+                </div>
 
 
+                <!-- =========================================
+                     STATE
+                ========================================== -->
 
-                    <!-- =================================================
-                         PORTFOLIO IMAGE 2
-                    ================================================== -->
+                <div class="form-group">
 
-                    <div class="portfolio-item">
+                    <label for="state">
+                        State
+                    </label>
 
-                        <input
-                            type="file"
-                            id="portfolio2"
-                            name="portfolioImages"
-                            accept="image/png,image/jpeg,image/webp"
-                            required
-                        >
+                    <select
+                        id="state"
+                        name="state"
+                        required
+                        disabled
+                    >
 
+                        <option value="">
+                            Select state
+                        </option>
 
-                        <label for="portfolio2">
+                    </select>
 
-                            <div
-                                id="portfolioPreview2"
-                                class="portfolio-preview"
-                            >
-
-                                🖼️
-
-                                <span>
-
-                                    Portfolio 2
-
-                                </span>
-
-                            </div>
-
-                        </label>
-
-                    </div>
+                </div>
 
 
+                <!-- =========================================
+                     CITY
+                ========================================== -->
 
-                    <!-- =================================================
-                         PORTFOLIO IMAGE 3
-                    ================================================== -->
+                <div class="form-group">
 
-                    <div class="portfolio-item">
+                    <label for="city">
+                        City
+                    </label>
 
-                        <input
-                            type="file"
-                            id="portfolio3"
-                            name="portfolioImages"
-                            accept="image/png,image/jpeg,image/webp"
-                            required
-                        >
+                    <select
+                        id="city"
+                        name="city"
+                        required
+                        disabled
+                    >
+
+                        <option value="">
+                            Select city
+                        </option>
+
+                    </select>
+
+                </div>
 
 
-                        <label for="portfolio3">
+                <!-- =========================================
+                     LOCAL GOVERNMENT AREA
+                ========================================== -->
 
-                            <div
-                                id="portfolioPreview3"
-                                class="portfolio-preview"
-                            >
+                <div class="form-group">
 
-                                🖼️
+                    <label for="lga">
+                        Local Government Area
+                    </label>
 
-                                <span>
+                    <select
+                        id="lga"
+                        name="lga"
+                        required
+                        disabled
+                    >
 
-                                    Portfolio 3
+                        <option value="">
+                            Select LGA
+                        </option>
 
-                                </span>
-
-                            </div>
-
-                        </label>
-
-                    </div>
+                    </select>
 
                 </div>
 
             </div>
-
 
 
             <!-- =================================================
@@ -700,13 +454,19 @@
             <button
                 type="submit"
                 id="continueBtn"
-                class="submit-btn"
+                class="continue-btn"
             >
 
-                Continue To Dashboard
+                <span class="button-text">
+                    Complete Profile
+                </span>
+
+                <span
+                    class="button-loader"
+                    aria-hidden="true"
+                ></span>
 
             </button>
-
 
         </form>
 
@@ -715,89 +475,77 @@
 </main>
 
 
+<!-- =====================================================
+     SUCCESS / ERROR NOTIFICATION MODAL
 
-<!-- =========================================================
-     FOOTER
-========================================================= -->
+     Authentication errors, validation errors, backend
+     errors, and successful profile completion messages
+     are displayed through this modal.
 
-<footer>
-
-    <p>
-
-        © 2026 SkillConnect. All rights reserved.
-
-    </p>
-
-</footer>
-
-
-
-<!-- =========================================================
-     NOTIFICATION MODAL
-
-     IMPORTANT:
-
-     ALL SUCCESS, ERROR AND REDIRECT RESPONSES
-     ARE DISPLAYED THROUGH THIS MODAL.
-========================================================= -->
+     The user must manually close the modal before any
+     callback such as a redirect is executed.
+====================================================== -->
 
 <div
+    class="notification-overlay"
     id="notificationOverlay"
-    class="notification-modal"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="notificationTitle"
-    aria-describedby="notificationText"
     hidden
 >
 
-    <div class="notification-card">
+    <div
+        class="notification-card"
+        id="notificationCard"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="notificationTitle"
+        aria-describedby="notificationText"
+    >
 
 
         <!-- =================================================
-             MODAL ICON
+             NOTIFICATION ICON
         ================================================== -->
 
         <div
-            id="notificationIcon"
             class="notification-icon"
-            aria-hidden="true"
+            id="notificationIcon"
         >
-
-            ✓
-
+            !
         </div>
 
 
         <!-- =================================================
-             MODAL TITLE
+             NOTIFICATION TITLE
         ================================================== -->
 
         <h2 id="notificationTitle">
-
+            Notification
         </h2>
 
 
         <!-- =================================================
-             MODAL MESSAGE
+             NOTIFICATION MESSAGE
         ================================================== -->
 
         <p id="notificationText">
-
+            Something happened.
         </p>
 
 
         <!-- =================================================
-             MODAL BUTTON
+             NOTIFICATION BUTTON
+
+             The user must click this button to close the
+             modal. Redirect callbacks execute only after
+             the user closes the modal.
         ================================================== -->
 
         <button
             type="button"
             id="notificationButton"
+            class="notification-button"
         >
-
             Continue
-
         </button>
 
     </div>
@@ -805,11 +553,37 @@
 </div>
 
 
+<!-- =====================================================
+     FOOTER
+====================================================== -->
 
-<!-- =========================================================
-     PAGE JAVASCRIPT
-========================================================= -->
+<footer>
+
+    <p>
+        © 2026 SkillConnect. All rights reserved.
+    </p>
+
+</footer>
+
+
+<!-- =====================================================
+     JAVASCRIPT CONFIGURATION
+====================================================== -->
+
 <script src="../config.js"></script>
+
+
+<!-- =====================================================
+     NIGERIAN LOCATION DATA
+====================================================== -->
+
+<script src="nigeria-location.js"></script>
+
+
+<!-- =====================================================
+     PAGE JAVASCRIPT
+====================================================== -->
+
 <script src="script.js"></script>
 
 

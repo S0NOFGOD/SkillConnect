@@ -1,2688 +1,1056 @@
 /* =========================================================
-   NIGERIAN STATES AND CITIES
+   SKILLCONNECT WORKER CREATE PROFILE
+   FRONTEND PROFILE COMPLETION LOGIC
 ========================================================= */
-
-const nigeriaLocations = {
-
-    "Abia": [
-        "Aba",
-        "Arochukwu",
-        "Ohafia",
-        "Umuahia"
-    ],
-
-    "Adamawa": [
-        "Jimeta",
-        "Mubi",
-        "Numan",
-        "Yola"
-    ],
-
-    "Akwa Ibom": [
-        "Eket",
-        "Ikot Ekpene",
-        "Oron",
-        "Uyo"
-    ],
-
-    "Anambra": [
-        "Awka",
-        "Nnewi",
-        "Onitsha",
-        "Ekwulobia"
-    ],
-
-    "Bauchi": [
-        "Bauchi",
-        "Azare",
-        "Jama'are",
-        "Misau"
-    ],
-
-    "Bayelsa": [
-        "Brass",
-        "Ogbia",
-        "Sagbama",
-        "Yenagoa"
-    ],
-
-    "Benue": [
-        "Gboko",
-        "Makurdi",
-        "Otukpo",
-        "Katsina-Ala"
-    ],
-
-    "Borno": [
-        "Bama",
-        "Biu",
-        "Dikwa",
-        "Maiduguri"
-    ],
-
-    "Cross River": [
-        "Calabar",
-        "Ikom",
-        "Ogoja",
-        "Ugep"
-    ],
-
-    "Delta": [
-        "Asaba",
-        "Agbor",
-        "Sapele",
-        "Warri"
-    ],
-
-    "Ebonyi": [
-        "Abakaliki",
-        "Afikpo",
-        "Onueke",
-        "Ezza"
-    ],
-
-    "Edo": [
-        "Auchi",
-        "Benin City",
-        "Ekpoma",
-        "Uromi"
-    ],
-
-    "Ekiti": [
-        "Ado-Ekiti",
-        "Ikere",
-        "Ijero",
-        "Ilawe"
-    ],
-
-    "Enugu": [
-        "Enugu",
-        "Nsukka",
-        "Oji River",
-        "Udi"
-    ],
-
-    "Gombe": [
-        "Gombe",
-        "Kaltungo",
-        "Kumo",
-        "Billiri"
-    ],
-
-    "Imo": [
-        "Owerri",
-        "Orlu",
-        "Okigwe",
-        "Mbaise"
-    ],
-
-    "Jigawa": [
-        "Dutse",
-        "Hadejia",
-        "Gumel",
-        "Kazaure"
-    ],
-
-    "Kaduna": [
-        "Kaduna",
-        "Zaria",
-        "Kafanchan",
-        "Kajuru"
-    ],
-
-    "Kano": [
-        "Kano",
-        "Wudil",
-        "Gaya",
-        "Rano"
-    ],
-
-    "Katsina": [
-        "Katsina",
-        "Daura",
-        "Funtua",
-        "Malumfashi"
-    ],
-
-    "Kebbi": [
-        "Birnin Kebbi",
-        "Argungu",
-        "Yauri",
-        "Zuru"
-    ],
-
-    "Kogi": [
-        "Lokoja",
-        "Idah",
-        "Okene",
-        "Kabba"
-    ],
-
-    "Kwara": [
-        "Ilorin",
-        "Offa",
-        "Lafiagi",
-        "Pategi"
-    ],
-
-    "Lagos": [
-        "Ikeja",
-        "Lagos Island",
-        "Lekki",
-        "Epe",
-        "Ikorodu",
-        "Badagry"
-    ],
-
-    "Nasarawa": [
-        "Lafia",
-        "Keffi",
-        "Akwanga",
-        "Karu"
-    ],
-
-    "Niger": [
-        "Minna",
-        "Bida",
-        "Kontagora",
-        "Suleja"
-    ],
-
-    "Ogun": [
-        "Abeokuta",
-        "Ijebu-Ode",
-        "Sagamu",
-        "Ota"
-    ],
-
-    "Ondo": [
-        "Akure",
-        "Ondo",
-        "Owo",
-        "Ikare"
-    ],
-
-    "Osun": [
-        "Osogbo",
-        "Ile-Ife",
-        "Ilesa",
-        "Ede"
-    ],
-
-    "Oyo": [
-        "Ibadan",
-        "Ogbomoso",
-        "Oyo",
-        "Iseyin",
-        "Eruwa"
-    ],
-
-    "Plateau": [
-        "Jos",
-        "Barkin Ladi",
-        "Pankshin",
-        "Shendam"
-    ],
-
-    "Rivers": [
-        "Port Harcourt",
-        "Bonny",
-        "Eleme",
-        "Obio-Akpor"
-    ],
-
-    "Sokoto": [
-        "Sokoto",
-        "Wurno",
-        "Tambuwal",
-        "Gwadabawa"
-    ],
-
-    "Taraba": [
-        "Jalingo",
-        "Bali",
-        "Wukari",
-        "Gembu"
-    ],
-
-    "Yobe": [
-        "Damaturu",
-        "Gashua",
-        "Potiskum",
-        "Nguru"
-    ],
-
-    "Zamfara": [
-        "Gusau",
-        "Kaura Namoda",
-        "Talata Mafara",
-        "Anka"
-    ],
-
-    "Federal Capital Territory": [
-        "Abuja",
-        "Gwagwalada",
-        "Kuje",
-        "Bwari",
-        "Kwali"
-    ]
-
-};
 
 
 /* =========================================================
-   SKILLS
+   1. WAIT FOR PAGE TO LOAD
 ========================================================= */
 
-const skills = [
-
-    "Electrician",
-    "Plumber",
-    "Carpenter",
-    "Painter",
-    "Welder",
-    "Bricklayer",
-    "Tiler",
-    "Mechanic",
-    "Generator Repair",
-    "Phone Repair",
-    "Computer Repair",
-    "AC Technician",
-    "Refrigerator Repair",
-    "Tailor",
-    "Barber",
-    "Hair Stylist",
-    "Makeup Artist",
-    "Caterer",
-    "Cleaner",
-    "Gardener",
-    "Furniture Maker",
-    "Interior Designer",
-    "Photographer",
-    "Graphic Designer",
-    "Web Developer",
-    "Tutor",
-    "Event Planner",
-    "Other"
+document.addEventListener("DOMContentLoaded", () => {
 
-];
+    /* =====================================================
+       2. GET REQUIRED HTML ELEMENTS
+    ===================================================== */
 
+    const profilePage =
+        document.getElementById("profilePage");
 
-/* =========================================================
-   EXPERIENCE OPTIONS
-========================================================= */
+    const form =
+        document.getElementById("workerProfileForm");
 
-const experienceOptions = [
+    const fullNameInput =
+        document.getElementById("fullName");
 
-    "Less than 1 year",
-    "1 year",
-    "2 years",
-    "3 years",
-    "4 years",
-    "5 years",
-    "6 years",
-    "7 years",
-    "8 years",
-    "9 years",
-    "10+ years"
+    const phoneInput =
+        document.getElementById("phone");
 
-];
+    const profilePhotoInput =
+        document.getElementById("profilePhoto");
 
+    const profilePhotoPreview =
+        document.getElementById("profilePhotoPreview");
 
-/* =========================================================
-   STARTING PRICE OPTIONS
-========================================================= */
+    const profilePhotoPlaceholder =
+        document.getElementById("profilePhotoPlaceholder");
 
-const priceOptions = [
+    const profilePhotoImage =
+        document.getElementById("profilePhotoImage");
 
-    "₦1,000",
-    "₦2,000",
-    "₦3,000",
-    "₦4,000",
-    "₦5,000",
-    "₦6,000",
-    "₦7,000",
-    "₦8,000",
-    "₦9,000",
-    "₦10,000+"
+    const countrySelect =
+        document.getElementById("country");
 
-];
+    const stateSelect =
+        document.getElementById("state");
 
+    const citySelect =
+        document.getElementById("city");
 
-/* =========================================================
-   DOM ELEMENTS
-========================================================= */
+    const lgaSelect =
+        document.getElementById("lga");
 
-/*
-    Personal information.
-*/
+    const continueBtn =
+        document.getElementById("continueBtn");
 
-const profileForm =
-    document.getElementById("profileForm");
+    const buttonText =
+        continueBtn.querySelector(".button-text");
 
-const profilePhoto =
-    document.getElementById("profilePhoto");
+    const notificationOverlay =
+        document.getElementById("notificationOverlay");
 
-const profilePreview =
-    document.getElementById("profilePreview");
+    const notificationCard =
+        document.getElementById("notificationCard");
 
-const fullName =
-    document.getElementById("fullName");
+    const notificationIcon =
+        document.getElementById("notificationIcon");
 
-const phone =
-    document.getElementById("phone");
+    const notificationTitle =
+        document.getElementById("notificationTitle");
 
+    const notificationText =
+        document.getElementById("notificationText");
 
-/*
-    Professional information.
-*/
+    const notificationButton =
+        document.getElementById("notificationButton");
 
-const primarySkill =
-    document.getElementById("primarySkill");
 
-const experience =
-    document.getElementById("experience");
-
-const price =
-    document.getElementById("price");
-
-
-/*
-    Location information.
-
-    IMPORTANT:
-
-    These names MUST match index.html.
-*/
-
-const state =
-    document.getElementById("state");
-
-const city =
-    document.getElementById("city");
-
-const locationInput =
-    document.getElementById("location");
-
-
-/*
-    Service description.
-*/
-
-const bio =
-    document.getElementById("bio");
-
-const wordCounter =
-    document.getElementById("wordCounter");
-
-
-/*
-    Profile completion.
-*/
-
-const completionPercent =
-    document.getElementById(
-        "completionPercent"
-    );
-
-
-/*
-    Submit button.
-*/
-
-const continueBtn =
-    document.getElementById(
-        "continueBtn"
-    );
-
-
-/*
-    Notification modal.
-*/
-
-const notificationOverlay =
-    document.getElementById(
-        "notificationOverlay"
-    );
-
-const notificationCard =
-    document.querySelector(
-        ".notification-card"
-    );
-
-const notificationIcon =
-    document.getElementById(
-        "notificationIcon"
-    );
-
-const notificationTitle =
-    document.getElementById(
-        "notificationTitle"
-    );
-
-const notificationText =
-    document.getElementById(
-        "notificationText"
-    );
-
-const notificationButton =
-    document.getElementById(
-        "notificationButton"
-    );
-
-
-
-    /* =========================================================
-   IMAGE UPLOAD LIMIT
-========================================================= */
-
-/*
-    Maximum allowed image size.
-
-    5 MB = 5 × 1024 × 1024 bytes.
-*/
-
-const MAX_IMAGE_SIZE =
-    5 * 1024 * 1024;
-
-
-/*
-    Convert bytes into MB for
-    displaying a friendly message.
-*/
-
-function formatFileSize(bytes) {
-
-    return (
-        bytes /
-        (1024 * 1024)
-    ).toFixed(2);
-
-}
-
-
-/* =========================================================
-   INITIALIZE PAGE
-========================================================= */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-        /*
-            Verify that the worker has
-            a valid temporary session.
-        */
-
-        checkWorkerSession();
-
-
-        /*
-            Populate professional dropdowns.
-        */
-
-        populateSkills();
-
-        populateExperience();
-
-        populatePrices();
-
-
-        /*
-            Populate Nigerian states.
-        */
-
-        populateStates();
-
-
-        /*
-            Start profile completion.
-        */
-
-        updateCompletion();
-
-
-        /*
-            Start word counter.
-        */
-
-        updateWordCounter();
-
-    }
-);
-
-
-/* =========================================================
-   CHECK WORKER SESSION
-========================================================= */
-
-/*
-    During authentication, the worker email
-    is stored in sessionStorage.
-
-    Example:
-
-    sessionStorage.setItem(
-        "workerEmail",
-        email
-    );
-*/
-
-function checkWorkerSession() {
+    /* =====================================================
+       3. CHECK WORKER EMAIL SESSION
+    ===================================================== */
 
     const workerEmail =
-        sessionStorage.getItem(
-            "workerEmail"
-        );
+        sessionStorage.getItem("workerEmail");
 
 
-    /*
-        No worker email means there is
-        no active profile-creation session.
-    */
+    /* =====================================================
+       4. SHOW AUTHENTICATION ERROR
+    ===================================================== */
 
     if (!workerEmail) {
 
         showModal(
-
             "error",
-
-            "Session Required",
-
+            "Authentication Required",
             "Your worker session could not be found. Please sign in again.",
-
-            "Return to Login",
-
-            function () {
+            "Go to Login",
+            () => {
 
                 window.location.href =
                     "../worker-authentication/index.html";
 
             }
-
         );
 
-        return false;
-
-    }
-
-
-    return true;
-
-}
-
-
-/* =========================================================
-   POPULATE SKILLS
-========================================================= */
-
-function populateSkills() {
-
-    if (!primarySkill) {
         return;
     }
 
 
-    skills.forEach(
-        function (skill) {
+    /* =====================================================
+       5. SHOW PROFILE PAGE
+    ===================================================== */
 
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                skill;
-
-            option.textContent =
-                skill;
-
-            primarySkill.appendChild(
-                option
-            );
-
-        }
-    );
-
-}
+    profilePage.hidden = false;
 
 
-/* =========================================================
-   POPULATE EXPERIENCE
-========================================================= */
+    /* =====================================================
+       6. POPULATE COUNTRY
+    ===================================================== */
 
-function populateExperience() {
-
-    if (!experience) {
-        return;
-    }
-
-
-    experienceOptions.forEach(
-        function (item) {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                item;
-
-            option.textContent =
-                item;
-
-            experience.appendChild(
-                option
-            );
-
-        }
-    );
-
-}
+    countrySelect.innerHTML = `
+        <option value="">Select country</option>
+        <option value="Nigeria">Nigeria</option>
+    `;
 
 
-/* =========================================================
-   POPULATE STARTING PRICES
-========================================================= */
+    /* =====================================================
+       7. PROFILE PHOTO SELECTION
+    ===================================================== */
 
-function populatePrices() {
-
-    if (!price) {
-        return;
-    }
-
-
-    priceOptions.forEach(
-        function (item) {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                item;
-
-            option.textContent =
-                item;
-
-            price.appendChild(
-                option
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   POPULATE NIGERIAN STATES
-========================================================= */
-
-function populateStates() {
-
-    if (!state) {
-        return;
-    }
-
-
-    Object.keys(
-        nigeriaLocations
-    )
-    .sort()
-    .forEach(
-        function (stateName) {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                stateName;
-
-            option.textContent =
-                stateName;
-
-            state.appendChild(
-                option
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   STATE CHANGE
-========================================================= */
-
-/*
-    When the worker selects a state:
-
-        State selected
-              ↓
-        Load its cities
-              ↓
-        Enable city dropdown
-              ↓
-        Clear previous location
-*/
-
-if (state) {
-
-    state.addEventListener(
+    profilePhotoInput.addEventListener(
         "change",
-        function () {
+        () => {
 
-            populateCities(
-                state.value
-            );
+            const file =
+                profilePhotoInput.files[0];
 
 
-            /*
-                A new state means the old
-                city is no longer valid.
-            */
+            /* =============================================
+               NO FILE SELECTED
+            ============================================= */
 
-            if (locationInput) {
+            if (!file) {
 
-                locationInput.value =
-                    "";
+                profilePhotoImage.hidden = true;
 
+                profilePhotoPlaceholder.hidden = false;
+
+                profilePhotoImage.removeAttribute("src");
+
+                updateProgress();
+
+                return;
             }
 
 
-            updateCompletion();
+            /* =============================================
+               VALIDATE IMAGE TYPE
+            ============================================= */
 
-        }
-    );
-
-}
-
-
-/* =========================================================
-   POPULATE CITIES
-========================================================= */
-
-function populateCities(
-    selectedState
-) {
-
-    if (!city) {
-        return;
-    }
+            const allowedTypes = [
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+            ];
 
 
-    /*
-        Clear old city options.
-    */
+            if (!allowedTypes.includes(file.type)) {
 
-    city.innerHTML =
-        "";
+                profilePhotoInput.value = "";
 
+                profilePhotoImage.hidden = true;
 
-    /*
-        Add default option.
-    */
+                profilePhotoPlaceholder.hidden = false;
 
-    const defaultOption =
-        document.createElement(
-            "option"
-        );
-
-    defaultOption.value =
-        "";
-
-    defaultOption.textContent =
-        selectedState
-            ? "Select city"
-            : "Select state first";
-
-    city.appendChild(
-        defaultOption
-    );
+                profilePhotoImage.removeAttribute("src");
 
 
-    /*
-        Disable city if no state
-        has been selected.
-    */
-
-    if (!selectedState) {
-
-        city.disabled =
-            true;
-
-        return;
-
-    }
-
-
-    /*
-        Find cities for selected state.
-    */
-
-    const cities =
-        nigeriaLocations[
-            selectedState
-        ] || [];
-
-
-    /*
-        Add each city.
-    */
-
-    cities.forEach(
-        function (cityName) {
-
-            const option =
-                document.createElement(
-                    "option"
+                showModal(
+                    "error",
+                    "Invalid Profile Photo",
+                    "Please select a JPG, PNG, or WebP image."
                 );
 
-            option.value =
-                cityName;
 
-            option.textContent =
-                cityName;
+                updateProgress();
 
-            city.appendChild(
-                option
-            );
-
-        }
-    );
-
-
-    /*
-        Enable city dropdown.
-    */
-
-    city.disabled =
-        false;
-
-}
-
-
-/* =========================================================
-   CITY CHANGE
-========================================================= */
-
-/*
-    When the worker selects:
-
-        State = Oyo
-        City  = Ogbomoso
-
-    the hidden location becomes:
-
-        Oyo, Ogbomoso
-*/
-
-if (city) {
-
-    city.addEventListener(
-        "change",
-        function () {
-
-            const selectedState =
-                state
-                    ? state.value
-                    : "";
-
-            const selectedCity =
-                city.value;
-
-
-            if (
-                selectedState &&
-                selectedCity
-            ) {
-
-                locationInput.value =
-                    `${selectedState}, ${selectedCity}`;
-
-            }
-            else {
-
-                locationInput.value =
-                    "";
-
+                return;
             }
 
 
-            updateCompletion();
+            /* =============================================
+               VALIDATE IMAGE SIZE
+               Maximum: 5 MB
+            ============================================= */
+
+            const maximumFileSize =
+                5 * 1024 * 1024;
+
+
+            if (file.size > maximumFileSize) {
+
+                profilePhotoInput.value = "";
+
+                profilePhotoImage.hidden = true;
+
+                profilePhotoPlaceholder.hidden = false;
+
+                profilePhotoImage.removeAttribute("src");
+
+
+                showModal(
+                    "error",
+                    "Profile Photo Too Large",
+                    "Your profile photo must not exceed 5 MB."
+                );
+
+
+                updateProgress();
+
+                return;
+            }
+
+
+            /* =============================================
+               PREVIEW SELECTED IMAGE
+            ============================================= */
+
+            const imageUrl =
+                URL.createObjectURL(file);
+
+
+            profilePhotoImage.src =
+                imageUrl;
+
+            profilePhotoImage.hidden =
+                false;
+
+            profilePhotoPlaceholder.hidden =
+                true;
+
+
+            updateProgress();
 
         }
     );
 
-}
 
+    /* =====================================================
+       8. COUNTRY CHANGE
+    ===================================================== */
 
-/* =========================================================
-   PROFILE PHOTO PREVIEW
-========================================================= */
-
-if (profilePhoto) {
-
-    profilePhoto.addEventListener(
+    countrySelect.addEventListener(
         "change",
-        function () {
+        () => {
 
-            previewImage(
-                profilePhoto,
-                profilePreview
+            resetSelect(
+                stateSelect,
+                "Select state"
             );
 
+            resetSelect(
+                citySelect,
+                "Select city"
+            );
 
-            updateCompletion();
+            resetSelect(
+                lgaSelect,
+                "Select LGA"
+            );
+
+            stateSelect.disabled = true;
+            citySelect.disabled = true;
+            lgaSelect.disabled = true;
+
+
+            const country =
+                countrySelect.value;
+
+            if (!country) {
+
+                updateProgress();
+
+                return;
+            }
+
+
+            const countryData =
+                NIGERIAN_LOCATION_DATA[country];
+
+            if (!countryData) {
+
+                updateProgress();
+
+                return;
+            }
+
+
+            Object.keys(countryData)
+                .forEach(state => {
+
+                    const option =
+                        document.createElement("option");
+
+                    option.value = state;
+                    option.textContent = state;
+
+                    stateSelect.appendChild(option);
+
+                });
+
+
+            stateSelect.disabled = false;
+
+            updateProgress();
 
         }
     );
 
-}
+
+    /* =====================================================
+       9. STATE CHANGE
+    ===================================================== */
+
+    stateSelect.addEventListener(
+        "change",
+        () => {
+
+            resetSelect(
+                citySelect,
+                "Select city"
+            );
+
+            resetSelect(
+                lgaSelect,
+                "Select LGA"
+            );
+
+            citySelect.disabled = true;
+            lgaSelect.disabled = true;
 
 
-/* =========================================================
-   PORTFOLIO IMAGE PREVIEWS
-========================================================= */
+            const country =
+                countrySelect.value;
 
-for (
-    let i = 1;
-    i <= 3;
-    i++
-) {
+            const state =
+                stateSelect.value;
 
-    const input =
-        document.getElementById(
-            `portfolio${i}`
+            if (!country || !state) {
+
+                updateProgress();
+
+                return;
+            }
+
+
+            const stateData =
+                NIGERIAN_LOCATION_DATA[
+                    country
+                ]?.[state];
+
+
+            if (!stateData) {
+
+                updateProgress();
+
+                return;
+            }
+
+
+            stateData.cities.forEach(city => {
+
+                const option =
+                    document.createElement("option");
+
+                option.value = city;
+                option.textContent = city;
+
+                citySelect.appendChild(option);
+
+            });
+
+
+            stateData.lgas.forEach(lga => {
+
+                const option =
+                    document.createElement("option");
+
+                option.value = lga;
+                option.textContent = lga;
+
+                lgaSelect.appendChild(option);
+
+            });
+
+
+            citySelect.disabled = false;
+            lgaSelect.disabled = false;
+
+            updateProgress();
+
+        }
+    );
+
+
+    /* =====================================================
+       10. LOCATION FIELD CHANGES
+    ===================================================== */
+
+    [
+        fullNameInput,
+        phoneInput,
+        countrySelect,
+        stateSelect,
+        citySelect,
+        lgaSelect
+    ].forEach(element => {
+
+        element.addEventListener(
+            "input",
+            updateProgress
         );
 
-    const preview =
-        document.getElementById(
-            `portfolioPreview${i}`
-        );
-
-
-    if (
-        input &&
-        preview
-    ) {
-
-        input.addEventListener(
+        element.addEventListener(
             "change",
-            function () {
-
-                previewImage(
-                    input,
-                    preview
-                );
-
-
-                updateCompletion();
-
-            }
+            updateProgress
         );
 
-    }
-
-}
-
-
-/* =========================================================
-   IMAGE PREVIEW
-========================================================= */
-
-function previewImage(
-    input,
-    preview
-) {
-
-    /*
-        Make sure a file exists.
-    */
-
-    if (
-        !input ||
-        !input.files ||
-        !input.files[0]
-    ) {
-
-        return;
-
-    }
-
-
-    const file =
-        input.files[0];
+    });
 
 
     /* =====================================================
-       CHECK IMAGE TYPE
+       12. SUBMIT PROFILE
     ===================================================== */
 
-    /*
-        Make sure the selected file
-        is actually an image.
-    */
-
-    if (
-        !file.type.startsWith(
-            "image/"
-        )
-    ) {
-
-        showModal(
-
-            "error",
-
-            "Invalid Image",
-
-            "Please select a valid PNG, JPG or WEBP image."
-
-        );
-
-
-        input.value =
-            "";
-
-        return;
-
-    }
-
-
-    /* =====================================================
-       CHECK IMAGE SIZE
-    ===================================================== */
-
-    /*
-        Reject images larger than
-        the maximum allowed size.
-    */
-
-    if (
-        file.size >
-        MAX_IMAGE_SIZE
-    ) {
-
-        showModal(
-
-            "error",
-
-            "Image Too Large",
-
-            `The selected image is ${formatFileSize(file.size)} MB. ` +
-            `Each image must not exceed 5 MB.`
-
-        );
-
-
-        /*
-            Clear the invalid file.
-
-            This also prevents it from
-            being uploaded later.
-        */
-
-        input.value =
-            "";
-
-
-        /*
-            Remove any previous preview.
-        */
-
-        if (preview) {
-
-            preview.innerHTML =
-                "";
-
-            preview.classList.remove(
-                "has-image"
-            );
-
-        }
-
-
-        /*
-            Recalculate profile completion.
-        */
-
-        updateCompletion();
-
-        return;
-
-    }
-
-
-    /* =====================================================
-       CREATE IMAGE PREVIEW
-    ===================================================== */
-
-    const imageURL =
-        URL.createObjectURL(
-            file
-        );
-
-
-    /*
-        Remove old preview content.
-    */
-
-    preview.innerHTML =
-        "";
-
-
-    /*
-        Create image element.
-    */
-
-    const image =
-        document.createElement(
-            "img"
-        );
-
-    image.src =
-        imageURL;
-
-    image.alt =
-        "Selected image preview";
-
-
-    /*
-        Add image to preview.
-    */
-
-    preview.appendChild(
-        image
-    );
-
-
-    /*
-        Mark preview as containing
-        an image.
-    */
-
-    preview.classList.add(
-        "has-image"
-    );
-
-}
-
-
-/* =========================================================
-   WORD COUNTER
-========================================================= */
-
-if (bio) {
-
-    bio.addEventListener(
-        "input",
-        function () {
-
-            updateWordCounter();
-
-            updateCompletion();
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   UPDATE WORD COUNTER
-========================================================= */
-
-function updateWordCounter() {
-
-    if (
-        !bio ||
-        !wordCounter
-    ) {
-
-        return;
-
-    }
-
-
-    const text =
-        bio.value.trim();
-
-
-    /*
-        Empty description = 0 words.
-    */
-
-    if (!text) {
-
-        wordCounter.textContent =
-            "0";
-
-        return;
-
-    }
-
-
-    /*
-        Count words separated by whitespace.
-    */
-
-    const words =
-        text.split(
-            /\s+/
-        );
-
-
-    const wordCount =
-        words.length;
-
-
-    wordCounter.textContent =
-        wordCount;
-
-
-    /*
-        Highlight counter at the limit.
-    */
-
-    const counter =
-        document.querySelector(
-            ".counter"
-        );
-
-
-    if (counter) {
-
-        counter.classList.toggle(
-            "limit-reached",
-            wordCount >= 150
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   PROFILE COMPLETION
-========================================================= */
-
-function updateCompletion() {
-
-    if (!completionPercent) {
-        return;
-    }
-
-
-    let completed =
-        0;
-
-
-    const total =
-        12;
-
-
-    /*
-        1. Profile photo
-    */
-
-    if (
-        profilePhoto &&
-        profilePhoto.files.length > 0
-    ) {
-
-        completed++;
-
-    }
-
-
-    /*
-        2. Full name
-    */
-
-    if (
-        fullName &&
-        fullName.value.trim()
-    ) {
-
-        completed++;
-
-    }
-
-
-    /*
-        3. Phone
-    */
-
-    if (
-        phone &&
-        phone.value.trim()
-    ) {
-
-        completed++;
-
-    }
-
-
-    /*
-        4. Primary skill
-    */
-
-    if (
-        primarySkill &&
-        primarySkill.value
-    ) {
-
-        completed++;
-
-    }
-
-
-    /*
-        5. Experience
-    */
-
-    if (
-        experience &&
-        experience.value
-    ) {
-
-        completed++;
-
-    }
-
-
-    /*
-        6. Starting price
-    */
-
-    if (
-        price &&
-        price.value
-    ) {
-
-        completed++;
-
-    }
-
-
-    /*
-        7. State
-    */
-
-    if (
-        state &&
-        state.value
-    ) {
-
-        completed++;
-
-    }
-
-
-    /*
-        8. City
-    */
-
-    if (
-        city &&
-        city.value
-    ) {
-
-        completed++;
-
-    }
-
-
-    /*
-        9. Description
-    */
-
-    if (
-        bio &&
-        bio.value.trim()
-    ) {
-
-        completed++;
-
-    }
-
-
-    /*
-        10–12. Portfolio images
-    */
-
-    for (
-        let i = 1;
-        i <= 3;
-        i++
-    ) {
-
-        const portfolioInput =
-            document.getElementById(
-                `portfolio${i}`
-            );
-
-
-        if (
-            portfolioInput &&
-            portfolioInput.files.length > 0
-        ) {
-
-            completed++;
-
-        }
-
-    }
-
-
-    /*
-        Calculate percentage.
-    */
-
-    const percentage =
-        Math.round(
-            (completed / total) * 100
-        );
-
-
-    /*
-        Display percentage.
-    */
-
-    completionPercent.textContent =
-        `${percentage}%`;
-
-}
-
-
-/* =========================================================
-   LISTEN FOR FIELD CHANGES
-========================================================= */
-
-[
-    fullName,
-    phone,
-    primarySkill,
-    experience,
-    price,
-    state,
-    city
-]
-.forEach(
-    function (field) {
-
-        if (field) {
-
-            field.addEventListener(
-                "input",
-                updateCompletion
-            );
-
-            field.addEventListener(
-                "change",
-                updateCompletion
-            );
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   FORM SUBMISSION
-========================================================= */
-
-if (profileForm) {
-
-    profileForm.addEventListener(
+    form.addEventListener(
         "submit",
-        async function (event) {
-
-            /*
-                Stop the browser's normal
-                form submission.
-            */
+        async event => {
 
             event.preventDefault();
 
 
-            /*
-                Get worker email from session.
-            */
-
-            const workerEmail =
-                sessionStorage.getItem(
-                    "workerEmail"
-                );
-
-
-            /*
-                Verify worker session.
-            */
-
-            if (!workerEmail) {
-
-                showModal(
-
-                    "error",
-
-                    "Session Required",
-
-                    "Your worker session has expired. Please sign in again.",
-
-                    "Return to Login",
-
-                    function () {
-
-                        window.location.href =
-                            "../worker-authentication/index.html";
-
-                    }
-
-                );
-
-                return;
-
-            }
-
-
-            /*
-                Validate all profile fields.
-            */
+            /* =============================================
+               FRONTEND VALIDATION
+            ============================================= */
 
             const validation =
-                validateProfileForm();
-
-
-            /*
-                Stop submission when validation fails.
-            */
+                validateForm();
 
             if (!validation.valid) {
 
                 showModal(
-
                     "error",
-
-                    "Incomplete Profile",
-
+                    "Invalid Information",
                     validation.message
-
                 );
 
                 return;
-
             }
 
 
-            /*
-                Create FormData because
-                images are being uploaded.
-            */
+            /* =============================================
+               NORMALIZE PHONE NUMBER
+            ============================================= */
 
-            const formData =
-                new FormData();
-
-
-            /*
-                Worker identification.
-            */
-
-            formData.append(
-                "email",
-                workerEmail
-            );
-
-
-            /*
-                Personal information.
-            */
-
-            formData.append(
-                "fullName",
-                fullName.value.trim()
-            );
-
-            formData.append(
-                "phone",
-                phone.value.trim()
-            );
-
-
-            /*
-                Professional information.
-            */
-
-            formData.append(
-                "primarySkill",
-                primarySkill.value
-            );
-
-            formData.append(
-                "experience",
-                experience.value
-            );
-
-            formData.append(
-                "startingPrice",
-                price.value
-            );
-
-
-            /*
-                Location information.
-
-                Send all three values.
-            */
-
-            formData.append(
-                "state",
-                state.value
-            );
-
-            formData.append(
-                "city",
-                city.value
-            );
-
-            formData.append(
-                "location",
-                locationInput.value
-            );
-
-
-            /*
-                Service description.
-            */
-
-            formData.append(
-                "description",
-                bio.value.trim()
-            );
-
-
-            /*
-                Profile photo.
-            */
-
-            formData.append(
-                "profilePicture",
-                profilePhoto.files[0]
-            );
-
-
-            /*
-                Portfolio images.
-
-                All three use:
-
-                    portfolioImages
-            */
-
-            for (
-                let i = 1;
-                i <= 3;
-                i++
-            ) {
-
-                const portfolioInput =
-                    document.getElementById(
-                        `portfolio${i}`
-                    );
-
-
-                formData.append(
-                    "portfolioImages",
-                    portfolioInput.files[0]
+            const phone =
+                normalizePhone(
+                    phoneInput.value
                 );
 
-            }
 
+            /* =============================================
+               SHOW LOADING STATE
+            ============================================= */
 
-            /*
-                Show loading state.
-            */
-
-            setLoadingState(
-                true
-            );
+            setLoading(true);
 
 
             try {
 
-                /*
-                    Send profile to backend.
-                */
+                /* =========================================
+                   CREATE MULTIPART FORM DATA
+                ========================================= */
+
+                const formData =
+                    new FormData();
+
+
+                formData.append(
+                    "email",
+                    workerEmail
+                );
+
+                formData.append(
+                    "fullName",
+                    fullNameInput.value.trim()
+                );
+
+                formData.append(
+                    "phone",
+                    phone
+                );
+
+                formData.append(
+                    "country",
+                    countrySelect.value
+                );
+
+                formData.append(
+                    "state",
+                    stateSelect.value
+                );
+
+                formData.append(
+                    "city",
+                    citySelect.value
+                );
+
+                formData.append(
+                    "lga",
+                    lgaSelect.value
+                );
+
+                formData.append(
+                    "profilePhoto",
+                    profilePhotoInput.files[0]
+                );
+
+
+                /* =========================================
+                   SEND PROFILE TO BACKEND
+                ========================================= */
 
                 const response =
-                    await fetch(
-
-                        API_ENDPOINT("/api/auth/worker/create-profile"),
-
+                    await API_REQUEST(
+                        "/api/worker/create-profile",
                         {
-
-                            method:
-                                "POST",
+                            method: "POST",
 
                             /*
-                                Do NOT manually set
-                                Content-Type.
+                               Do NOT manually set the
+                               Content-Type header here.
 
-                                The browser automatically
-                                creates the multipart boundary.
+                               The browser automatically sets
+                               multipart/form-data together
+                               with the required boundary.
                             */
 
-                            body:
-                                formData
-
+                            body: formData
                         }
-
                     );
 
 
-                /*
-                    Read backend response.
-                */
+                /* =========================================
+                   READ BACKEND RESPONSE
+                ========================================= */
 
-                const data =
-                    await response.json();
+                let data = {};
 
+                try {
 
-                /* ================================================
-   BACKEND RETURNED AN ERROR
-================================================ */
+                    data =
+                        await response.json();
 
-/*
-    The backend can tell us what the
-    worker should do next.
+                } catch {
 
-    Example:
+                    data = {};
 
-        nextStep:
-            "email-otp"
-
-    This allows the frontend to keep
-    the navigation logic simple.
-*/
-
-if (
-    !response.ok ||
-    !data.success
-) {
-
-    /*
-        Check whether the worker needs
-        to verify their email.
-    */
-
-    if (
-        data.nextStep ===
-        "email-otp"
-    ) {
-
-        /*
-            Show the error modal first.
-
-            After the modal redirect delay,
-            send the worker to the email OTP page.
-        */
-
-        showModal(
-
-            "error",
-
-            "Email Verification Required",
-
-            data.message ||
-            "Please verify your email before completing your profile.",
-
-            "Continue",
-
-            function () {
-
-                /*
-                    Redirect to the worker
-                    email OTP page.
-                */
-
-                window.location.href =
-                    "../worker-email-otp/index.html";
-
-            }
-
-        );
-
-        return;
-
-    }
+                }
 
 
-    /*
-        Handle all other backend errors
-        normally.
-    */
+                /* =========================================
+                   BACKEND ERROR
+                ========================================= */
 
-    showModal(
+                if (!response.ok) {
 
-        "error",
+                    showModal(
+                        "error",
+                        "Profile Update Failed",
+                        data.message ||
+                        "Unable to complete your profile. Please try again."
+                    );
 
-        data.title ||
-        "Profile Creation Failed",
-
-        data.message ||
-        "Unable to complete your worker profile."
-
-    );
-
-    return;
-
-}
+                    return;
+                }
 
 
-                /*
-                    Profile successfully completed.
-                */
+                /* =========================================
+                   SUCCESS
+                ========================================= */
+
+                sessionStorage.removeItem(
+                    "workerEmail"
+                );
+
 
                 showModal(
-
                     "success",
-
                     "Profile Completed",
-
                     data.message ||
-                    "Your worker profile has been successfully completed.",
-
+                    "Your worker profile has been completed successfully.",
                     "Continue",
-
-                    function () {
-
-                        /*
-                            Remove temporary email.
-                        */
-
-                        sessionStorage.removeItem(
-                            "workerEmail"
-                        );
-
-
-                        /*
-                            Redirect to worker chats.
-                        */
+                    () => {
 
                         window.location.href =
                             "../worker-dashboard/index.html";
 
                     }
-
                 );
 
             }
+
             catch (error) {
 
-                /*
-                    Network/server error.
-                */
-
                 console.error(
-                    "Worker profile error:",
+                    "Worker profile request failed:",
                     error
                 );
 
 
                 showModal(
-
                     "error",
-
                     "Connection Error",
-
-                    "Unable to connect to SkillConnect. Please check your connection and try again."
-
+                    "Unable to connect to the server. Please check your internet connection and try again."
                 );
 
             }
+
             finally {
 
-                /*
-                    Always restore the form.
-                */
-
-                setLoadingState(
-                    false
-                );
+                setLoading(false);
 
             }
 
         }
     );
 
-}
 
+    /* =====================================================
+       13. NOTIFICATION BUTTON
+    ===================================================== */
 
-/* =========================================================
-   FRONTEND VALIDATION
-========================================================= */
+    notificationButton.addEventListener(
+        "click",
+        () => {
 
-function validateProfileForm() {
+            closeModal();
 
-    const errors =
-        [];
+        }
+    );
 
 
     /* =====================================================
-       FULL NAME
+       14. INITIAL PROGRESS
     ===================================================== */
 
-    if (
-        !fullName ||
-        fullName.value.trim().length < 2
+    updateProgress();
+
+
+    /* =====================================================
+       15. RESET SELECT HELPER
+    ===================================================== */
+
+    function resetSelect(
+        select,
+        placeholder
     ) {
 
-        errors.push(
-            "Enter your full name."
-        );
+        select.innerHTML = "";
+
+        const option =
+            document.createElement("option");
+
+        option.value = "";
+        option.textContent = placeholder;
+
+        select.appendChild(option);
 
     }
 
 
     /* =====================================================
-       PHONE NUMBER
+       17. NORMALIZE NIGERIAN PHONE NUMBER
     ===================================================== */
 
-    /*
-        Remove spaces, brackets, dashes and
-        other non-numeric characters.
-    */
+    function normalizePhone(value) {
 
-    const phoneValue =
-        phone
-            ? phone.value.replace(
-                /\D/g,
-                ""
+        let phone =
+            value
+                .trim()
+                .replace(/\s+/g, "")
+                .replace(/-/g, "")
+                .replace(/\(/g, "")
+                .replace(/\)/g, "");
+
+
+        /* 080XXXXXXXXX → +23480XXXXXXXXX */
+
+        if (
+            /^0[789]\d{9}$/.test(phone)
+        ) {
+
+            phone =
+                "+234" +
+                phone.substring(1);
+
+        }
+
+
+        /* 234XXXXXXXXXX → +234XXXXXXXXXX */
+
+        else if (
+            /^234[789]\d{9}$/.test(phone)
+        ) {
+
+            phone =
+                "+" +
+                phone;
+
+        }
+
+
+        return phone;
+
+    }
+
+
+    /* =====================================================
+       18. VALIDATE FORM
+    ===================================================== */
+
+    function validateForm() {
+
+        const fullName =
+            fullNameInput.value.trim();
+
+        const phone =
+            normalizePhone(
+                phoneInput.value
+            );
+
+        const profilePhoto =
+            profilePhotoInput.files[0];
+
+        const country =
+            countrySelect.value;
+
+        const state =
+            stateSelect.value;
+
+        const city =
+            citySelect.value;
+
+        const lga =
+            lgaSelect.value;
+
+
+        if (!profilePhoto) {
+
+            return {
+                valid: false,
+                message:
+                    "Please select a profile photo."
+            };
+
+        }
+
+
+        const allowedTypes = [
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        ];
+
+
+        if (!allowedTypes.includes(profilePhoto.type)) {
+
+            return {
+                valid: false,
+                message:
+                    "Please select a JPG, PNG, or WebP profile photo."
+            };
+
+        }
+
+
+        if (
+            profilePhoto.size >
+            5 * 1024 * 1024
+        ) {
+
+            return {
+                valid: false,
+                message:
+                    "Your profile photo must not exceed 5 MB."
+            };
+
+        }
+
+
+        if (!fullName) {
+
+            return {
+                valid: false,
+                message: "Please enter your full name."
+            };
+
+        }
+
+
+        if (
+            !/^[A-Za-zÀ-ÿ' -]{2,100}$/.test(
+                fullName
             )
-            : "";
-
-
-    /*
-        Accept:
-
-            08012345678
-            8012345678
-            +2348012345678
-
-        After removing non-numbers:
-
-            08012345678 → 11 digits
-            8012345678  → 10 digits
-            +234...     → 13 digits
-    */
-
-    let normalizedPhone =
-        phoneValue;
-
-
-    /*
-        Convert Nigerian international
-        format into local format.
-
-        2348012345678
-              ↓
-        08012345678
-    */
-
-    if (
-        normalizedPhone.startsWith(
-            "234"
-        )
-    ) {
-
-        normalizedPhone =
-            "0" +
-            normalizedPhone.substring(
-                3
-            );
-
-    }
-
-
-    /*
-        A valid Nigerian mobile number
-        must now contain 11 digits and
-        begin with 0.
-    */
-
-    const nigerianPhonePattern =
-        /^0[789][01]\d{8}$/;
-
-
-    if (
-        !nigerianPhonePattern.test(
-            normalizedPhone
-        )
-    ) {
-
-        errors.push(
-            "Enter a valid Nigerian phone number."
-        );
-
-    }
-
-
-    /* =====================================================
-       PROFILE PHOTO
-    ===================================================== */
-
-    if (
-        !profilePhoto ||
-        !profilePhoto.files.length
-    ) {
-
-        errors.push(
-            "Upload your profile photo."
-        );
-
-    }
-
-
-    /* =====================================================
-       PROFILE PHOTO SIZE
-    ===================================================== */
-
-    if (
-        profilePhoto &&
-        profilePhoto.files.length > 0
-    ) {
-
-        const file =
-            profilePhoto.files[0];
-
-
-        if (
-            file.size >
-            MAX_IMAGE_SIZE
         ) {
 
-            errors.push(
-                `Profile photo is too large. Maximum size is 5 MB. Selected file: ${formatFileSize(file.size)} MB.`
-            );
-
-        }
-
-    }
-
-
-    /* =====================================================
-       PRIMARY SKILL
-    ===================================================== */
-
-    if (
-        !primarySkill ||
-        !primarySkill.value
-    ) {
-
-        errors.push(
-            "Select your primary skill."
-        );
-
-    }
-
-
-    /* =====================================================
-       EXPERIENCE
-    ===================================================== */
-
-    if (
-        !experience ||
-        !experience.value
-    ) {
-
-        errors.push(
-            "Select your years of experience."
-        );
-
-    }
-
-
-    /* =====================================================
-       STARTING PRICE
-    ===================================================== */
-
-    if (
-        !price ||
-        !price.value
-    ) {
-
-        errors.push(
-            "Select your starting price."
-        );
-
-    }
-
-
-    /* =====================================================
-       STATE
-    ===================================================== */
-
-    if (
-        !state ||
-        !state.value
-    ) {
-
-        errors.push(
-            "Select your state."
-        );
-
-    }
-
-
-    /* =====================================================
-       CITY
-    ===================================================== */
-
-    if (
-        !city ||
-        !city.value
-    ) {
-
-        errors.push(
-            "Select your city."
-        );
-
-    }
-
-
-    /* =====================================================
-       LOCATION
-    ===================================================== */
-
-    if (
-        !locationInput ||
-        !locationInput.value
-    ) {
-
-        errors.push(
-            "Select your state and city."
-        );
-
-    }
-
-
-    /* =====================================================
-       DESCRIPTION
-    ===================================================== */
-
-    const description =
-        bio
-            ? bio.value.trim()
-            : "";
-
-
-    if (
-        description.length < 20
-    ) {
-
-        errors.push(
-            "Describe your service using at least 20 characters."
-        );
-
-    }
-
-
-    /* =====================================================
-       DESCRIPTION WORD LIMIT
-    ===================================================== */
-
-    const wordCount =
-        description
-            ? description.split(
-                /\s+/
-            ).length
-            : 0;
-
-
-    if (
-        wordCount > 150
-    ) {
-
-        errors.push(
-            "Your service description must not exceed 150 words."
-        );
-
-    }
-
-
-    /* =====================================================
-       PORTFOLIO IMAGES
-    ===================================================== */
-
-    for (
-        let i = 1;
-        i <= 3;
-        i++
-    ) {
-
-        const input =
-            document.getElementById(
-                `portfolio${i}`
-            );
-
-
-        /*
-            Make sure the portfolio image
-            exists.
-        */
-
-        if (
-            !input ||
-            !input.files.length
-        ) {
-
-            errors.push(
-                `Upload portfolio image ${i}.`
-            );
-
-            continue;
+            return {
+                valid: false,
+                message:
+                    "Please enter a valid full name."
+            };
 
         }
 
 
-        /*
-            Check portfolio image size.
-        */
-
-        const file =
-            input.files[0];
-
-
         if (
-            file.size >
-            MAX_IMAGE_SIZE
+            !/^\+234[789]\d{9}$/.test(phone)
         ) {
 
-            errors.push(
-                `Portfolio image ${i} is too large. Maximum size is 5 MB. Selected file: ${formatFileSize(file.size)} MB.`
-            );
+            return {
+                valid: false,
+                message:
+                    "Please enter a valid Nigerian phone number."
+            };
 
         }
 
-    }
+
+        if (!country) {
+
+            return {
+                valid: false,
+                message:
+                    "Please select your country."
+            };
+
+        }
 
 
-    /* =====================================================
-       RETURN VALIDATION RESULT
-    ===================================================== */
+        if (!state) {
 
-    if (
-        errors.length > 0
-    ) {
+            return {
+                valid: false,
+                message:
+                    "Please select your state."
+            };
+
+        }
+
+
+        if (!city) {
+
+            return {
+                valid: false,
+                message:
+                    "Please select your city."
+            };
+
+        }
+
+
+        if (!lga) {
+
+            return {
+                valid: false,
+                message:
+                    "Please select your LGA."
+            };
+
+        }
 
         return {
-
-            valid:
-                false,
-
-            message:
-                errors.join("\n")
-
+          valid: true,
+          message: ""
         };
 
     }
 
 
-    return {
+    /* =====================================================
+       19. UPDATE PROFILE PROGRESS
+    ===================================================== */
 
-        valid:
-            true,
+    function updateProgress() {
 
-        message:
-            ""
+        const fields = [
 
-    };
+            profilePhotoInput.files.length > 0,
 
-}
+            fullNameInput.value.trim(),
 
+            normalizePhone(
+                phoneInput.value
+            ),
 
-/* =========================================================
-   LOADING STATE
-========================================================= */
+            countrySelect.value,
 
-function setLoadingState(
-    loading
-) {
+            stateSelect.value,
 
-    if (
-        !continueBtn ||
-        !profileForm
-    ) {
+            citySelect.value,
 
-        return;
+            lgaSelect.value,
 
-    }
+        ];
 
 
-    if (loading) {
-
-        /*
-            Save original button text.
-        */
-
-        continueBtn.dataset.originalText =
-            continueBtn.textContent;
+        const completed =
+            fields.filter(Boolean).length;
 
 
-        /*
-            Change button text.
-        */
-
-        continueBtn.textContent =
-            "Saving Profile...";
-
-
-        /*
-            Disable all form controls.
-        */
-
-        profileForm
-            .querySelectorAll(
-                "input, select, textarea, button"
-            )
-            .forEach(
-                function (element) {
-
-                    element.disabled =
-                        true;
-
-                }
-            );
-
-    }
-    else {
-
-        /*
-            Re-enable form controls.
-        */
-
-        profileForm
-            .querySelectorAll(
-                "input, select, textarea, button"
-            )
-            .forEach(
-                function (element) {
-
-                    element.disabled =
-                        false;
-
-                }
+        const percentage =
+            Math.round(
+                (completed / fields.length) * 100
             );
 
 
-        /*
-            Restore city state correctly.
+        const progressFill =
+            document.getElementById(
+                "progressFill"
+            );
 
-            If no state is selected,
-            city remains disabled.
-        */
+        const progressPercentage =
+            document.getElementById(
+                "progressPercentage"
+            );
 
-        if (
-            city &&
-            state &&
-            !state.value
-        ) {
 
-            city.disabled =
-                true;
+        if (progressFill) {
+
+            progressFill.style.width =
+                `${percentage}%`;
 
         }
 
 
-        /*
-            Restore original button text.
-        */
+        if (progressPercentage) {
 
-        continueBtn.textContent =
-            continueBtn.dataset.originalText ||
-            "Continue To Dashboard";
+            progressPercentage.textContent =
+                `${percentage}%`;
 
+        }
+
+    }
+
+
+    /* =====================================================
+       20. BUTTON LOADING STATE
+    ===================================================== */
+
+    function setLoading(isLoading) {
 
         continueBtn.disabled =
+            isLoading;
+
+        continueBtn.classList.toggle(
+            "loading",
+            isLoading
+        );
+
+
+        if (buttonText) {
+
+            buttonText.textContent =
+                isLoading
+                    ? "Saving Profile..."
+                    : "Continue";
+
+        }
+
+    }
+
+
+    /* =====================================================
+       21. SHOW NOTIFICATION MODAL
+    ===================================================== */
+
+    function showModal(
+        type,
+        title,
+        message,
+        buttonLabel = "Close",
+        onClose = null
+    ) {
+
+        notificationCard.className =
+            `notification-card ${type}`;
+
+
+        notificationIcon.textContent =
+            type === "success"
+                ? "✓"
+                : type === "error"
+                    ? "!"
+                    : "i";
+
+
+        notificationTitle.textContent =
+            title;
+
+        notificationText.textContent =
+            message;
+
+        notificationButton.textContent =
+            buttonLabel;
+
+
+        notificationButton.onclick =
+            () => {
+
+                closeModal();
+
+                if (onClose) {
+
+                    onClose();
+
+                }
+
+            };
+
+
+        notificationOverlay.hidden =
             false;
 
-    }
-
-}
-
-
-/* =========================================================
-   NOTIFICATION MODAL
-========================================================= */
-
-function showModal(
-
-    type,
-
-    title,
-
-    message,
-
-    buttonText = "Continue",
-
-    callback = null
-
-) {
-
-    if (
-        !notificationOverlay ||
-        !notificationCard ||
-        !notificationIcon ||
-        !notificationTitle ||
-        !notificationText ||
-        !notificationButton
-    ) {
-
-        return;
-
-    }
-
-
-    /*
-        Set modal type.
-    */
-
-    notificationCard.className =
-        `notification-card ${type}`;
-
-
-    /*
-        Set icon.
-    */
-
-    if (
-        type === "success"
-    ) {
-
-        notificationIcon.textContent =
-            "✓";
-
-    }
-    else if (
-        type === "error"
-    ) {
-
-        notificationIcon.textContent =
-            "×";
-
-    }
-    else {
-
-        notificationIcon.textContent =
-            "i";
-
-    }
-
-
-    /*
-        Set title.
-    */
-
-    notificationTitle.textContent =
-        title;
-
-
-    /*
-        Set message.
-
-        Using textContent prevents
-        HTML injection.
-    */
-
-    notificationText.textContent =
-        message;
-
-
-    /*
-        Set button text.
-    */
-
-    notificationButton.textContent =
-        buttonText;
-
-
-    /*
-        Remove previous click handlers
-        by replacing the button.
-    */
-
-    const newButton =
-        notificationButton.cloneNode(
-            true
+        document.body.classList.add(
+            "modal-open"
         );
 
-
-    notificationButton.replaceWith(
-        newButton
-    );
+    }
 
 
-    /*
-        Get the new button.
-    */
+    /* =====================================================
+       22. CLOSE NOTIFICATION MODAL
+    ===================================================== */
 
-    const activeButton =
-        document.getElementById(
-            "notificationButton"
+    function closeModal() {
+
+        notificationOverlay.hidden =
+            true;
+
+        document.body.classList.remove(
+            "modal-open"
         );
 
+    }
 
-    /*
-        Handle modal button click.
-    */
-
-    activeButton.addEventListener(
-        "click",
-        function () {
-
-            notificationOverlay.hidden =
-                true;
-
-
-            /*
-                Execute optional callback.
-            */
-
-            if (callback) {
-
-                callback();
-
-            }
-
-        }
-    );
-
-
-    /*
-        Display modal.
-    */
-
-    notificationOverlay.hidden =
-        false;
-
-}
-
-
-/* =========================================================
-   PREVENT BACKGROUND SCROLLING
-========================================================= */
-
-const modalObserver =
-    new MutationObserver(
-        function () {
-
-            if (
-                notificationOverlay &&
-                !notificationOverlay.hidden
-            ) {
-
-                document.body.style.overflow =
-                    "hidden";
-
-            }
-            else {
-
-                document.body.style.overflow =
-                    "";
-
-            }
-
-        }
-    );
-
-
-if (notificationOverlay) {
-
-    modalObserver.observe(
-
-        notificationOverlay,
-
-        {
-
-            attributes:
-                true,
-
-            attributeFilter:
-                [
-                    "hidden"
-                ]
-
-        }
-
-    );
-
-}
-
-
-/* =========================================================
-   DEVELOPMENT DEBUG OBJECT
-========================================================= */
-
-/*
-    Allows us to inspect the profile
-    controller from the browser console.
-*/
-
-window.SkillConnectWorkerProfile = {
-
-    updateCompletion,
-
-    validateProfileForm,
-
-    populateCities,
-
-    nigeriaLocations
-
-};
+});

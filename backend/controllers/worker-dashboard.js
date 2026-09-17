@@ -1,56 +1,35 @@
 /* =========================================================
-   WORKER DASHBOARD CONTROLLER
-========================================================= */
-
-
-/* =========================================================
-   1. IMPORT REQUIRED PACKAGES
+   1. IMPORT DEPENDENCIES
 ========================================================= */
 
 const jwt =
     require("jsonwebtoken");
 
-const bcrypt =
-    require("bcryptjs");
-
-
-/* =========================================================
-   2. IMPORT WORKER MODEL
-========================================================= */
-
 const Worker =
     require("../models/worker");
 
+const {
+    generateOTPData
+} =
+    require("../utils/generateOtp");
+
+const sendPhoneOtp =
+    require("../utils/sendPhoneOtp");
+
 
 /* =========================================================
-   3. GET ACCESS TOKEN FROM REQUEST
+   2. AUTHENTICATE ACCESS TOKEN
 ========================================================= */
 
-/*
-   Reads the Bearer accessToken from the
-   Authorization header.
-
-   Expected format:
-
-   Authorization: Bearer ACCESS_TOKEN
-*/
-
-function getAccessTokenFromRequest(
+const authenticateAccessToken = (
     req
-) {
+) => {
 
     const authorization =
         req.headers.authorization;
 
-
-    if (!authorization) {
-
-        return null;
-
-    }
-
-
     if (
+        !authorization ||
         !authorization.startsWith(
             "Bearer "
         )
@@ -60,285 +39,214 @@ function getAccessTokenFromRequest(
 
     }
 
+    const accessToken =
+        authorization
+            .split(" ")[1];
 
-    return authorization
-        .substring(7)
-        .trim();
+    if (!accessToken) {
 
-}
+        return null;
 
+    }
 
-/* =========================================================
-   4. VERIFY ACCESS TOKEN
-========================================================= */
+    try {
 
-/*
-   Validates the accessToken directly inside
-   this controller.
+        const decoded =
+            jwt.verify(
+                accessToken,
+                process.env.ACCESS_TOKEN_SECRET
+            );
 
-   No authentication middleware is used.
-*/
+        if (
+            decoded.userType !==
+            "worker"
+        ) {
 
-function verifyAccessToken(
-    token
-) {
+            return null;
 
-    return jwt.verify(
+        }
 
-        token,
+        if (
+            !decoded.userId
+        ) {
 
-        process.env.ACCESS_TOKEN_SECRET
+            return null;
 
-    );
+        }
 
-}
+        return decoded.userId;
 
+    }
 
-/* =========================================================
-   5. FIND WORKER ID FROM TOKEN
-========================================================= */
+    catch (error) {
 
-/*
-   Supports common JWT payload names.
+        return null;
 
-   This makes the controller compatible with
-   tokens containing:
+    }
 
-       workerId
-
-   or:
-
-       id
-
-   or:
-
-       _id
-*/
-
-function getWorkerIdFromToken(
-    decodedToken
-) {
-
-    return (
-        decodedToken.workerId ||
-        decodedToken.id ||
-        decodedToken._id ||
-        null
-    );
-
-}
+};
 
 
 /* =========================================================
-   6. BUILD WORKER DASHBOARD RESPONSE
+   3. SEND AUTHENTICATION ERROR
 ========================================================= */
 
-/*
-   Only return the information required by the
-   worker dashboard.
+const sendAuthenticationError = (
+    res
+) => {
 
-   Sensitive information such as:
+    return res.status(401).json({
 
-       password
-       refreshTokenHash
-       OTPs
-       reset authorization
+        success:
+            false,
 
-   is never returned to the frontend.
-*/
+        message:
+            "Your authentication session is invalid or has expired. Please sign in again."
 
-function buildDashboardResponse(
+    });
+
+};
+
+
+/* =========================================================
+   4. FORMAT WORKER DATA
+========================================================= */
+
+const formatWorkerProfile = (
     worker
-) {
+) => {
+
+    /* -----------------------------------------------------
+       Calculate total number of skills
+    ----------------------------------------------------- */
+
+    const totalSkills =
+        Array.isArray(
+            worker.skills
+        )
+            ? worker.skills.length
+            : 0;
+
+
+    /* -----------------------------------------------------
+       Get first selected skill
+    ----------------------------------------------------- */
+
+    const skill =
+        Array.isArray(
+            worker.skills
+        ) &&
+        worker.skills.length > 0
+
+            ? worker.skills[0]
+
+            : "";
+
+
+    /* -----------------------------------------------------
+       Return safe dashboard information
+    ----------------------------------------------------- */
 
     return {
 
-        profilePicture:
-            worker.profilePicture || null,
-
-        isVerified:
-            worker.isVerified,
-
+        /* Worker name */
         fullName:
-            worker.fullName || null,
+            worker.fullName || "",
 
+
+        /* Worker profile photo */
+        profilePhoto:
+            worker.profilePhoto || null,
+
+
+        /* Worker phone */
         phone:
-            worker.phone || null,
+            worker.phone || "",
 
-        primarySkill:
-            worker.primarySkill || null,
 
+        /* Phone verification expiry */
+        phoneVerificationExpires:
+            worker.phoneVerificationExpires ||
+            null,
+
+
+        /* Worker location */
+        country:
+            worker.country || "",
+
+        state:
+            worker.state || "",
+
+        city:
+            worker.city || "",
+
+        lga:
+            worker.lga || "",
+
+
+        /* Worker skills */
+        totalSkills:
+            totalSkills,
+
+        skill:
+            skill,
+
+
+        /* Additional profile information */
         experience:
-            worker.experience || null,
+            worker.experience || "",
 
-        startingPrice:
-            worker.startingPrice || null,
-
-        location: {
-
-            city:
-                worker.city || null,
-
-            state:
-                worker.state || null
-
-        },
+        socialProfile:
+            worker.socialProfile || "",
 
         description:
-            worker.description || null,
-
-        portfolioImages:
-            worker.portfolioImages || []
+            worker.description || ""
 
     };
 
-}
+};
 
 
 /* =========================================================
-   7. GET WORKER DASHBOARD
+   5. GET WORKER DASHBOARD
 ========================================================= */
 
-/*
-   Flow:
-
-   Frontend sends accessToken
-        ↓
-   Controller receives accessToken
-        ↓
-   Controller validates accessToken
-        ↓
-   Controller finds worker
-        ↓
-   Controller returns worker profile
-*/
-
-exports.getWorkerDashboard =
-    async function (
+const getWorkerDashboard =
+    async (
         req,
         res
-    ) {
+    ) => {
 
         try {
 
-            /* ==========================================
-               GET ACCESS TOKEN
-            ========================================== */
+            /* ------------------------------------------------
+               Authenticate access token
+            ------------------------------------------------ */
 
-            const accessToken =
-                getAccessTokenFromRequest(
+            const workerId =
+                authenticateAccessToken(
                     req
                 );
 
 
-            /*
-               No accessToken was supplied.
-            */
+            /* ------------------------------------------------
+               Authentication failed
+            ------------------------------------------------ */
 
-            if (!accessToken) {
+            if (
+                !workerId
+            ) {
 
-                return res.status(401).json({
-
-                    success: false,
-
-                    message:
-                        "Access token is required."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               VERIFY ACCESS TOKEN
-            ========================================== */
-
-            let decodedToken;
-
-
-            try {
-
-                decodedToken =
-                    verifyAccessToken(
-                        accessToken
-                    );
-
-            } catch (error) {
-
-                /*
-                   An expired token is different from
-                   another invalid token.
-
-                   The frontend can use 401 to begin
-                   its refresh-token flow.
-                */
-
-                if (
-                    error.name ===
-                    "TokenExpiredError"
-                ) {
-
-                    return res.status(401).json({
-
-                        success: false,
-
-                        code:
-                            "ACCESS_TOKEN_EXPIRED",
-
-                        message:
-                            "Access token has expired."
-
-                    });
-
-                }
-
-
-                /*
-                   Invalid accessToken.
-                */
-
-                return res.status(401).json({
-
-                    success: false,
-
-                    code:
-                        "INVALID_ACCESS_TOKEN",
-
-                    message:
-                        "Invalid access token."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               GET WORKER ID
-            ========================================== */
-
-            const workerId =
-                getWorkerIdFromToken(
-                    decodedToken
+                return sendAuthenticationError(
+                    res
                 );
 
-
-            if (!workerId) {
-
-                return res.status(401).json({
-
-                    success: false,
-
-                    message:
-                        "Invalid authentication token."
-
-                });
-
             }
 
 
-            /* ==========================================
-               FIND WORKER
-            ========================================== */
+            /* ------------------------------------------------
+               Find worker
+            ------------------------------------------------ */
 
             const worker =
                 await Worker.findById(
@@ -346,57 +254,46 @@ exports.getWorkerDashboard =
                 );
 
 
-            if (!worker) {
+            /* ------------------------------------------------
+               Worker does not exist
+            ------------------------------------------------ */
+
+            if (
+                !worker
+            ) {
 
                 return res.status(404).json({
 
-                    success: false,
+                    success:
+                        false,
 
                     message:
-                        "Worker account could not be found."
+                        "Worker account not found."
 
                 });
 
             }
 
 
-            /* ==========================================
-               CHECK ACCOUNT STATUS
-            ========================================== */
-
-            if (
-                worker.accountStatus !==
-                "active"
-            ) {
-
-                return res.status(403).json({
-
-                    success: false,
-
-                    message:
-                        "Your worker account is not active."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               RETURN WORKER DASHBOARD
-            ========================================== */
+            /* ------------------------------------------------
+               Return dashboard information
+            ------------------------------------------------ */
 
             return res.status(200).json({
 
-                success: true,
+                success:
+                    true,
 
                 worker:
-                    buildDashboardResponse(
+                    formatWorkerProfile(
                         worker
                     )
 
             });
 
-        } catch (error) {
+        }
+
+        catch (error) {
 
             console.error(
                 "Get worker dashboard error:",
@@ -406,10 +303,11 @@ exports.getWorkerDashboard =
 
             return res.status(500).json({
 
-                success: false,
+                success:
+                    false,
 
                 message:
-                    "Unable to load the worker dashboard."
+                    "Unable to load your dashboard. Please try again."
 
             });
 
@@ -419,396 +317,45 @@ exports.getWorkerDashboard =
 
 
 /* =========================================================
-   8. REFRESH ACCESS TOKEN
+   6. START PHONE VERIFICATION
 ========================================================= */
 
-/*
-   Flow:
-
-   Frontend detects expired accessToken
-        ↓
-   Frontend sends refreshToken
-        ↓
-   Controller validates refreshToken
-        ↓
-   Controller finds worker
-        ↓
-   Controller compares refreshToken hash
-        ↓
-   Controller creates new accessToken
-        ↓
-   Frontend saves new accessToken
-        ↓
-   Frontend retries dashboard request
-*/
-
-exports.refreshAccessToken =
-    async function (
+const verifyWorkerPhone =
+    async (
         req,
         res
-    ) {
+    ) => {
 
         try {
 
-            /* ==========================================
-               GET REFRESH TOKEN
-            ========================================== */
-
-            const refreshToken =
-                req.body.refreshToken;
-
-
-            if (!refreshToken) {
-
-                return res.status(401).json({
-
-                    success: false,
-
-                    message:
-                        "Refresh token is required."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               VERIFY REFRESH TOKEN
-            ========================================== */
-
-            let decodedToken;
-
-
-            try {
-
-                decodedToken =
-                    jwt.verify(
-
-                        refreshToken,
-
-                        process.env.REFRESH_TOKEN_SECRET
-
-                    );
-
-            } catch (error) {
-
-                return res.status(401).json({
-
-                    success: false,
-
-                    message:
-                        "Invalid or expired refresh token."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               GET WORKER ID
-            ========================================== */
+            /* ------------------------------------------------
+               Authenticate access token
+            ------------------------------------------------ */
 
             const workerId =
-                getWorkerIdFromToken(
-                    decodedToken
-                );
-
-
-            if (!workerId) {
-
-                return res.status(401).json({
-
-                    success: false,
-
-                    message:
-                        "Invalid refresh token."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               FIND WORKER
-            ========================================== */
-
-            const worker =
-                await Worker.findById(
-                    workerId
-                );
-
-
-            if (!worker) {
-
-                return res.status(401).json({
-
-                    success: false,
-
-                    message:
-                        "Worker account could not be found."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               CHECK STORED REFRESH TOKEN
-            ========================================== */
-
-            if (
-                !worker.refreshTokenHash
-            ) {
-
-                return res.status(401).json({
-
-                    success: false,
-
-                    message:
-                        "Refresh token is no longer valid."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               COMPARE REFRESH TOKEN
-               WITH STORED HASH
-            ========================================== */
-
-            const refreshTokenMatches =
-                await bcrypt.compare(
-
-                    refreshToken,
-
-                    worker.refreshTokenHash
-
-                );
-
-
-            if (!refreshTokenMatches) {
-
-                return res.status(401).json({
-
-                    success: false,
-
-                    message:
-                        "Invalid refresh token."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               CHECK ACCOUNT STATUS
-            ========================================== */
-
-            if (
-                worker.accountStatus !==
-                "active"
-            ) {
-
-                return res.status(403).json({
-
-                    success: false,
-
-                    message:
-                        "Your worker account is not active."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               CREATE NEW ACCESS TOKEN
-            ========================================== */
-
-            const newAccessToken =
-                jwt.sign(
-
-                    {
-                        workerId:
-                            worker._id.toString()
-                    },
-
-                    process.env.ACCESS_TOKEN_SECRET,
-
-                    {
-                        expiresIn:
-                            process.env.ACCESS_TOKEN_EXPIRE
-                    }
-
-                );
-
-
-            /* ==========================================
-               RETURN NEW ACCESS TOKEN
-            ========================================== */
-
-            return res.status(200).json({
-
-                success: true,
-
-                message:
-                    "Access token refreshed successfully.",
-
-                accessToken:
-                    newAccessToken
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "Refresh access token error:",
-                error
-            );
-
-
-            return res.status(500).json({
-
-                success: false,
-
-                message:
-                    "Unable to refresh access token."
-
-            });
-
-        }
-
-    };
-
-
-/* =========================================================
-   9. UPDATE WORKER DASHBOARD
-========================================================= */
-
-/*
-   Flow:
-
-   Frontend sends PUT request
-        ↓
-   Controller validates accessToken
-        ↓
-   Controller finds worker
-        ↓
-   Controller validates submitted data
-        ↓
-   Controller updates worker
-        ↓
-   Controller returns updated profile
-*/
-
-exports.updateWorkerDashboard =
-    async function (
-        req,
-        res
-    ) {
-
-        try {
-
-            /* ==========================================
-               GET ACCESS TOKEN
-            ========================================== */
-
-            const accessToken =
-                getAccessTokenFromRequest(
+                authenticateAccessToken(
                     req
                 );
 
 
-            if (!accessToken) {
+            /* ------------------------------------------------
+               Authentication failed
+            ------------------------------------------------ */
 
-                return res.status(401).json({
+            if (
+                !workerId
+            ) {
 
-                    success: false,
-
-                    message:
-                        "Access token is required."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               VERIFY ACCESS TOKEN
-            ========================================== */
-
-            let decodedToken;
-
-
-            try {
-
-                decodedToken =
-                    verifyAccessToken(
-                        accessToken
-                    );
-
-            } catch (error) {
-
-                if (
-                    error.name ===
-                    "TokenExpiredError"
-                ) {
-
-                    return res.status(401).json({
-
-                        success: false,
-
-                        code:
-                            "ACCESS_TOKEN_EXPIRED",
-
-                        message:
-                            "Access token has expired."
-
-                    });
-
-                }
-
-
-                return res.status(401).json({
-
-                    success: false,
-
-                    message:
-                        "Invalid access token."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               GET WORKER ID
-            ========================================== */
-
-            const workerId =
-                getWorkerIdFromToken(
-                    decodedToken
+                return sendAuthenticationError(
+                    res
                 );
 
-
-            if (!workerId) {
-
-                return res.status(401).json({
-
-                    success: false,
-
-                    message:
-                        "Invalid authentication token."
-
-                });
-
             }
 
 
-            /* ==========================================
-               FIND WORKER
-            ========================================== */
+            /* ------------------------------------------------
+               Find worker
+            ------------------------------------------------ */
 
             const worker =
                 await Worker.findById(
@@ -816,498 +363,157 @@ exports.updateWorkerDashboard =
                 );
 
 
-            if (!worker) {
+            /* ------------------------------------------------
+               Worker does not exist
+            ------------------------------------------------ */
+
+            if (
+                !worker
+            ) {
 
                 return res.status(404).json({
 
-                    success: false,
+                    success:
+                        false,
 
                     message:
-                        "Worker account could not be found."
+                        "Worker account not found."
 
                 });
 
             }
 
 
-            /* ==========================================
-               CHECK ACCOUNT STATUS
-            ========================================== */
+            /* ------------------------------------------------
+               Make sure worker has a phone number
+            ------------------------------------------------ */
 
             if (
-                worker.accountStatus !==
-                "active"
+                !worker.phone
             ) {
 
-                return res.status(403).json({
+                return res.status(400).json({
 
-                    success: false,
+                    success:
+                        false,
 
                     message:
-                        "Your worker account is not active."
+                        "Please add a phone number before verifying your profile."
 
                 });
 
             }
 
 
-            /* ==========================================
-               GET SUBMITTED DATA
-            ========================================== */
+            /* ------------------------------------------------
+               Check existing phone verification
+            ------------------------------------------------ */
+
+            if (
+
+                worker.phoneVerificationExpires &&
+
+                new Date(
+                    worker.phoneVerificationExpires
+                ) > new Date()
+
+            ) {
+
+                return res.status(400).json({
+
+                    success:
+                        false,
+
+                    message:
+                        "Your phone number is already verified."
+
+                });
+
+            }
+
+
+            /* =================================================
+               7. GENERATE PHONE OTP
+            ================================================= */
 
             const {
+                otp,
+                expiresAt
+            } =
+                generateOTPData();
 
-                fullName,
 
-                phone,
+            /* =================================================
+               8. SEND OTP THROUGH SMS
+            ================================================= */
 
-                primarySkill,
+            await sendPhoneOtp(
+                worker.phone,
+                otp
+            );
 
-                experience,
 
-                startingPrice,
+            /* =================================================
+               9. SAVE OTP AFTER SMS SUCCESS
+            ================================================= */
 
-                city,
+            worker.phoneOtp =
+                otp;
 
-                state,
 
-                description,
+            worker.phoneOtpExpires =
+                expiresAt;
 
-                profilePicture,
-
-                portfolioImages
-
-            } = req.body;
-
-
-            /* ==========================================
-               VALIDATE FULL NAME
-            ========================================== */
-
-            if (
-                fullName !== undefined
-            ) {
-
-                if (
-                    typeof fullName !==
-                    "string" ||
-                    !fullName.trim()
-                ) {
-
-                    return res.status(400).json({
-
-                        success: false,
-
-                        message:
-                            "Full name is required."
-
-                    });
-
-                }
-
-            }
-
-
-            /* ==========================================
-               VALIDATE PHONE
-            ========================================== */
-
-            if (
-                phone !== undefined &&
-                (
-                    typeof phone !==
-                    "string" ||
-                    !phone.trim()
-                )
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        "Please provide a valid phone number."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               VALIDATE PRIMARY SKILL
-            ========================================== */
-
-            if (
-                primarySkill !== undefined &&
-                (
-                    typeof primarySkill !==
-                    "string" ||
-                    !primarySkill.trim()
-                )
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        "Primary skill is required."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               VALIDATE EXPERIENCE
-            ========================================== */
-
-            if (
-                experience !== undefined &&
-                (
-                    typeof experience !==
-                    "string" ||
-                    !experience.trim()
-                )
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        "Experience is required."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               VALIDATE STARTING PRICE
-            ========================================== */
-
-            if (
-                startingPrice !== undefined &&
-                (
-                    typeof startingPrice !==
-                    "string" ||
-                    !startingPrice.trim()
-                )
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        "Starting price is required."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               VALIDATE LOCATION
-            ========================================== */
-
-            if (
-                city !== undefined &&
-                (
-                    typeof city !==
-                    "string" ||
-                    !city.trim()
-                )
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        "City is required."
-
-                });
-
-            }
-
-
-            if (
-                state !== undefined &&
-                (
-                    typeof state !==
-                    "string" ||
-                    !state.trim()
-                )
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        "State is required."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               VALIDATE DESCRIPTION
-            ========================================== */
-
-            if (
-                description !== undefined &&
-                typeof description !==
-                "string"
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        "Service description is invalid."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               VALIDATE PROFILE PICTURE
-            ========================================== */
-
-            if (
-                profilePicture !== undefined &&
-                profilePicture !== null &&
-                typeof profilePicture !==
-                "string"
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        "Profile picture is invalid."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               VALIDATE PORTFOLIO
-            ========================================== */
-
-            if (
-                portfolioImages !== undefined
-            ) {
-
-                if (
-                    !Array.isArray(
-                        portfolioImages
-                    )
-                ) {
-
-                    return res.status(400).json({
-
-                        success: false,
-
-                        message:
-                            "Portfolio images must be an array."
-
-                    });
-
-                }
-
-
-                if (
-                    portfolioImages.length > 3
-                ) {
-
-                    return res.status(400).json({
-
-                        success: false,
-
-                        message:
-                            "You can upload a maximum of 3 portfolio images."
-
-                    });
-
-                }
-
-            }
-
-
-            /* ==========================================
-               UPDATE WORKER FIELDS
-            ========================================== */
-
-            if (
-                fullName !== undefined
-            ) {
-
-                worker.fullName =
-                    fullName.trim();
-
-            }
-
-
-            if (
-                phone !== undefined
-            ) {
-
-                worker.phone =
-                    phone.trim();
-
-            }
-
-
-            if (
-                primarySkill !== undefined
-            ) {
-
-                worker.primarySkill =
-                    primarySkill.trim();
-
-            }
-
-
-            if (
-                experience !== undefined
-            ) {
-
-                worker.experience =
-                    experience.trim();
-
-            }
-
-
-            if (
-                startingPrice !== undefined
-            ) {
-
-                worker.startingPrice =
-                    startingPrice.trim();
-
-            }
-
-
-            if (
-                city !== undefined
-            ) {
-
-                worker.city =
-                    city.trim();
-
-            }
-
-
-            if (
-                state !== undefined
-            ) {
-
-                worker.state =
-                    state.trim();
-
-            }
-
-
-            if (
-                description !== undefined
-            ) {
-
-                worker.description =
-                    description.trim();
-
-            }
-
-
-            if (
-                profilePicture !== undefined
-            ) {
-
-                worker.profilePicture =
-                    profilePicture;
-
-            }
-
-
-            if (
-                portfolioImages !== undefined
-            ) {
-
-                worker.portfolioImages =
-                    portfolioImages;
-
-            }
-
-
-            /* ==========================================
-               SAVE UPDATED WORKER
-            ========================================== */
 
             await worker.save();
 
 
-            /* ==========================================
-               RETURN UPDATED PROFILE
-            ========================================== */
+            /* =================================================
+               10. RETURN SUCCESS
+            ================================================= */
+
+            /*
+               NEVER send the OTP itself to the frontend.
+            */
 
             return res.status(200).json({
 
-                success: true,
+                success:
+                    true,
 
                 message:
-                    "Worker profile updated successfully.",
+                    "A verification code has been sent to your phone.",
 
-                worker:
-                    buildDashboardResponse(
-                        worker
-                    )
+                phone:
+                    worker.phone
 
             });
 
-        } catch (error) {
+        }
+
+        catch (error) {
+
+            /* ------------------------------------------------
+               Log actual server error
+            ------------------------------------------------ */
 
             console.error(
-                "Update worker dashboard error:",
+                "Worker phone verification error:",
                 error
             );
 
 
-            /*
-               Handle duplicate phone numbers.
-            */
-
-            if (
-                error.code === 11000 &&
-                error.keyPattern &&
-                error.keyPattern.phone
-            ) {
-
-                return res.status(409).json({
-
-                    success: false,
-
-                    message:
-                        "This phone number is already in use."
-
-                });
-
-            }
-
+            /* ------------------------------------------------
+               Return safe error to frontend
+            ------------------------------------------------ */
 
             return res.status(500).json({
 
-                success: false,
+                success:
+                    false,
 
                 message:
-                    "Unable to update your profile."
+                    "Unable to send your phone verification code. Please try again."
 
             });
 
@@ -1317,128 +523,45 @@ exports.updateWorkerDashboard =
 
 
 /* =========================================================
-   10. LOGOUT WORKER
+   11. LOGOUT WORKER
 ========================================================= */
 
-/*
-   Flow:
-
-   Frontend sends refreshToken
-        ↓
-   Controller finds worker
-        ↓
-   Controller invalidates refreshToken
-        ↓
-   Controller removes refreshTokenHash
-        ↓
-   Frontend removes local tokens
-        ↓
-   Frontend redirects to authentication
-*/
-
-exports.logout =
-    async function (
+const logoutWorker =
+    async (
         req,
         res
-    ) {
+    ) => {
 
         try {
 
-            /* ==========================================
-               GET REFRESH TOKEN
-            ========================================== */
-
-            const refreshToken =
-                req.body.refreshToken;
-
-
-            /*
-               If there is no refreshToken,
-               there is nothing to revoke.
-
-               We still return success because
-               the frontend can safely clear its
-               local authentication data.
-            */
-
-            if (!refreshToken) {
-
-                return res.status(200).json({
-
-                    success: true,
-
-                    message:
-                        "Worker logged out successfully."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               VERIFY REFRESH TOKEN
-            ========================================== */
-
-            let decodedToken;
-
-
-            try {
-
-                decodedToken =
-                    jwt.verify(
-
-                        refreshToken,
-
-                        process.env.REFRESH_TOKEN_SECRET
-
-                    );
-
-            } catch (error) {
-
-                /*
-                   Even if the token has already expired,
-                   logout should still succeed locally.
-                */
-
-                return res.status(200).json({
-
-                    success: true,
-
-                    message:
-                        "Worker logged out successfully."
-
-                });
-
-            }
-
-
-            /* ==========================================
-               GET WORKER ID
-            ========================================== */
+            /* ------------------------------------------------
+               Authenticate access token
+            ------------------------------------------------ */
 
             const workerId =
-                getWorkerIdFromToken(
-                    decodedToken
+                authenticateAccessToken(
+                    req
                 );
 
 
-            if (!workerId) {
+            /* ------------------------------------------------
+               Authentication failed
+            ------------------------------------------------ */
 
-                return res.status(200).json({
+            if (
+                !workerId
+            ) {
 
-                    success: true,
-
-                    message:
-                        "Worker logged out successfully."
-
-                });
+                return sendAuthenticationError(
+                    res
+                );
 
             }
 
 
-            /* ==========================================
-               FIND WORKER
-            ========================================== */
+            /* ------------------------------------------------
+               Find worker
+            ------------------------------------------------ */
 
             const worker =
                 await Worker.findById(
@@ -1446,23 +569,30 @@ exports.logout =
                 );
 
 
-            if (!worker) {
+            /* ------------------------------------------------
+               Worker does not exist
+            ------------------------------------------------ */
 
-                return res.status(200).json({
+            if (
+                !worker
+            ) {
 
-                    success: true,
+                return res.status(404).json({
+
+                    success:
+                        false,
 
                     message:
-                        "Worker logged out successfully."
+                        "Worker account not found."
 
                 });
 
             }
 
 
-            /* ==========================================
-               REVOKE REFRESH TOKEN
-            ========================================== */
+            /* ------------------------------------------------
+               Revoke refresh token
+            ------------------------------------------------ */
 
             worker.refreshTokenHash =
                 null;
@@ -1471,20 +601,53 @@ exports.logout =
             await worker.save();
 
 
-            /* ==========================================
-               RETURN LOGOUT SUCCESS
-            ========================================== */
+            /* ------------------------------------------------
+               Clear refresh-token cookie
+            ------------------------------------------------ */
+
+            res.clearCookie(
+                "refreshToken",
+                {
+
+                    httpOnly:
+                        true,
+
+                    secure:
+                        process.env.NODE_ENV ===
+                        "production",
+
+                    sameSite:
+                        process.env.NODE_ENV ===
+                        "production"
+
+                            ? "none"
+
+                            : "lax",
+
+                    path:
+                        "/"
+
+                }
+            );
+
+
+            /* ------------------------------------------------
+               Return successful logout response
+            ------------------------------------------------ */
 
             return res.status(200).json({
 
-                success: true,
+                success:
+                    true,
 
                 message:
-                    "Worker logged out successfully."
+                    "Logged out successfully."
 
             });
 
-        } catch (error) {
+        }
+
+        catch (error) {
 
             console.error(
                 "Worker logout error:",
@@ -1494,13 +657,29 @@ exports.logout =
 
             return res.status(500).json({
 
-                success: false,
+                success:
+                    false,
 
                 message:
-                    "Unable to complete logout."
+                    "Unable to log out. Please try again."
 
             });
 
         }
 
     };
+
+
+/* =========================================================
+   12. EXPORT CONTROLLERS
+========================================================= */
+
+module.exports = {
+
+    getWorkerDashboard,
+
+    verifyWorkerPhone,
+
+    logoutWorker
+
+};

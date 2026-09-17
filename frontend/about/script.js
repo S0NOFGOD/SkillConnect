@@ -1,16 +1,6 @@
 /* =========================================================
-   SKILLCONNECT ABOUT PAGE JAVASCRIPT
-========================================================= */
-
-
-/* =========================================================
    WAIT FOR THE HTML DOCUMENT TO LOAD
 ========================================================= */
-
-/*
-    This waits until the entire HTML document has loaded
-    before JavaScript starts interacting with the page.
-*/
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -19,25 +9,9 @@ document.addEventListener("DOMContentLoaded", () => {
        FOOTER YEAR
     ===================================================== */
 
-    /*
-        Find the footer paragraph.
-
-        The About page currently contains:
-
-        © 2026 SkillConnect. All rights reserved.
-
-        We will replace the hard-coded year with the
-        current year automatically.
-    */
-
     const footerText =
         document.querySelector("footer p");
 
-
-    /*
-        Make sure the footer paragraph exists before
-        trying to modify it.
-    */
 
     if (footerText) {
 
@@ -49,13 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
             new Date().getFullYear();
 
 
-        /*
-            Replace the old year with the current year.
-
-            This keeps the copyright year automatically
-            updated.
-        */
-
         footerText.innerHTML =
             `© ${currentYear} SkillConnect. All rights reserved.`;
 
@@ -66,24 +33,11 @@ document.addEventListener("DOMContentLoaded", () => {
        SCROLL REVEAL
     ===================================================== */
 
-    /*
-        Select all major sections on the About page.
-
-        We will add the "reveal" class to them using
-        JavaScript.
-
-        The CSS will then control their animation.
-    */
-
     const sections =
         document.querySelectorAll(
             ".section, .cta"
         );
 
-
-    /*
-        Only create the observer if sections exist.
-    */
 
     if (sections.length > 0) {
 
@@ -91,12 +45,6 @@ document.addEventListener("DOMContentLoaded", () => {
         /* =================================================
            INTERSECTION OBSERVER
         ================================================= */
-
-        /*
-            IntersectionObserver allows JavaScript to
-            detect when an element enters the visible
-            part of the screen.
-        */
 
         const revealObserver =
             new IntersectionObserver(
@@ -150,6 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 },
                 {
+
                     /*
                         The animation begins when about
                         15% of the element becomes visible.
@@ -194,11 +143,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* =====================================================
-       NAVIGATION ACTIVE STATE
+       DESKTOP NAVIGATION ACTIVE STATE
     ===================================================== */
 
     /*
-        Find all navigation links.
+        Find all desktop navigation links.
     */
 
     const navigationLinks =
@@ -243,8 +192,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 /*
                     Add the active class to the
                     link that was clicked.
-
-                    This gives visual feedback.
                 */
 
                 link.classList.add("active");
@@ -254,6 +201,297 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
     }
+
+
+    /* =====================================================
+       MOBILE SIDEBAR
+    ===================================================== */
+
+    /*
+        Get the hamburger button.
+    */
+
+    const menuToggle =
+        document.getElementById(
+            "menuToggle"
+        );
+
+
+    /*
+        Get the mobile sidebar.
+    */
+
+    const mobileSidebar =
+        document.getElementById(
+            "mobileSidebar"
+        );
+
+
+    /*
+        Get the sidebar overlay.
+    */
+
+    const sidebarOverlay =
+        document.getElementById(
+            "sidebarOverlay"
+        );
+
+
+    /*
+        Get the sidebar close button.
+    */
+
+    const sidebarClose =
+        document.getElementById(
+            "sidebarClose"
+        );
+
+
+    /*
+        Get the mobile sidebar links.
+    */
+
+    const sidebarLinks =
+        document.querySelectorAll(
+            ".sidebar-links a"
+        );
+
+
+    /* =====================================================
+       OPEN MOBILE SIDEBAR
+    ===================================================== */
+
+    function openSidebar() {
+
+        /*
+            Add the open class to the sidebar.
+        */
+
+        mobileSidebar.classList.add("open");
+
+
+        /*
+            Show the dark overlay.
+        */
+
+        sidebarOverlay.classList.add("show");
+
+
+        /*
+            Update accessibility state.
+        */
+
+        menuToggle.setAttribute(
+            "aria-expanded",
+            "true"
+        );
+
+
+        menuToggle.setAttribute(
+            "aria-label",
+            "Close navigation menu"
+        );
+
+
+        /*
+            Prevent the page behind the sidebar
+            from scrolling.
+        */
+
+        document.body.style.overflow =
+            "hidden";
+
+    }
+
+
+    /* =====================================================
+       CLOSE MOBILE SIDEBAR
+    ===================================================== */
+
+    function closeSidebar() {
+
+        /*
+            Remove the open class.
+        */
+
+        mobileSidebar.classList.remove(
+            "open"
+        );
+
+
+        /*
+            Hide the overlay.
+        */
+
+        sidebarOverlay.classList.remove(
+            "show"
+        );
+
+
+        /*
+            Update accessibility state.
+        */
+
+        menuToggle.setAttribute(
+            "aria-expanded",
+            "false"
+        );
+
+
+        menuToggle.setAttribute(
+            "aria-label",
+            "Open navigation menu"
+        );
+
+
+        /*
+            Restore page scrolling.
+        */
+
+        document.body.style.overflow =
+            "";
+
+    }
+
+
+    /* =====================================================
+       HAMBURGER BUTTON
+    ===================================================== */
+
+    if (menuToggle) {
+
+        menuToggle.addEventListener(
+            "click",
+            () => {
+
+                /*
+                    Check whether the sidebar
+                    is currently open.
+                */
+
+                const isOpen =
+                    mobileSidebar.classList.contains(
+                        "open"
+                    );
+
+
+                /*
+                    Toggle the sidebar state.
+                */
+
+                if (isOpen) {
+
+                    closeSidebar();
+
+                } else {
+
+                    openSidebar();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       SIDEBAR CLOSE BUTTON
+    ===================================================== */
+
+    if (sidebarClose) {
+
+        sidebarClose.addEventListener(
+            "click",
+            closeSidebar
+        );
+
+    }
+
+
+    /* =====================================================
+       SIDEBAR OVERLAY
+    ===================================================== */
+
+    if (sidebarOverlay) {
+
+        sidebarOverlay.addEventListener(
+            "click",
+            closeSidebar
+        );
+
+    }
+
+
+    /* =====================================================
+       MOBILE SIDEBAR LINKS
+    ===================================================== */
+
+    if (sidebarLinks.length > 0) {
+
+        sidebarLinks.forEach((link) => {
+
+            link.addEventListener(
+                "click",
+                () => {
+
+                    /*
+                        Close the sidebar before
+                        following the selected link.
+                    */
+
+                    closeSidebar();
+
+
+                    /*
+                        Update the active state.
+                    */
+
+                    sidebarLinks.forEach((item) => {
+
+                        item.classList.remove(
+                            "active"
+                        );
+
+                    });
+
+
+                    link.classList.add(
+                        "active"
+                    );
+
+                }
+            );
+
+        });
+
+    }
+
+
+    /* =====================================================
+       ESCAPE KEY
+    ===================================================== */
+
+    document.addEventListener(
+        "keydown",
+        (event) => {
+
+            /*
+                Allow the user to close the
+                mobile sidebar with Escape.
+            */
+
+            if (
+                event.key === "Escape" &&
+                mobileSidebar.classList.contains("open")
+            ) {
+
+                closeSidebar();
+
+            }
+
+        }
+    );
 
 
     /* =====================================================

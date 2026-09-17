@@ -1,26 +1,4 @@
 /* =========================================================
-   SKILLCONNECT WORKER EMAIL OTP STYLES
-
-   This file controls the visual appearance of:
-
-   1. Navigation
-   2. Email verification page
-   3. OTP inputs
-   4. Verify button
-   5. Loading state
-   6. Resend OTP
-   7. Countdown
-   8. Success / Error modal
-   9. Responsive layouts
-
-   IMPORTANT:
-
-   The JavaScript controls the authentication logic.
-   This CSS only controls presentation.
-========================================================= */
-
-
-/* =========================================================
    1. GLOBAL RESET
 ========================================================= */
 

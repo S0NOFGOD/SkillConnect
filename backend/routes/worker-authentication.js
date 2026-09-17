@@ -6,7 +6,7 @@ const express =
     require("express");
 
 const passport =
-    require("../config/passport");
+    require("../config/google");
 
 
 /* ---------------------------------------------------------

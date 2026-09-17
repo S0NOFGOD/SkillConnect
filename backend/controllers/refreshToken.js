@@ -20,28 +20,6 @@ const {
    2. REFRESH ACCESS TOKEN
 ========================================================= */
 
-/*
-   FLOW:
-
-   Browser sends HTTP-only refreshToken cookie
-                    ↓
-   Read refreshToken from cookie
-                    ↓
-   Verify refreshToken JWT
-                    ↓
-   Extract userId + userType
-                    ↓
-   Hash refreshToken
-                    ↓
-   Find matching Worker
-                    ↓
-   Compare stored refreshTokenHash
-                    ↓
-   Generate new accessToken
-                    ↓
-   Return accessToken
-*/
-
 
 const refreshAccessToken = async (
     req,

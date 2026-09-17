@@ -52,7 +52,8 @@
 
             </a>
 
-            <!-- Navigation links -->
+
+            <!-- Desktop Navigation Links -->
 
             <div class="nav-links">
 
@@ -71,9 +72,91 @@
 
             </div>
 
+
+            <!-- Mobile Hamburger Button -->
+
+            <button
+                class="menu-toggle"
+                id="menuToggle"
+                type="button"
+                aria-label="Open navigation menu"
+                aria-expanded="false"
+                aria-controls="mobileSidebar"
+            >
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </button>
+
         </nav>
 
     </header>
+
+
+    <!-- =========================
+         MOBILE SIDEBAR OVERLAY
+    ========================== -->
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+    ></div>
+
+
+    <!-- =========================
+         MOBILE SIDEBAR
+    ========================== -->
+
+    <aside
+        class="mobile-sidebar"
+        id="mobileSidebar"
+        aria-label="Mobile navigation"
+    >
+
+        <!-- Sidebar Header -->
+
+        <div class="sidebar-header">
+
+            <span class="sidebar-title">
+                Menu
+            </span>
+
+            <button
+                class="sidebar-close"
+                id="sidebarClose"
+                type="button"
+                aria-label="Close navigation menu"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <!-- Sidebar Navigation Links -->
+
+        <nav class="sidebar-links">
+
+            <a
+                href="../contact/index.html"
+                class="active"
+            >
+
+                Contact
+
+            </a>
+
+            <a href="../index.html">
+
+                Home
+
+            </a>
+
+        </nav>
+
+    </aside>
 
 
     <!-- =========================

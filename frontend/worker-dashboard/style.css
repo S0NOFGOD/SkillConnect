@@ -1,251 +1,127 @@
 /* =========================================================
-   WORKER DASHBOARD
-   style.css
-
-   PURPOSE:
-   Controls the complete visual appearance of the
-   Worker Dashboard page.
-
-   DESIGN:
-   - Dark premium interface
-   - Worker green + client blue accents
-   - Responsive sidebar
-   - Mobile hamburger navigation
-   - Glassmorphism cards
-   - Responsive worker information
-   - Portfolio grid
-   - Notification modals
-
-   IMPORTANT:
-   All authentication, error, success, redirect,
-   and logout messages are displayed through modals
-   controlled by script.js.
-========================================================= */
-
-
-/* =========================================================
    1. GLOBAL RESET
 ========================================================= */
 
 * {
-
     margin: 0;
-
     padding: 0;
-
     box-sizing: border-box;
-
 }
-
-
-/* =========================================================
-   2. HTML
-========================================================= */
 
 html {
-
     scroll-behavior: smooth;
-
 }
 
-
-/* =========================================================
-   3. BODY
-========================================================= */
-
 body {
-
     min-height: 100vh;
 
     font-family: "Inter", sans-serif;
 
     background: #020617;
-
     color: #ffffff;
 
     line-height: 1.6;
-
-    overflow-x: hidden;
-
 }
 
 
 /* =========================================================
-   4. LINKS
+   2. BASIC ELEMENTS
 ========================================================= */
 
 a {
-
     color: inherit;
-
     text-decoration: none;
-
 }
-
-
-/* =========================================================
-   5. FORM ELEMENTS
-========================================================= */
 
 button,
 input,
 select,
 textarea {
-
     font-family: inherit;
+}
 
+button {
+    cursor: pointer;
 }
 
 
 /* =========================================================
-   6. BACKGROUND GLOWS
+   3. BACKGROUND EFFECTS
 ========================================================= */
 
 .green-glow,
 .blue-glow {
-
     position: fixed;
 
     width: 350px;
-
     height: 350px;
 
     border-radius: 50%;
 
     filter: blur(150px);
 
-    opacity: .15;
+    opacity: .12;
 
     pointer-events: none;
 
     z-index: -1;
-
 }
 
-
-/* =========================================================
-   GREEN GLOW
-========================================================= */
-
 .green-glow {
-
     top: -120px;
-
     left: -120px;
 
     background: #22c55e;
-
 }
 
-
-/* =========================================================
-   BLUE GLOW
-========================================================= */
-
 .blue-glow {
-
     right: -120px;
-
     bottom: -120px;
 
     background: #3b82f6;
-
 }
 
 
 /* =========================================================
-   7. SCREEN READER ONLY
-========================================================= */
-
-.sr-only {
-
-    position: absolute;
-
-    width: 1px;
-
-    height: 1px;
-
-    padding: 0;
-
-    margin: -1px;
-
-    overflow: hidden;
-
-    clip: rect(0, 0, 0, 0);
-
-    white-space: nowrap;
-
-    border: 0;
-
-}
-
-
-/* =========================================================
-   8. TOP NAVBAR
+   4. TOPBAR
 ========================================================= */
 
 .topbar {
-
     position: fixed;
 
     top: 0;
-
     left: 0;
 
     width: 100%;
-
-    height: 72px;
+    height: 70px;
 
     z-index: 1000;
 
-    background:
-        rgba(2, 6, 23, .88);
+    background: rgba(2, 6, 23, .92);
 
     backdrop-filter: blur(15px);
-
     -webkit-backdrop-filter: blur(15px);
 
     border-bottom:
         1px solid
         rgba(255, 255, 255, .08);
-
 }
 
-
-/* =========================================================
-   TOPBAR INNER
-========================================================= */
-
 .topbar-inner {
-
-    width: 100%;
-
     height: 100%;
 
-    padding-left: 50px;
-
-    padding-right: 20px;
+    padding: 0 20px 0 40px;
 
     display: flex;
 
     align-items: center;
-
     justify-content: space-between;
-
 }
 
-
-/* =========================================================
-   9. LOGO
-========================================================= */
-
 .logo {
-
-    font-size: 24px;
+    font-size: 23px;
 
     font-weight: 800;
-
-    letter-spacing: -1px;
 
     background:
         linear-gradient(
@@ -255,23 +131,16 @@ textarea {
         );
 
     -webkit-background-clip: text;
-
     -webkit-text-fill-color: transparent;
-
 }
 
 
-
-
-
 /* =========================================================
-   10. HAMBURGER BUTTON
+   5. MOBILE MENU BUTTON
 ========================================================= */
 
 .menu-btn {
-
     width: 44px;
-
     height: 44px;
 
     display: none;
@@ -279,160 +148,101 @@ textarea {
     flex-direction: column;
 
     align-items: center;
-
     justify-content: center;
 
     gap: 5px;
 
     border: none;
-
     border-radius: 12px;
 
     background: #111827;
-
-    cursor: pointer;
-
 }
 
-
-/* =========================================================
-   HAMBURGER LINES
-========================================================= */
-
 .menu-btn span {
-
     width: 21px;
-
     height: 2px;
-
-    border-radius: 5px;
 
     background: #ffffff;
 
+    border-radius: 5px;
 }
 
 
 /* =========================================================
-   HAMBURGER HOVER
-========================================================= */
-
-.menu-btn:hover {
-
-    background: #1e293b;
-
-}
-
-
-/* =========================================================
-   11. SIDEBAR
+   6. SIDEBAR
 ========================================================= */
 
 .sidebar {
-
     position: fixed;
 
     top: 0;
-
     right: 0;
 
-    width: 280px;
-
+    width: 270px;
     height: 100vh;
-
-    display: flex;
-
-    flex-direction: column;
 
     padding: 25px 18px;
 
-    background:
-        rgba(2, 6, 23, .88);
+    display: flex;
+    flex-direction: column;
+
+    background: rgba(2, 6, 23, .92);
 
     backdrop-filter: blur(15px);
-
     -webkit-backdrop-filter: blur(15px);
 
     border-left:
         1px solid
         rgba(255, 255, 255, .08);
 
-    z-index: 900;
-
+    z-index: 1500;
 }
 
-
-/* =========================================================
-   SIDEBAR HEADER
-========================================================= */
-
 .sidebar-header {
-
-    min-height: 55px;
+    min-height: 50px;
 
     display: flex;
 
     align-items: center;
-
     justify-content: flex-end;
 
-    margin-bottom: 30px;
-
+    margin-bottom: 25px;
 }
 
-
-/* =========================================================
-   CLOSE MENU BUTTON
-========================================================= */
-
 .close-menu-btn {
-
     display: none;
 
     width: 38px;
-
     height: 38px;
 
     align-items: center;
-
     justify-content: center;
 
     border: none;
-
     border-radius: 10px;
 
     background: #111827;
 
     color: #ffffff;
 
-    font-size: 26px;
-
-    line-height: 1;
-
-    cursor: pointer;
-
+    font-size: 25px;
 }
 
 
 /* =========================================================
-   12. SIDEBAR NAVIGATION
+   7. SIDEBAR NAVIGATION
 ========================================================= */
 
 .sidebar-nav {
-
     display: flex;
-
     flex-direction: column;
 
     gap: 8px;
-
 }
 
-
-/* =========================================================
-   NAVIGATION LINK
-========================================================= */
-
 .nav-link {
+    width: 100%;
+    min-height: 48px;
 
     display: flex;
 
@@ -440,14 +250,9 @@ textarea {
 
     gap: 12px;
 
-    width: 100%;
-
-    min-height: 48px;
-
     padding: 12px 14px;
 
-    border: none;
-
+    border: 1px solid transparent;
     border-radius: 13px;
 
     background: transparent;
@@ -455,75 +260,54 @@ textarea {
     color: #cbd5e1;
 
     font-size: 14px;
-
     font-weight: 600;
 
     text-align: left;
 
-    cursor: pointer;
-
     transition: .2s ease;
-
 }
 
-
-/* =========================================================
-   NAVIGATION ICON
-========================================================= */
-
 .nav-icon {
-
     width: 25px;
 
     display: inline-flex;
 
     align-items: center;
-
     justify-content: center;
 
     font-size: 17px;
-
 }
 
-
-/* =========================================================
-   NAVIGATION HOVER
-========================================================= */
-
-.nav-link:hover {
-
-    color: #ffffff;
-
-    background:
-        rgba(34, 197, 94, .10);
-
-}
-
-
-/* =========================================================
-   ACTIVE NAVIGATION
-========================================================= */
-
+.nav-link:hover,
 .nav-link.active {
-
     color: #ffffff;
 
-    background:
-        rgba(34, 197, 94, .15);
+    background: rgba(34, 197, 94, .12);
 
-    border:
-        1px solid
+    border-color:
         rgba(34, 197, 94, .20);
-
 }
 
+.verify-profile-link .nav-icon {
+    color: #22c55e;
+}
 
-/* =========================================================
-   SIDEBAR FOOTER
-========================================================= */
+.verify-profile-link.verification-expired {
+    color: #f87171;
+
+    background: rgba(239, 68, 68, .08);
+
+    border-color:
+        rgba(239, 68, 68, .20);
+}
+
+.logout-link:hover {
+    color: #f87171;
+
+    background: rgba(239, 68, 68, .08);
+}
 
 .sidebar-footer {
-
     margin-top: auto;
 
     padding-top: 20px;
@@ -531,82 +315,21 @@ textarea {
     border-top:
         1px solid
         rgba(255, 255, 255, .08);
-
-}
-
-
-
-/* =========================================================
-   UPDATE PROFILE LINK
-========================================================= */
-
-.update-profile-link {
-
-    margin-bottom: 6px;
-
-    color: #cbd5e1;
-
 }
 
 
 /* =========================================================
-   UPDATE PROFILE HOVER
-========================================================= */
-
-.update-profile-link:hover {
-
-    color: #ffffff;
-
-    background:
-        rgba(34, 197, 94, .10);
-
-}
-
-
-/* =========================================================
-   UPDATE PROFILE ICON
-========================================================= */
-
-.update-profile-link .nav-icon {
-
-    color: #22c55e;
-
-}
-
-
-/* =========================================================
-   LOGOUT HOVER
-========================================================= */
-
-.logout-link:hover {
-
-    color: #f87171;
-
-    background:
-        rgba(239, 68, 68, .08);
-
-}
-
-
-/* =========================================================
-   13. SIDEBAR OVERLAY
+   8. MOBILE OVERLAY
 ========================================================= */
 
 .overlay {
-
     position: fixed;
 
     inset: 0;
 
-    background:
-        rgba(2, 6, 23, .70);
-
-    backdrop-filter: blur(3px);
-
-    -webkit-backdrop-filter: blur(3px);
+    background: rgba(2, 6, 23, .70);
 
     opacity: 0;
-
     visibility: hidden;
 
     pointer-events: none;
@@ -614,906 +337,69 @@ textarea {
     transition: .25s ease;
 
     z-index: 1400;
-
 }
 
-
-/* =========================================================
-   ACTIVE OVERLAY
-========================================================= */
-
 .overlay.active {
-
     opacity: 1;
 
     visibility: visible;
 
     pointer-events: auto;
-
 }
 
 
 /* =========================================================
-   14. MAIN DASHBOARD
+   9. MAIN DASHBOARD
 ========================================================= */
 
 .dashboard {
-
-    width: calc(100% - 280px);
+    width: calc(100% - 270px);
 
     min-height: 100vh;
 
-    margin-right: 280px;
+    margin-right: 270px;
 
-    padding:
-        105px
-        40px
-        70px;
-
+    padding: 105px 35px 60px;
 }
 
-
-/* =========================================================
-   15. DASHBOARD HEADER
-========================================================= */
-
 .dashboard-header {
-
     width: 100%;
+    max-width: 1400px;
 
-    max-width: 1500px;
-
-    margin:
-        0 auto 30px;
+    margin: 0 auto 30px;
 
     display: flex;
 
     align-items: flex-start;
-
     justify-content: space-between;
 
-    gap: 25px;
-
+    gap: 20px;
 }
 
-
-/* =========================================================
-   DASHBOARD TITLE
-========================================================= */
-
 .dashboard-header h1 {
-
     font-size: 32px;
 
     font-weight: 800;
 
     line-height: 1.2;
-
-    letter-spacing: -.8px;
-
 }
-
-
-/* =========================================================
-   WORKER FIRST NAME
-========================================================= */
 
 .dashboard-header h1 span {
-
     color: #22c55e;
-
 }
 
 
 /* =========================================================
-   DASHBOARD DESCRIPTION
+   10. VERIFICATION BUTTON
 ========================================================= */
 
-.dashboard-description {
+.verification-action-btn {
+    min-height: 42px;
 
-    max-width: 650px;
-
-    margin-top: 9px;
-
-    color: #94a3b8;
-
-    font-size: 14px;
-
-}
-
-
-/* =========================================================
-   16. PROFILE PHOTO CONTAINER
-
-   IMPORTANT:
-
-   The HTML contains only:
-
-       - Profile image
-       - Unverified badge
-
-   There is no visible card/container design
-   around the image.
-========================================================= */
-
-.profile-photo-container {
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-
-    justify-content: center;
-
-    gap: 10px;
-
-    flex-shrink: 0;
-
-    background: transparent;
+    padding: 9px 16px;
 
     border: none;
-
-    box-shadow: none;
-
-    padding: 0;
-
-    margin:
-        0 auto 35px;
-
-}
-
-
-/* =========================================================
-   PROFILE IMAGE
-========================================================= */
-
-.profile-photo-container img {
-
-    width: 125px;
-
-    height: 125px;
-
-    display: block;
-
-    object-fit: cover;
-
-    border-radius: 50%;
-
-    border:
-        2px solid
-        rgba(34, 197, 94, .35);
-
-    background: #111827;
-
-}
-
-
-/* =========================================================
-   UNVERIFIED BADGE
-========================================================= */
-
-.profile-verification-badge {
-
-    display: inline-flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    padding: 5px 10px;
-
-    border-radius: 999px;
-
-    background:
-        rgba(245, 158, 11, .10);
-
-    border:
-        1px solid
-        rgba(245, 158, 11, .25);
-
-    color: #fbbf24;
-
-    font-size: 10px;
-
-    font-weight: 800;
-
-    letter-spacing: .5px;
-
-    white-space: nowrap;
-
-}
-
-
-/* =========================================================
-   PROFILE IMAGE FALLBACK
-========================================================= */
-
-.profile-image-fallback {
-
-    display: none;
-
-}
-
-
-/* =========================================================
-   17. DASHBOARD SECTION
-========================================================= */
-
-.dashboard-section {
-
-    width: 100%;
-
-    max-width: 1500px;
-
-    margin:
-        0 auto 35px;
-
-}
-
-
-/* =========================================================
-   18. SECTION HEADING
-========================================================= */
-
-.section-heading {
-
-    margin-bottom: 15px;
-
-}
-
-
-/* =========================================================
-   SECTION TITLE
-========================================================= */
-
-.section-heading h2 {
-
-    font-size: 21px;
-
-    font-weight: 800;
-
-}
-
-
-/* =========================================================
-   SECTION DESCRIPTION
-========================================================= */
-
-.section-heading > p:last-child {
-
-    margin-top: 4px;
-
-    color: #64748b;
-
-    font-size: 13px;
-
-}
-
-
-/* =========================================================
-   19. INFORMATION GRID
-========================================================= */
-
-.information-grid {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
-    gap: 15px;
-
-}
-
-
-/* =========================================================
-   20. INFORMATION CARD
-========================================================= */
-
-.information-card {
-
-    min-height: 100px;
-
-    padding: 20px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    justify-content: center;
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .08);
-
-    border-radius: 16px;
-
-    background:
-        rgba(15, 23, 42, .78);
-
-    backdrop-filter: blur(12px);
-
-    -webkit-backdrop-filter: blur(12px);
-
-    transition:
-        border-color .2s ease,
-        transform .2s ease;
-
-}
-
-
-/* =========================================================
-   INFORMATION CARD HOVER
-========================================================= */
-
-.information-card:hover {
-
-    transform: translateY(-2px);
-
-    border-color:
-        rgba(34, 197, 94, .30);
-
-}
-
-
-/* =========================================================
-   INFORMATION LABEL
-========================================================= */
-
-.information-label {
-
-    margin-bottom: 6px;
-
-    color: #64748b;
-
-    font-size: 12px;
-
-    font-weight: 600;
-
-}
-
-
-/* =========================================================
-   INFORMATION VALUE
-========================================================= */
-
-.information-card strong {
-
-    color: #f8fafc;
-
-    font-size: 15px;
-
-    font-weight: 700;
-
-    overflow-wrap: anywhere;
-
-}
-
-
-/* =========================================================
-   21. DESCRIPTION CARD
-========================================================= */
-
-.description-card {
-
-    padding: 23px;
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .08);
-
-    border-radius: 18px;
-
-    background:
-        rgba(15, 23, 42, .78);
-
-    backdrop-filter: blur(12px);
-
-    -webkit-backdrop-filter: blur(12px);
-
-}
-
-
-/* =========================================================
-   DESCRIPTION TEXT
-========================================================= */
-
-.description-card p {
-
-    color: #cbd5e1;
-
-    font-size: 14px;
-
-    line-height: 1.8;
-
-    white-space: pre-line;
-
-}
-
-
-/* =========================================================
-   22. PORTFOLIO GRID
-========================================================= */
-
-.portfolio-grid {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
-
-    gap: 14px;
-
-}
-
-
-/* =========================================================
-   23. PORTFOLIO CARD
-========================================================= */
-
-.portfolio-card {
-
-    position: relative;
-
-    min-width: 0;
-
-    min-height: 220px;
-
-    overflow: hidden;
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .08);
-
-    border-radius: 16px;
-
-    background: #111827;
-
-    transition:
-        transform .2s ease,
-        border-color .2s ease,
-        box-shadow .2s ease;
-
-}
-
-
-/* =========================================================
-   PORTFOLIO CARD HOVER
-========================================================= */
-
-.portfolio-card:hover {
-
-    transform: translateY(-3px);
-
-    border-color:
-        rgba(34, 197, 94, .35);
-
-    box-shadow:
-        0 12px 28px
-        rgba(0, 0, 0, .20);
-
-}
-
-
-/* =========================================================
-   PORTFOLIO IMAGE
-========================================================= */
-
-.portfolio-image {
-
-    width: 100%;
-
-    height: 220px;
-
-    display: block;
-
-    object-fit: cover;
-
-    background: #111827;
-
-}
-
-
-/* =========================================================
-   PORTFOLIO FALLBACK
-========================================================= */
-
-.portfolio-fallback {
-
-    width: 100%;
-
-    height: 220px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(34, 197, 94, .08),
-            rgba(59, 130, 246, .08)
-        );
-
-    color: #64748b;
-
-    font-size: 45px;
-
-}
-
-
-/* =========================================================
-   PORTFOLIO LABEL
-========================================================= */
-
-.portfolio-label {
-
-    position: absolute;
-
-    left: 12px;
-
-    right: 12px;
-
-    bottom: 12px;
-
-    padding: 10px 12px;
-
-    border-radius: 10px;
-
-    background:
-        rgba(2, 6, 23, .75);
-
-    backdrop-filter: blur(10px);
-
-    -webkit-backdrop-filter: blur(10px);
-
-    color: #ffffff;
-
-    font-size: 12px;
-
-    font-weight: 700;
-
-    text-align: center;
-
-}
-
-
-/* =========================================================
-   24. EMPTY PORTFOLIO STATE
-========================================================= */
-
-.empty-state {
-
-    width: 100%;
-
-    max-width: 500px;
-
-    margin:
-        40px auto;
-
-    padding: 40px 25px;
-
-    text-align: center;
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .08);
-
-    border-radius: 20px;
-
-    background:
-        rgba(15, 23, 42, .60);
-
-}
-
-
-/* =========================================================
-   EMPTY STATE ICON
-========================================================= */
-
-.empty-icon {
-
-    width: 60px;
-
-    height: 60px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    margin:
-        0 auto 18px;
-
-    border-radius: 50%;
-
-    background:
-        rgba(34, 197, 94, .10);
-
-    font-size: 25px;
-
-}
-
-
-/* =========================================================
-   EMPTY STATE TITLE
-========================================================= */
-
-.empty-state h2 {
-
-    margin-bottom: 8px;
-
-    font-size: 20px;
-
-}
-
-
-/* =========================================================
-   EMPTY STATE TEXT
-========================================================= */
-
-.empty-state p {
-
-    color: #94a3b8;
-
-    font-size: 14px;
-
-}
-
-
-/* =========================================================
-   26. NOTIFICATION MODAL
-=============================================*/
-
-.notification-modal {
-
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 99999;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    padding: 20px;
-
-    background:
-        rgba(2, 6, 23, .78);
-
-    backdrop-filter: blur(10px);
-
-    -webkit-backdrop-filter: blur(10px);
-
-}
-
-
-/* =========================================================
-   HIDDEN MODAL
-========================================================= */
-
-.notification-modal[hidden] {
-
-    display: none;
-
-}
-
-
-/* =========================================================
-   27. NOTIFICATION CARD
-========================================================= */
-
-.notification-card {
-
-    width:
-        min(
-            390px,
-            calc(100vw - 40px)
-        );
-
-    max-height:
-        calc(100vh - 40px);
-
-    overflow-y: auto;
-
-    padding: 35px 30px;
-
-    text-align: center;
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .10);
-
-    border-radius: 22px;
-
-    background: #0f172a;
-
-    box-shadow:
-        0 25px 80px
-        rgba(0, 0, 0, .55);
-
-}
-
-
-/* =========================================================
-   28. NOTIFICATION ICON
-========================================================= */
-
-.notification-icon {
-
-    width: 64px;
-
-    height: 64px;
-
-    margin:
-        0 auto 20px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border-radius: 50%;
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
-    color: #ffffff;
-
-    font-size: 30px;
-
-    font-weight: 800;
-
-}
-
-
-/* =========================================================
-   29. NOTIFICATION TITLE
-========================================================= */
-
-.notification-card h2 {
-
-    margin-bottom: 10px;
-
-    font-size: 24px;
-
-    font-weight: 800;
-
-    line-height: 1.3;
-
-}
-
-
-/* =========================================================
-   30. NOTIFICATION MESSAGE
-========================================================= */
-
-.notification-card p {
-
-    margin-bottom: 25px;
-
-    color: #cbd5e1;
-
-    font-size: 14px;
-
-    line-height: 1.7;
-
-    white-space: pre-line;
-
-}
-
-
-/* =========================================================
-   31. NOTIFICATION ACTIONS
-========================================================= */
-
-.notification-actions {
-
-    display: flex;
-
-    gap: 10px;
-
-}
-
-
-/* =========================================================
-   NOTIFICATION BUTTONS
-========================================================= */
-
-.notification-actions button {
-
-    flex: 1;
-
-    min-height: 48px;
-
-    padding: 12px 16px;
-
-    border: none;
-
-    border-radius: 14px;
-
-    font-size: 14px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition: .2s ease;
-
-}
-
-
-/* =========================================================
-   PRIMARY NOTIFICATION BUTTON
-========================================================= */
-
-#notificationButton {
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
-    color: #ffffff;
-
-}
-
-
-/* =========================================================
-   CANCEL BUTTON
-========================================================= */
-
-.notification-cancel-button {
-
-    background: #1e293b;
-
-    color: #cbd5e1;
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .08) !important;
-
-}
-
-
-/* =========================================================
-   NOTIFICATION BUTTON HOVER
-========================================================= */
-
-.notification-actions button:hover {
-
-    transform: translateY(-2px);
-
-}
-
-
-/* =========================================================
-   32. ERROR MODAL
-========================================================= */
-
-.notification-card.error {
-
-    border-color:
-        rgba(239, 68, 68, .25);
-
-}
-
-
-.notification-card.error .notification-icon {
+    border-radius: 11px;
 
     background:
         linear-gradient(
@@ -1522,69 +408,232 @@ textarea {
             #dc2626
         );
 
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 700;
 }
 
 
 /* =========================================================
-   33. SUCCESS MODAL
+   11. DASHBOARD SECTIONS
 ========================================================= */
 
-.notification-card.success {
+.dashboard-section {
+    width: 100%;
+    max-width: 1400px;
 
-    border-color:
-        rgba(34, 197, 94, .25);
+    margin: 0 auto 32px;
+}
+
+.section-heading {
+    margin-bottom: 14px;
+}
+
+.section-heading h2 {
+    font-size: 20px;
+
+    font-weight: 800;
+}
+
+.information-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 14px;
+}
+
+.information-card {
+    min-height: 95px;
+
+    padding: 19px;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+    border-radius: 16px;
+
+    background:
+        rgba(15, 23, 42, .78);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.information-label {
+    margin-bottom: 5px;
+
+    color: #64748b;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.information-card strong {
+    color: #f8fafc;
+
+    font-size: 15px;
+    font-weight: 700;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   12. PROFILE PHOTO
+========================================================= */
+
+/*
+   Centers the complete photo container.
+*/
+
+.profile-photo-card {
+
+    width: 100%;
+
+    margin: 0 auto 25px;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
 
 }
 
 
-.notification-card.success .notification-icon {
+/*
+   Circular profile photo container.
+
+   Both the image and placeholder use
+   this exact same container.
+*/
+
+.profile-photo-wrapper {
+
+    width: 120px;
+    height: 120px;
+
+    flex-shrink: 0;
+
+    position: relative;
+
+    overflow: hidden;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 50%;
+
+    border:
+        3px solid
+        rgba(34, 197, 94, .45);
 
     background:
         linear-gradient(
             135deg,
-            #22c55e,
-            #16a34a
+            rgba(34, 197, 94, .15),
+            rgba(59, 130, 246, .15)
         );
 
-}
-
-
-/* =========================================================
-   34. INFO MODAL
-========================================================= */
-
-.notification-card.info {
-
-    border-color:
-        rgba(34, 197, 94, .25);
+    box-shadow:
+        0 15px 40px
+        rgba(0, 0, 0, .30);
 
 }
 
 
-.notification-card.info .notification-icon {
+/*
+   Actual worker profile photo.
+
+   The image completely fills the circular
+   container without being distorted.
+*/
+
+.profile-photo {
+
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    object-position: center;
+
+}
+
+
+/*
+   IMPORTANT:
+
+   When the image has the HTML "hidden"
+   attribute, force it to disappear.
+
+   This prevents the image and placeholder
+   from appearing together.
+*/
+
+.profile-photo[hidden] {
+
+    display: none !important;
+
+}
+
+.profile-photo-placeholder[hidden] {
+
+    display: none !important;
+
+}
+
+
+/*
+   Placeholder shown only when there is
+   no profile photo.
+*/
+
+.profile-photo-placeholder {
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
 
     background:
         linear-gradient(
             135deg,
-            #22c55e,
-            #16a34a
+            rgba(34, 197, 94, .15),
+            rgba(59, 130, 246, .15)
         );
+
+    color: #94a3b8;
+
+    font-size: 42px;
+
+    text-align: center;
+
+    user-select: none;
 
 }
 
 
 /* =========================================================
-   35. EDIT MODE
-
-   These classes are used by script.js when the worker
-   chooses Edit Profile.
-
-   The dashboard becomes editable without leaving
-   the dashboard page.
+   13. EDIT PROFILE FIELDS
 ========================================================= */
 
 .editable-field {
-
     width: 100%;
 
     min-height: 44px;
@@ -1604,67 +653,273 @@ textarea {
     color: #ffffff;
 
     font-size: 14px;
-
 }
 
-
 .editable-field:focus {
-
     border-color:
         rgba(34, 197, 94, .55);
 
     box-shadow:
         0 0 0 3px
         rgba(34, 197, 94, .08);
-
 }
 
+textarea.editable-field {
+    min-height: 120px;
 
-/* =========================================================
-   EDIT MODE ACTIONS
-========================================================= */
+    resize: vertical;
+}
 
 .edit-actions {
-
     display: flex;
 
     gap: 10px;
 
     margin-top: 10px;
-
 }
 
-
-/* =========================================================
-   EDIT ACTION BUTTON
-========================================================= */
-
 .edit-actions button {
-
     min-height: 42px;
 
-    padding:
-        10px
-        16px;
+    padding: 10px 16px;
 
     border: none;
-
     border-radius: 10px;
 
     font-size: 13px;
-
     font-weight: 700;
+}
 
-    cursor: pointer;
+.update-profile-button {
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #16a34a
+        );
 
+    color: #ffffff;
+}
+
+.cancel-edit-button {
+    background: #1e293b;
+
+    color: #cbd5e1;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .08) !important;
 }
 
 
 /* =========================================================
-   UPDATE BUTTON
+   14. LOADING STATE
 ========================================================= */
 
-.update-profile-button {
+.is-loading {
+    position: relative;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    pointer-events: none;
+
+    opacity: .70;
+
+    cursor: wait;
+}
+
+
+/*
+   Loading spinner.
+
+   The spinner is attached directly to the
+   button while the backend request runs.
+*/
+
+.is-loading::after {
+
+    content: "";
+
+    width: 15px;
+    height: 15px;
+
+    flex-shrink: 0;
+
+    border:
+        2px solid
+        rgba(255, 255, 255, .35);
+
+    border-top-color:
+        #ffffff;
+
+    border-radius: 50%;
+
+    animation:
+        dashboardSpinner .7s linear infinite;
+}
+
+
+@keyframes dashboardSpinner {
+
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
+
+
+
+/* =========================================================
+   15. NOTIFICATION MODAL
+========================================================= */
+
+.notification-modal {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 99999;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 18px;
+
+    background: rgba(2, 6, 23, .80);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.notification-modal[hidden] {
+    display: none;
+}
+
+
+/* =========================================================
+   NOTIFICATION CARD
+========================================================= */
+
+.notification-card {
+    position: relative;
+
+    width: min(390px, calc(100vw - 36px));
+
+    max-height: calc(100vh - 36px);
+
+    overflow-y: auto;
+
+    padding: 32px 25px;
+
+    text-align: center;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .10);
+
+    border-radius: 20px;
+
+    background: #0f172a;
+
+    box-shadow:
+        0 25px 80px
+        rgba(0, 0, 0, .55);
+}
+
+
+/* =========================================================
+   MODAL TOP-RIGHT CLOSE BUTTON
+========================================================= */
+
+.notification-close-button {
+    position: absolute;
+
+    top: 12px;
+    right: 12px;
+
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .12);
+
+    border-radius: 50%;
+
+    background:
+        rgba(255, 255, 255, .06);
+
+    color: #ffffff;
+
+    font-size: 27px;
+    font-weight: 400;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background .2s ease,
+        border-color .2s ease,
+        transform .2s ease;
+}
+
+.notification-close-button:hover {
+    background:
+        rgba(255, 255, 255, .14);
+
+    border-color:
+        rgba(255, 255, 255, .25);
+
+    transform: scale(1.05);
+}
+
+.notification-close-button:active {
+    transform: scale(.95);
+}
+
+.notification-close-button:focus-visible {
+    outline:
+        2px solid
+        #ffffff;
+
+    outline-offset: 3px;
+}
+
+
+/* =========================================================
+   MODAL ICON
+========================================================= */
+
+.notification-icon {
+    width: 62px;
+    height: 62px;
+
+    margin: 0 auto 18px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
 
     background:
         linear-gradient(
@@ -1675,561 +930,315 @@ textarea {
 
     color: #ffffff;
 
+    font-size: 28px;
+    font-weight: 800;
 }
 
+.notification-card h2 {
+    margin-bottom: 9px;
 
-/* =========================================================
-   CANCEL EDIT BUTTON
-========================================================= */
+    font-size: 23px;
 
-.cancel-edit-button {
+    font-weight: 800;
+}
 
-    background: #1e293b;
+.notification-card p {
+    margin-bottom: 22px;
 
     color: #cbd5e1;
 
-    border:
-        1px solid
-        rgba(255, 255, 255, .08) !important;
+    font-size: 14px;
 
+    line-height: 1.7;
+
+    white-space: pre-line;
+
+    overflow-wrap: anywhere;
+}
+
+.notification-actions {
+    display: flex;
+
+    gap: 10px;
+}
+
+.notification-actions button {
+    flex: 1;
+
+    min-height: 46px;
+
+    padding: 11px 15px;
+
+    border: none;
+    border-radius: 12px;
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+#notificationButton {
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #16a34a
+        );
+
+    color: #ffffff;
 }
 
 
 /* =========================================================
-   36. TABLET / SMALL DESKTOP
+   16. MODAL TYPES
 ========================================================= */
 
-@media (max-width: 1200px) {
+.notification-card.error {
+    border-color:
+        rgba(239, 68, 68, .25);
+}
+
+.notification-card.error .notification-icon {
+    background:
+        linear-gradient(
+            135deg,
+            #ef4444,
+            #dc2626
+        );
+}
+
+.notification-card.error #notificationButton {
+    background:
+        linear-gradient(
+            135deg,
+            #ef4444,
+            #dc2626
+        );
+}
+
+.notification-card.info {
+    border-color:
+        rgba(59, 130, 246, .25);
+}
+
+.notification-card.info .notification-icon {
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
+}
+
+.notification-card.confirm {
+    border-color:
+        rgba(245, 158, 11, .25);
+}
+
+.notification-card.confirm .notification-icon {
+    background:
+        linear-gradient(
+            135deg,
+            #f59e0b,
+            #d97706
+        );
+}
+
+.notification-card.success {
+    border-color:
+        rgba(34, 197, 94, .25);
+}
 
 
-    /* =====================================================
-       PORTFOLIO GRID
-    ===================================================== */
+/* =========================================================
+   17. TABLET
+========================================================= */
 
-    .portfolio-grid {
-
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-
-    }
-
-
-    /* =====================================================
-       DASHBOARD SPACING
-    ===================================================== */
-
-    .dashboard {
-
-        padding-left: 30px;
-
-        padding-right: 30px;
-
-    }
-
-
-    /* =====================================================
-       SIDEBAR
-    ===================================================== */
+@media (max-width: 1100px) {
 
     .sidebar {
-
-        width: 250px;
-
+        width: 240px;
     }
 
-
-    /* =====================================================
-       DASHBOARD WIDTH
-    ===================================================== */
-
     .dashboard {
+        width: calc(100% - 240px);
 
-        width: calc(100% - 250px);
+        margin-right: 240px;
 
-        margin-right: 250px;
-
+        padding-left: 25px;
+        padding-right: 25px;
     }
 
 }
 
 
 /* =========================================================
-   37. MOBILE NAVIGATION
+   18. MOBILE NAVIGATION
 ========================================================= */
 
 @media (max-width: 900px) {
 
-
-    /* =====================================================
-       SHOW HAMBURGER
-    ===================================================== */
-
     .menu-btn {
-
         display: flex;
-
     }
-
-
-    /* =====================================================
-       MOBILE SIDEBAR
-    ===================================================== */
 
     .sidebar {
+        right: -280px;
 
-        top: 0;
+        width: 270px;
 
-        right: -290px;
+        height: 100vh;
 
-        width: 280px;
-
-        height: 95vh;
+        transition: right .3s ease;
 
         border-left: none;
-
-        transition:
-            right .3s ease;
-
-        z-index: 1500;
-
     }
-
-
-    /* =====================================================
-       OPEN SIDEBAR
-    ===================================================== */
 
     .sidebar.active {
-
         right: 0;
-
     }
-
-
-    /* =====================================================
-       SHOW CLOSE BUTTON
-    ===================================================== */
 
     .close-menu-btn {
-
         display: flex;
-
     }
 
-
-    /* =====================================================
-       DASHBOARD
-    ===================================================== */
-
     .dashboard {
-
         width: 100%;
 
         margin-right: 0;
 
         padding:
-            92px
+            95px
             24px
-            60px;
-
-    }
-
-
-    /* =====================================================
-       DASHBOARD HEADER
-    ===================================================== */
-
-    .dashboard-header {
-
-        display: block;
-
+            55px;
     }
 
 }
 
 
 /* =========================================================
-   38. MOBILE
+   19. SMALL MOBILE
 ========================================================= */
 
 @media (max-width: 600px) {
 
-
-    /* =====================================================
-       TOPBAR
-    ===================================================== */
-
     .topbar {
-
-        height: 66px;
-
+        height: 65px;
     }
-
 
     .topbar-inner {
-
-        padding-left: 20px;
-
-        padding-right: 20px;
-
+        padding: 0 18px;
     }
-
 
     .logo {
-
-        font-size: 21px;
-
+        font-size: 20px;
     }
-
-
-    /* =====================================================
-       DASHBOARD
-    ===================================================== */
 
     .dashboard {
-
         padding:
-            82px
+            85px
             12px
-            50px;
-
+            45px;
     }
-
-
-    /* =====================================================
-       DASHBOARD HEADER
-    ===================================================== */
 
     .dashboard-header {
-
-        margin-bottom: 25px;
-
+        display: block;
     }
 
-
     .dashboard-header h1 {
+        margin-bottom: 18px;
 
         font-size: 25px;
-
     }
-
-
-    .dashboard-description {
-
-        font-size: 13px;
-
-    }
-
-
-    /* =====================================================
-       PROFILE IMAGE
-    ===================================================== */
-
-    .profile-photo-container {
-
-        margin-bottom: 30px;
-
-    }
-
-
-    .profile-photo-container img {
-
-        width: 110px;
-
-        height: 110px;
-
-    }
-
-
-    /* =====================================================
-       INFORMATION SECTIONS
-    ===================================================== */
-
-    .dashboard-section {
-
-        margin-bottom: 30px;
-
-    }
-
-
-    .section-heading {
-
-        margin-bottom: 13px;
-
-    }
-
-
-    .section-heading h2 {
-
-        font-size: 19px;
-
-    }
-
-
-    /* =====================================================
-       INFORMATION GRID
-    ===================================================== */
 
     .information-grid {
-
         grid-template-columns: 1fr;
 
         gap: 10px;
-
     }
-
 
     .information-card {
-
-        min-height: 90px;
-
-        padding: 17px;
-
-    }
-
-
-    /* =====================================================
-       DESCRIPTION
-    ===================================================== */
-
-    .description-card {
-
-        padding: 18px;
-
-    }
-
-
-    .description-card p {
-
-        font-size: 13px;
-
-        line-height: 1.75;
-
-    }
-
-
-    /* =====================================================
-       PORTFOLIO
-    ===================================================== */
-
-    .portfolio-grid {
-
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-
-        gap: 10px;
-
-    }
-
-
-    .portfolio-card {
-
-        min-height: 150px;
-
-        border-radius: 14px;
-
-    }
-
-
-    .portfolio-image,
-    .portfolio-fallback {
-
-        height: 150px;
-
-    }
-
-
-    .portfolio-fallback {
-
-        font-size: 32px;
-
-    }
-
-
-    .portfolio-label {
-
-        left: 7px;
-
-        right: 7px;
-
-        bottom: 7px;
-
-        padding: 8px 5px;
-
-        font-size: 10px;
-
-    }
-
-
-    /* =====================================================
-       EMPTY STATE
-    ===================================================== */
-
-    .empty-state {
-
-        margin:
-            40px auto;
-
-        padding:
-            30px 18px;
-
-    }
-
-
-    /* =====================================================
-       NOTIFICATION MODAL
-    ===================================================== */
-
-    .notification-modal {
+        min-height: 88px;
 
         padding: 16px;
-
     }
 
-
-    .notification-card {
-
-        width:
-            min(
-                390px,
-                calc(100vw - 32px)
-            );
-
-        max-height:
-            calc(100vh - 32px);
-
-        padding:
-            30px
-            22px;
-
+    .section-heading h2 {
+        font-size: 19px;
     }
 
-
-    .notification-icon {
-
-        width: 60px;
-
-        height: 60px;
-
-        font-size: 28px;
-
+    .verification-action-btn {
+        width: 100%;
     }
-
-
-    .notification-card h2 {
-
-        font-size: 22px;
-
-    }
-
-
-    /* =====================================================
-       EDIT ACTIONS
-    ===================================================== */
 
     .edit-actions {
-
         flex-direction: column;
+    }
 
+    .edit-actions button {
+        width: 100%;
+    }
+
+
+    /* -----------------------------------------------------
+       Smaller profile photo
+    ----------------------------------------------------- */
+
+    .profile-photo-wrapper {
+        width: 100px;
+        height: 100px;
+    }
+
+    .profile-photo-placeholder {
+        font-size: 36px;
+    }
+
+
+    /* -----------------------------------------------------
+       Smaller notification modal
+    ----------------------------------------------------- */
+
+    .notification-card {
+        width: min(
+            390px,
+            calc(100vw - 24px)
+        );
+
+        padding: 28px 20px;
+    }
+
+    .notification-close-button {
+        top: 10px;
+        right: 10px;
+
+        width: 38px;
+        height: 38px;
+
+        font-size: 26px;
     }
 
 }
 
 
 /* =========================================================
-   39. VERY SMALL MOBILE
+   20. ACCESSIBILITY
 ========================================================= */
 
-@media (max-width: 380px) {
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
 
+    outline:
+        2px solid
+        #22c55e;
 
-    /* =====================================================
-       DASHBOARD
-    ===================================================== */
-
-    .dashboard {
-
-        padding-left: 9px;
-
-        padding-right: 9px;
-
-    }
-
-
-    /* =====================================================
-       DASHBOARD TITLE
-    ===================================================== */
-
-    .dashboard-header h1 {
-
-        font-size: 23px;
-
-    }
-
-
-    /* =====================================================
-       PROFILE IMAGE
-    ===================================================== */
-
-    .profile-photo-container img {
-
-        width: 100px;
-
-        height: 100px;
-
-    }
-
-
-    /* =====================================================
-       PORTFOLIO
-    ===================================================== */
-
-    .portfolio-grid {
-
-        grid-template-columns: 1fr;
-
-        gap: 10px;
-
-    }
-
-
-    .portfolio-card {
-
-        min-height: 200px;
-
-    }
-
-
-    .portfolio-image,
-    .portfolio-fallback {
-
-        height: 200px;
-
-    }
-
-
-    /* =====================================================
-       INFORMATION
-    ===================================================== */
-
-    .information-card {
-
-        padding: 15px;
-
-    }
-
-
-    .information-card strong {
-
-        font-size: 14px;
-
-    }
-
+    outline-offset: 3px;
 }
 
 
 /* =========================================================
-   40. REDUCED MOTION
+   21. REDUCED MOTION
 ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
@@ -2245,7 +1254,6 @@ textarea {
         animation-iteration-count: 1 !important;
 
         transition-duration: .01ms !important;
-
     }
 
 }

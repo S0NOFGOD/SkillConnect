@@ -218,9 +218,7 @@ a {
 
     background:
         linear-gradient(
-            135deg,
-            var(--worker-green),
-            var(--client-blue)
+            var(--worker-green-dark)
         );
 
     -webkit-background-clip: text;
@@ -294,8 +292,7 @@ a {
     background:
         linear-gradient(
             135deg,
-            var(--worker-green),
-            var(--client-blue)
+            var(--worker-green-dark)
         );
 
     font-weight: 800;
@@ -350,8 +347,17 @@ a {
 }
 
 
+/* =========================================================
+   7A. AUTH HEADER
+   Centered only inside the authentication container.
+========================================================= */
+
 .auth-header {
+
     margin-bottom: 22px;
+
+    text-align: center;
+
 }
 
 
@@ -420,8 +426,7 @@ a {
     background:
         linear-gradient(
             135deg,
-            var(--worker-green),
-            var(--client-blue)
+            var(--worker-green-dark)
         );
 
 }
@@ -487,7 +492,7 @@ a {
 
 .form-group input:focus {
 
-    border-color: var(--worker-green);
+    border-color: var(--worker-green-dark);
 
     box-shadow:
         0 0 0 3px rgba(34, 197, 94, 0.10);
@@ -522,7 +527,7 @@ a {
 
     border: none;
 
-    color: var(--worker-green);
+    color: var(--worker-green-dark);
 
     background: transparent;
 
@@ -545,7 +550,7 @@ a {
 
     border: none;
 
-    color: var(--worker-green);
+    color: var(--worker-green-dark);
 
     background: transparent;
 
@@ -589,14 +594,14 @@ a {
 
     margin-top: 2px;
 
-    accent-color: var(--worker-green);
+    accent-color: var(--worker-green-dark);
 
 }
 
 
 .terms-label a {
 
-    color: var(--worker-green);
+    color: var(--worker-green-dark);
 
 }
 
@@ -624,9 +629,7 @@ a {
 
     background:
         linear-gradient(
-            135deg,
-            var(--worker-green),
-            var(--client-blue)
+            var(--worker-green-dark)
         );
 
     font-weight: 700;
@@ -859,9 +862,7 @@ a {
 
     background:
         linear-gradient(
-            135deg,
-            var(--worker-green),
-            var(--client-blue)
+            var(--worker-green-dark)
         );
 
     font-size: 1.2rem;
@@ -911,9 +912,7 @@ a {
 
     background:
         linear-gradient(
-            135deg,
-            var(--worker-green),
-            var(--client-blue)
+            var(--worker-green-dark)
         );
 
     font-weight: 700;
@@ -983,7 +982,21 @@ a {
 
     .auth-page {
 
-        grid-template-columns: 1fr;
+        /*
+         * Keep the mobile order:
+         *
+         * 1. Hero heading/description
+         * 2. Authentication container
+         * 3. Benefits
+         *
+         * The authentication section is therefore
+         * physically positioned between the hero content
+         * and the benefits.
+         */
+
+        display: flex;
+
+        flex-direction: column;
 
         gap: 40px;
 
@@ -991,7 +1004,10 @@ a {
 
     }
 
+
     .hero-section {
+
+        display: contents;
 
         max-width: 100%;
 
@@ -999,12 +1015,57 @@ a {
 
     }
 
-    .hero-description {
 
-        margin-left: auto;
-        margin-right: auto;
+    .hero-badge {
+
+        order: 1;
+
+        align-self: center;
 
     }
+
+
+    .hero-section h1 {
+
+        order: 2;
+
+        text-align: center;
+
+    }
+
+
+    .hero-description {
+
+        order: 3;
+
+        margin-left: auto;
+
+        margin-right: auto;
+
+        text-align: center;
+
+    }
+
+
+    .auth-section {
+
+        order: 4;
+
+        width: 100%;
+
+    }
+
+
+    .benefits {
+
+        order: 5;
+
+        width: 100%;
+
+        margin-top: 0;
+
+    }
+
 
     .benefit-card {
 
@@ -1015,6 +1076,10 @@ a {
 }
 
 
+/* =========================================================
+   19. SMALL MOBILE RESPONSIVENESS
+========================================================= */
+
 @media (max-width: 520px) {
 
     .navbar {
@@ -1022,6 +1087,7 @@ a {
         padding: 17px 5%;
 
     }
+
 
     .auth-page {
 
@@ -1031,6 +1097,7 @@ a {
 
     }
 
+
     .auth-card {
 
         padding: 22px;
@@ -1039,11 +1106,13 @@ a {
 
     }
 
+
     .hero-section h1 {
 
         font-size: 2.3rem;
 
     }
+
 
     .hero-badge {
 
@@ -1051,11 +1120,13 @@ a {
 
     }
 
+
     .benefit-card {
 
         padding: 13px;
 
     }
+
 
     .modal-card {
 

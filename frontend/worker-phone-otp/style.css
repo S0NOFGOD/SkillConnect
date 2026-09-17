@@ -1,40 +1,4 @@
 /* =========================================================
-   SKILLCONNECT CLIENT EMAIL OTP STYLES
-
-   This file controls the visual appearance of:
-
-   1. Navigation
-   2. Client email verification page
-   3. OTP inputs
-   4. Verify button
-   5. Loading state
-   6. Resend OTP
-   7. Countdown
-   8. Success / Error modal
-   9. Responsive layouts
-
-   IMPORTANT:
-
-   The JavaScript controls authentication logic.
-   This CSS only controls presentation.
-
-   CLIENT THEME:
-
-   Primary Blue:
-   #3b82f6
-
-   Dark Blue:
-   #2563eb
-
-   Worker Green:
-   #22c55e
-
-   The SkillConnect logo uses exactly:
-   50% Green + 50% Blue.
-========================================================= */
-
-
-/* =========================================================
    1. GLOBAL RESET
 ========================================================= */
 
@@ -139,74 +103,30 @@ header {
 
     display: flex;
 
-    justify-content: space-between;
-
     align-items: center;
 
 }
 
 
 /* =========================================================
-   LOGO
+   BACK NAVIGATION / SKILLCONNECT BRAND
 ========================================================= */
 
-/*
-   IMPORTANT:
+.navbar-brand {
 
-   The SkillConnect logo uses an exact
-   50% green and 50% blue gradient.
+    display: inline-flex;
 
-   Green:
-   #22c55e
+    align-items: center;
 
-   Blue:
-   #3b82f6
+    gap: 10px;
 
-   The gradient starts with green and
-   transitions directly into blue.
-*/
-
-.logo {
-
-    font-size: 24px;
+    font-size: 18px;
 
     font-weight: 800;
 
     letter-spacing: -1px;
 
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #3b82f6
-        );
-
-    -webkit-background-clip: text;
-
-    -webkit-text-fill-color: transparent;
-
-}
-
-/* =========================================================
-   NAVIGATION LINKS
-========================================================= */
-
-.nav-links {
-
-    display: flex;
-
-    gap: 30px;
-
-}
-
-
-.nav-links a {
-
-    color: #cbd5e1;
-
-    font-size: 15px;
-
-    font-weight: 600;
+    color: #ffffff;
 
     transition: .3s;
 
@@ -214,12 +134,73 @@ header {
 
 
 /* =========================================================
-   NAVIGATION LINK HOVER
+   BACK ARROW
 ========================================================= */
 
-.nav-links a:hover {
+.back-arrow {
 
-    color: #3b82f6;
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 34px;
+
+    height: 34px;
+
+    border-radius: 50%;
+
+    color: #ffffff;
+
+    background:
+        rgba(255, 255, 255, .08);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .12);
+
+    font-size: 22px;
+
+    line-height: 1;
+
+    transition: .3s;
+
+}
+
+
+/* =========================================================
+   BRAND NAME
+========================================================= */
+
+.back {
+
+    color: white
+
+}
+
+
+/* =========================================================
+   BACK NAVIGATION HOVER
+========================================================= */
+
+.navbar-brand:hover .back-arrow {
+
+    background:
+        rgba(34, 197, 94, .15);
+
+    border-color:
+        rgba(34, 197, 94, .35);
+
+    transform:
+        translateX(-3px);
+
+}
+
+
+.navbar-brand:hover .brand-name {
+
+    opacity: .9;
 
 }
 
@@ -255,16 +236,8 @@ header {
 
 
 /* =========================================================
-   BACKGROUND BLUE GLOW
+   BACKGROUND GREEN GLOW
 ========================================================= */
-
-/*
-   Unlike the worker OTP page, the client page
-   uses a blue glow.
-
-   This keeps the client authentication pages
-   visually connected to the client theme.
-*/
 
 .otp-page::before {
 
@@ -276,7 +249,7 @@ header {
 
     height: 360px;
 
-    background: #3b82f6;
+    background: #22c55e;
 
     filter: blur(170px);
 
@@ -361,11 +334,6 @@ header {
    OTP BADGE
 ========================================================= */
 
-/*
-   Client pages use blue as their
-   primary authentication color.
-*/
-
 .otp-badge {
 
     display: inline-block;
@@ -376,14 +344,14 @@ header {
 
     border-radius: 30px;
 
-    color: #3b82f6;
+    color: #22c55e;
 
     background:
-        rgba(59, 130, 246, .15);
+        rgba(34, 197, 94, .15);
 
     border:
         1px solid
-        rgba(59, 130, 246, .30);
+        rgba(34, 197, 94, .3);
 
     font-size: 14px;
 
@@ -417,10 +385,10 @@ header {
 
 
 /* =========================================================
-   CLIENT EMAIL
+   WORKER PHONE
 ========================================================= */
 
-.client-email {
+.worker-phone {
 
     margin-top: 8px;
 
@@ -511,11 +479,11 @@ header {
 
     border:
         1px solid
-        #3b82f6;
+        #22c55e;
 
     box-shadow:
         0 0 0 3px
-        rgba(59, 130, 246, .15);
+        rgba(34, 197, 94, .15);
 
 }
 
@@ -527,7 +495,7 @@ header {
 .otp-input:not(:placeholder-shown) {
 
     border-color:
-        rgba(59, 130, 246, .35);
+        rgba(34, 197, 94, .35);
 
 }
 
@@ -573,8 +541,8 @@ header {
     background:
         linear-gradient(
             135deg,
-            #3b82f6,
-            #2563eb
+            #22c55e,
+            #16a34a
         );
 
     transition: .3s;
@@ -601,7 +569,7 @@ header {
 
     box-shadow:
         0 10px 30px
-        rgba(59, 130, 246, .20);
+        rgba(34, 197, 94, .20);
 
 }
 
@@ -648,12 +616,6 @@ header {
 
 /* =========================================================
    BUTTON LOADING STATE
-
-   JavaScript can add the class:
-
-   .loading
-
-   while verifying or resending OTP.
 ========================================================= */
 
 .submit-btn.loading {
@@ -695,16 +657,13 @@ header {
 
 .resend a:hover {
 
-    color: #60a5fa;
+    color: #22c55e;
 
 }
 
 
 /* =========================================================
    DISABLED RESEND LINK
-
-   JavaScript uses this while the 60-second
-   resend countdown is running.
 ========================================================= */
 
 .resend a.disabled {
@@ -837,8 +796,8 @@ header {
     background:
         linear-gradient(
             135deg,
-            #3b82f6,
-            #2563eb
+            #22c55e,
+            #16a34a
         );
 
     font-size: 30px;
@@ -852,18 +811,13 @@ header {
    SUCCESS MODAL ICON
 ========================================================= */
 
-/*
-   Successful authentication uses the
-   client blue theme.
-*/
-
 .notification-icon.success {
 
     background:
         linear-gradient(
             135deg,
-            #3b82f6,
-            #2563eb
+            #22c55e,
+            #16a34a
         );
 
 }
@@ -911,6 +865,72 @@ header {
     font-size: 14px;
 
     line-height: 1.7;
+
+}
+
+
+/* =========================================================
+   NOTIFICATION CLOSE / CONTINUE BUTTON
+========================================================= */
+
+.notification-close-button {
+
+    width: 100%;
+
+    margin-top: 25px;
+
+    padding: 14px 20px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #16a34a
+        );
+
+    color: #ffffff;
+
+    font-family: "Inter", sans-serif;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .3s;
+
+}
+
+
+/* =========================================================
+   BUTTON HOVER
+========================================================= */
+
+.notification-close-button:hover {
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 10px 25px
+        rgba(34, 197, 94, .20);
+
+}
+
+
+/* =========================================================
+   BUTTON ACTIVE
+========================================================= */
+
+.notification-close-button:active {
+
+    transform:
+        translateY(0);
 
 }
 
@@ -1071,23 +1091,13 @@ footer {
     }
 
 
-    .logo {
+    .back-arrow {
 
-        font-size: 22px;
+        width: 32px;
 
-    }
+        height: 32px;
 
-
-    .nav-links {
-
-        gap: 15px;
-
-    }
-
-
-    .nav-links a {
-
-        font-size: 14px;
+        font-size: 20px;
 
     }
 
@@ -1126,7 +1136,7 @@ footer {
     }
 
 
-    .client-email {
+    .worker-phone {
 
         font-size: 14px !important;
 
@@ -1200,9 +1210,13 @@ footer {
     }
 
 
-    .nav-links a {
+    .back-arrow {
 
-        font-size: 13px;
+        width: 30px;
+
+        height: 30px;
+
+        font-size: 19px;
 
     }
 

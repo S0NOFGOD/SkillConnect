@@ -30,7 +30,7 @@
 
     <link
         rel="preconnect"
-        href="https://fonts.googleapis.com"
+        href="https://fonts.gstatic.com"
         crossorigin
     >
 
@@ -41,7 +41,7 @@
 
 
     <!-- =====================================================
-         PAGE STYLESHEET
+         DASHBOARD STYLES
     ====================================================== -->
 
     <link
@@ -55,7 +55,7 @@
 <body>
 
     <!-- =====================================================
-         BACKGROUND GLOWS
+         BACKGROUND EFFECTS
     ====================================================== -->
 
     <div
@@ -70,34 +70,20 @@
 
 
     <!-- =====================================================
-         TOP NAVBAR
-
-         MOBILE:
-         Logo + hamburger menu
-
-         DESKTOP:
-         Logo remains visible while sidebar is displayed.
+         TOP NAVIGATION BAR
     ====================================================== -->
 
     <header class="topbar">
 
         <div class="topbar-inner">
 
-            <!-- =================================================
-                 WORKER DASHBOARD LOGO
-            ================================================== -->
-
             <a
-                href="../index.html"
+                href="index.html"
                 class="logo"
             >
-                Worker Dashboard
+                SkillConnect
             </a>
 
-
-            <!-- =================================================
-                 MOBILE HAMBURGER
-            ================================================== -->
 
             <button
                 type="button"
@@ -107,11 +93,9 @@
                 aria-controls="sidebar"
                 aria-expanded="false"
             >
-
                 <span></span>
                 <span></span>
                 <span></span>
-
             </button>
 
         </div>
@@ -120,13 +104,13 @@
 
 
     <!-- =====================================================
-         WORKER SIDEBAR
+         SIDEBAR
     ====================================================== -->
 
     <aside
         id="sidebar"
         class="sidebar"
-        aria-label="Worker navigation"
+        aria-label="Worker dashboard navigation"
     >
 
         <!-- =================================================
@@ -148,20 +132,16 @@
 
 
         <!-- =================================================
-             WORKER NAVIGATION
+             SIDEBAR NAVIGATION
         ================================================== -->
 
         <nav class="sidebar-nav">
 
-
-            <!-- =================================================
-                 DASHBOARD
-            ================================================== -->
+            <!-- Dashboard -->
 
             <a
                 href="index.html"
                 class="nav-link active"
-                id="dashboardNavLink"
             >
 
                 <span
@@ -179,71 +159,37 @@
 
 
             <!-- =================================================
-                 RATINGS AND REVIEWS
+                 VIEW SERVICES
             ================================================== -->
 
-            <a
-                href="../worker-ratings/index.html"
-                class="nav-link"
-                id="ratingsNavLink"
+            <button
+                type="button"
+                id="viewServicesBtn"
+                class="nav-link verify-profile-link"
             >
 
                 <span
                     class="nav-icon"
                     aria-hidden="true"
                 >
-                    ⭐
+                    ✓
                 </span>
 
                 <span>
-                    Ratings & Reviews
+                    View Services
                 </span>
 
-            </a>
+            </button>
 
-            
+
             <!-- =================================================
-         UPDATE PROFILE
-    ================================================== -->
+                 EDIT PROFILE
+            ================================================== -->
 
-    <a
-        href="../worker-profile-settings/index.html"
-        class="nav-link update-profile-link"
-        id="updateProfileBtn"
-    >
-
-        <span
-            class="nav-icon"
-            aria-hidden="true"
-        >
-            ✏️
-        </span>
-
-        <span>
-            Update Profile
-        </span>
-
-    </a>
-            
-
-        </nav>
-
-
-        <!-- =====================================================
-     SIDEBAR FOOTER
-====================================================== -->
-
-<div class="sidebar-footer">
-
-
-    <!-- =================================================
-        EDIT DASHBOARD
-    ================================================== -->
-
-            <a
-                href="index.html?edit=true"
+            <button
+                type="button"
+                id="editProfileBtn"
                 class="nav-link"
-                id="editDashboardNavLink"
             >
 
                 <span
@@ -254,42 +200,48 @@
                 </span>
 
                 <span>
-                    Edit Dashboard
+                    Edit Profile
                 </span>
 
-            </a>
+            </button>
+
+        </nav>
 
 
-    <!-- =================================================
-         LOGOUT
-    ================================================== -->
+        <!-- =====================================================
+             SIDEBAR FOOTER
+        ====================================================== -->
 
-    <button
-        type="button"
-        id="logoutBtn"
-        class="nav-link logout-link"
-    >
+        <div class="sidebar-footer">
 
-        <span
-            class="nav-icon"
-            aria-hidden="true"
-        >
-            ↪
-        </span>
+            <!-- Logout -->
 
-        <span>
-            Logout
-        </span>
+            <button
+                type="button"
+                id="logoutBtn"
+                class="nav-link logout-link"
+            >
 
-    </button>
+                <span
+                    class="nav-icon"
+                    aria-hidden="true"
+                >
+                    ↪
+                </span>
 
-</div>
+                <span>
+                    Logout
+                </span>
+
+            </button>
+
+        </div>
 
     </aside>
 
 
     <!-- =====================================================
-         SIDEBAR OVERLAY
+         MOBILE SIDEBAR OVERLAY
     ====================================================== -->
 
     <div
@@ -300,7 +252,7 @@
 
 
     <!-- =====================================================
-         MAIN WORKER DASHBOARD
+         MAIN DASHBOARD
     ====================================================== -->
 
     <main
@@ -308,307 +260,236 @@
         id="dashboardContent"
     >
 
-
         <!-- =================================================
-             DASHBOARD CONTENT
-
-             Hidden until authentication and worker data
-             have successfully loaded.
+             DASHBOARD HEADER
         ================================================== -->
 
-        <div
-            id="dashboardData"
-        >
+        <section class="dashboard-header">
 
+            <div>
 
-            <!-- =================================================
-                 DASHBOARD HEADER
-            ================================================== -->
-
-            <section class="dashboard-header">
-
-                <div>
-
-                    <h1>
-
-                        Welcome,
-
-                        <span id="workerFirstName">
-                            Worker
-                        </span>
-
-                    </h1>
-
-
-                    <p class="dashboard-description">
-                        You are visible to nearby clients in need
-                        of your service
-                    </p>
-
-                </div>
-
-            </section>
-
-
-            <!-- =================================================
-                 PROFILE PHOTO
-
-                 Displays:
-                 1. Worker profile picture
-                 2. Verification status
-            ================================================== -->
-
-            <div class="profile-photo-container">
-
-                <img
-                    id="profilePicture"
-                    src=""
-                    alt="Worker profile picture"
-                >
-
-                <span
-                    id="profileVerificationBadge"
-                    class="profile-verification-badge"
-                >
-                    Unverified
-                </span>
+                <h1>
+                    Welcome,
+                    <span id="workerFirstName">
+                        Worker
+                    </span>
+                </h1>
 
             </div>
 
 
             <!-- =================================================
-                 PERSONAL INFORMATION
+                 PROFILE VERIFICATION BUTTON
             ================================================== -->
 
-            <section class="dashboard-section">
-
-                <div class="section-heading">
-
-                    <h2>
-                        Personal Information
-                    </h2>
-
-                </div>
-
-
-                <div class="information-grid">
-
-
-                    <!-- =================================================
-                         FULL NAME
-                    ================================================== -->
-
-                    <div class="information-card">
-
-                        <span class="information-label">
-                            Full Name
-                        </span>
-
-                        <strong id="fullName">
-                            —
-                        </strong>
-
-                    </div>
-
-
-                    <!-- =================================================
-                         PHONE NUMBER
-                    ================================================== -->
-
-                    <div class="information-card">
-
-                        <span class="information-label">
-                            Phone Number
-                        </span>
-
-                        <strong id="phoneNumber">
-                            —
-                        </strong>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- =================================================
-                 PROFESSIONAL INFORMATION
-            ================================================== -->
-
-            <section class="dashboard-section">
-
-                <div class="section-heading">
-
-                    <h2>
-                        Professional Information
-                    </h2>
-
-                </div>
-
-
-                <div class="information-grid">
-
-
-                    <!-- =================================================
-                         PRIMARY SKILL
-                    ================================================== -->
-
-                    <div class="information-card">
-
-                        <span class="information-label">
-                            Primary Skill
-                        </span>
-
-                        <strong id="primarySkill">
-                            —
-                        </strong>
-
-                    </div>
-
-
-                    <!-- =================================================
-                         EXPERIENCE
-                    ================================================== -->
-
-                    <div class="information-card">
-
-                        <span class="information-label">
-                            Years of Experience
-                        </span>
-
-                        <strong id="yearsExperience">
-                            —
-                        </strong>
-
-                    </div>
-
-
-                    <!-- =================================================
-                         STARTING PRICE
-                    ================================================== -->
-
-                    <div class="information-card">
-
-                        <span class="information-label">
-                            Starting Price
-                        </span>
-
-                        <strong id="startingPrice">
-                            —
-                        </strong>
-
-                    </div>
-
-
-                    <!-- =================================================
-                         LOCATION
-                    ================================================== -->
-
-                    <div class="information-card">
-
-                        <span class="information-label">
-                            Location
-                        </span>
-
-                        <strong id="location">
-                            —
-                        </strong>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- =================================================
-                 SERVICE DESCRIPTION
-            ================================================== -->
-
-            <section class="dashboard-section">
-
-                <div class="section-heading">
-
-                    <h2>
-                        About My Service
-                    </h2>
-
-                </div>
-
-
-                <div class="description-card">
-
-                    <p id="serviceDescription">
-                        No service description available.
-                    </p>
-
-                </div>
-
-            </section>
-
-
-            <!-- =================================================
-                 PORTFOLIO
-            ================================================== -->
-
-            <section class="dashboard-section">
-
-                <div class="section-heading">
-
-                    <h2>
-                        My Previous Work
-                    </h2>
-
-                </div>
-
-
-                <div
-                    id="portfolioGrid"
-                    class="portfolio-grid"
-                >
-
-                    <!--
-                        Portfolio items are created dynamically
-                        by script.js.
-                    -->
-
-                </div>
-
-            </section>
-
-
-            <!-- =================================================
-                 EMPTY PORTFOLIO STATE
-            ================================================== -->
-
-            <section
-                id="portfolioEmptyState"
-                class="empty-state"
-                hidden
+            <button
+                type="button"
+                id="verificationActionBtn"
+                class="verification-action-btn"
             >
+                Verify Profile
+            </button>
 
-                <div
-                    class="empty-icon"
-                    aria-hidden="true"
-                >
-                    🛠️
-                </div>
+        </section>
 
+
+        <!-- =====================================================
+             PERSONAL INFORMATION
+        ====================================================== -->
+
+        <section class="dashboard-section">
+
+            <div class="section-heading">
 
                 <h2>
-                    No Portfolio Images
+                    Personal Information
                 </h2>
 
+            </div>
 
-                <p>
-                    Add examples of your previous work from
-                    Profile Settings.
-                </p>
 
-            </section>
+            <!-- =================================================
+                 PROFILE PHOTO
+                 
+                 JavaScript will insert the Cloudinary
+                 profilePhoto URL into this image.
+            ================================================== -->
 
-        </div>
+            <div class="profile-photo-card">
+
+                <div class="profile-photo-wrapper">
+
+                    <img
+                        id="profilePhoto"
+                        class="profile-photo"
+                        src=""
+                        alt="Worker profile photo"
+                        hidden
+                    >
+
+                    <div
+                        id="profilePhotoPlaceholder"
+                        class="profile-photo-placeholder"
+                        aria-hidden="true"
+                    >
+                        👤
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="information-grid">
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        Full Name
+                    </span>
+
+                    <strong id="fullName">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        Phone Number
+                    </span>
+
+                    <strong id="phoneNumber">
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             LOCATION INFORMATION
+        ====================================================== -->
+
+        <section class="dashboard-section">
+
+            <div class="section-heading">
+
+                <h2>
+                    Location
+                </h2>
+
+            </div>
+
+
+            <div class="information-grid">
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        Country
+                    </span>
+
+                    <strong id="country">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        State
+                    </span>
+
+                    <strong id="state">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        City
+                    </span>
+
+                    <strong id="city">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        LGA
+                    </span>
+
+                    <strong id="lga">
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             PROFESSIONAL INFORMATION
+        ====================================================== -->
+
+        <section class="dashboard-section">
+
+            <div class="section-heading">
+
+                <h2>
+                    Professional Information
+                </h2>
+
+            </div>
+
+
+            <div class="information-grid">
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        Total Skills
+                    </span>
+
+                    <strong id="totalSkills">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        Verification
+                    </span>
+
+                    <strong id="phoneVerification">
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
 
     </main>
 
@@ -616,22 +497,9 @@
     <!-- =====================================================
          NOTIFICATION MODAL
 
-         USED FOR:
-
-         1. Authentication errors
-         2. Account errors
-         3. Dashboard errors
-         4. Success messages
-         5. Redirect messages
-         6. Logout confirmation
-         7. Validation errors
-         8. Profile update messages
-
-         IMPORTANT:
-         JavaScript will NEVER automatically close an error
-         or redirect modal.
-
-         The worker must click the modal button.
+         All dashboard errors, confirmations,
+         success messages and authentication
+         messages will use this modal.
     ====================================================== -->
 
     <div
@@ -644,7 +512,23 @@
         hidden
     >
 
-        <div class="notification-card">
+        <div
+            id="notificationCard"
+            class="notification-card"
+        >
+
+            <!-- =================================================
+                 MODAL CLOSE BUTTON
+            ================================================== -->
+
+            <button
+                type="button"
+                id="notificationCancelButton"
+                class="notification-close-button"
+                aria-label="Close notification"
+            >
+                ×
+            </button>
 
 
             <!-- =================================================
@@ -664,7 +548,9 @@
                  MODAL TITLE
             ================================================== -->
 
-            <h2 id="notificationTitle"></h2>
+            <h2 id="notificationTitle">
+                Notification
+            </h2>
 
 
             <!-- =================================================
@@ -678,34 +564,7 @@
                  MODAL ACTIONS
             ================================================== -->
 
-            <div
-                id="notificationActions"
-                class="notification-actions"
-            >
-
-                <!-- =================================================
-                     CANCEL BUTTON
-
-                     Used by logout confirmation and other
-                     confirmation dialogs.
-                ================================================== -->
-
-                <button
-                    type="button"
-                    id="notificationCancelButton"
-                    class="notification-cancel-button"
-                    hidden
-                >
-                    Cancel
-                </button>
-
-
-                <!-- =================================================
-                     PRIMARY MODAL BUTTON
-
-                     The user must click this button to close
-                     the modal or continue to the next action.
-                ================================================== -->
+            <div class="notification-actions">
 
                 <button
                     type="button"
@@ -722,12 +581,20 @@
 
 
     <!-- =====================================================
-         PAGE JAVASCRIPT
+         GLOBAL CONFIGURATION
     ====================================================== -->
 
     <script src="../config.js"></script>
 
-    <script src="script.js" defer></script>
+
+    <!-- =====================================================
+         DASHBOARD JAVASCRIPT
+    ====================================================== -->
+
+    <script
+        src="script.js"
+        defer
+    ></script>
 
 </body>
 

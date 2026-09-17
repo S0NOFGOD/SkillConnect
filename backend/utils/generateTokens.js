@@ -154,7 +154,7 @@ const generateTokens = async ({
             },
 
             {
-                new: false
+                returnDocument: "before"
             }
 
         );

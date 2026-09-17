@@ -1,12 +1,39 @@
 /* =========================================================
-   1. DOM ELEMENTS
+   SKILLCONNECT WORKER DASHBOARD
+   worker-dashboard/script.js
+
+   PURPOSE:
+   1. Load the authenticated worker dashboard.
+   2. Display worker information.
+   3. Display the worker profile photo.
+   4. Handle phone verification.
+   5. Send phone OTP.
+   6. Handle logout.
+   7. Protect authenticated requests.
+   8. Keep backend-request modals visible while
+      the request is running.
+   9. Show loading state on every button that
+      directly starts a backend request.
 ========================================================= */
 
-const menuBtn =
-    document.getElementById("menuBtn");
 
-const closeMenuBtn =
-    document.getElementById("closeMenuBtn");
+/* =========================================================
+   1. BACKEND ENDPOINTS
+========================================================= */
+
+const DASHBOARD_ENDPOINT =
+    "/api/worker/dashboard";
+
+const SEND_PHONE_OTP_ENDPOINT =
+    "/api/worker/send-phone-otp";
+
+const LOGOUT_ENDPOINT =
+    "/api/worker/logout";
+
+
+/* =========================================================
+   2. PAGE ELEMENTS
+========================================================= */
 
 const sidebar =
     document.getElementById("sidebar");
@@ -14,53 +41,94 @@ const sidebar =
 const overlay =
     document.getElementById("overlay");
 
+const menuBtn =
+    document.getElementById("menuBtn");
+
+const closeMenuBtn =
+    document.getElementById("closeMenuBtn");
+
+const viewServicesBtn =
+    document.getElementById("viewServicesBtn");
+
+const editProfileBtn =
+    document.getElementById("editProfileBtn");
+
 const logoutBtn =
     document.getElementById("logoutBtn");
 
-
-/* =========================================================
-   2. DASHBOARD ELEMENTS
-========================================================= */
-
-const workerFirstName =
-    document.getElementById("workerFirstName");
-
-const fullName =
-    document.getElementById("fullName");
-
-const phoneNumber =
-    document.getElementById("phoneNumber");
-
-const primarySkill =
-    document.getElementById("primarySkill");
-
-const yearsExperience =
-    document.getElementById("yearsExperience");
-
-const startingPrice =
-    document.getElementById("startingPrice");
-
-const serviceDescription =
-    document.getElementById("serviceDescription");
-
-const portfolioGrid =
-    document.getElementById("portfolioGrid");
-
-const portfolioEmptyState =
-    document.getElementById("portfolioEmptyState");
-
-const profileImage =
-    document.querySelector(
-        ".profile-photo-container img"
+const verificationActionBtn =
+    document.getElementById(
+        "verificationActionBtn"
     );
 
 
-const locationElement =
-    document.getElementById("location");
+/* =========================================================
+   3. DASHBOARD DATA ELEMENTS
+========================================================= */
+
+const workerFirstName =
+    document.getElementById(
+        "workerFirstName"
+    );
+
+const fullName =
+    document.getElementById(
+        "fullName"
+    );
+
+const phoneNumber =
+    document.getElementById(
+        "phoneNumber"
+    );
+
+const country =
+    document.getElementById(
+        "country"
+    );
+
+const state =
+    document.getElementById(
+        "state"
+    );
+
+const city =
+    document.getElementById(
+        "city"
+    );
+
+const lga =
+    document.getElementById(
+        "lga"
+    );
+
+const totalSkills =
+    document.getElementById(
+        "totalSkills"
+    );
+
+const phoneVerification =
+    document.getElementById(
+        "phoneVerification"
+    );
 
 
 /* =========================================================
-   3. NOTIFICATION MODAL ELEMENTS
+   3A. PROFILE PHOTO ELEMENTS
+========================================================= */
+
+const profilePhoto =
+    document.getElementById(
+        "profilePhoto"
+    );
+
+const profilePhotoPlaceholder =
+    document.getElementById(
+        "profilePhotoPlaceholder"
+    );
+
+
+/* =========================================================
+   4. NOTIFICATION MODAL ELEMENTS
 ========================================================= */
 
 const notificationOverlay =
@@ -69,11 +137,9 @@ const notificationOverlay =
     );
 
 const notificationCard =
-    notificationOverlay
-        ? notificationOverlay.querySelector(
-            ".notification-card"
-        )
-        : null;
+    document.getElementById(
+        "notificationCard"
+    );
 
 const notificationIcon =
     document.getElementById(
@@ -90,1622 +156,1152 @@ const notificationText =
         "notificationText"
     );
 
+const notificationCloseButton =
+    document.getElementById(
+        "notificationCancelButton"
+    );
+
 const notificationButton =
     document.getElementById(
         "notificationButton"
     );
 
-const notificationCancelButton =
-    document.getElementById(
-        "notificationCancelButton"
-    );
-
 
 /* =========================================================
-   4. AUTHENTICATION STORAGE KEYS
-========================================================= */
-
-const ACCESS_TOKEN_KEY =
-    "accessToken";
-
-const REFRESH_TOKEN_KEY =
-    "refreshToken";
-
-
-/* =========================================================
-   5. API ENDPOINTS
+   5. MODAL STATE
 ========================================================= */
 
 /*
-   config.js provides API_ENDPOINT().
-
-   This file does not create another API URL.
-
-   All worker-dashboard requests use the
-   worker-dashboard route.
+   Stores the function that should run when
+   the modal Continue button is clicked.
 */
+
+let modalAction = null;
 
 
 /*
-   GET
+   Determines whether the modal should remain
+   visible while modalAction is running.
 
-   Returns the authenticated worker dashboard.
+   TRUE:
+   Backend request is running.
+   Keep modal visible so loading can be seen.
+
+   FALSE:
+   Normal modal action.
+   Hide modal before running the action.
 */
 
-const DASHBOARD_ENDPOINT =
-    API_ENDPOINT(
-        "/api/worker-dashboard/dashboard"
-    );
-
-
-/*
-   POST
-
-   Sends the refreshToken when the current
-   accessToken has expired.
-*/
-
-const REFRESH_ENDPOINT =
-    API_ENDPOINT(
-        "/api/worker-dashboard/refresh-token"
-    );
-
-
-/*
-   POST
-
-   Logs the worker out and revokes the
-   refreshToken.
-*/
-
-const LOGOUT_ENDPOINT =
-    API_ENDPOINT(
-        "/api/worker-dashboard/logout"
-    );
-
-
-/*
-   PUT
-
-   Updates the authenticated worker dashboard
-   profile.
-*/
-
-const UPDATE_DASHBOARD_ENDPOINT =
-    API_ENDPOINT(
-        "/api/worker-dashboard/dashboard"
-    );
+let keepModalOpenDuringAction = false;
 
 
 /* =========================================================
-   6. GET ACCESS TOKEN
-========================================================= */
-
-function getAccessToken() {
-
-    return sessionStorage.getItem(
-        ACCESS_TOKEN_KEY
-    );
-
-}
-
-
-/* =========================================================
-   7. GET REFRESH TOKEN
-========================================================= */
-
-function getRefreshToken() {
-
-    return sessionStorage.getItem(
-        REFRESH_TOKEN_KEY
-    );
-
-}
-
-
-/* =========================================================
-   8. SAVE ACCESS TOKEN
-========================================================= */
-
-function saveAccessToken(
-    token
-) {
-
-    sessionStorage.setItem(
-        ACCESS_TOKEN_KEY,
-        token
-    );
-
-}
-
-
-/* =========================================================
-   9. CLEAR AUTHENTICATION DATA
-========================================================= */
-
-function clearAuthenticationData() {
-
-    sessionStorage.removeItem(
-        ACCESS_TOKEN_KEY
-    );
-
-    sessionStorage.removeItem(
-        REFRESH_TOKEN_KEY
-    );
-
-}
-
-
-/* =========================================================
-   10. CLOSE SIDEBAR
-========================================================= */
-
-function closeSidebar() {
-
-    if (sidebar) {
-
-        sidebar.classList.remove(
-            "active"
-        );
-
-    }
-
-
-    if (overlay) {
-
-        overlay.classList.remove(
-            "active"
-        );
-
-    }
-
-
-    if (menuBtn) {
-
-        menuBtn.setAttribute(
-            "aria-expanded",
-            "false"
-        );
-
-    }
-
-
-    if (overlay) {
-
-        overlay.setAttribute(
-            "aria-hidden",
-            "true"
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   11. OPEN SIDEBAR
-========================================================= */
-
-function openSidebar() {
-
-    if (sidebar) {
-
-        sidebar.classList.add(
-            "active"
-        );
-
-    }
-
-
-    if (overlay) {
-
-        overlay.classList.add(
-            "active"
-        );
-
-    }
-
-
-    if (menuBtn) {
-
-        menuBtn.setAttribute(
-            "aria-expanded",
-            "true"
-        );
-
-    }
-
-
-    if (overlay) {
-
-        overlay.setAttribute(
-            "aria-hidden",
-            "false"
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   12. SIDEBAR EVENTS
-========================================================= */
-
-if (menuBtn) {
-
-    menuBtn.addEventListener(
-        "click",
-        openSidebar
-    );
-
-}
-
-
-if (closeMenuBtn) {
-
-    closeMenuBtn.addEventListener(
-        "click",
-        closeSidebar
-    );
-
-}
-
-
-if (overlay) {
-
-    overlay.addEventListener(
-        "click",
-        closeSidebar
-    );
-
-}
-
-
-/* =========================================================
-   13. CLOSE SIDEBAR AFTER NAVIGATION
-========================================================= */
-
-const navigationLinks =
-    document.querySelectorAll(
-        ".sidebar .nav-link"
-    );
-
-
-navigationLinks.forEach(
-    function (link) {
-
-        link.addEventListener(
-            "click",
-            function () {
-
-                closeSidebar();
-
-            }
-        );
-
-    }
-);
-
-
-/* =========================================================
-   14. SHOW NOTIFICATION MODAL
+   6. MODAL FUNCTIONS
 ========================================================= */
 
 function showModal(
-    type,
     title,
     message,
-    buttonText = "Continue",
-    showCancel = false,
-    onConfirm = null
+    type = "info",
+    action = null,
+    buttonText = "OK",
+    keepOpenDuringAction = false
 ) {
 
-    if (!notificationOverlay) {
+    notificationTitle.textContent =
+        title;
 
-        return;
+    notificationText.textContent =
+        message;
 
-    }
-
-
-    if (notificationCard) {
-
-        notificationCard.classList.remove(
-            "error",
-            "success",
-            "info"
-        );
-
-        notificationCard.classList.add(
-            type
-        );
-
-    }
+    notificationButton.textContent =
+        buttonText;
 
 
-    if (notificationIcon) {
-
-        if (type === "error") {
-
-            notificationIcon.textContent =
-                "×";
-
-        } else if (type === "success") {
-
-            notificationIcon.textContent =
-                "✓";
-
-        } else {
-
-            notificationIcon.textContent =
-                "i";
-
-        }
-
-    }
+    notificationCard.className =
+        `notification-card ${type}`;
 
 
-    if (notificationTitle) {
-
-        notificationTitle.textContent =
-            title;
-
-    }
+    modalAction =
+        action;
 
 
-    if (notificationText) {
-
-        notificationText.textContent =
-            message;
-
-    }
+    keepModalOpenDuringAction =
+        keepOpenDuringAction;
 
 
-    if (notificationButton) {
-
-        notificationButton.textContent =
-            buttonText;
-
-    }
-
-
-    if (notificationCancelButton) {
-
-        notificationCancelButton.hidden =
-            !showCancel;
-
-    }
-
-
-    /*
-       Replace the main button so that
-       previous click handlers are removed.
-    */
-
-    if (notificationButton) {
-
-        const newButton =
-            notificationButton.cloneNode(true);
-
-        notificationButton.replaceWith(
-            newButton
-        );
-
-
-        const currentButton =
-            document.getElementById(
-                "notificationButton"
-            );
-
-
-        currentButton.addEventListener(
-            "click",
-            function () {
-
-                hideModal();
-
-
-                if (
-                    typeof onConfirm ===
-                    "function"
-                ) {
-
-                    onConfirm();
-
-                }
-
-            }
-        );
-
-    }
-
-
-    /*
-       Replace the cancel button so that
-       previous click handlers are removed.
-    */
-
-    if (notificationCancelButton) {
-
-        const newCancelButton =
-            notificationCancelButton.cloneNode(
-                true
-            );
-
-        notificationCancelButton.replaceWith(
-            newCancelButton
-        );
-
-
-        const currentCancelButton =
-            document.getElementById(
-                "notificationCancelButton"
-            );
-
-
-        currentCancelButton.addEventListener(
-            "click",
-            function () {
-
-                hideModal();
-
-            }
-        );
-
-    }
+    notificationCloseButton.hidden =
+        false;
 
 
     notificationOverlay.hidden =
         false;
 
+
+    notificationOverlay.classList.add(
+        "active"
+    );
 }
 
 
 /* =========================================================
-   15. HIDE NOTIFICATION MODAL
+   7. HIDE MODAL
 ========================================================= */
 
-function hideModal() {
+function hideModal(
+    executeAction = false
+) {
 
-    if (!notificationOverlay) {
-
-        return;
-
-    }
-
+    notificationOverlay.classList.remove(
+        "active"
+    );
 
     notificationOverlay.hidden =
         true;
 
+
+    const action =
+        modalAction;
+
+
+    modalAction = null;
+
+    keepModalOpenDuringAction =
+        false;
+
+
+    if (
+        executeAction &&
+        action
+    ) {
+
+        action();
+    }
 }
 
 
 /* =========================================================
-   16. REDIRECT TO WORKER AUTHENTICATION
+   8. CLOSE MODAL
 ========================================================= */
 
-function redirectToWorkerAuthentication() {
+function closeModal() {
 
-    window.location.href =
-        "../worker-authentication/index.html";
+    /*
+       If the modal action is a backend request,
+       do NOT hide the modal first.
 
-}
+       The backend function will control when
+       the modal disappears.
+    */
 
+    if (
+        modalAction &&
+        keepModalOpenDuringAction
+    ) {
 
-/* =========================================================
-   17. SHOW AUTHENTICATION ERROR
-========================================================= */
+        const action =
+            modalAction;
 
-function showAuthenticationError(
-    message
-) {
+        modalAction = null;
 
-    showModal(
-        "error",
-        "Authentication Error",
-        message,
-        "Continue",
-        false,
-        function () {
+        keepModalOpenDuringAction =
+            false;
 
-            clearAuthenticationData();
+        action();
 
-            redirectToWorkerAuthentication();
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   18. REFRESH ACCESS TOKEN
-========================================================= */
-
-async function refreshAccessToken() {
-
-    const refreshToken =
-        getRefreshToken();
+        return;
+    }
 
 
     /*
-       A refreshToken is required before
-       requesting a new accessToken.
+       Normal modal actions hide the modal first.
     */
 
-    if (!refreshToken) {
-
-        return false;
-
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                REFRESH_ENDPOINT,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-
-                        refreshToken:
-                            refreshToken
-
-                    })
-
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        /*
-           The backend rejected the refreshToken.
-        */
-
-        if (!response.ok) {
-
-            return false;
-
-        }
-
-
-        /*
-           Get the newly issued accessToken.
-        */
-
-        const newAccessToken =
-            data.accessToken ||
-            data.token;
-
-
-        if (!newAccessToken) {
-
-            return false;
-
-        }
-
-
-        /*
-           Save the new accessToken.
-        */
-
-        saveAccessToken(
-            newAccessToken
-        );
-
-
-        return true;
-
-    } catch (error) {
-
-        console.error(
-            "Refresh token error:",
-            error
-        );
-
-        return false;
-
-    }
-
+    hideModal(true);
 }
 
 
 /* =========================================================
-   19. REQUEST WORKER DASHBOARD
+   9. MODAL EVENTS
 ========================================================= */
 
-async function requestDashboard() {
+notificationButton.addEventListener(
+    "click",
+    closeModal
+);
+
+
+notificationCloseButton.addEventListener(
+    "click",
+    () => {
+
+        /*
+           Do not allow the close button to
+           interfere while a backend request
+           is running.
+        */
+
+        if (
+            notificationButton.disabled
+        ) {
+            return;
+        }
+
+
+        hideModal(false);
+
+    }
+);
+
+
+/* =========================================================
+   10. LOADING STATE
+========================================================= */
+
+/*
+   Adds a visible loading state to a button.
+
+   While loading:
+   - The button is disabled.
+   - The button receives .is-loading.
+   - The original button text is temporarily
+     replaced with "Processing..."
+   - CSS displays the spinner.
+*/
+
+function setLoading(
+    button,
+    loading
+) {
+
+    if (!button) {
+        return;
+    }
+
+
+    if (loading) {
+
+        /*
+           Prevent duplicate loading initialization.
+        */
+
+        if (
+            !button.dataset.originalText
+        ) {
+
+            button.dataset.originalText =
+                button.textContent.trim();
+        }
+
+
+        button.disabled =
+            true;
+
+
+        button.classList.add(
+            "is-loading"
+        );
+
+
+        button.textContent =
+            "Processing...";
+
+
+        return;
+    }
+
+
+    /*
+       Restore the original button text.
+    */
+
+    button.disabled =
+        false;
+
+
+    button.classList.remove(
+        "is-loading"
+    );
+
+
+    if (
+        button.dataset.originalText
+    ) {
+
+        button.textContent =
+            button.dataset.originalText;
+
+        delete button.dataset.originalText;
+    }
+}
+
+
+/* =========================================================
+   11. AUTHENTICATION
+========================================================= */
+
+function redirectToAuthentication() {
+
+    window.location.href =
+        "../worker-authentication/index.html";
+}
+
+
+function handleAuthenticationError(
+    message =
+        "Your session has expired. Please log in again."
+) {
+
+    removeAccessToken();
+
+    showModal(
+        "Authentication Required",
+        message,
+        "error",
+        redirectToAuthentication,
+        "Continue"
+    );
+}
+
+
+function checkAccessToken() {
 
     const accessToken =
         getAccessToken();
 
-
-    /*
-       No accessToken exists.
-
-       The worker must authenticate again.
-    */
-
     if (!accessToken) {
 
-        showAuthenticationError(
-            "Your session could not be found. Please sign in again."
+        showModal(
+            "Authentication Required",
+            "Please log in to access your worker dashboard.",
+            "error",
+            redirectToAuthentication,
+            "Continue"
         );
 
-        return;
+        return false;
+    }
 
+    return true;
+}
+
+
+/* =========================================================
+   12. LOAD DASHBOARD
+========================================================= */
+
+async function loadDashboard() {
+
+    if (!checkAccessToken()) {
+        return;
     }
 
 
     try {
 
         const response =
-            await fetch(
+            await API_REQUEST(
                 DASHBOARD_ENDPOINT,
                 {
-                    method: "GET",
-
-                    headers: {
-
-                        "Authorization":
-                            `Bearer ${accessToken}`,
-
-                        "Content-Type":
-                            "application/json"
-
-                    }
-
+                    method: "GET"
                 }
             );
+
+
+        if (
+            response.status === 401
+        ) {
+            return;
+        }
 
 
         const data =
             await response.json();
 
 
-        /*
-           IMPORTANT:
-
-           Only refresh when the backend explicitly
-           identifies the accessToken as expired.
-
-           Your backend should return something such as:
-
-           {
-               success: false,
-               code: "ACCESS_TOKEN_EXPIRED",
-               message: "Access token expired."
-           }
-        */
-
-        const tokenExpired =
-            data.code ===
-            "ACCESS_TOKEN_EXPIRED";
-
-
-        if (tokenExpired) {
-
-            const refreshed =
-                await refreshAccessToken();
-
-
-            /*
-               Refresh failed.
-
-               The worker must authenticate again.
-            */
-
-            if (!refreshed) {
-
-                showAuthenticationError(
-                    "Your session has expired. Please sign in again."
-                );
-
-                return;
-
-            }
-
-
-            /*
-               Refresh succeeded.
-
-               Retry the dashboard request
-               with the new accessToken.
-            */
-
-            return requestDashboard();
-
-        }
-
-
-        /*
-           Any other authentication failure
-           means the accessToken is invalid.
-
-           Do NOT attempt refresh.
-        */
-
-        if (
-            response.status === 401 ||
-            response.status === 403
-        ) {
-
-            showAuthenticationError(
-                data.message ||
-                "Your authentication is invalid. Please sign in again."
-            );
-
-            return;
-
-        }
-
-
-        /*
-           Handle other backend errors.
-        */
-
         if (!response.ok) {
 
             showModal(
-                "error",
-                "Dashboard Error",
+                "Unable to Load Dashboard",
                 data.message ||
-                "Unable to load your dashboard.",
-                "Continue"
+                    "Something went wrong while loading your dashboard.",
+                "error"
             );
 
             return;
-
         }
 
 
-        /*
-           Authentication succeeded.
-
-           Display the worker profile.
-        */
-
-        displayWorkerDashboard(
+        displayWorkerData(
             data
         );
 
-        console.log(
-    "Dashboard display function completed."
-);
+    }
 
-console.log(
-    "Visible fullName:",
-    fullName?.textContent
-);
-
-console.log(
-    "Visible phone:",
-    phoneNumber?.textContent
-);
-
-console.log(
-    "Visible skill:",
-    primarySkill?.textContent
-);
-
-console.log(
-    "Visible experience:",
-    yearsExperience?.textContent
-);
-
-console.log(
-    "Visible price:",
-    startingPrice?.textContent
-);
-
-console.log(
-    "Visible description:",
-    serviceDescription?.textContent
-);
-
-console.log(
-    "Visible profile image:",
-    profileImage?.src
-);
-
-    } catch (error) {
+    catch (error) {
 
         console.error(
-            "Dashboard request error:",
+            "Dashboard request failed:",
             error
         );
 
 
         showModal(
-            "error",
             "Connection Error",
             "Unable to connect to the server. Please try again.",
+            "error"
+        );
+    }
+}
+
+
+/* =========================================================
+   13. DISPLAY WORKER DATA
+========================================================= */
+
+function displayWorkerData(data) {
+
+    const worker =
+        data.worker || data;
+
+
+    const name =
+        worker.fullName || "";
+
+
+    fullName.textContent =
+        name || "Not provided";
+
+    phoneNumber.textContent =
+        worker.phone || "Not provided";
+
+    country.textContent =
+        worker.country || "Not provided";
+
+    state.textContent =
+        worker.state || "Not provided";
+
+    city.textContent =
+        worker.city || "Not provided";
+
+    lga.textContent =
+        worker.lga || "Not provided";
+
+
+    workerFirstName.textContent =
+        name.split(" ")[0] ||
+        "Worker";
+
+
+    totalSkills.textContent =
+        worker.totalSkills ?? 0;
+
+
+    displayProfilePhoto(
+        worker.profilePhoto
+    );
+
+
+    checkPhoneVerification(
+        worker.phoneVerificationExpires
+    );
+}
+
+
+/* =========================================================
+   14. DISPLAY PROFILE PHOTO
+========================================================= */
+
+function displayProfilePhoto(photoUrl) {
+
+    if (
+        !profilePhoto ||
+        !profilePhotoPlaceholder
+    ) {
+        return;
+    }
+
+
+    profilePhoto.hidden =
+        true;
+
+    profilePhotoPlaceholder.hidden =
+        true;
+
+
+    profilePhoto.onload =
+        null;
+
+    profilePhoto.onerror =
+        null;
+
+
+    if (
+        !photoUrl ||
+        typeof photoUrl !== "string" ||
+        !photoUrl.trim()
+    ) {
+
+        profilePhoto.removeAttribute(
+            "src"
+        );
+
+        profilePhotoPlaceholder.hidden =
+            false;
+
+        return;
+    }
+
+
+    profilePhoto.onload = () => {
+
+        profilePhoto.hidden =
+            false;
+
+        profilePhotoPlaceholder.hidden =
+            true;
+    };
+
+
+    profilePhoto.onerror = () => {
+
+        profilePhoto.hidden =
+            true;
+
+        profilePhoto.removeAttribute(
+            "src"
+        );
+
+        profilePhotoPlaceholder.hidden =
+            false;
+    };
+
+
+    profilePhoto.hidden =
+        true;
+
+
+    profilePhoto.src =
+        photoUrl.trim();
+}
+
+
+/* =========================================================
+   15. PHONE VERIFICATION
+========================================================= */
+
+function checkPhoneVerification(
+    phoneVerificationExpires
+) {
+
+    const expiryTime =
+        phoneVerificationExpires
+            ? new Date(
+                phoneVerificationExpires
+            ).getTime()
+            : NaN;
+
+
+    if (
+        !phoneVerificationExpires ||
+        Number.isNaN(expiryTime) ||
+        expiryTime <= Date.now()
+    ) {
+
+        showVerificationPrompt();
+
+        return;
+    }
+
+
+    phoneVerification.textContent =
+        "Verified";
+
+
+    startVerificationCountdown(
+        expiryTime
+    );
+}
+
+
+/* =========================================================
+   16. VERIFICATION PROMPT
+========================================================= */
+
+function showVerificationPrompt() {
+
+    phoneVerification.textContent =
+        "Unverified";
+
+
+    verificationActionBtn.textContent =
+        "Verify Profile";
+
+
+    showModal(
+        "Verify Your Profile",
+        "Verify your profile to be discovered by nearby clients.",
+        "info",
+        sendPhoneOtp,
+        "Continue",
+
+        /*
+           IMPORTANT:
+
+           Keep this modal open while the
+           phone OTP backend request runs.
+        */
+
+        true
+    );
+}
+
+
+/* =========================================================
+   17. VERIFICATION COUNTDOWN
+========================================================= */
+
+let countdownTimer = null;
+
+
+function startVerificationCountdown(
+    expiryTime
+) {
+
+    clearInterval(
+        countdownTimer
+    );
+
+
+    updateVerificationCountdown(
+        expiryTime
+    );
+
+
+    countdownTimer =
+        setInterval(
+            () => {
+
+                if (
+                    expiryTime <=
+                    Date.now()
+                ) {
+
+                    clearInterval(
+                        countdownTimer
+                    );
+
+
+                    showVerificationPrompt();
+
+                    return;
+                }
+
+
+                updateVerificationCountdown(
+                    expiryTime
+                );
+
+            },
+            1000
+        );
+}
+
+
+function updateVerificationCountdown(
+    expiryTime
+) {
+
+    verificationActionBtn.textContent =
+        formatCountdown(
+            expiryTime
+        );
+}
+
+
+function formatCountdown(
+    expiryTime
+) {
+
+    const totalSeconds =
+        Math.floor(
+            Math.max(
+                0,
+                expiryTime - Date.now()
+            ) / 1000
+        );
+
+
+    const days =
+        Math.floor(
+            totalSeconds / 86400
+        );
+
+
+    const hours =
+        Math.floor(
+            (totalSeconds % 86400) /
+            3600
+        );
+
+
+    const minutes =
+        Math.floor(
+            (totalSeconds % 3600) /
+            60
+        );
+
+
+    const seconds =
+        totalSeconds % 60;
+
+
+    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+}
+
+
+/* =========================================================
+   18. VERIFY PROFILE BUTTON
+========================================================= */
+
+verificationActionBtn.addEventListener(
+    "click",
+    () => {
+
+        if (
+            verificationActionBtn.textContent.trim() !==
+            "Verify Profile"
+        ) {
+
+            return;
+        }
+
+
+        showVerificationPrompt();
+    }
+);
+
+
+/* =========================================================
+   19. SEND PHONE OTP
+========================================================= */
+
+async function sendPhoneOtp() {
+
+    /*
+       The verification modal is STILL visible.
+
+       Therefore the user can actually see
+       the loading state.
+    */
+
+    setLoading(
+        notificationButton,
+        true
+    );
+
+
+    try {
+
+        const response =
+            await API_REQUEST(
+                SEND_PHONE_OTP_ENDPOINT,
+                {
+                    method: "POST"
+                }
+            );
+
+
+        if (
+            response.status === 401
+        ) {
+
+            setLoading(
+                notificationButton,
+                false
+            );
+
+            hideModal(false);
+
+            return;
+        }
+
+
+        const data =
+            await response.json();
+
+
+        /* -------------------------------------------------
+           BACKEND ERROR
+        ------------------------------------------------- */
+
+        if (!response.ok) {
+
+            setLoading(
+                notificationButton,
+                false
+            );
+
+
+            hideModal(false);
+
+
+            showModal(
+                "Verification Error",
+                data.message ||
+                    "Unable to send verification code.",
+                "error"
+            );
+
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           SAVE PHONE NUMBER
+        ------------------------------------------------- */
+
+        if (data.phone) {
+
+            sessionStorage.setItem(
+                "workerPhone",
+                data.phone
+            );
+        }
+
+
+        /* -------------------------------------------------
+           REQUEST SUCCESS
+
+           Stop loading while the current modal
+           is still visible.
+        ------------------------------------------------- */
+
+        setLoading(
+            notificationButton,
+            false
+        );
+
+
+        /*
+           Now hide the verification modal.
+        */
+
+        hideModal(false);
+
+
+        /*
+           Display the success modal.
+
+           User must click Continue manually.
+        */
+
+        showModal(
+            "OTP Sent",
+            data.message ||
+                "A verification code has been sent to your phone.",
+            "success",
+
+            () => {
+
+                window.location.href =
+                    "../worker-phone-otp/index.html";
+
+            },
+
             "Continue"
         );
 
     }
 
+    catch (error) {
+
+        console.error(
+            "Phone OTP request failed:",
+            error
+        );
+
+
+        setLoading(
+            notificationButton,
+            false
+        );
+
+
+        hideModal(false);
+
+
+        showModal(
+            "Connection Error",
+            "Unable to send the verification code. Please try again.",
+            "error"
+        );
+    }
 }
 
 
 /* =========================================================
-   20. EXTRACT WORKER DATA
+   20. MOBILE SIDEBAR
 ========================================================= */
 
-function getWorkerFromResponse(
-    data
-) {
+function openSidebar() {
 
-    if (
-        data &&
-        data.worker
-    ) {
-
-        return data.worker;
-
-    }
-
-
-    if (
-        data &&
-        data.data
-    ) {
-
-        return data.data;
-
-    }
-
-
-    return data || {};
-
-}
-
-
-/* =========================================================
-   21. DISPLAY WORKER DASHBOARD
-========================================================= */
-
-function displayWorkerDashboard(
-    data
-) {
-    const worker =
-        getWorkerFromResponse(
-            data
-        );
-
-
-    /*
-       PERSONAL INFORMATION
-    */
-
-    const workerFullName =
-        worker.fullName ||
-        worker.name ||
-        "—";
-
-
-    const workerPhone =
-        worker.phone ||
-        "—";
-
-
-    /*
-       PROFESSIONAL INFORMATION
-    */
-
-    const workerSkill =
-        worker.primarySkill ||
-        "—";
-
-
-    const workerExperience =
-        worker.experience ||
-        worker.yearsExperience ||
-        "—";
-
-
-    const workerStartingPrice =
-        worker.startingPrice ??
-        "—";
-
-
-    const workerLocation =
-        formatLocation(
-            worker.location
-        );
-
-
-    /*
-       SERVICE DESCRIPTION
-    */
-
-    const workerDescription =
-        worker.description ||
-        worker.serviceDescription ||
-        "No service description available.";
-
-
-    /*
-       PROFILE PICTURE
-    */
-
-    const workerProfilePicture =
-        worker.profilePicture ||
-        "";
-
-
-    /*
-       UPDATE DASHBOARD HEADER
-    */
-
-    if (workerFirstName) {
-
-        workerFirstName.textContent =
-            getFirstName(
-                workerFullName
-            );
-
-    }
-
-
-    /*
-       UPDATE FULL NAME
-    */
-
-    if (fullName) {
-
-        fullName.textContent =
-            workerFullName;
-
-    }
-
-
-    /*
-       UPDATE PHONE
-    */
-
-    if (phoneNumber) {
-
-        phoneNumber.textContent =
-            workerPhone;
-
-    }
-
-
-    /*
-       UPDATE PRIMARY SKILL
-    */
-
-    if (primarySkill) {
-
-        primarySkill.textContent =
-            workerSkill;
-
-    }
-
-
-    /*
-       UPDATE EXPERIENCE
-    */
-
-    if (yearsExperience) {
-
-        yearsExperience.textContent =
-            formatExperience(
-                workerExperience
-            );
-
-    }
-
-
-    /*
-       UPDATE STARTING PRICE
-    */
-
-    if (startingPrice) {
-
-        startingPrice.textContent =
-            formatPrice(
-                workerStartingPrice
-            );
-
-    }
-
-
-    /*
-       UPDATE LOCATION
-    */
-
-    if (locationElement) {
-
-        locationElement.textContent =
-            workerLocation;
-
-    }
-
-
-    /*
-       UPDATE DESCRIPTION
-    */
-
-    if (serviceDescription) {
-
-        serviceDescription.textContent =
-            workerDescription;
-
-    }
-
-
-    /*
-       UPDATE PROFILE IMAGE
-    */
-
-    displayProfilePicture(
-        workerProfilePicture
+    sidebar.classList.add(
+        "active"
     );
 
+    overlay.classList.add(
+        "active"
+    );
+}
+
+
+function closeSidebar() {
+
+    sidebar.classList.remove(
+        "active"
+    );
+
+    overlay.classList.remove(
+        "active"
+    );
+}
+
+
+menuBtn.addEventListener(
+    "click",
+    openSidebar
+);
+
+
+closeMenuBtn.addEventListener(
+    "click",
+    closeSidebar
+);
+
+
+overlay.addEventListener(
+    "click",
+    closeSidebar
+);
+
+
+/* =========================================================
+   21. DASHBOARD NAVIGATION
+========================================================= */
+
+viewServicesBtn.addEventListener(
+    "click",
+    () => {
+
+        window.location.href =
+            "../worker-services/index.html";
+    }
+);
+
+
+editProfileBtn.addEventListener(
+    "click",
+    () => {
+
+        window.location.href =
+            "../worker-edit-profile/index.html";
+    }
+);
+
+
+/* =========================================================
+   22. LOGOUT CONFIRMATION
+========================================================= */
+
+logoutBtn.addEventListener(
+    "click",
+    () => {
+
+        showModal(
+            "Logout",
+            "Are you sure you want to log out.",
+            "confirm",
+            logoutWorker,
+            "Logout",
+
+            true
+        );
+    }
+);
+
+
+/* =========================================================
+   23. LOGOUT REQUEST
+========================================================= */
+
+async function logoutWorker() {
 
     /*
-       UPDATE PORTFOLIO
+       The confirmation modal remains visible.
+
+       The Logout button now changes to:
+
+           Processing... [spinner]
+
+       and becomes disabled.
     */
 
-    displayPortfolio(
-        worker.portfolioImages
+    setLoading(
+        notificationButton,
+        true
     );
-
-}
-
-
-/* =========================================================
-   22. GET FIRST NAME
-========================================================= */
-
-function getFirstName(
-    fullName
-) {
-
-    if (
-        !fullName ||
-        fullName === "—"
-    ) {
-
-        return "Worker";
-
-    }
-
-
-    return String(
-        fullName
-    )
-        .trim()
-        .split(/\s+/)[0];
-
-}
-
-
-/* =========================================================
-   23. FORMAT EXPERIENCE
-========================================================= */
-
-function formatExperience(
-    experience
-) {
-
-    if (
-        experience === null ||
-        experience === undefined ||
-        experience === "" ||
-        experience === "—"
-    ) {
-
-        return "—";
-
-    }
-
-
-    const value =
-        String(
-            experience
-        );
-
-
-    if (
-        value
-            .toLowerCase()
-            .includes("year")
-    ) {
-
-        return value;
-
-    }
-
-
-    return `${value} years`;
-
-}
-
-
-/* =========================================================
-   24. FORMAT PRICE
-========================================================= */
-
-function formatPrice(
-    price
-) {
-
-    if (
-        price === null ||
-        price === undefined ||
-        price === "" ||
-        price === "—"
-    ) {
-
-        return "—";
-
-    }
-
-
-    if (
-        typeof price === "string" &&
-        /₦|NGN/i.test(price)
-    ) {
-
-        return price;
-
-    }
-
-
-    const numericPrice =
-        Number(
-            price
-        );
-
-
-    if (
-        Number.isFinite(
-            numericPrice
-        )
-    ) {
-
-        return `₦${numericPrice.toLocaleString(
-            "en-NG"
-        )}`;
-
-    }
-
-
-    return String(
-        price
-    );
-
-}
-
-
-/* =========================================================
-   25. FORMAT LOCATION
-========================================================= */
-
-function formatLocation(
-    location
-) {
-
-    if (!location) {
-
-        return "—";
-
-    }
-
-
-    if (
-        typeof location === "string"
-    ) {
-
-        return location;
-
-    }
-
-
-    if (
-        typeof location === "object"
-    ) {
-
-        const parts = [
-
-            location.city,
-
-            location.state,
-
-            location.country
-
-        ].filter(
-            Boolean
-        );
-
-
-        if (parts.length) {
-
-            return parts.join(
-                ", "
-            );
-
-        }
-
-
-        if (
-            location.address
-        ) {
-
-            return location.address;
-
-        }
-
-    }
-
-
-    return "—";
-
-}
-
-
-/* =========================================================
-   26. DISPLAY PROFILE PICTURE
-========================================================= */
-
-function displayProfilePicture(
-    imageUrl
-) {
-
-    if (!profileImage) {
-
-        return;
-
-    }
-
-
-    if (!imageUrl) {
-
-        profileImage.removeAttribute(
-            "src"
-        );
-
-        return;
-
-    }
-
-
-    profileImage.src =
-        imageUrl;
-
-
-    profileImage.alt =
-        "Worker profile picture";
-
-
-    profileImage.onerror =
-        function () {
-
-            profileImage.removeAttribute(
-                "src"
-            );
-
-        };
-
-}
-
-
-/* =========================================================
-   27. DISPLAY PORTFOLIO
-========================================================= */
-
-function displayPortfolio(
-    portfolioImages
-) {
-
-    if (!portfolioGrid) {
-
-        return;
-
-    }
-
-
-    portfolioGrid.innerHTML =
-        "";
-
-
-    const images =
-        Array.isArray(
-            portfolioImages
-        )
-            ? portfolioImages
-            : [];
-
-
-    if (!images.length) {
-
-        if (portfolioEmptyState) {
-
-            portfolioEmptyState.hidden =
-                false;
-
-        }
-
-        return;
-
-    }
-
-
-    if (portfolioEmptyState) {
-
-        portfolioEmptyState.hidden =
-            true;
-
-    }
-
-
-    images.forEach(
-        function (
-            image,
-            index
-        ) {
-
-            const imageUrl =
-                typeof image === "string"
-                    ? image
-                    : image?.url ||
-                      image?.imageUrl ||
-                      image?.path ||
-                      "";
-
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-            card.className =
-                "portfolio-card";
-
-
-            if (imageUrl) {
-
-                const img =
-                    document.createElement(
-                        "img"
-                    );
-
-                img.className =
-                    "portfolio-image";
-
-                img.src =
-                    imageUrl;
-
-                img.alt =
-                    `Previous work ${
-                        index + 1
-                    }`;
-
-                img.loading =
-                    "lazy";
-
-
-                img.onerror =
-                    function () {
-
-                        img.remove();
-
-                        const fallback =
-                            createPortfolioFallback();
-
-                        card.insertBefore(
-                            fallback,
-                            card.firstChild
-                        );
-
-                    };
-
-
-                card.appendChild(
-                    img
-                );
-
-            } else {
-
-                card.appendChild(
-                    createPortfolioFallback()
-                );
-
-            }
-
-
-            const label =
-                document.createElement(
-                    "div"
-                );
-
-            label.className =
-                "portfolio-label";
-
-            label.textContent =
-                `Previous Work ${
-                    index + 1
-                }`;
-
-
-            card.appendChild(
-                label
-            );
-
-
-            portfolioGrid.appendChild(
-                card
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   28. CREATE PORTFOLIO FALLBACK
-========================================================= */
-
-function createPortfolioFallback() {
-
-    const fallback =
-        document.createElement(
-            "div"
-        );
-
-    fallback.className =
-        "portfolio-fallback";
-
-    fallback.textContent =
-        "🛠️";
-
-    fallback.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-
-    return fallback;
-
-}
-
-
-/* =========================================================
-   29. LOGOUT CONFIRMATION
-========================================================= */
-
-function showLogoutConfirmation() {
-
-    showModal(
-        "info",
-        "Logout",
-        "Are you sure you want to logout?",
-        "Logout",
-        true,
-        function () {
-
-            performLogout();
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   30. LOGOUT REQUEST
-========================================================= */
-
-async function performLogout() {
-
-    const refreshToken =
-        getRefreshToken();
 
 
     try {
 
-        /*
-           Send the refreshToken to the
-           worker-dashboard logout endpoint.
-        */
-
-        if (refreshToken) {
-
-            await fetch(
+        const response =
+            await API_REQUEST(
                 LOGOUT_ENDPOINT,
                 {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-
-                        refreshToken:
-                            refreshToken
-
-                    })
-
+                    method: "POST"
                 }
             );
 
+
+        if (
+            response.status === 401
+        ) {
+
+            setLoading(
+                notificationButton,
+                false
+            );
+
+
+            hideModal(false);
+
+            return;
         }
 
-    } catch (error) {
+
+        const data =
+            await response.json();
+
+
+        /* -------------------------------------------------
+           LOGOUT ERROR
+        ------------------------------------------------- */
+
+        if (!response.ok) {
+
+            setLoading(
+                notificationButton,
+                false
+            );
+
+
+            /*
+               Replace the confirmation modal
+               with the error modal.
+            */
+
+            showModal(
+                "Logout Failed",
+                data.message ||
+                    "Unable to log out. Please try again.",
+                "error"
+            );
+
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           SUCCESSFUL LOGOUT
+        ------------------------------------------------- */
+
+        removeAccessToken();
+
 
         /*
-           Local authentication data is still
-           removed even if the network request fails.
+           Stop loading before replacing
+           the modal with the success message.
         */
 
-        console.error(
-            "Logout request error:",
-            error
+        setLoading(
+            notificationButton,
+            false
+        );
+
+
+        hideModal(false);
+
+
+        /*
+           User must manually click Continue
+           before redirecting.
+        */
+
+        showModal(
+            "Logged Out",
+            data.message ||
+                "You have been logged out successfully.",
+            "success",
+
+            redirectToAuthentication,
+
+            "Continue"
         );
 
     }
 
+    catch (error) {
 
-    /*
-       Remove authentication data.
-    */
+        console.error(
+            "Logout request failed:",
+            error
+        );
 
-    clearAuthenticationData();
+
+        setLoading(
+            notificationButton,
+            false
+        );
 
 
-    /*
-       Redirect to worker authentication.
-    */
+        hideModal(false);
 
-    redirectToWorkerAuthentication();
 
+        showModal(
+            "Connection Error",
+            "Unable to log out at this time. Please try again.",
+            "error"
+        );
+    }
 }
 
 
 /* =========================================================
-   31. LOGOUT BUTTON EVENT
+   24. SESSION EXPIRED EVENT
 ========================================================= */
 
-if (logoutBtn) {
+window.addEventListener(
+    "authSessionExpired",
+    () => {
 
-    logoutBtn.addEventListener(
-        "click",
-        showLogoutConfirmation
-    );
+        handleAuthenticationError();
 
-}
+    }
+);
 
 
 /* =========================================================
-   32. START DASHBOARD
+   25. INITIALIZE DASHBOARD
 ========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
-    function () {
+    () => {
 
-        /*
-           Start the dashboard authentication
-           and profile request.
-        */
-
-        requestDashboard();
+        loadDashboard();
 
     }
 );

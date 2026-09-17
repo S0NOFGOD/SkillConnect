@@ -1,246 +1,321 @@
 /* =========================================================
-   1. INITIALIZE PAGE
-========================================================= */
+
+1. INITIALIZE PAGE
+   ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    initializeTabs();
-    initializePasswordToggles();
-    initializeLogin();
-    initializeSignup();
-    initializeForgotPassword();
-    initializeGoogleButtons();
-    initializeNotificationModal();
-    initializeForgotModal();
+initializeTabs();
+initializePasswordToggles();
+initializeLogin();
+initializeSignup();
+initializeForgotPassword();
+initializeGoogleButtons();
+initializeNotificationModal();
+initializeForgotModal();
 
 });
 
-
 /* =========================================================
-   2. ELEMENT HELPER
+2. ELEMENT HELPER
 ========================================================= */
 
-const getElement = (id) =>
-    document.getElementById(id);
-
+const getElement = id =>
+document.getElementById(id);
 
 /* =========================================================
-   3. TAB SWITCHING
+3. TAB SWITCHING
 ========================================================= */
 
 function initializeTabs() {
 
-    document.querySelectorAll(".tab").forEach(tab => {
+document.querySelectorAll(".tab").forEach(tab => {
 
-        tab.addEventListener("click", () => {
+    tab.addEventListener("click", () => {
 
-            document.querySelectorAll(".tab")
-                .forEach(item =>
-                    item.classList.remove("active")
-                );
+        document.querySelectorAll(".tab")
+            .forEach(item =>
+                item.classList.remove("active")
+            );
 
-            document.querySelectorAll(".auth-form")
-                .forEach(form =>
-                    form.classList.remove("active")
-                );
+        document.querySelectorAll(".auth-form")
+            .forEach(form =>
+                form.classList.remove("active")
+            );
 
-            tab.classList.add("active");
+        tab.classList.add("active");
 
-            const form =
-                getElement(
-                    tab.dataset.tab === "login"
-                        ? "loginForm"
-                        : "signupForm"
-                );
+        const form = getElement(
+            tab.dataset.tab === "login"
+                ? "loginForm"
+                : "signupForm"
+        );
 
-            form.classList.add("active");
-
-        });
+        form.classList.add("active");
 
     });
 
+});
+
 }
 
-
 /* =========================================================
-   4. PASSWORD TOGGLES
+4. PASSWORD TOGGLES
 ========================================================= */
 
 function initializePasswordToggles() {
 
-    const toggles = [
-        ["toggleLoginPassword", "loginPassword"],
-        ["toggleSignupPassword", "signupPassword"],
-        ["toggleConfirmPassword", "confirmPassword"]
-    ];
+const toggles = [
+    ["toggleLoginPassword", "loginPassword"],
+    ["toggleSignupPassword", "signupPassword"],
+    ["toggleConfirmPassword", "confirmPassword"]
+];
 
-    toggles.forEach(([buttonId, inputId]) => {
+toggles.forEach(([buttonId, inputId]) => {
 
-        const button = getElement(buttonId);
-        const input = getElement(inputId);
+    const button = getElement(buttonId);
+    const input = getElement(inputId);
 
-        button.addEventListener("click", () => {
+    button.addEventListener("click", () => {
 
-            const hidden =
-                input.type === "password";
+        const hidden =
+            input.type === "password";
 
-            input.type =
-                hidden ? "text" : "password";
+        input.type =
+            hidden ? "text" : "password";
 
-            button.textContent =
-                hidden ? "Hide" : "Show";
-
-        });
+        button.textContent =
+            hidden ? "Hide" : "Show";
 
     });
 
+});
+
 }
 
-
 /* =========================================================
-   5. EMAIL VALIDATION
+5. VALIDATION HELPERS
 ========================================================= */
 
 function validEmail(email) {
 
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        .test(email);
+return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    .test(email);
 
 }
 
+function validateEmail(email, button) {
+
+if (validEmail(email)) {
+    return true;
+}
+
+setLoading(button, false);
+
+showModal(
+    "Invalid Email",
+    "Please enter a valid email address."
+);
+
+return false;
+
+}
 
 /* =========================================================
-   6. LOADING STATE
+6. LOADING STATE
 ========================================================= */
 
 function setLoading(button, loading, text) {
 
-    if (loading) {
+if (loading) {
 
-        button.disabled = true;
-        button.dataset.text = button.textContent;
-        button.textContent = text;
-        button.classList.add("loading");
+    button.disabled = true;
 
-    } else {
+    button.dataset.text =
+        button.textContent;
 
-        button.disabled = false;
-        button.textContent =
-            button.dataset.text || text;
-        button.classList.remove("loading");
+    button.textContent = text;
 
-    }
+    button.classList.add("loading");
+
+    return;
+}
+
+button.disabled = false;
+
+button.textContent =
+    button.dataset.text || text;
+
+button.classList.remove("loading");
 
 }
 
+/* =========================================================
+7. API REQUEST HELPER
+========================================================= */
+
+async function postRequest(endpoint, body) {
+
+const response = await fetch(
+    API_ENDPOINT(endpoint),
+    {
+        method: "POST",
+
+        headers: {
+            "Content-Type":
+                "application/json"
+        },
+
+        credentials: "include",
+
+        body: JSON.stringify(body)
+    }
+);
+
+const data =
+    await response.json();
+
+return {
+    response,
+    data
+};
+
+}
 
 /* =========================================================
-   7. SESSION STORAGE
+8. CONNECTION ERROR HELPER
+========================================================= */
+
+function handleConnectionError(error, button) {
+
+console.error(error);
+
+setLoading(button, false);
+
+showModal(
+    "Connection Error",
+    "Unable to connect to the server. Please try again."
+);
+
+}
+
+/* =========================================================
+9. SESSION STORAGE
 ========================================================= */
 
 function saveWorkerEmail(email) {
 
-    sessionStorage.setItem(
-        "workerEmail",
-        email
-    );
+sessionStorage.setItem(
+    "workerEmail",
+    email
+);
 
 }
-
 
 function saveAccessToken(token) {
 
-    sessionStorage.setItem(
-        "accessToken",
-        token
-    );
+sessionStorage.setItem(
+    "accessToken",
+    token
+);
 
 }
 
-
 /* =========================================================
-   8. NOTIFICATION MODAL
+10. NOTIFICATION MODAL
 ========================================================= */
 
 let pendingRedirect = null;
 
-
 function showModal(
-    title,
-    message,
-    type = "error",
-    redirect = null
+title,
+message,
+type = "error",
+redirect = null
 ) {
 
-    getElement("notificationTitle")
-        .textContent = title;
+getElement("notificationTitle")
+    .textContent = title;
 
-    getElement("notificationMessage")
-        .textContent = message;
+getElement("notificationMessage")
+    .textContent = message;
 
-    getElement("notificationIcon")
-        .textContent =
-            type === "success" ? "✓" : "!";
+getElement("notificationIcon")
+    .textContent =
+        type === "success"
+            ? "✓"
+            : "!";
 
-    pendingRedirect = redirect;
+pendingRedirect = redirect;
 
-    const modal =
-        getElement("notificationModal");
+const modal =
+    getElement("notificationModal");
 
-    modal.classList.add("show");
-    modal.setAttribute("aria-hidden", "false");
+modal.classList.add("show");
+
+modal.setAttribute(
+    "aria-hidden",
+    "false"
+);
 
 }
-
 
 function closeNotificationModal() {
 
-    const modal =
-        getElement("notificationModal");
+const modal =
+    getElement("notificationModal");
 
-    modal.classList.remove("show");
-    modal.setAttribute("aria-hidden", "true");
+modal.classList.remove("show");
 
-    const redirect = pendingRedirect;
+modal.setAttribute(
+    "aria-hidden",
+    "true"
+);
 
-    pendingRedirect = null;
+const redirect =
+    pendingRedirect;
 
-    if (redirect) {
-        window.location.href = redirect;
-    }
+pendingRedirect = null;
+
+if (redirect) {
+
+    window.location.href =
+        redirect;
 
 }
 
+}
 
 /* =========================================================
-   9. NOTIFICATION MODAL EVENTS
+11. NOTIFICATION MODAL EVENTS
 ========================================================= */
 
 function initializeNotificationModal() {
 
-    getElement("closeNotification")
-        .addEventListener(
-            "click",
-            closeNotificationModal
-        );
+getElement("closeNotification")
+    .addEventListener(
+        "click",
+        closeNotificationModal
+    );
 
-    getElement("notificationButton")
-        .addEventListener(
-            "click",
-            closeNotificationModal
-        );
+getElement("notificationButton")
+    .addEventListener(
+        "click",
+        closeNotificationModal
+    );
 
 }
 
-
 /* =========================================================
-   10. LOGIN FLOW
+12. LOGIN FLOW
 ========================================================= */
 
 function initializeLogin() {
 
-    getElement("loginForm")
-        .addEventListener("submit", async event => {
+getElement("loginForm")
+    .addEventListener(
+        "submit",
+        async event => {
 
             event.preventDefault();
 
@@ -249,7 +324,8 @@ function initializeLogin() {
 
             const email =
                 getElement("loginEmail")
-                    .value.trim()
+                    .value
+                    .trim()
                     .toLowerCase();
 
             const password =
@@ -263,26 +339,22 @@ function initializeLogin() {
             );
 
 
-            /* ---------------------------------------------
-               FRONTEND VALIDATION
-            --------------------------------------------- */
-
-            if (!validEmail(email)) {
-
-                setLoading(button, false);
-
-                showModal(
-                    "Invalid Email",
-                    "Please enter a valid email address."
-                );
-
+            if (
+                !validateEmail(
+                    email,
+                    button
+                )
+            ) {
                 return;
             }
 
 
             if (!password) {
 
-                setLoading(button, false);
+                setLoading(
+                    button,
+                    false
+                );
 
                 showModal(
                     "Password Required",
@@ -293,38 +365,26 @@ function initializeLogin() {
             }
 
 
-            /* ---------------------------------------------
-               SEND LOGIN REQUEST
-            --------------------------------------------- */
-
             try {
 
-                const response =
-                    await fetch(
-                        API_ENDPOINT(
-                            "/api/worker-authentication/login"
-                        ),
-                        {
-                            method: "POST",
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-                            credentials: "include",
-                            body: JSON.stringify({
-                                email,
-                                password
-                            })
-                        }
-                    );
-
-                const data =
-                    await response.json();
+                const {
+                    response,
+                    data
+                } = await postRequest(
+                    "/api/worker-authentication/login",
+                    {
+                        email,
+                        password
+                    }
+                );
 
 
                 if (!response.ok) {
 
-                    setLoading(button, false);
+                    setLoading(
+                        button,
+                        false
+                    );
 
                     showModal(
                         "Login Failed",
@@ -341,16 +401,15 @@ function initializeLogin() {
                 );
 
 
-                /* -----------------------------------------
-                   EMAIL NOT VERIFIED
-                ------------------------------------------ */
-
                 if (
                     data.nextStep ===
                     "email-verification"
                 ) {
 
-                    setLoading(button, false);
+                    setLoading(
+                        button,
+                        false
+                    );
 
                     showModal(
                         "Verify Your Email",
@@ -364,16 +423,15 @@ function initializeLogin() {
                 }
 
 
-                /* -----------------------------------------
-                   PROFILE NOT COMPLETED
-                ------------------------------------------ */
-
                 if (
                     data.nextStep ===
                     "profile"
                 ) {
 
-                    setLoading(button, false);
+                    setLoading(
+                        button,
+                        false
+                    );
 
                     showModal(
                         "Complete Your Profile",
@@ -387,10 +445,6 @@ function initializeLogin() {
                 }
 
 
-                /* -----------------------------------------
-                   FULLY AUTHENTICATED
-                ------------------------------------------ */
-
                 if (
                     data.nextStep ===
                     "authenticated"
@@ -398,7 +452,10 @@ function initializeLogin() {
 
                     if (!data.accessToken) {
 
-                        setLoading(button, false);
+                        setLoading(
+                            button,
+                            false
+                        );
 
                         showModal(
                             "Login Failed",
@@ -408,11 +465,15 @@ function initializeLogin() {
                         return;
                     }
 
+
                     saveAccessToken(
                         data.accessToken
                     );
 
-                    setLoading(button, false);
+                    setLoading(
+                        button,
+                        false
+                    );
 
                     showModal(
                         "Login Successful",
@@ -425,7 +486,10 @@ function initializeLogin() {
                 }
 
 
-                setLoading(button, false);
+                setLoading(
+                    button,
+                    false
+                );
 
                 showModal(
                     "Authentication Error",
@@ -435,30 +499,28 @@ function initializeLogin() {
 
             } catch (error) {
 
-                console.error(error);
-
-                setLoading(button, false);
-
-                showModal(
-                    "Connection Error",
-                    "Unable to connect to the server. Please try again."
+                handleConnectionError(
+                    error,
+                    button
                 );
 
             }
 
-        });
+        }
+    );
 
 }
 
-
 /* =========================================================
-   11. CREATE ACCOUNT FLOW
+13. CREATE ACCOUNT FLOW
 ========================================================= */
 
 function initializeSignup() {
 
-    getElement("signupForm")
-        .addEventListener("submit", async event => {
+getElement("signupForm")
+    .addEventListener(
+        "submit",
+        async event => {
 
             event.preventDefault();
 
@@ -467,7 +529,8 @@ function initializeSignup() {
 
             const email =
                 getElement("signupEmail")
-                    .value.trim()
+                    .value
+                    .trim()
                     .toLowerCase();
 
             const password =
@@ -489,26 +552,22 @@ function initializeSignup() {
             );
 
 
-            /* ---------------------------------------------
-               FRONTEND VALIDATION
-            --------------------------------------------- */
-
-            if (!validEmail(email)) {
-
-                setLoading(button, false);
-
-                showModal(
-                    "Invalid Email",
-                    "Please enter a valid email address."
-                );
-
+            if (
+                !validateEmail(
+                    email,
+                    button
+                )
+            ) {
                 return;
             }
 
 
             if (password.length < 8) {
 
-                setLoading(button, false);
+                setLoading(
+                    button,
+                    false
+                );
 
                 showModal(
                     "Invalid Password",
@@ -519,9 +578,15 @@ function initializeSignup() {
             }
 
 
-            if (password !== confirmPassword) {
+            if (
+                password !==
+                confirmPassword
+            ) {
 
-                setLoading(button, false);
+                setLoading(
+                    button,
+                    false
+                );
 
                 showModal(
                     "Passwords Do Not Match",
@@ -534,7 +599,10 @@ function initializeSignup() {
 
             if (!termsAccepted) {
 
-                setLoading(button, false);
+                setLoading(
+                    button,
+                    false
+                );
 
                 showModal(
                     "Agreement Required",
@@ -545,40 +613,28 @@ function initializeSignup() {
             }
 
 
-            /* ---------------------------------------------
-               SEND SIGNUP REQUEST
-            --------------------------------------------- */
-
             try {
 
-                const response =
-                    await fetch(
-                        API_ENDPOINT(
-                            "/api/worker-authentication/signup"
-                        ),
-                        {
-                            method: "POST",
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-                            credentials: "include",
-                            body: JSON.stringify({
-                                email,
-                                password,
-                                confirmPassword,
-                                termsAccepted
-                            })
-                        }
-                    );
-
-                const data =
-                    await response.json();
+                const {
+                    response,
+                    data
+                } = await postRequest(
+                    "/api/worker-authentication/signup",
+                    {
+                        email,
+                        password,
+                        confirmPassword,
+                        termsAccepted
+                    }
+                );
 
 
                 if (!response.ok) {
 
-                    setLoading(button, false);
+                    setLoading(
+                        button,
+                        false
+                    );
 
                     showModal(
                         "Account Creation Failed",
@@ -594,7 +650,10 @@ function initializeSignup() {
                     data.email || email
                 );
 
-                setLoading(button, false);
+                setLoading(
+                    button,
+                    false
+                );
 
                 showModal(
                     "Account Created",
@@ -606,30 +665,28 @@ function initializeSignup() {
 
             } catch (error) {
 
-                console.error(error);
-
-                setLoading(button, false);
-
-                showModal(
-                    "Connection Error",
-                    "Unable to connect to the server. Please try again."
+                handleConnectionError(
+                    error,
+                    button
                 );
 
             }
 
-        });
+        }
+    );
 
 }
 
-
 /* =========================================================
-   12. FORGOT PASSWORD FLOW
+14. FORGOT PASSWORD FLOW
 ========================================================= */
 
 function initializeForgotPassword() {
 
-    getElement("forgotForm")
-        .addEventListener("submit", async event => {
+getElement("forgotForm")
+    .addEventListener(
+        "submit",
+        async event => {
 
             event.preventDefault();
 
@@ -638,7 +695,8 @@ function initializeForgotPassword() {
 
             const email =
                 getElement("resetEmail")
-                    .value.trim()
+                    .value
+                    .trim()
                     .toLowerCase();
 
             setLoading(
@@ -648,49 +706,34 @@ function initializeForgotPassword() {
             );
 
 
-            if (!validEmail(email)) {
-
-                setLoading(button, false);
-
-                showModal(
-                    "Invalid Email",
-                    "Please enter a valid email address."
-                );
-
+            if (
+                !validateEmail(
+                    email,
+                    button
+                )
+            ) {
                 return;
             }
 
 
             try {
 
-                const response =
-                    await fetch(
-                        API_ENDPOINT(
-                            "/api/worker-authentication/forgot-password"
-                        ),
-                        {
-                            method: "POST",
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-                            credentials: "include",
-                            body: JSON.stringify({
-                                email
-                            })
-                        }
-                    );
-
-                const data =
-                    await response.json();
+                const {
+                    response,
+                    data
+                } = await postRequest(
+                    "/api/worker-authentication/forgot-password",
+                    {
+                        email
+                    }
+                );
 
 
-                setLoading(button, false);
+                setLoading(
+                    button,
+                    false
+                );
 
-
-                /* -----------------------------------------
-                   GENERIC RESPONSE
-                ------------------------------------------ */
 
                 if (
                     data.emailExists === false
@@ -718,6 +761,8 @@ function initializeForgotPassword() {
                 }
 
 
+                closeForgotModal();
+
                 saveWorkerEmail(
                     data.email || email
                 );
@@ -732,33 +777,32 @@ function initializeForgotPassword() {
 
             } catch (error) {
 
-                console.error(error);
-
-                setLoading(button, false);
-
-                showModal(
-                    "Connection Error",
-                    "Unable to connect to the server. Please try again."
+                handleConnectionError(
+                    error,
+                    button
                 );
 
             }
 
-        });
+        }
+    );
 
 }
 
-
 /* =========================================================
-   13. FORGOT PASSWORD MODAL
+15. FORGOT PASSWORD MODAL
 ========================================================= */
 
 function initializeForgotModal() {
 
-    const modal =
-        getElement("forgotModal");
+const modal =
+    getElement("forgotModal");
 
-    getElement("forgotPassword")
-        .addEventListener("click", () => {
+
+getElement("forgotPassword")
+    .addEventListener(
+        "click",
+        () => {
 
             modal.classList.add("show");
 
@@ -767,49 +811,56 @@ function initializeForgotModal() {
                 "false"
             );
 
-        });
+        }
+    );
 
 
-    getElement("closeModal")
-        .addEventListener("click", closeForgotModal);
+getElement("closeModal")
+    .addEventListener(
+        "click",
+        closeForgotModal
+    );
 
 
-    getElement("forgotOverlay")
-        .addEventListener("click", closeForgotModal);
-
-}
-
-
-function closeForgotModal() {
-
-    const modal =
-        getElement("forgotModal");
-
-    modal.classList.remove("show");
-
-    modal.setAttribute(
-        "aria-hidden",
-        "true"
+getElement("forgotOverlay")
+    .addEventListener(
+        "click",
+        closeForgotModal
     );
 
 }
 
+function closeForgotModal() {
+
+const modal =
+    getElement("forgotModal");
+
+modal.classList.remove("show");
+
+modal.setAttribute(
+    "aria-hidden",
+    "true"
+);
+
+}
 
 /* =========================================================
-   14. CONTINUE WITH GOOGLE
+16. CONTINUE WITH GOOGLE
 ========================================================= */
 
 function initializeGoogleButtons() {
 
-    const buttons = [
-        getElement("googleLoginButton"),
-        getElement("googleSignupButton")
-    ];
+const buttons = [
+    getElement("googleLoginButton"),
+    getElement("googleSignupButton")
+];
 
 
-    buttons.forEach(button => {
+buttons.forEach(button => {
 
-        button.addEventListener("click", () => {
+    button.addEventListener(
+        "click",
+        () => {
 
             button.disabled = true;
 
@@ -819,7 +870,9 @@ function initializeGoogleButtons() {
             button.textContent =
                 "Connecting...";
 
-            button.classList.add("loading");
+            button.classList.add(
+                "loading"
+            );
 
 
             window.location.href =
@@ -827,28 +880,38 @@ function initializeGoogleButtons() {
                     "/api/worker-authentication/google"
                 );
 
-        });
+        }
+    );
 
-    });
+});
 
 }
 
-
 /* =========================================================
-   15. ESCAPE KEY
+17. ESCAPE KEY
 ========================================================= */
 
-document.addEventListener("keydown", event => {
+document.addEventListener(
+"keydown",
+event => {
 
-    if (event.key !== "Escape") return;
+    if (event.key !== "Escape") {
+        return;
+    }
+
 
     const forgotModal =
         getElement("forgotModal");
 
+
     if (
         forgotModal.classList.contains("show")
     ) {
+
         closeForgotModal();
+
     }
 
-});
+}
+
+);

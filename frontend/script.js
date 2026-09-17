@@ -7,139 +7,254 @@
    WAIT FOR THE HTML DOCUMENT
 ========================================================= */
 
-/*
-    This event waits until the HTML page has been completely
-    loaded before JavaScript starts looking for elements.
-*/
-
 document.addEventListener("DOMContentLoaded", () => {
 
 
     /* =====================================================
-       MOBILE NAVIGATION
+       MOBILE SIDEBAR
     ===================================================== */
 
     /*
-        Find the mobile menu button.
-
-        HTML:
-        <button id="menuToggle">
+        Find the hamburger button.
     */
 
-    const menuToggle = document.getElementById("menuToggle");
+    const menuToggle =
+        document.getElementById(
+            "menuToggle"
+        );
 
 
     /*
-        Find the navigation links container.
-
-        HTML:
-        <div id="navLinks">
+        Find the mobile sidebar.
     */
 
-    const navLinks = document.getElementById("navLinks");
+    const mobileSidebar =
+        document.getElementById(
+            "mobileSidebar"
+        );
 
 
     /*
-        Check that both elements exist before adding events.
-
-        This prevents JavaScript errors if either element
-        is accidentally removed from the HTML.
+        Find the dark overlay behind the sidebar.
     */
 
-    if (menuToggle && navLinks) {
+    const sidebarOverlay =
+        document.getElementById(
+            "sidebarOverlay"
+        );
 
 
-        /* =================================================
-           OPEN/CLOSE MOBILE MENU
-        ================================================= */
+    /*
+        Find the sidebar close button.
+    */
 
-        menuToggle.addEventListener("click", () => {
-
-
-            /*
-                Add or remove the "show" class.
-
-                CSS controls the actual appearance
-                of the menu through:
-
-                .nav-links.show
-            */
-
-            navLinks.classList.toggle("show");
+    const sidebarClose =
+        document.getElementById(
+            "sidebarClose"
+        );
 
 
-            /*
-                Check whether the menu is currently open.
-            */
+    /*
+        Find all links inside the mobile sidebar.
+    */
 
-            const menuIsOpen =
-                navLinks.classList.contains("show");
+    const sidebarLinks =
+        document.querySelectorAll(
+            ".sidebar-links a"
+        );
 
 
-            /*
-                Update accessibility information.
+    /* =====================================================
+       OPEN MOBILE SIDEBAR
+    ===================================================== */
 
-                "true" means the menu is open.
+    function openSidebar() {
 
-                "false" means the menu is closed.
-            */
+        /*
+            Slide the sidebar into view.
+        */
 
-            menuToggle.setAttribute(
-                "aria-expanded",
-                menuIsOpen
+        mobileSidebar.classList.add(
+            "open"
+        );
+
+
+        /*
+            Show the dark background overlay.
+        */
+
+        sidebarOverlay.classList.add(
+            "show"
+        );
+
+
+        /*
+            Update accessibility information.
+        */
+
+        menuToggle.setAttribute(
+            "aria-expanded",
+            "true"
+        );
+
+
+        menuToggle.setAttribute(
+            "aria-label",
+            "Close navigation menu"
+        );
+
+
+        /*
+            Prevent the page behind the sidebar
+            from scrolling.
+        */
+
+        document.body.style.overflow =
+            "hidden";
+
+    }
+
+
+    /* =====================================================
+       CLOSE MOBILE SIDEBAR
+    ===================================================== */
+
+    function closeSidebar() {
+
+        /*
+            Slide the sidebar out of view.
+        */
+
+        mobileSidebar.classList.remove(
+            "open"
+        );
+
+
+        /*
+            Hide the dark overlay.
+        */
+
+        sidebarOverlay.classList.remove(
+            "show"
+        );
+
+
+        /*
+            Reset accessibility information.
+        */
+
+        menuToggle.setAttribute(
+            "aria-expanded",
+            "false"
+        );
+
+
+        menuToggle.setAttribute(
+            "aria-label",
+            "Open navigation menu"
+        );
+
+
+        /*
+            Restore normal page scrolling.
+        */
+
+        document.body.style.overflow =
+            "";
+
+    }
+
+
+    /* =====================================================
+       HAMBURGER BUTTON
+    ===================================================== */
+
+    if (menuToggle) {
+
+        menuToggle.addEventListener(
+            "click",
+            () => {
+
+                /*
+                    Check whether the sidebar
+                    is currently open.
+                */
+
+                const isOpen =
+                    mobileSidebar.classList.contains(
+                        "open"
+                    );
+
+
+                /*
+                    Toggle the sidebar.
+                */
+
+                if (isOpen) {
+
+                    closeSidebar();
+
+                } else {
+
+                    openSidebar();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       SIDEBAR CLOSE BUTTON
+    ===================================================== */
+
+    if (sidebarClose) {
+
+        sidebarClose.addEventListener(
+            "click",
+            closeSidebar
+        );
+
+    }
+
+
+    /* =====================================================
+       SIDEBAR OVERLAY
+    ===================================================== */
+
+    if (sidebarOverlay) {
+
+        sidebarOverlay.addEventListener(
+            "click",
+            closeSidebar
+        );
+
+    }
+
+
+    /* =====================================================
+       SIDEBAR NAVIGATION LINKS
+    ===================================================== */
+
+    if (sidebarLinks.length > 0) {
+
+        sidebarLinks.forEach((link) => {
+
+            link.addEventListener(
+                "click",
+                () => {
+
+                    /*
+                        Close the sidebar before
+                        following the link.
+                    */
+
+                    closeSidebar();
+
+                }
             );
-
-
-            /*
-                Change the button icon.
-
-                ☰ = closed menu
-
-                ✕ = open menu
-            */
-
-            menuToggle.textContent =
-                menuIsOpen ? "✕" : "☰";
-
-        });
-
-
-        /* =================================================
-           CLOSE MENU AFTER CLICKING A LINK
-        ================================================= */
-
-        /*
-            Select every navigation link.
-        */
-
-        const navigationLinks =
-            navLinks.querySelectorAll("a");
-
-
-        /*
-            Loop through every navigation link.
-        */
-
-        navigationLinks.forEach((link) => {
-
-
-            /*
-                When a navigation link is clicked,
-                close the mobile menu.
-            */
-
-            link.addEventListener("click", () => {
-
-                navLinks.classList.remove("show");
-
-                menuToggle.setAttribute(
-                    "aria-expanded",
-                    "false"
-                );
-
-                menuToggle.textContent = "☰";
-
-            });
 
         });
 
@@ -147,23 +262,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* =====================================================
+       ESCAPE KEY
+    ===================================================== */
+
+    document.addEventListener(
+        "keydown",
+        (event) => {
+
+            /*
+                Allow the Escape key to close
+                the mobile sidebar.
+            */
+
+            if (
+                event.key === "Escape" &&
+                mobileSidebar.classList.contains("open")
+            ) {
+
+                closeSidebar();
+
+            }
+
+        }
+    );
+
+
+    /* =====================================================
        ANIMATED STATISTICS
     ===================================================== */
 
-    /*
-        Select all elements with the class "counter".
-
-        These elements contain:
-
-        data-target="5000"
-
-        data-target="10000"
-
-        data-target="25000"
-    */
-
     const counters =
-        document.querySelectorAll(".counter");
+        document.querySelectorAll(
+            ".counter"
+        );
 
 
     /*
@@ -175,15 +306,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         /*
-            Read the target number from the HTML.
-
-            Example:
-
-            data-target="5000"
-
-            becomes:
-
-            5000
+            Read the target number from HTML.
         */
 
         const target =
@@ -198,12 +321,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         /*
-            Calculate how much the number should increase
-            during each animation step.
+            Calculate the animation increment.
         */
 
         const increment =
-            Math.max(1, Math.ceil(target / 100));
+            Math.max(
+                1,
+                Math.ceil(target / 100)
+            );
 
 
         /*
@@ -221,8 +346,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
             /*
-                Make sure the counter does not go beyond
-                its final target.
+                Prevent the number from exceeding
+                its target.
             */
 
             if (currentNumber >= target) {
@@ -233,15 +358,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
             /*
-                Display the current number.
-
-                toLocaleString() changes:
-
-                5000
-
-                into:
-
-                5,000
+                Display the current number
+                using comma formatting.
             */
 
             counter.textContent =
@@ -249,13 +367,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
             /*
-                Continue the animation until
-                the target is reached.
+                Continue until the target is reached.
             */
 
             if (currentNumber < target) {
 
-                requestAnimationFrame(updateCounter);
+                requestAnimationFrame(
+                    updateCounter
+                );
 
             }
 
@@ -275,50 +394,19 @@ document.addEventListener("DOMContentLoaded", () => {
        COUNTER OBSERVER
     ===================================================== */
 
-    /*
-        IntersectionObserver allows JavaScript to detect
-        when an element becomes visible on the screen.
-    */
-
     if (counters.length > 0) {
-
 
         const counterObserver =
             new IntersectionObserver(
                 (entries, observer) => {
 
-
-                    /*
-                        Check every observed counter.
-                    */
-
                     entries.forEach((entry) => {
 
-
-                        /*
-                            Only start animation when the
-                            counter becomes visible.
-                        */
-
                         if (entry.isIntersecting) {
-
-
-                            /*
-                                Animate this counter.
-                            */
 
                             animateCounter(
                                 entry.target
                             );
-
-
-                            /*
-                                Stop observing this counter.
-
-                                This prevents the animation
-                                from restarting every time
-                                the user scrolls away and back.
-                            */
 
                             observer.unobserve(
                                 entry.target
@@ -330,23 +418,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 },
                 {
-                    /*
-                        Start when approximately 30% of
-                        the element becomes visible.
-                    */
-
                     threshold: 0.3
                 }
             );
 
 
         /*
-            Start observing every counter.
+            Observe every counter.
         */
 
         counters.forEach((counter) => {
 
-            counterObserver.observe(counter);
+            counterObserver.observe(
+                counter
+            );
 
         });
 
@@ -357,70 +442,25 @@ document.addEventListener("DOMContentLoaded", () => {
        SCROLL REVEAL ANIMATION
     ===================================================== */
 
-    /*
-        Select all elements that have the
-        "reveal" class.
-    */
-
     const revealElements =
-        document.querySelectorAll(".reveal");
+        document.querySelectorAll(
+            ".reveal"
+        );
 
-
-    /*
-        Only create the observer if reveal elements exist.
-    */
 
     if (revealElements.length > 0) {
-
-
-        /*
-            Create an IntersectionObserver for
-            scroll-reveal elements.
-        */
 
         const revealObserver =
             new IntersectionObserver(
                 (entries, observer) => {
 
-
-                    /*
-                        Check every observed element.
-                    */
-
                     entries.forEach((entry) => {
 
-
-                        /*
-                            Check whether the element
-                            is visible.
-                        */
-
                         if (entry.isIntersecting) {
-
-
-                            /*
-                                Add the "show" class.
-
-                                CSS changes:
-
-                                .reveal
-
-                                into:
-
-                                .reveal.show
-                            */
 
                             entry.target.classList.add(
                                 "show"
                             );
-
-
-                            /*
-                                Stop observing this element.
-
-                                This means the animation
-                                happens only once.
-                            */
 
                             observer.unobserve(
                                 entry.target
@@ -432,12 +472,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 },
                 {
-                    /*
-                        Start the animation when
-                        approximately 15% of the
-                        section becomes visible.
-                    */
-
                     threshold: 0.15
                 }
             );
@@ -449,7 +483,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         revealElements.forEach((element) => {
 
-            revealObserver.observe(element);
+            revealObserver.observe(
+                element
+            );
 
         });
 
@@ -460,31 +496,16 @@ document.addEventListener("DOMContentLoaded", () => {
        CURRENT YEAR
     ===================================================== */
 
-    /*
-        Find the element containing the copyright year.
-
-        HTML:
-
-        <span id="currentYear">2026</span>
-    */
-
     const currentYear =
-        document.getElementById("currentYear");
+        document.getElementById(
+            "currentYear"
+        );
 
-
-    /*
-        Make sure the element exists.
-    */
 
     if (currentYear) {
 
-
         /*
-            Get the current year from the user's
-            computer/browser and display it.
-
-            This prevents us from manually changing
-            the year every January.
+            Automatically display the current year.
         */
 
         currentYear.textContent =
@@ -496,11 +517,6 @@ document.addEventListener("DOMContentLoaded", () => {
     /* =====================================================
        HOMEPAGE INITIALIZATION MESSAGE
     ===================================================== */
-
-    /*
-        This confirms in the browser console that
-        SkillConnect's homepage JavaScript loaded.
-    */
 
     console.log(
         "SkillConnect homepage JavaScript loaded successfully."

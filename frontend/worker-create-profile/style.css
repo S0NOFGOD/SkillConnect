@@ -1,42 +1,23 @@
-/* ==========================================
-   SKILLCONNECT
-   WORKER CREATE PROFILE STYLES
-
-   This file controls:
-
-   1. Page layout
-   2. Navigation
-   3. Profile form
-   4. Upload areas
-   5. Location dropdowns
-   6. Validation states
-   7. Portfolio previews
-   8. Loading states
-   9. Notification modal
-   10. Responsive mobile design
-
-   IMPORTANT:
-   All styles use the existing
-   SkillConnect worker green theme.
-========================================== */
+/* =========================================================
+   SKILLCONNECT WORKER CREATE PROFILE
+   PROFILE PAGE STYLING
+========================================================= */
 
 
-/* ==========================================
-   GLOBAL RESET
-========================================== */
+/* =========================================================
+   1. GLOBAL RESET
+========================================================= */
 
 * {
 
     margin: 0;
+
     padding: 0;
+
     box-sizing: border-box;
 
 }
 
-
-/* ==========================================
-   HTML
-========================================== */
 
 html {
 
@@ -45,11 +26,9 @@ html {
 }
 
 
-/* ==========================================
-   BODY
-========================================== */
-
 body {
+
+    min-height: 100vh;
 
     font-family: "Inter", sans-serif;
 
@@ -64,9 +43,16 @@ body {
 }
 
 
-/* ==========================================
+body.modal-open {
+
+    overflow: hidden;
+
+}
+
+
+/* =========================================================
    LINKS
-========================================== */
+========================================================= */
 
 a {
 
@@ -77,40 +63,9 @@ a {
 }
 
 
-/* ==========================================
-   BACKGROUND GREEN GLOW
-========================================== */
-
-body::before {
-
-    content: "";
-
-    position: fixed;
-
-    width: 350px;
-
-    height: 350px;
-
-    top: 80px;
-
-    left: 50%;
-
-    transform: translateX(-50%);
-
-    background: #22c55e;
-
-    filter: blur(170px);
-
-    opacity: .18;
-
-    z-index: -1;
-
-}
-
-
-/* ==========================================
-   NAVBAR
-========================================== */
+/* =========================================================
+   2. FIXED NAVBAR
+========================================================= */
 
 header {
 
@@ -124,19 +79,25 @@ header {
 
     z-index: 1000;
 
-    background: rgba(2, 6, 23, .85);
+    background:
+        rgba(2, 6, 23, .85);
 
-    backdrop-filter: blur(15px);
+    backdrop-filter:
+        blur(15px);
+
+    -webkit-backdrop-filter:
+        blur(15px);
 
     border-bottom:
-        1px solid rgba(255, 255, 255, .08);
+        1px solid
+        rgba(255, 255, 255, .08);
 
 }
 
 
-/* ==========================================
+/* =========================================================
    NAVBAR CONTAINER
-========================================== */
+========================================================= */
 
 .navbar {
 
@@ -157,9 +118,9 @@ header {
 }
 
 
-/* ==========================================
+/* =========================================================
    LOGO
-========================================== */
+========================================================= */
 
 .logo {
 
@@ -180,14 +141,25 @@ header {
 
     -webkit-text-fill-color: transparent;
 
+    background-clip: text;
+
 }
 
 
-/* ==========================================
-   BACK LINK
-========================================== */
+/* =========================================================
+   NAVIGATION LINKS
+========================================================= */
 
-.back-link {
+.nav-links {
+
+    display: flex;
+
+    gap: 30px;
+
+}
+
+
+.nav-links a {
 
     color: #cbd5e1;
 
@@ -195,68 +167,144 @@ header {
 
     font-weight: 600;
 
-    transition: .2s ease;
+    transition: .3s;
 
 }
 
 
-/* ==========================================
-   BACK LINK HOVER
-========================================== */
-
-.back-link:hover {
+.nav-links a:hover {
 
     color: #22c55e;
 
 }
 
 
-/* ==========================================
-   MAIN PROFILE LAYOUT
-========================================== */
+/* =========================================================
+   3. MAIN PROFILE PAGE
+========================================================= */
 
 .profile-page {
 
     width: 90%;
 
+    max-width: 900px;
+
+    min-height:
+        calc(100vh - 70px);
+
     margin: auto;
 
     padding-top: 110px;
 
-    padding-bottom: 50px;
+    padding-bottom: 70px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: flex-start;
+
+    position: relative;
 
 }
 
 
-/* ==========================================
-   PROFILE CARD
-========================================== */
+/* =========================================================
+   BACKGROUND GREEN / BLUE GLOW
+========================================================= */
 
-.profile-card {
+.profile-page::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 420px;
+
+    height: 420px;
+
+    background: #22c55e;
+
+    filter: blur(180px);
+
+    opacity: .13;
+
+    top: 100px;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    pointer-events: none;
+
+}
+
+
+.profile-page::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 300px;
+
+    height: 300px;
+
+    background: #3b82f6;
+
+    filter: blur(180px);
+
+    opacity: .10;
+
+    bottom: 100px;
+
+    right: -100px;
+
+    pointer-events: none;
+
+}
+
+
+/* =========================================================
+   4. PROFILE CONTAINER
+========================================================= */
+
+.profile-container {
 
     width: 100%;
 
-    max-width: 700px;
-
-    margin: auto;
-
-    padding: 25px;
+    padding: 35px;
 
     border-radius: 24px;
 
-    background: rgba(255, 255, 255, .05);
+    background:
+        rgba(255, 255, 255, .05);
 
     border:
-        1px solid rgba(255, 255, 255, .08);
+        1px solid
+        rgba(255, 255, 255, .08);
 
-    backdrop-filter: blur(15px);
+    backdrop-filter:
+        blur(15px);
+
+    -webkit-backdrop-filter:
+        blur(15px);
+
+    box-shadow:
+        0 25px 70px
+        rgba(0, 0, 0, .45);
+
+    position: relative;
+
+    z-index: 2;
 
 }
 
 
-/* ==========================================
-   PROFILE HEADER
-========================================== */
+/* =========================================================
+   5. PROFILE HEADER
+========================================================= */
 
 .profile-header {
 
@@ -267,41 +315,63 @@ header {
 }
 
 
-/* ==========================================
-   PROFILE ICON
-========================================== */
+/* =========================================================
+   PROFILE BADGE
+========================================================= */
 
-.profile-icon {
+.profile-badge {
 
-    font-size: 45px;
+    display: inline-block;
 
-    margin-bottom: 15px;
+    padding: 8px 18px;
+
+    margin-bottom: 18px;
+
+    border-radius: 30px;
+
+    color: #22c55e;
+
+    background:
+        rgba(34, 197, 94, .15);
+
+    border:
+        1px solid
+        rgba(34, 197, 94, .3);
+
+    font-size: 14px;
+
+    font-weight: 600;
 
 }
 
 
-/* ==========================================
-   PROFILE TITLE
-========================================== */
+/* =========================================================
+   PROFILE HEADING
+========================================================= */
 
 .profile-header h1 {
 
-    font-size: 30px;
+    margin-bottom: 10px;
+
+    color: #ffffff;
+
+    font-size:
+        clamp(1.8rem, 4vw, 2.4rem);
 
     font-weight: 800;
 
-    line-height: 1.2;
+    letter-spacing: -.8px;
 
-    margin-bottom: 12px;
+    line-height: 1.2;
 
 }
 
 
-/* ==========================================
-   PROFILE DESCRIPTION
-========================================== */
-
 .profile-header p {
+
+    max-width: 600px;
+
+    margin: auto;
 
     color: #cbd5e1;
 
@@ -310,11 +380,29 @@ header {
 }
 
 
-/* ==========================================
-   PROFILE COMPLETION CARD
-========================================== */
+/* =========================================================
+   6. PROFILE PROGRESS
+========================================================= */
 
-.completion-card {
+.progress-container {
+
+    margin-bottom: 28px;
+
+    padding: 18px;
+
+    border-radius: 16px;
+
+    background:
+        rgba(255, 255, 255, .05);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+}
+
+
+.progress-info {
 
     display: flex;
 
@@ -322,141 +410,270 @@ header {
 
     align-items: center;
 
-    padding: 18px;
+    gap: 15px;
 
-    margin-bottom: 25px;
+    margin-bottom: 10px;
 
-    border-radius: 18px;
-
-    background:
-        rgba(34, 197, 94, .08);
-
-    border:
-        1px solid rgba(34, 197, 94, .15);
-
-}
-
-
-/* ==========================================
-   COMPLETION TITLE
-========================================== */
-
-.completion-card h3 {
-
-    font-size: 17px;
-
-}
-
-
-/* ==========================================
-   COMPLETION DESCRIPTION
-========================================== */
-
-.completion-card p {
-
-    color: #94a3b8;
+    color: #cbd5e1;
 
     font-size: 13px;
 
+    font-weight: 600;
+
 }
 
 
-/* ==========================================
-   COMPLETION PERCENTAGE
-========================================== */
-
-.completion-card strong {
+#progressPercentage {
 
     color: #22c55e;
 
-    font-size: 26px;
+    font-weight: 800;
 
 }
 
 
-/* ==========================================
-   FORM
-========================================== */
+/* =========================================================
+   PROGRESS BAR
+========================================================= */
 
-form {
+.progress-bar {
+
+    width: 100%;
+
+    height: 8px;
+
+    overflow: hidden;
+
+    border-radius: 999px;
+
+    background:
+        rgba(255, 255, 255, .08);
+
+}
+
+
+.progress-fill {
+
+    width: 0;
+
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            #22c55e,
+            #3b82f6
+        );
+
+    transition:
+        width .3s ease;
+
+}
+
+
+/* =========================================================
+   7. PROFILE FORM
+========================================================= */
+
+.profile-form {
 
     display: flex;
 
     flex-direction: column;
 
+    gap: 22px;
+
 }
 
 
-/* ==========================================
-   FORM SECTION CARD
-========================================== */
+/* =========================================================
+   8. FORM SECTIONS
+========================================================= */
 
-.form-card {
+.form-section {
 
-    padding: 20px;
+    padding: 24px;
+
+    border-radius: 18px;
+
+    background:
+        rgba(255, 255, 255, .035);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .08);
+
+}
+
+
+/* =========================================================
+   SECTION HEADING
+========================================================= */
+
+.section-heading {
 
     margin-bottom: 20px;
 
-    border-radius: 20px;
+}
 
-    background: rgba(255, 255, 255, .04);
 
-    border:
-        1px solid rgba(255, 255, 255, .08);
+.section-heading h2 {
+
+    margin-bottom: 6px;
+
+    color: #ffffff;
+
+    font-size: 18px;
+
+    font-weight: 700;
 
 }
 
 
-/* ==========================================
-   FORM SECTION TITLE
-========================================== */
-
-.form-card h2 {
-
-    font-size: 20px;
-
-    margin-bottom: 5px;
-
-}
-
-
-/* ==========================================
-   FORM SECTION DESCRIPTION
-========================================== */
-
-.section-text {
+.section-heading p {
 
     color: #94a3b8;
 
     font-size: 14px;
 
-    margin-bottom: 20px;
+}
+
+
+/* =========================================================
+   9. PROFILE PHOTO CONTAINER
+========================================================= */
+
+.profile-photo-container {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    margin-bottom: 22px;
 
 }
 
 
-/* ==========================================
-   FORM LABEL
-========================================== */
+/* =========================================================
+   PROFILE PHOTO PREVIEW
+========================================================= */
 
-label {
+.profile-photo-preview {
 
-    display: block;
+    width: 150px;
+
+    height: 150px;
+
+    overflow: hidden;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    border-radius: 50%;
+
+    border:
+        3px solid
+        rgba(34, 197, 94, .45);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(34, 197, 94, .15),
+            rgba(59, 130, 246, .15)
+        );
+
+    color: #94a3b8;
 
     font-size: 14px;
 
     font-weight: 600;
 
-    margin-bottom: 8px;
+    box-shadow:
+        0 15px 40px
+        rgba(0, 0, 0, .30);
 
 }
 
 
-/* ==========================================
-   INPUTS
-   SELECTS
-   TEXTAREA
-========================================== */
+/* =========================================================
+   PROFILE PHOTO IMAGE
+========================================================= */
+
+#profilePhotoImage {
+
+    width: 100%;
+
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+}
+
+
+/* =========================================================
+   PROFILE PHOTO PLACEHOLDER
+========================================================= */
+
+#profilePhotoPlaceholder {
+
+    text-align: center;
+
+    color: #94a3b8;
+
+    user-select: none;
+
+}
+
+
+/* =========================================================
+   10. FORM GROUP
+========================================================= */
+
+.form-group {
+
+    margin-bottom: 18px;
+
+}
+
+
+.form-group:last-child {
+
+    margin-bottom: 0;
+
+}
+
+
+/* =========================================================
+   11. LABELS
+========================================================= */
+
+.form-group label {
+
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #e2e8f0;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+}
+
+
+/* =========================================================
+   12. INPUTS / SELECTS / TEXTAREA
+========================================================= */
 
 input,
 select,
@@ -464,33 +681,51 @@ textarea {
 
     width: 100%;
 
-    padding: 15px;
-
-    margin-bottom: 18px;
-
-    background: #111827;
-
-    color: #ffffff;
-
     border:
-        1px solid transparent;
+        1px solid
+        rgba(255, 255, 255, .10);
 
-    border-radius: 14px;
+    border-radius: 12px;
 
     outline: none;
 
-    font-size: 15px;
+    background:
+        #111827;
 
-    font-family: inherit;
+    color: #ffffff;
 
-    transition: .2s ease;
+    font-family: "Inter", sans-serif;
+
+    font-size: 14px;
+
+    transition: .3s;
 
 }
 
 
-/* ==========================================
-   INPUT PLACEHOLDER
-========================================== */
+input,
+select {
+
+    min-height: 50px;
+
+    padding:
+        0 14px;
+
+}
+
+
+textarea {
+
+    min-height: 150px;
+
+    padding: 14px;
+
+    resize: vertical;
+
+    line-height: 1.6;
+
+}
+
 
 input::placeholder,
 textarea::placeholder {
@@ -500,15 +735,22 @@ textarea::placeholder {
 }
 
 
-/* ==========================================
-   INPUT FOCUS
-========================================== */
+input:hover,
+select:hover,
+textarea:hover {
+
+    border-color:
+        rgba(255, 255, 255, .18);
+
+}
+
 
 input:focus,
 select:focus,
 textarea:focus {
 
-    border-color: #22c55e;
+    border-color:
+        #22c55e;
 
     box-shadow:
         0 0 0 3px
@@ -516,25 +758,6 @@ textarea:focus {
 
 }
 
-
-/* ==========================================
-   DISABLED INPUTS
-========================================== */
-
-input:disabled,
-select:disabled,
-textarea:disabled {
-
-    opacity: .6;
-
-    cursor: not-allowed;
-
-}
-
-
-/* ==========================================
-   SELECT DROPDOWN
-========================================== */
 
 select {
 
@@ -543,573 +766,186 @@ select {
 }
 
 
-/* ==========================================
-   DISABLED SELECT DROPDOWN
-========================================== */
-
 select:disabled {
+
+    opacity: .5;
 
     cursor: not-allowed;
 
-    background: #0b1220;
-
 }
 
 
-/* ==========================================
-   LOCATION SECTION
-========================================== */
+/* =========================================================
+   PROFILE PHOTO FILE INPUT
+========================================================= */
 
-/*
-    Location now uses:
+input[type="file"] {
 
-    Country
-        ↓
-    State
-        ↓
-    City
+    min-height: auto;
 
-    There is no "Find My Location"
-    button anymore.
-*/
-
-#country,
-#state,
-#city {
-
-    width: 100%;
-
-}
-
-
-/* ==========================================
-   LOCATION SELECT HOVER
-========================================== */
-
-#country:hover:not(:disabled),
-#state:hover:not(:disabled),
-#city:hover:not(:disabled) {
-
-    border-color:
-        rgba(34, 197, 94, .5);
-
-}
-
-
-/* ==========================================
-   LOCATION SELECT FOCUS
-========================================== */
-
-#country:focus,
-#state:focus,
-#city:focus {
-
-    border-color: #22c55e;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(34, 197, 94, .15);
-
-}
-
-
-/* ==========================================
-   HIDDEN LOCATION FIELD
-========================================== */
-
-/*
-    JavaScript stores the final
-    location string here.
-
-    Example:
-
-    Nigeria, Oyo, Ibadan
-
-    The field remains hidden because
-    the worker already selected the
-    individual location values above.
-*/
-
-#location {
-
-    display: none;
-
-}
-
-
-/* ==========================================
-   TEXTAREA
-========================================== */
-
-textarea {
-
-    min-height: 140px;
-
-    resize: none;
-
-}
-
-
-/* ==========================================
-   VALIDATION ERROR FIELD
-========================================== */
-
-.field-error {
-
-    border-color:
-        #ef4444 !important;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(239, 68, 68, .12)
-        !important;
-
-}
-
-
-/* ==========================================
-   VALIDATION ERROR MESSAGE
-========================================== */
-
-.field-error-message {
-
-    display: block;
-
-    margin-top: -10px;
-
-    margin-bottom: 16px;
-
-    color: #f87171;
-
-    font-size: 13px;
-
-    font-weight: 500;
-
-}
-
-
-/* ==========================================
-   VALIDATION SUMMARY
-========================================== */
-
-.validation-summary {
-
-    margin-bottom: 20px;
-
-    padding: 15px;
-
-    border-radius: 14px;
-
-    background:
-        rgba(239, 68, 68, .08);
-
-    border:
-        1px solid
-        rgba(239, 68, 68, .2);
-
-    color: #fecaca;
-
-}
-
-
-/* ==========================================
-   VALIDATION SUMMARY TITLE
-========================================== */
-
-.validation-summary strong {
-
-    display: block;
-
-    margin-bottom: 6px;
-
-}
-
-
-/* ==========================================
-   VALIDATION SUMMARY LIST
-========================================== */
-
-.validation-summary ul {
-
-    margin-left: 18px;
-
-}
-
-
-/* ==========================================
-   VALIDATION SUMMARY ITEM
-========================================== */
-
-.validation-summary li {
-
-    margin-bottom: 3px;
-
-}
-
-
-/* ==========================================
-   UPLOAD BOX
-========================================== */
-
-.upload-box input,
-.portfolio input {
-
-    display: none;
-
-}
-
-
-/* ==========================================
-   UPLOAD AREA
-========================================== */
-
-.upload-area {
-
-    display: block;
+    padding: 12px;
 
     cursor: pointer;
 
 }
 
 
-/* ==========================================
-   PROFILE PHOTO PREVIEW
-========================================== */
+input[type="file"]::file-selector-button {
 
-.preview {
+    margin-right: 12px;
 
-    height: 200px;
+    padding:
+        9px 14px;
 
-    border-radius: 18px;
+    border: none;
 
-    border:
-        2px dashed
-        rgba(255, 255, 255, .15);
+    border-radius: 8px;
 
-    background: #111827;
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-
-    justify-content: center;
-
-    color: #94a3b8;
-
-    overflow: hidden;
-
-    position: relative;
-
-    transition: .2s ease;
-
-}
-
-
-/* ==========================================
-   PHOTO PREVIEW TITLE
-========================================== */
-
-.preview h3 {
-
-    color: #ffffff;
-
-    margin-top: 10px;
-
-}
-
-
-/* ==========================================
-   PHOTO PREVIEW DESCRIPTION
-========================================== */
-
-.preview p {
-
-    font-size: 13px;
-
-    color: #64748b;
-
-}
-
-
-/* ==========================================
-   PHOTO PREVIEW HOVER
-========================================== */
-
-.preview:hover {
-
-    border-color: #22c55e;
-
-}
-
-
-/* ==========================================
-   PROFILE IMAGE
-========================================== */
-
-.preview img {
-
-    width: 100%;
-
-    height: 100%;
-
-    object-fit: cover;
-
-}
-
-
-/* ==========================================
-   HIDE PHOTO PLACEHOLDER
-========================================== */
-
-.preview.has-image h3,
-.preview.has-image p {
-
-    display: none;
-
-}
-
-
-/* ==========================================
-   WORD COUNTER
-========================================== */
-
-.counter {
-
-    text-align: right;
-
-    margin-top: -8px;
-
-    color: #64748b;
-
-    font-size: 13px;
-
-}
-
-
-/* ==========================================
-   WORD LIMIT REACHED
-========================================== */
-
-.counter.limit-reached {
-
-    color: #f87171;
-
-    font-weight: 700;
-
-}
-
-
-/* ==========================================
-   WORD COUNTER NUMBER
-========================================== */
-
-#wordCounter {
+    background:
+        rgba(34, 197, 94, .15);
 
     color: #22c55e;
 
+    font-family: "Inter", sans-serif;
+
+    font-size: 13px;
+
     font-weight: 700;
-
-}
-
-
-/* ==========================================
-   WORD COUNTER ERROR
-========================================== */
-
-.counter.limit-reached #wordCounter {
-
-    color: #f87171;
-
-}
-
-
-/* ==========================================
-   PORTFOLIO CONTAINER
-========================================== */
-
-.portfolio {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 15px;
-
-}
-
-
-/* ==========================================
-   PORTFOLIO ITEM
-========================================== */
-
-.portfolio-item {
-
-    width: 100%;
-
-}
-
-
-/* ==========================================
-   PORTFOLIO LABEL
-========================================== */
-
-.portfolio label {
-
-    display: block;
-
-    padding: 0;
-
-    margin: 0;
-
-    border-radius: 18px;
-
-    background: #111827;
-
-    border:
-        1px dashed
-        rgba(255, 255, 255, .15);
 
     cursor: pointer;
 
-    overflow: hidden;
-
-    transition: .2s ease;
+    transition: .3s;
 
 }
 
 
-/* ==========================================
-   PORTFOLIO LABEL HOVER
-========================================== */
+input[type="file"]::file-selector-button:hover {
 
-.portfolio label:hover {
-
-    border-color: #22c55e;
+    background:
+        rgba(34, 197, 94, .25);
 
 }
 
 
-/* ==========================================
-   PORTFOLIO PREVIEW
-========================================== */
+/* =========================================================
+   13. FORM HELPER TEXT
+========================================================= */
 
-.portfolio-preview {
-
-    min-height: 150px;
-
-    padding: 25px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    justify-content: center;
-
-    align-items: center;
-
-    gap: 8px;
-
-    color: #94a3b8;
-
-    text-align: center;
-
-    overflow: hidden;
-
-}
-
-
-/* ==========================================
-   PORTFOLIO TITLE
-========================================== */
-
-.portfolio-preview span {
-
-    color: #ffffff;
-
-    font-size: 14px;
-
-    font-weight: 600;
-
-}
-
-
-/* ==========================================
-   PORTFOLIO IMAGE
-========================================== */
-
-.portfolio-preview img {
+.form-group small {
 
     display: block;
 
-    width: 100%;
+    margin-top: 7px;
 
-    height: 180px;
+    color: #64748b;
 
-    object-fit: cover;
+    font-size: 12px;
 
-    border-radius: 12px;
+    line-height: 1.5;
 
 }
 
 
-/* ==========================================
-   SUBMIT BUTTON
-========================================== */
+/* =========================================================
+   14. DESCRIPTION WORD COUNTER
+========================================================= */
 
-.submit-btn {
+.word-counter {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin-top: 8px;
+
+}
+
+
+#wordCounter {
+
+    color: #64748b;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    transition: .2s;
+
+}
+
+
+#wordCounter.limit-reached {
+
+    color: #ef4444;
+
+}
+
+
+/* =========================================================
+   15. SUBMIT BUTTON
+========================================================= */
+
+.continue-btn {
+
+    position: relative;
 
     width: 100%;
 
-    padding: 16px;
+    min-height: 54px;
 
     border: none;
 
     border-radius: 14px;
 
-    margin-top: 10px;
-
     background:
         linear-gradient(
             135deg,
             #22c55e,
-            #16a34a
+            #3b82f6
         );
 
     color: #ffffff;
 
-    font-family: inherit;
+    font-family: "Inter", sans-serif;
 
-    font-size: 16px;
+    font-size: 15px;
 
     font-weight: 700;
 
     cursor: pointer;
 
-    transition: .2s ease;
+    box-shadow:
+        0 14px 30px
+        rgba(34, 197, 94, .15);
+
+    transition: .3s;
 
 }
 
 
-/* ==========================================
-   SUBMIT BUTTON HOVER
-========================================== */
+.continue-btn:hover {
 
-.submit-btn:hover {
+    transform:
+        translateY(-3px);
 
-    transform: translateY(-3px);
+    box-shadow:
+        0 18px 35px
+        rgba(34, 197, 94, .22);
 
 }
 
 
-/* ==========================================
-   SUBMIT BUTTON DISABLED
-========================================== */
+.continue-btn:active {
 
-.submit-btn:disabled {
+    transform:
+        translateY(0);
 
-    opacity: .65;
+}
+
+
+.continue-btn:disabled {
+
+    opacity: .7;
 
     cursor: not-allowed;
 
@@ -1118,90 +954,111 @@ textarea {
 }
 
 
-/* ==========================================
-   LOADING STATE
-========================================== */
+/* =========================================================
+   16. BUTTON LOADING STATE
+========================================================= */
 
-/*
-    JavaScript can add the "loading"
-    class while the profile is being
-    submitted to the backend.
-*/
+.continue-btn.loading {
 
-.submit-btn.loading {
-
-    position: relative;
-
-    cursor: wait;
+    pointer-events: none;
 
     opacity: .75;
 
 }
 
 
-/* ==========================================
-   NOTIFICATION MODAL OVERLAY
-========================================== */
+.button-loader {
 
-.notification-modal {
+    display: none;
+
+    width: 18px;
+
+    height: 18px;
+
+    margin-left: 8px;
+
+    vertical-align: middle;
+
+    border-radius: 50%;
+
+    border:
+        3px solid
+        rgba(255, 255, 255, .35);
+
+    border-top-color:
+        #ffffff;
+
+    animation:
+        spin .8s linear infinite;
+
+}
+
+
+.continue-btn.loading .button-loader {
+
+    display: inline-block;
+
+}
+
+
+.continue-btn.loading .button-text {
+
+    opacity: .8;
+
+}
+
+
+/* =========================================================
+   17. NOTIFICATION OVERLAY
+========================================================= */
+
+.notification-overlay {
 
     position: fixed;
 
     inset: 0;
 
-    width: 100%;
-
-    height: 100%;
-
-    z-index: 99999;
+    z-index: 2000;
 
     display: flex;
 
-    align-items: center;
-
     justify-content: center;
+
+    align-items: center;
 
     padding: 20px;
 
     background:
         rgba(2, 6, 23, .78);
 
-    backdrop-filter: blur(10px);
+    backdrop-filter:
+        blur(10px);
 
-    -webkit-backdrop-filter: blur(10px);
+    -webkit-backdrop-filter:
+        blur(10px);
+
+    animation:
+        fadeIn .25s ease;
 
 }
 
 
-/* ==========================================
-   HIDDEN NOTIFICATION MODAL
-========================================== */
-
-.notification-modal[hidden] {
+.notification-overlay[hidden] {
 
     display: none;
 
 }
 
 
-/* ==========================================
-   NOTIFICATION CARD
-========================================== */
+/* =========================================================
+   18. NOTIFICATION CARD
+========================================================= */
 
 .notification-card {
 
-    width:
-        min(
-            390px,
-            calc(100vw - 40px)
-        );
+    width: 100%;
 
-    max-height:
-        calc(100vh - 40px);
-
-    overflow-y: auto;
-
-    margin: 0;
+    max-width: 390px;
 
     padding: 35px 30px;
 
@@ -1209,7 +1066,8 @@ textarea {
 
     border-radius: 22px;
 
-    background: #0f172a;
+    background:
+        rgba(15, 23, 42, .96);
 
     border:
         1px solid
@@ -1219,12 +1077,15 @@ textarea {
         0 25px 80px
         rgba(0, 0, 0, .55);
 
+    animation:
+        scaleIn .25s ease;
+
 }
 
 
-/* ==========================================
-   NOTIFICATION ICON
-========================================== */
+/* =========================================================
+   19. NOTIFICATION ICON
+========================================================= */
 
 .notification-icon {
 
@@ -1232,13 +1093,14 @@ textarea {
 
     height: 64px;
 
-    margin: 0 auto 20px;
+    margin:
+        0 auto 20px;
 
     display: flex;
 
-    align-items: center;
-
     justify-content: center;
+
+    align-items: center;
 
     border-radius: 50%;
 
@@ -1258,55 +1120,12 @@ textarea {
 }
 
 
-/* ==========================================
-   NOTIFICATION TITLE
-========================================== */
+/* =========================================================
+   SUCCESS ICON
+========================================================= */
 
-.notification-card h2 {
-
-    margin: 0 0 10px;
-
-    font-size: 24px;
-
-    font-weight: 800;
-
-    line-height: 1.3;
-
-}
-
-
-/* ==========================================
-   NOTIFICATION MESSAGE
-========================================== */
-
-.notification-card p {
-
-    margin: 0 0 25px;
-
-    color: #cbd5e1;
-
-    font-size: 14px;
-
-    line-height: 1.7;
-
-    white-space: pre-line;
-
-}
-
-
-/* ==========================================
-   NOTIFICATION BUTTON
-========================================== */
-
-.notification-card button {
-
-    width: 100%;
-
-    padding: 14px 16px;
-
-    border: none;
-
-    border-radius: 14px;
+.notification-card.success
+.notification-icon {
 
     background:
         linear-gradient(
@@ -1315,64 +1134,15 @@ textarea {
             #16a34a
         );
 
-    color: #ffffff;
-
-    font-family: inherit;
-
-    font-size: 15px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition: .3s ease;
-
 }
 
 
-/* ==========================================
-   NOTIFICATION BUTTON HOVER
-========================================== */
+/* =========================================================
+   ERROR ICON
+========================================================= */
 
-.notification-card button:hover {
-
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 10px 30px
-        rgba(34, 197, 94, .20);
-
-}
-
-
-/* ==========================================
-   NOTIFICATION BUTTON ACTIVE
-========================================== */
-
-.notification-card button:active {
-
-    transform: translateY(0);
-
-}
-
-
-/* ==========================================
-   ERROR MODAL
-========================================== */
-
-.notification-card.error {
-
-    border-color:
-        rgba(239, 68, 68, .25);
-
-}
-
-
-/* ==========================================
-   ERROR MODAL ICON
-========================================== */
-
-.notification-card.error .notification-icon {
+.notification-card.error
+.notification-icon {
 
     background:
         linear-gradient(
@@ -1384,35 +1154,12 @@ textarea {
 }
 
 
-/* ==========================================
-   SUCCESS MODAL
-========================================== */
+/* =========================================================
+   INFO ICON
+========================================================= */
 
-.notification-card.success {
-
-    border-color:
-        rgba(34, 197, 94, .25);
-
-}
-
-
-/* ==========================================
-   INFO MODAL
-========================================== */
-
-.notification-card.info {
-
-    border-color:
-        rgba(59, 130, 246, .25);
-
-}
-
-
-/* ==========================================
-   INFO MODAL ICON
-========================================== */
-
-.notification-card.info .notification-icon {
+.notification-card.info
+.notification-icon {
 
     background:
         linear-gradient(
@@ -1424,9 +1171,98 @@ textarea {
 }
 
 
-/* ==========================================
-   FOOTER
-========================================== */
+/* =========================================================
+   20. NOTIFICATION TEXT
+========================================================= */
+
+.notification-card h2 {
+
+    margin-bottom: 10px;
+
+    color: #ffffff;
+
+    font-size: 24px;
+
+    font-weight: 800;
+
+}
+
+
+.notification-card p {
+
+    color: #cbd5e1;
+
+    font-size: 14px;
+
+    line-height: 1.7;
+
+}
+
+
+/* =========================================================
+   21. NOTIFICATION BUTTON
+========================================================= */
+
+.notification-button {
+
+    width: 100%;
+
+    margin-top: 25px;
+
+    min-height: 48px;
+
+    padding:
+        14px 20px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #16a34a
+        );
+
+    color: #ffffff;
+
+    font-family: "Inter", sans-serif;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .3s;
+
+}
+
+
+.notification-button:hover {
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 10px 25px
+        rgba(34, 197, 94, .20);
+
+}
+
+
+.notification-button:active {
+
+    transform:
+        translateY(0);
+
+}
+
+
+/* =========================================================
+   22. FOOTER
+========================================================= */
 
 footer {
 
@@ -1443,127 +1279,322 @@ footer {
 }
 
 
-/* ==========================================
-   MOBILE RESPONSIVENESS
-========================================== */
+/* =========================================================
+   23. ACCESSIBILITY
+========================================================= */
 
-@media (max-width: 600px) {
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
 
-    /* --------------------------------------
-       Modal
-    -------------------------------------- */
+    outline:
+        2px solid
+        #22c55e;
 
-    .notification-modal {
+    outline-offset:
+        2px;
 
-        padding: 16px;
-
-    }
-
-
-    .notification-card {
-
-        width:
-            min(
-                390px,
-                calc(100vw - 32px)
-            );
-
-        max-height:
-            calc(100vh - 32px);
-
-        padding: 30px 22px;
-
-    }
+}
 
 
-    /* --------------------------------------
-       Modal Icon
-    -------------------------------------- */
+/* =========================================================
+   24. ANIMATIONS
+========================================================= */
 
-    .notification-icon {
+@keyframes fadeIn {
 
-        width: 60px;
+    from {
 
-        height: 60px;
-
-        font-size: 28px;
+        opacity: 0;
 
     }
 
+    to {
 
-    /* --------------------------------------
-       Modal Title
-    -------------------------------------- */
-
-    .notification-card h2 {
-
-        font-size: 22px;
-
-    }
-
-
-    /* --------------------------------------
-       Profile Card
-    -------------------------------------- */
-
-    .profile-card {
-
-        padding: 18px;
-
-        border-radius: 20px;
-
-    }
-
-
-    /* --------------------------------------
-       Profile Title
-    -------------------------------------- */
-
-    .profile-header h1 {
-
-        font-size: 26px;
-
-    }
-
-
-    /* --------------------------------------
-       Form Cards
-    -------------------------------------- */
-
-    .form-card {
-
-        padding: 17px;
-
-    }
-
-
-    /* --------------------------------------
-       Inputs
-    -------------------------------------- */
-
-    input,
-    select,
-    textarea {
-
-        padding: 14px;
+        opacity: 1;
 
     }
 
 }
 
 
-/* ==========================================
-   SMALL MOBILE
-========================================== */
+@keyframes scaleIn {
 
-@media (max-width: 400px) {
+    from {
+
+        transform:
+            scale(.85);
+
+        opacity: 0;
+
+    }
+
+    to {
+
+        transform:
+            scale(1);
+
+        opacity: 1;
+
+    }
+
+}
+
+
+@keyframes spin {
+
+    from {
+
+        transform:
+            rotate(0deg);
+
+    }
+
+    to {
+
+        transform:
+            rotate(360deg);
+
+    }
+
+}
+
+
+/* =========================================================
+   25. TABLET
+========================================================= */
+
+@media (min-width: 768px) {
+
+    .profile-page {
+
+        width: 85%;
+
+    }
+
+
+    .profile-container {
+
+        padding: 40px;
+
+    }
+
+
+    .profile-header h1 {
+
+        font-size: 38px;
+
+    }
+
+
+    .profile-photo-preview {
+
+        width: 170px;
+
+        height: 170px;
+
+    }
+
+}
+
+
+/* =========================================================
+   26. DESKTOP
+========================================================= */
+
+@media (min-width: 1024px) {
+
+    .profile-page {
+
+        max-width: 1000px;
+
+    }
+
+
+    .profile-container {
+
+        padding: 42px;
+
+    }
+
+
+    .profile-photo-preview {
+
+        width: 180px;
+
+        height: 180px;
+
+    }
+
+}
+
+
+/* =========================================================
+   27. MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .navbar {
+
+        width: 90%;
+
+        height: 65px;
+
+    }
+
+
+    .logo {
+
+        font-size: 22px;
+
+    }
+
+
+    .nav-links {
+
+        gap: 15px;
+
+    }
+
+
+    .nav-links a {
+
+        font-size: 14px;
+
+    }
+
+
+    .profile-page {
+
+        width: 92%;
+
+        padding-top: 95px;
+
+        padding-bottom: 50px;
+
+    }
+
+
+    .profile-container {
+
+        padding: 25px 20px;
+
+        border-radius: 22px;
+
+    }
+
+
+    .profile-header h1 {
+
+        font-size: 28px;
+
+    }
+
+
+    .profile-header p {
+
+        font-size: 14px;
+
+    }
+
+
+    .profile-badge {
+
+        font-size: 13px;
+
+        padding: 7px 16px;
+
+    }
+
+
+    .form-section {
+
+        padding: 20px;
+
+        border-radius: 16px;
+
+    }
+
+
+    .section-heading h2 {
+
+        font-size: 17px;
+
+    }
+
+
+    .section-heading p {
+
+        font-size: 13px;
+
+    }
+
+
+    .profile-photo-preview {
+
+        width: 140px;
+
+        height: 140px;
+
+    }
+
+
+    input,
+    select {
+
+        min-height: 48px;
+
+    }
+
+
+    textarea {
+
+        min-height: 140px;
+
+    }
+
+
+    .continue-btn {
+
+        min-height: 52px;
+
+    }
+
 
     .notification-card {
 
-        width:
-            calc(100vw - 24px);
+        padding: 30px 22px;
 
-        padding: 26px 18px;
+    }
+
+}
+
+
+/* =========================================================
+   28. SMALL MOBILE
+========================================================= */
+
+@media (max-width: 400px) {
+
+    .navbar {
+
+        width: 92%;
+
+    }
+
+
+    .logo {
+
+        font-size: 21px;
+
+    }
+
+
+    .nav-links a {
+
+        font-size: 13px;
 
     }
 
@@ -1572,26 +1603,55 @@ footer {
 
         width: 94%;
 
+        padding-top: 88px;
+
+    }
+
+
+    .profile-container {
+
+        padding: 22px 16px;
+
+        border-radius: 18px;
+
     }
 
 
     .profile-header h1 {
 
-        font-size: 24px;
+        font-size: 25px;
 
     }
 
 
-    .completion-card {
+    .profile-header p {
 
-        padding: 15px;
+        font-size: 13px;
 
     }
 
 
-    .completion-card strong {
+    .form-section {
 
-        font-size: 22px;
+        padding: 17px;
+
+    }
+
+
+    .profile-photo-preview {
+
+        width: 125px;
+
+        height: 125px;
+
+    }
+
+
+    .notification-card {
+
+        max-width: 340px;
+
+        padding: 28px 18px;
 
     }
 

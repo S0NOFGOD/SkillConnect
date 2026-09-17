@@ -34,7 +34,7 @@
 
     <link
         rel="preconnect"
-        href="https://fonts.gstatic.com"
+        href="https://fonts.googleapis.com"
         crossorigin
     >
 
@@ -71,12 +71,31 @@
         >
 
             <!-- SkillConnect logo -->
+
             <a
                 href="./index.html"
                 class="logo"
             >
                 SkillConnect
             </a>
+
+
+            <!-- =========================
+                 DESKTOP NAVIGATION LINKS
+            ========================== -->
+
+            <div class="nav-links">
+
+                <a href="./about/index.html">
+                    About
+                </a>
+
+
+                <a href="./contact/index.html">
+                    Contact
+                </a>
+
+            </div>
 
 
             <!-- =========================
@@ -89,34 +108,77 @@
                 id="menuToggle"
                 aria-label="Open navigation menu"
                 aria-expanded="false"
-                aria-controls="navLinks"
+                aria-controls="mobileSidebar"
             >
-                ☰
+
+                <span></span>
+                <span></span>
+                <span></span>
+
             </button>
-
-
-            <!-- =========================
-                 NAVIGATION LINKS
-            ========================== -->
-
-            <div
-                class="nav-links"
-                id="navLinks"
-            >
-                <a href="./about/index.html">
-                    About
-                </a>
-
-
-                <a href="./contact/index.html">
-                    Contact
-                </a>
-
-            </div>
 
         </nav>
 
     </header>
+
+
+    <!-- =========================
+         MOBILE SIDEBAR OVERLAY
+    ========================== -->
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+    ></div>
+
+
+    <!-- =========================
+         MOBILE SIDEBAR
+    ========================== -->
+
+    <aside
+        class="mobile-sidebar"
+        id="mobileSidebar"
+        aria-label="Mobile navigation"
+    >
+
+        <!-- Sidebar Header -->
+
+        <div class="sidebar-header">
+
+            <span class="sidebar-title">
+                Menu
+            </span>
+
+
+            <button
+                type="button"
+                class="sidebar-close"
+                id="sidebarClose"
+                aria-label="Close navigation menu"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <!-- Sidebar Navigation Links -->
+
+        <nav class="sidebar-links">
+
+            <a href="./about/index.html">
+                About
+            </a>
+
+
+            <a href="./contact/index.html">
+                Contact
+            </a>
+
+        </nav>
+
+    </aside>
 
 
 
@@ -134,15 +196,18 @@
         <section class="hero">
 
             <!-- Main hero content -->
+
             <div class="hero-content">
 
                 <!-- Small introduction badge -->
+
                 <span class="hero-badge">
                     Trusted • Verified • Nearby
                 </span>
 
 
                 <!-- Main homepage heading -->
+
                 <h1>
 
                     Find Trusted
@@ -157,6 +222,7 @@
 
 
                 <!-- Homepage introduction -->
+
                 <p>
 
                     SkillConnect connects clients with
@@ -174,6 +240,7 @@
                 <div class="hero-buttons">
 
                     <!-- Worker entrance -->
+
                     <a
                         href="./worker-authentication/index.html"
                         class="worker-btn"
@@ -183,6 +250,7 @@
 
 
                     <!-- Client entrance -->
+
                     <a
                         href="./client-authentication/index.html"
                         class="client-btn"
@@ -225,7 +293,7 @@
 
                     <li>
                         <span>✓</span>
-                        Secure Booking
+                        Easy Contacting
                     </li>
 
                 </ul>
@@ -246,12 +314,9 @@
         >
 
             <!-- Skilled workers statistic -->
+
             <div class="stat-card">
 
-                <!--
-                    JavaScript will read data-target
-                    and animate the number.
-                -->
                 <h2
                     class="counter"
                     data-target="5000"
@@ -267,6 +332,7 @@
 
 
             <!-- Happy clients statistic -->
+
             <div class="stat-card">
 
                 <h2
@@ -278,23 +344,6 @@
 
                 <p>
                     Happy Clients
-                </p>
-
-            </div>
-
-
-            <!-- Completed jobs statistic -->
-            <div class="stat-card">
-
-                <h2
-                    class="counter"
-                    data-target="25000"
-                >
-                    0
-                </h2>
-
-                <p>
-                    Jobs Completed
                 </p>
 
             </div>
@@ -317,6 +366,7 @@
             <div class="cards">
 
                 <!-- Step 1 -->
+
                 <article class="card">
 
                     <div class="icon">
@@ -336,6 +386,7 @@
 
 
                 <!-- Step 2 -->
+
                 <article class="card">
 
                     <div class="icon">
@@ -355,6 +406,7 @@
 
 
                 <!-- Step 3 -->
+
                 <article class="card">
 
                     <div class="icon">
@@ -362,11 +414,11 @@
                     </div>
 
                     <h3>
-                        Book Securely
+                        Contact Workers
                     </h3>
 
                     <p>
-                        Complete bookings safely
+                        Contact workers safely
                         through SkillConnect.
                     </p>
 
@@ -422,6 +474,7 @@
             <div class="cards">
 
                 <!-- Verification -->
+
                 <article class="card">
 
                     <h3>
@@ -437,6 +490,7 @@
 
 
                 <!-- Reviews -->
+
                 <article class="card">
 
                     <h3>
@@ -451,6 +505,7 @@
 
 
                 <!-- Location -->
+
                 <article class="card">
 
                     <h3>
@@ -466,6 +521,7 @@
 
 
                 <!-- Contact privacy -->
+
                 <article class="card">
 
                     <h3>
@@ -474,7 +530,7 @@
 
                     <p>
                         Worker contact stays private
-                        until booking.
+                        until registration.
                     </p>
 
                 </article>
@@ -504,6 +560,7 @@
             <div class="hero-buttons">
 
                 <!-- Worker CTA -->
+
                 <a
                     href="./worker-authentication/index.html"
                     class="worker-btn"
@@ -513,6 +570,7 @@
 
 
                 <!-- Client CTA -->
+
                 <a
                     href="./client-authentication/index.html"
                     class="client-btn"
@@ -554,7 +612,6 @@
          HOMEPAGE JAVASCRIPT
     ========================== -->
 
-    <!-- Loads the homepage JavaScript -->
     <script src="script.js"></script>
 
 </body>

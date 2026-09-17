@@ -1,12 +1,15 @@
 /* =========================================================
    SKILLCONNECT
-   CONTROLLER — WORKER EMAIL OTP
+   CONTROLLER — WORKER PASSWORD RESET OTP
 ========================================================= */
 
 
 /* =========================================================
    1. IMPORT DEPENDENCIES
 ========================================================= */
+
+const crypto =
+    require("crypto");
 
 const Worker =
     require("../models/worker");
@@ -23,10 +26,10 @@ const {
 
 
 /* =========================================================
-   2. VERIFY EMAIL OTP
+   2. VERIFY PASSWORD RESET OTP
 ========================================================= */
 
-const verifyEmailOTP =
+const verifyPasswordResetOTP =
     async (req, res) => {
 
         try {
@@ -93,16 +96,10 @@ const verifyEmailOTP =
                FIND WORKER
             ------------------------------------------------- */
 
-            const worker =
-                await Worker.findOne({
-
-                    email:
-                        normalizedEmail
-
-                })
-                .select(
-                    "+emailOtp +emailOtpExpires"
-                );
+            const worker = await Worker.findOne({
+                
+                email: normalizedEmail
+            }).select("+passwordResetOtp +passwordResetOtpExpires");
 
 
             if (!worker) {
@@ -121,13 +118,11 @@ const verifyEmailOTP =
 
 
             /* -------------------------------------------------
-               CHECK OTP EXISTS
+               CHECK ACTIVE OTP
             ------------------------------------------------- */
 
             if (
-                !worker.emailOtp ||
-                worker.emailOtp !==
-                    normalizedOTP
+                !worker.passwordResetOtp
             ) {
 
                 return res.status(400).json({
@@ -136,7 +131,29 @@ const verifyEmailOTP =
                         false,
 
                     message:
-                        "Invalid verification code."
+                        "No active password reset code found. Please request a new code."
+
+                });
+
+            }
+
+
+            /* -------------------------------------------------
+               CHECK OTP
+            ------------------------------------------------- */
+
+            if (
+                worker.passwordResetOtp !==
+                normalizedOTP
+            ) {
+
+                return res.status(400).json({
+
+                    success:
+                        false,
+
+                    message:
+                        "Invalid password reset code."
 
                 });
 
@@ -148,15 +165,31 @@ const verifyEmailOTP =
             ------------------------------------------------- */
 
             if (
-                !worker.emailOtpExpires ||
-                new Date() >
-                    worker.emailOtpExpires
+                !worker.passwordResetOtpExpires
             ) {
 
-                worker.emailOtp =
+                return res.status(400).json({
+
+                    success:
+                        false,
+
+                    message:
+                        "Password reset code has expired. Please request a new code."
+
+                });
+
+            }
+
+
+            if (
+                new Date() >
+                worker.passwordResetOtpExpires
+            ) {
+
+                worker.passwordResetOtp =
                     null;
 
-                worker.emailOtpExpires =
+                worker.passwordResetOtpExpires =
                     null;
 
 
@@ -169,7 +202,7 @@ const verifyEmailOTP =
                         false,
 
                     message:
-                        "Verification code has expired. Please request a new code."
+                        "Password reset code has expired. Please request a new code."
 
                 });
 
@@ -177,16 +210,51 @@ const verifyEmailOTP =
 
 
             /* =================================================
-               VERIFY EMAIL
+               GENERATE RESET AUTHORIZATION
             ================================================= */
 
-            worker.isEmailVerified =
+            const resetAuthorization =
+                crypto
+                    .randomBytes(32)
+                    .toString("hex");
+
+
+            const resetAuthorizationExpires =
+                new Date(
+
+                    Date.now() +
+                    10 *
+                    60 *
+                    1000
+
+                );
+
+
+            /* =================================================
+               MARK PASSWORD RESET AS VERIFIED
+            ================================================= */
+
+            worker.passwordResetVerified =
                 true;
 
-            worker.emailOtp =
+            worker.passwordResetVerifiedAt =
+                new Date();
+
+            worker.resetAuthorization =
+                resetAuthorization;
+
+            worker.resetAuthorizationExpires =
+                resetAuthorizationExpires;
+
+
+            /* -------------------------------------------------
+               CLEAR USED OTP
+            ------------------------------------------------- */
+
+            worker.passwordResetOtp =
                 null;
 
-            worker.emailOtpExpires =
+            worker.passwordResetOtpExpires =
                 null;
 
 
@@ -203,15 +271,12 @@ const verifyEmailOTP =
                     true,
 
                 message:
-                    "Email verified successfully.",
+                    "Password reset code verified successfully.",
 
-                email:
-                    worker.email,
+                resetAuthorization,
 
-                nextStep:
-                    worker.profileCompleted
-                        ? "authenticated"
-                        : "profile"
+                redirect:
+                    "../worker-password-change/index.html"
 
             });
 
@@ -220,7 +285,7 @@ const verifyEmailOTP =
         catch (error) {
 
             console.error(
-                "Worker email OTP verification error:",
+                "Worker password reset OTP verification error:",
                 error
             );
 
@@ -231,7 +296,7 @@ const verifyEmailOTP =
                     false,
 
                 message:
-                    "An error occurred while verifying your email."
+                    "An error occurred while verifying the password reset code."
 
             });
 
@@ -241,10 +306,10 @@ const verifyEmailOTP =
 
 
 /* =========================================================
-   3. RESEND EMAIL OTP
+   3. RESEND PASSWORD RESET OTP
 ========================================================= */
 
-const resendEmailOTP =
+const resendPasswordResetOTP =
     async (req, res) => {
 
         try {
@@ -281,6 +346,29 @@ const resendEmailOTP =
 
 
             /* -------------------------------------------------
+               EMAIL FORMAT VALIDATION
+            ------------------------------------------------- */
+
+            if (
+                !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+                    normalizedEmail
+                )
+            ) {
+
+                return res.status(400).json({
+
+                    success:
+                        false,
+
+                    message:
+                        "Please provide a valid email address."
+
+                });
+
+            }
+
+
+            /* -------------------------------------------------
                FIND WORKER
             ------------------------------------------------- */
 
@@ -295,34 +383,13 @@ const resendEmailOTP =
 
             if (!worker) {
 
-                return res.status(404).json({
+                return res.status(200).json({
 
                     success:
-                        false,
+                        true,
 
                     message:
-                        "Worker account not found."
-
-                });
-
-            }
-
-
-            /* -------------------------------------------------
-               CHECK EMAIL VERIFICATION STATUS
-            ------------------------------------------------- */
-
-            if (
-                worker.isEmailVerified
-            ) {
-
-                return res.status(400).json({
-
-                    success:
-                        false,
-
-                    message:
-                        "This email is already verified."
+                        "If an account exists with this email, a password reset code has been sent."
 
                 });
 
@@ -330,7 +397,7 @@ const resendEmailOTP =
 
 
             /* =================================================
-               GENERATE NEW OTP
+               GENERATE NEW PASSWORD RESET OTP
             ================================================= */
 
             const {
@@ -340,31 +407,72 @@ const resendEmailOTP =
                 generateOTPData();
 
 
-            worker.emailOtp =
+            worker.passwordResetOtp =
                 otp;
 
-            worker.emailOtpExpires =
+            worker.passwordResetOtpExpires =
                 expiresAt;
+
+
+            /* -------------------------------------------------
+               CLEAR PREVIOUS RESET AUTHORIZATION
+            ------------------------------------------------- */
+
+            worker.passwordResetVerified =
+                false;
+
+            worker.passwordResetVerifiedAt =
+                null;
+
+            worker.resetAuthorization =
+                null;
+
+            worker.resetAuthorizationExpires =
+                null;
 
 
             await worker.save();
 
 
             /* =================================================
-               SEND NEW OTP
+               SEND PASSWORD RESET OTP
             ================================================= */
 
-            await sendOTPEmail({
+            try {
 
-                email:
-                    worker.email,
+                await sendOTPEmail({
 
-                otp,
+                    email:
+                        worker.email,
 
-                type:
-                    "email-verification"
+                    otp,
 
-            });
+                    type:
+                        "password-reset"
+
+                });
+
+            }
+
+            catch (emailError) {
+
+                /* ---------------------------------------------
+                   CLEAR OTP IF EMAIL COULD NOT BE SENT
+                --------------------------------------------- */
+
+                worker.passwordResetOtp =
+                    null;
+
+                worker.passwordResetOtpExpires =
+                    null;
+
+
+                await worker.save();
+
+
+                throw emailError;
+
+            }
 
 
             /* -------------------------------------------------
@@ -377,13 +485,7 @@ const resendEmailOTP =
                     true,
 
                 message:
-                    "A new verification code has been sent to your email.",
-
-                email:
-                    worker.email,
-
-                nextStep:
-                    "email-verification"
+                    "A new password reset code has been sent to your email."
 
             });
 
@@ -392,7 +494,7 @@ const resendEmailOTP =
         catch (error) {
 
             console.error(
-                "Worker resend email OTP error:",
+                "Worker resend password reset OTP error:",
                 error
             );
 
@@ -403,7 +505,7 @@ const resendEmailOTP =
                     false,
 
                 message:
-                    "An error occurred while sending the verification code."
+                    "An error occurred while sending the password reset code."
 
             });
 
@@ -418,8 +520,8 @@ const resendEmailOTP =
 
 module.exports = {
 
-    verifyEmailOTP,
+    verifyPasswordResetOTP,
 
-    resendEmailOTP
+    resendPasswordResetOTP
 
 };
