@@ -181,10 +181,14 @@ button {
     width: 270px;
     height: 100vh;
 
+    height: 100dvh;
+
     padding: 25px 18px;
 
     display: flex;
     flex-direction: column;
+
+    overflow: hidden;
 
     background: rgba(2, 6, 23, .92);
 
@@ -207,6 +211,8 @@ button {
     justify-content: flex-end;
 
     margin-bottom: 25px;
+
+    flex-shrink: 0;
 }
 
 .close-menu-btn {
@@ -238,6 +244,8 @@ button {
     flex-direction: column;
 
     gap: 8px;
+
+    flex-shrink: 0;
 }
 
 .nav-link {
@@ -315,6 +323,8 @@ button {
     border-top:
         1px solid
         rgba(255, 255, 255, .08);
+
+    flex-shrink: 0;
 }
 
 
@@ -491,10 +501,6 @@ button {
    12. PROFILE PHOTO
 ========================================================= */
 
-/*
-   Centers the complete photo container.
-*/
-
 .profile-photo-card {
 
     width: 100%;
@@ -505,16 +511,7 @@ button {
 
     justify-content: center;
     align-items: center;
-
 }
-
-
-/*
-   Circular profile photo container.
-
-   Both the image and placeholder use
-   this exact same container.
-*/
 
 .profile-photo-wrapper {
 
@@ -548,16 +545,7 @@ button {
     box-shadow:
         0 15px 40px
         rgba(0, 0, 0, .30);
-
 }
-
-
-/*
-   Actual worker profile photo.
-
-   The image completely fills the circular
-   container without being distorted.
-*/
 
 .profile-photo {
 
@@ -569,37 +557,17 @@ button {
     object-fit: cover;
 
     object-position: center;
-
 }
-
-
-/*
-   IMPORTANT:
-
-   When the image has the HTML "hidden"
-   attribute, force it to disappear.
-
-   This prevents the image and placeholder
-   from appearing together.
-*/
 
 .profile-photo[hidden] {
 
     display: none !important;
-
 }
 
 .profile-photo-placeholder[hidden] {
 
     display: none !important;
-
 }
-
-
-/*
-   Placeholder shown only when there is
-   no profile photo.
-*/
 
 .profile-photo-placeholder {
 
@@ -625,7 +593,6 @@ button {
     text-align: center;
 
     user-select: none;
-
 }
 
 
@@ -656,6 +623,7 @@ button {
 }
 
 .editable-field:focus {
+
     border-color:
         rgba(34, 197, 94, .55);
 
@@ -665,12 +633,14 @@ button {
 }
 
 textarea.editable-field {
+
     min-height: 120px;
 
     resize: vertical;
 }
 
 .edit-actions {
+
     display: flex;
 
     gap: 10px;
@@ -679,6 +649,7 @@ textarea.editable-field {
 }
 
 .edit-actions button {
+
     min-height: 42px;
 
     padding: 10px 16px;
@@ -691,6 +662,7 @@ textarea.editable-field {
 }
 
 .update-profile-button {
+
     background:
         linear-gradient(
             135deg,
@@ -702,6 +674,7 @@ textarea.editable-field {
 }
 
 .cancel-edit-button {
+
     background: #1e293b;
 
     color: #cbd5e1;
@@ -717,6 +690,7 @@ textarea.editable-field {
 ========================================================= */
 
 .is-loading {
+
     position: relative;
 
     display: inline-flex;
@@ -732,14 +706,6 @@ textarea.editable-field {
 
     cursor: wait;
 }
-
-
-/*
-   Loading spinner.
-
-   The spinner is attached directly to the
-   button while the backend request runs.
-*/
 
 .is-loading::after {
 
@@ -763,7 +729,6 @@ textarea.editable-field {
         dashboardSpinner .7s linear infinite;
 }
 
-
 @keyframes dashboardSpinner {
 
     from {
@@ -777,13 +742,12 @@ textarea.editable-field {
 }
 
 
-
-
 /* =========================================================
    15. NOTIFICATION MODAL
 ========================================================= */
 
 .notification-modal {
+
     position: fixed;
 
     inset: 0;
@@ -813,6 +777,7 @@ textarea.editable-field {
 ========================================================= */
 
 .notification-card {
+
     position: relative;
 
     width: min(390px, calc(100vw - 36px));
@@ -844,6 +809,7 @@ textarea.editable-field {
 ========================================================= */
 
 .notification-close-button {
+
     position: absolute;
 
     top: 12px;
@@ -882,6 +848,7 @@ textarea.editable-field {
 }
 
 .notification-close-button:hover {
+
     background:
         rgba(255, 255, 255, .14);
 
@@ -896,6 +863,7 @@ textarea.editable-field {
 }
 
 .notification-close-button:focus-visible {
+
     outline:
         2px solid
         #ffffff;
@@ -909,6 +877,7 @@ textarea.editable-field {
 ========================================================= */
 
 .notification-icon {
+
     width: 62px;
     height: 62px;
 
@@ -935,6 +904,7 @@ textarea.editable-field {
 }
 
 .notification-card h2 {
+
     margin-bottom: 9px;
 
     font-size: 23px;
@@ -943,6 +913,7 @@ textarea.editable-field {
 }
 
 .notification-card p {
+
     margin-bottom: 22px;
 
     color: #cbd5e1;
@@ -957,12 +928,14 @@ textarea.editable-field {
 }
 
 .notification-actions {
+
     display: flex;
 
     gap: 10px;
 }
 
 .notification-actions button {
+
     flex: 1;
 
     min-height: 46px;
@@ -977,6 +950,7 @@ textarea.editable-field {
 }
 
 #notificationButton {
+
     background:
         linear-gradient(
             135deg,
@@ -993,11 +967,13 @@ textarea.editable-field {
 ========================================================= */
 
 .notification-card.error {
+
     border-color:
         rgba(239, 68, 68, .25);
 }
 
 .notification-card.error .notification-icon {
+
     background:
         linear-gradient(
             135deg,
@@ -1007,6 +983,7 @@ textarea.editable-field {
 }
 
 .notification-card.error #notificationButton {
+
     background:
         linear-gradient(
             135deg,
@@ -1016,11 +993,13 @@ textarea.editable-field {
 }
 
 .notification-card.info {
+
     border-color:
         rgba(59, 130, 246, .25);
 }
 
 .notification-card.info .notification-icon {
+
     background:
         linear-gradient(
             135deg,
@@ -1030,11 +1009,13 @@ textarea.editable-field {
 }
 
 .notification-card.confirm {
+
     border-color:
         rgba(245, 158, 11, .25);
 }
 
 .notification-card.confirm .notification-icon {
+
     background:
         linear-gradient(
             135deg,
@@ -1044,6 +1025,7 @@ textarea.editable-field {
 }
 
 .notification-card.success {
+
     border-color:
         rgba(34, 197, 94, .25);
 }
@@ -1056,16 +1038,20 @@ textarea.editable-field {
 @media (max-width: 1100px) {
 
     .sidebar {
+
         width: 240px;
+
     }
 
     .dashboard {
+
         width: calc(100% - 240px);
 
         margin-right: 240px;
 
         padding-left: 25px;
         padding-right: 25px;
+
     }
 
 }
@@ -1078,30 +1064,72 @@ textarea.editable-field {
 @media (max-width: 900px) {
 
     .menu-btn {
+
         display: flex;
+
     }
 
     .sidebar {
+
+        position: fixed;
+
+        top: 0;
+        bottom: 0;
+
         right: -280px;
 
         width: 270px;
 
         height: 100vh;
+        height: 100dvh;
+
+        /*
+         * Keep the sidebar fixed to the viewport.
+         * It must not become a scrolling container.
+         */
+        overflow: hidden;
+
+        display: flex;
+        flex-direction: column;
 
         transition: right .3s ease;
 
         border-left: none;
+
     }
 
     .sidebar.active {
+
         right: 0;
+
     }
 
     .close-menu-btn {
+
         display: flex;
+
+    }
+
+    /*
+     * Navigation remains at the top while
+     * the footer stays at the bottom.
+     */
+    .sidebar-nav {
+
+        flex-shrink: 0;
+
+    }
+
+    .sidebar-footer {
+
+        margin-top: auto;
+
+        flex-shrink: 0;
+
     }
 
     .dashboard {
+
         width: 100%;
 
         margin-right: 0;
@@ -1110,6 +1138,7 @@ textarea.editable-field {
             95px
             24px
             55px;
+
     }
 
 }
@@ -1122,60 +1151,84 @@ textarea.editable-field {
 @media (max-width: 600px) {
 
     .topbar {
+
         height: 65px;
+
     }
 
     .topbar-inner {
+
         padding: 0 18px;
+
     }
 
     .logo {
+
         font-size: 20px;
+
     }
 
     .dashboard {
+
         padding:
             85px
             12px
             45px;
+
     }
 
     .dashboard-header {
+
         display: block;
+
     }
 
     .dashboard-header h1 {
+
         margin-bottom: 18px;
 
         font-size: 25px;
+
     }
 
     .information-grid {
+
         grid-template-columns: 1fr;
 
         gap: 10px;
+
     }
 
     .information-card {
+
         min-height: 88px;
 
         padding: 16px;
+
     }
 
     .section-heading h2 {
+
         font-size: 19px;
+
     }
 
     .verification-action-btn {
+
         width: 100%;
+
     }
 
     .edit-actions {
+
         flex-direction: column;
+
     }
 
     .edit-actions button {
+
         width: 100%;
+
     }
 
 
@@ -1184,12 +1237,16 @@ textarea.editable-field {
     ----------------------------------------------------- */
 
     .profile-photo-wrapper {
+
         width: 100px;
         height: 100px;
+
     }
 
     .profile-photo-placeholder {
+
         font-size: 36px;
+
     }
 
 
@@ -1198,15 +1255,18 @@ textarea.editable-field {
     ----------------------------------------------------- */
 
     .notification-card {
+
         width: min(
             390px,
             calc(100vw - 24px)
         );
 
         padding: 28px 20px;
+
     }
 
     .notification-close-button {
+
         top: 10px;
         right: 10px;
 
@@ -1214,6 +1274,7 @@ textarea.editable-field {
         height: 38px;
 
         font-size: 26px;
+
     }
 
 }
@@ -1234,6 +1295,7 @@ textarea:focus-visible {
         #22c55e;
 
     outline-offset: 3px;
+
 }
 
 
@@ -1254,6 +1316,7 @@ textarea:focus-visible {
         animation-iteration-count: 1 !important;
 
         transition-duration: .01ms !important;
+
     }
 
 }
