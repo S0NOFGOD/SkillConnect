@@ -1,25 +1,27 @@
 /* =========================================================
-   CLOUDINARY CONFIGURATION
+  1. LOAD ENVIRONMENT VARIABLES
 ========================================================= */
 
-const {
-    v2: cloudinary
-} = require("cloudinary");
-
+require("dotenv").config();
 
 /* =========================================================
-   CONFIGURE CLOUDINARY
+2. READ TERMII CONFIGURATION
 ========================================================= */
 
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
+const TERMII_API_KEY =
+process.env.TERMII_API_KEY;
 
+const TERMII_BASE_URL =
+process.env.TERMII_BASE_URL;
 
 /* =========================================================
-   EXPORT CLOUDINARY
+3. EXPORT TERMII CONFIGURATION
 ========================================================= */
 
-module.exports = cloudinary;
+module.exports = {
+
+TERMII_API_KEY,
+
+TERMII_BASE_URL
+
+};

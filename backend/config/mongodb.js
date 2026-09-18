@@ -1,26 +1,6 @@
 /* =========================================================
-   SKILLCONNECT DATABASE CONFIGURATION
-
-   This file controls:
-
-   1. Loading environment variables
-   2. Connecting the application to MongoDB
-   3. Handling database connection errors
-   4. Exporting the database connection function
-
-   DATABASE:
-   MongoDB Atlas
-========================================================= */
-
-
-/* =========================================================
    1. IMPORT MONGOOSE
 ========================================================= */
-
-/*
-   Mongoose allows Node.js to communicate
-   with MongoDB using models and schemas.
-*/
 
 const mongoose = require("mongoose");
 
@@ -29,18 +9,6 @@ const mongoose = require("mongoose");
 /* =========================================================
    2. LOAD ENVIRONMENT VARIABLES
 ========================================================= */
-
-/*
-   dotenv loads variables from the .env file.
-
-   Example:
-
-   MONGODB_URI=your-mongodb-connection-string
-
-   can then be accessed with:
-
-   process.env.MONGODB_URI
-*/
 
 require("dotenv").config();
 
@@ -116,14 +84,6 @@ const connectDB = async () => {
            Stop Application
         ========================================== */
 
-        /*
-           The application cannot safely operate
-           without its database.
-
-           Therefore, terminate the Node.js
-           process when the initial connection fails.
-        */
-
         process.exit(1);
 
     }
@@ -135,10 +95,5 @@ const connectDB = async () => {
 /* =========================================================
    4. EXPORT DATABASE FUNCTION
 ========================================================= */
-
-/*
-   server.js will import this function and
-   call it before starting the application.
-*/
 
 module.exports = connectDB;

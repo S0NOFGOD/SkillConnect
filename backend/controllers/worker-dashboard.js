@@ -8,6 +8,9 @@ const jwt =
 const Worker =
     require("../models/worker");
 
+    const cloudinary =
+    require("../config/cloudinary");
+
 const {
     generateOTPData
 } =
@@ -155,8 +158,14 @@ const formatWorkerProfile = (
 
 
         /* Worker profile photo */
-        profilePhoto:
-            worker.profilePhoto || null,
+        profilePhoto:worker.profilePhoto
+        ? cloudinary.url(
+            worker.profilePhoto,
+            {
+                secure: true
+            }
+        )
+        : null,
 
 
         /* Worker phone */

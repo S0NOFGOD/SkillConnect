@@ -1,164 +1,64 @@
-/* =========================================================
-   1. IMPORT BREVO
-========================================================= */
+/* 1. IMPORTS */
+const axios=require("axios");
 
-const {
-    BrevoClient
-} =
-    require("@getbrevo/brevo");
+const{TERMII_API_KEY,TERMII_BASE_URL}=
+    require("../config/termii");
 
+/* 2. SEND PHONE OTP */
+const sendPhoneOtp=async(phone,otp)=>{
 
-/* =========================================================
-   2. IMPORT BREVO CONFIGURATION
-========================================================= */
+    /* Validate phone number */
+    if(!phone){
+        throw new Error("Phone number is required.");
+    }
 
-const {
+    /* Validate OTP */
+    if(!otp){
+        throw new Error("OTP is required.");
+    }
 
-    BREVO_API_KEY,
+    /* Validate Termii API key */
+    if(!TERMII_API_KEY){
+        throw new Error("TERMII_API_KEY is not configured.");
+    }
 
-    BREVO_SMS_SENDER_NAME
+    /* Validate Termii base URL */
+    if(!TERMII_BASE_URL){
+        throw new Error("TERMII_BASE_URL is not configured.");
+    }
 
-} =
-    require("../config/brevo");
+    /* Create SMS message */
+    const message=
+        `Your SkillConnect verification code is ${otp}. This code expires in 10 minutes. Do not share this code with anyone.`;
 
-
-/* =========================================================
-   3. CREATE BREVO CLIENT
-========================================================= */
-
-const brevo =
-    new BrevoClient({
-
-        apiKey:
-            BREVO_API_KEY
-
-    });
-
-
-/* =========================================================
-   4. SEND PHONE OTP
-========================================================= */
-
-const sendPhoneOtp =
-    async (
-        phone,
-        otp
-    ) => {
-
-        /* -------------------------------------------------
-           Validate phone number
-        ------------------------------------------------- */
-
-        if (!phone) {
-
-            throw new Error(
-                "Phone number is required."
-            );
-
+    /* Send SMS through Termii */
+    const response=await axios.post(
+        `${TERMII_BASE_URL}/api/sms/send`,
+        {
+            to:phone,
+            from:"Termii",
+            sms:message,
+            type:"plain",
+            channel:"dnd",
+            api_key:TERMII_API_KEY
+        },
+        {
+            headers:{
+                "Content-Type":"application/json"
+            }
         }
+    );
 
+    /* Log Termii response */
+    console.log("Termii SMS response:",response.data);
 
-        /* -------------------------------------------------
-           Validate OTP
-        ------------------------------------------------- */
-
-        if (!otp) {
-
-            throw new Error(
-                "OTP is required."
-            );
-
-        }
-
-
-        /* -------------------------------------------------
-           Validate Brevo API key
-        ------------------------------------------------- */
-
-        if (!BREVO_API_KEY) {
-
-            throw new Error(
-                "BREVO_API_KEY is not configured."
-            );
-
-        }
-
-
-        /* -------------------------------------------------
-           Validate SMS sender
-        ------------------------------------------------- */
-
-        if (!BREVO_SMS_SENDER_NAME) {
-
-            throw new Error(
-                "BREVO_SMS_SENDER_NAME is not configured."
-            );
-
-        }
-
-
-        /* =================================================
-           CREATE SMS MESSAGE
-        ================================================= */
-
-        const message =
-            `Your SkillConnect verification code is ${otp}. This code expires in 10 minutes. Do not share this code with anyone.`;
-
-
-        /* =================================================
-           SEND SMS THROUGH BREVO
-        ================================================= */
-
-        const response =
-            await brevo
-                .transactionalSms
-                .sendAsyncTransactionalSms({
-
-                    recipient:
-                        phone,
-
-                    sender:
-                        BREVO_SMS_SENDER_NAME,
-
-                    content:
-                        message
-
-                });
-
-
-        /* -------------------------------------------------
-           Log Brevo response
-        ------------------------------------------------- */
-
-        console.log(
-            "Brevo SMS response:",
-            response
-        );
-
-
-        /* =================================================
-           RETURN SUCCESS
-        ================================================= */
-
-        return {
-
-            success:
-                true,
-
-            phone:
-                phone,
-
-            response:
-                response
-
-        };
-
+    /* Return success */
+    return{
+        success:true,
+        phone:phone,
+        response:response.data
     };
+};
 
-
-/* =========================================================
-   5. EXPORT
-========================================================= */
-
-module.exports =
-    sendPhoneOtp;
+/* 3. EXPORT */
+module.exports=sendPhoneOtp;

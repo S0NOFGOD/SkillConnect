@@ -1,721 +1,321 @@
 /* =========================================================
-   1. IMPORT ENVIRONMENT VARIABLES
+   1. ENVIRONMENT & DEPENDENCIES
 ========================================================= */
-
 require("dotenv").config();
-
-
-
+const express = require("express");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const passport = require("passport");
+const connectDB = require("./config/mongodb");
 /* =========================================================
-   2. IMPORT EXPRESS
+   2. ROUTES
 ========================================================= */
-
-const express =
-    require("express");
-
-
-
-/* =========================================================
-   3. IMPORT CORS
-========================================================= */
-
-const cors =
-    require("cors");
-
-
-
-/* =========================================================
-   4. IMPORT COOKIE PARSER
-========================================================= */
-
-const cookieParser =
-    require("cookie-parser");
-
-
-
-/* =========================================================
-   5. IMPORT PASSPORT
-========================================================= */
-
-const passport =
-    require("passport");
-
-
-
-/* =========================================================
-   6. IMPORT DATABASE CONNECTION
-========================================================= */
-
-const connectDB =
-    require("./config/mongodb");
-
-
-
-/* =========================================================
-   7. IMPORT WORKER AUTHENTICATION ROUTES
-========================================================= */
-
+// Worker routes
 const workerAuthenticationRoutes =
     require("./routes/worker-authentication");
-
-
-
-/* =========================================================
-   8. IMPORT WORKER EMAIL OTP ROUTES
-========================================================= */
-
 const workerEmailOTPRoutes =
     require("./routes/worker-email-otp");
-
-
-
-/* =========================================================
-   9. IMPORT WORKER PASSWORD RESET OTP ROUTES
-========================================================= */
-
 const workerPasswordResetOTPRoutes =
     require("./routes/worker-password-reset-otp");
-
-
-
-/* =========================================================
-   10. IMPORT WORKER CREATE PROFILE ROUTES
-========================================================= */
-
 const workerCreateProfileRoutes =
     require("./routes/worker-create-profile");
-
-
-
-/* =========================================================
-   11. IMPORT WORKER PASSWORD CHANGE ROUTES
-========================================================= */
-
+const workerEditProfileRoutes =
+    require("./routes/worker-edit-profile");
 const workerPasswordChangeRoutes =
     require("./routes/worker-password-change");
-
-
-
-/* =========================================================
-   12. IMPORT CLIENT AUTHENTICATION ROUTES
-========================================================= */
-
-const clientAuthenticationRoutes =
-    require("./routes/client-authentication");
-
-
-
-/* =========================================================
-   13. IMPORT CLIENT EMAIL OTP ROUTES
-========================================================= */
-
-const clientEmailOTPRoutes =
-    require("./routes/client-email-otp");
-
-
-
-/* =========================================================
-   14. IMPORT CLIENT PASSWORD RESET OTP ROUTES
-========================================================= */
-
-const clientPasswordResetOTPRoutes =
-    require("./routes/client-password-reset-otp");
-
-
-
-/* =========================================================
-   15. IMPORT CLIENT CREATE PROFILE ROUTES
-========================================================= */
-
-const clientCreateProfileRoutes =
-    require("./routes/client-create-profile");
-
-
-
-/* =========================================================
-   16. IMPORT CLIENT PASSWORD CHANGE ROUTES
-========================================================= */
-
-const clientPasswordChangeRoutes =
-    require("./routes/client-password-change");
-
-
-
-/* =========================================================
-   17. IMPORT CLIENT WORKER SEARCH ROUTES
-========================================================= */
-
-const clientWorkerSearchRoutes =
-    require("./routes/client-worker-search");
-
-
-
-/* =========================================================
-   18. IMPORT CLIENT WORKER DETAILS ROUTES
-========================================================= */
-
-const clientWorkerDetailsRoutes =
-    require("./routes/client-worker-details");
-
-
-
-/* =========================================================
-   19. IMPORT WORKER DASHBOARD ROUTES
-========================================================= */
-
 const workerDashboardRoutes =
     require("./routes/worker-dashboard");
-
-
-
-/* =========================================================
-   20. IMPORT WORKER SERVICES ROUTES
-========================================================= */
-
 const workerServicesRoutes =
     require("./routes/worker-services");
-
-
-
-/* =========================================================
-   21. IMPORT REFRESH TOKEN ROUTES
-========================================================= */
-
 const refreshTokenRoutes =
     require("./routes/refreshToken");
-
-
-
+// Client routes
+const clientAuthenticationRoutes =
+    require("./routes/client-authentication");
+const clientEmailOTPRoutes =
+    require("./routes/client-email-otp");
+const clientPasswordResetOTPRoutes =
+    require("./routes/client-password-reset-otp");
+const clientCreateProfileRoutes =
+    require("./routes/client-create-profile");
+const clientPasswordChangeRoutes =
+    require("./routes/client-password-change");
+const clientWorkerSearchRoutes =
+    require("./routes/client-worker-search");
+const clientWorkerDetailsRoutes =
+    require("./routes/client-worker-details");
 /* =========================================================
-   22. CREATE EXPRESS APPLICATION
+   3. CREATE EXPRESS APPLICATION
 ========================================================= */
-
-const app =
-    express();
-
-
-
-/* =========================================================
-   23. SERVER PORT
-========================================================= */
-
+const app = express();
 const PORT =
     process.env.PORT || 5000;
-
-
-
 /* =========================================================
-   24. TRUST RENDER PROXY
+   4. TRUST RENDER PROXY
 ========================================================= */
-
-app.set(
-    "trust proxy",
-    1
-);
-
-
-
+app.set("trust proxy", 1);
 /* =========================================================
-   25. FRONTEND URLS
+   5. ALLOWED FRONTEND ORIGINS
 ========================================================= */
-
 const allowedOrigins = [
-
     process.env.FRONTEND_URL,
-
     process.env.FRONTEND_PRODUCTION_URL
-
 ].filter(Boolean);
-
-
-
 /* =========================================================
-   26. CORS CONFIGURATION
+   6. CORS CONFIGURATION
 ========================================================= */
-
 app.use(
-
     cors({
+        origin(origin, callback) {
 
-        origin: function (
-            origin,
-            callback
-        ) {
-
+            // Allow requests without an Origin header.
             if (!origin) {
-
-                return callback(
-                    null,
-                    true
-                );
-
+                return callback(null, true);
             }
 
-
-            /*
-               Check whether the frontend
-               is an allowed frontend URL.
-            */
-
-            if (
-                allowedOrigins.includes(origin)
-            ) {
-
-                return callback(
-                    null,
-                    true
-                );
-
+            // Allow only configured frontend origins.
+            if (allowedOrigins.includes(origin)) {
+                return callback(null, true);
             }
-
-
-            /*
-               Reject unknown origins.
-            */
 
             return callback(
-                new Error(
-                    "Not allowed by CORS"
-                )
+                new Error("Not allowed by CORS")
             );
-
         },
 
+        // Required for HTTP-only refresh-token cookies.
         credentials: true
-
     })
-
 );
-
-
-
 /* =========================================================
-   27. JSON BODY PARSER
+   7. BODY & COOKIE PARSERS
 ========================================================= */
-
+app.use(express.json());
 app.use(
-    express.json()
-);
-
-
-
-/* =========================================================
-   28. URL-ENCODED BODY PARSER
-========================================================= */
-
-app.use(
-
     express.urlencoded({
-
         extended: true
-
     })
-
 );
-
-
-
+app.use(cookieParser());
 /* =========================================================
-   29. COOKIE PARSER
+   8. PASSPORT INITIALIZATION
 ========================================================= */
+app.use(passport.initialize());
+/* =========================================================
+   9. HEALTH CHECK
+========================================================= */
+app.get("/", (req, res) => {
 
+    res.status(200).json({
+        success: true,
+        message:
+            "SkillConnect API is running successfully."
+    });
+
+});
+/* =========================================================
+   10. WORKER AUTHENTICATION
+========================================================= */
 app.use(
-    cookieParser()
-);
-
-
-
-/* =========================================================
-   30. PASSPORT INITIALIZATION
-========================================================= */
-
-app.use(
-    passport.initialize()
-);
-
-
-
-/* =========================================================
-   31. HEALTH CHECK ROUTE
-========================================================= */
-
-app.get(
-
-    "/",
-
-    (req, res) => {
-
-        res.status(200).json({
-
-            success: true,
-
-            message:
-                "SkillConnect API is running successfully."
-
-        });
-
-    }
-
-);
-
-
-
-/* =========================================================
-   32. WORKER AUTHENTICATION ROUTES
-========================================================= */
-
-app.use(
-
     "/api/worker-authentication",
-
     workerAuthenticationRoutes
-
 );
-
-
-
 /* =========================================================
-   33. WORKER REFRESH TOKEN ROUTES
+   11. WORKER REFRESH TOKEN
 ========================================================= */
-
 app.use(
-
     "/api/auth/worker",
-
     refreshTokenRoutes
-
 );
-
-
-
 /* =========================================================
-   34. WORKER EMAIL OTP ROUTES
+   12. WORKER EMAIL OTP
 ========================================================= */
-
 app.use(
-
     "/api/auth/worker",
-
     workerEmailOTPRoutes
-
 );
-
-
-
 /* =========================================================
-   35. WORKER PASSWORD RESET OTP ROUTES
+   13. WORKER PASSWORD RESET OTP
 ========================================================= */
-
 app.use(
-
     "/api/auth/worker",
-
     workerPasswordResetOTPRoutes
-
 );
-
-
-
 /* =========================================================
-   36. WORKER CREATE PROFILE ROUTES
+   14. WORKER CREATE PROFILE
 ========================================================= */
-
 app.use(
-
     "/api/worker",
-
     workerCreateProfileRoutes
-
 );
-
-
-
 /* =========================================================
-   37. WORKER PASSWORD CHANGE ROUTES
+   15. WORKER EDIT PROFILE
 ========================================================= */
-
+// Added for the worker-edit-profile flow.
 app.use(
-
+    "/api/worker",
+    workerEditProfileRoutes
+);
+/* =========================================================
+   16. WORKER PASSWORD CHANGE
+========================================================= */
+app.use(
     "/api/worker-password-change",
-
     workerPasswordChangeRoutes
-
 );
-
-
-
 /* =========================================================
-   38. CLIENT AUTHENTICATION ROUTES
+   17. CLIENT AUTHENTICATION
 ========================================================= */
-
 app.use(
-
     "/api/client-authentication",
-
     clientAuthenticationRoutes
-
 );
-
-
-
 /* =========================================================
-   39. CLIENT EMAIL OTP ROUTES
+   18. CLIENT EMAIL OTP
 ========================================================= */
-
 app.use(
-
     "/api/auth/client",
-
     clientEmailOTPRoutes
-
 );
-
-
-
 /* =========================================================
-   40. CLIENT PASSWORD RESET OTP ROUTES
+   19. CLIENT PASSWORD RESET OTP
 ========================================================= */
-
 app.use(
-
     "/api/client-password-reset-otp",
-
     clientPasswordResetOTPRoutes
-
 );
-
-
-
 /* =========================================================
-   41. CLIENT CREATE PROFILE ROUTES
+   20. CLIENT CREATE PROFILE
 ========================================================= */
-
 app.use(
-
     "/api/client-create-profile",
-
     clientCreateProfileRoutes
-
 );
-
-
-
 /* =========================================================
-   42. CLIENT PASSWORD CHANGE ROUTES
+   21. CLIENT PASSWORD CHANGE
 ========================================================= */
-
 app.use(
-
     "/api/client-password-change",
-
     clientPasswordChangeRoutes
-
 );
-
-
-
 /* =========================================================
-   43. CLIENT WORKER SEARCH ROUTES
+   22. CLIENT WORKER SEARCH
 ========================================================= */
-
 app.use(
-
     "/api/client/worker-search",
-
     clientWorkerSearchRoutes
-
 );
-
-
-
 /* =========================================================
-   44. CLIENT WORKER DETAILS ROUTES
+   23. CLIENT WORKER DETAILS
 ========================================================= */
-
 app.use(
-
     "/api/client/worker-details",
-
     clientWorkerDetailsRoutes
-
 );
-
-
-
 /* =========================================================
-   45. WORKER DASHBOARD ROUTES
+   24. WORKER DASHBOARD
 ========================================================= */
-
 app.use(
-
     "/api/worker",
-
     workerDashboardRoutes
-
 );
-
-
-
 /* =========================================================
-   46. WORKER SERVICES ROUTES
+   25. WORKER SERVICES
 ========================================================= */
-
 app.use(
-
     "/api/worker",
-
     workerServicesRoutes
-
 );
-
-
-
 /* =========================================================
-   47. UNKNOWN ROUTE HANDLER
+   26. UNKNOWN ROUTE HANDLER
 ========================================================= */
 
-app.use(
+app.use((req, res) => {
 
-    (req, res) => {
+    res.status(404).json({
+        success: false,
+        message:
+            "The requested API endpoint was not found."
+    });
 
-        res.status(404).json({
+});
+/* =========================================================
+   27. GLOBAL ERROR HANDLER
+========================================================= */
 
+app.use((error, req, res, next) => {
+
+    console.error(
+        "Server Error:",
+        error
+    );
+
+
+    // Handle CORS errors.
+    if (
+        error.message ===
+        "Not allowed by CORS"
+    ) {
+
+        return res.status(403).json({
             success: false,
-
             message:
-                "The requested API endpoint was not found."
-
+                "This origin is not allowed to access the SkillConnect API."
         });
 
     }
 
-);
 
+    // Handle all other server errors.
+    return res.status(
+        error.statusCode || 500
+    ).json({
 
+        success: false,
 
+        message:
+            process.env.NODE_ENV === "development"
+                ? error.message
+                : "An internal server error occurred."
+
+    });
+
+});
 /* =========================================================
-   48. GLOBAL ERROR HANDLER
-========================================================= */
-
-app.use(
-
-    (
-        error,
-        req,
-        res,
-        next
-    ) => {
-
-        console.error(
-            "Server Error:",
-            error
-        );
-
-
-        /* =================================================
-           CORS ERROR
-        ================================================= */
-
-        if (
-            error.message ===
-            "Not allowed by CORS"
-        ) {
-
-            return res.status(403).json({
-
-                success: false,
-
-                message:
-                    "This origin is not allowed to access the SkillConnect API."
-
-            });
-
-        }
-
-
-        /* =================================================
-           GENERIC SERVER ERROR
-        ================================================= */
-
-        res.status(
-            error.statusCode || 500
-        ).json({
-
-            success: false,
-
-            message:
-
-                process.env.NODE_ENV ===
-                "development"
-
-                    ? error.message
-
-                    : "An internal server error occurred."
-
-        });
-
-    }
-
-);
-
-
-
-/* =========================================================
-   49. START SERVER
+   28. START SERVER
 ========================================================= */
 
 const startServer = async () => {
 
     try {
 
-        /* ==========================================
-           CONNECT TO MONGODB ATLAS
-        ========================================== */
-
+        // Connect to MongoDB before starting Express.
         await connectDB();
 
 
-        /* ==========================================
-           START EXPRESS SERVER
-        ========================================== */
-
+        // Start the HTTP server.
         app.listen(
-
             PORT,
-
             () => {
-
                 console.log(
                     `SkillConnect server running on port ${PORT}`
                 );
-
             }
-
         );
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
-
             "Failed to start SkillConnect server:",
-
             error.message
-
         );
 
-
         process.exit(1);
-
     }
 
 };
-
-
-
 /* =========================================================
-   50. START APPLICATION
+   29. START APPLICATION
 ========================================================= */
 
 startServer();

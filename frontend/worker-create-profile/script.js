@@ -491,8 +491,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
 
                 formData.append(
-                    "fullName",
-                    fullNameInput.value.trim()
+                   "fullName",
+                   normalizeFullName(fullNameInput.value)
                 );
 
                 formData.append(
@@ -726,10 +726,83 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* =====================================================
-       18. VALIDATE FORM
-    ===================================================== */
+   18. FULL NAME NORMALIZATION
+===================================================== */
 
-    function validateForm() {
+/*
+ * Normalize a name part so that:
+ * destiny  -> Destiny
+ * DESTINY  -> Destiny
+ * dEsTiNy  -> Destiny
+ *
+ * Apostrophes and hyphens inside a name part
+ * are also handled correctly.
+ */
+function normalizeNamePart(name){
+
+    return name
+        .toLowerCase()
+        .split(/([-'])/)
+        .map(part=>{
+
+            if(part==="-"||part==="'"){
+                return part;
+            }
+
+            return part.charAt(0).toUpperCase()+part.slice(1);
+
+        })
+        .join("");
+}
+
+
+/*
+ * Validate and normalize the worker's full name.
+ *
+ * Exactly TWO names are required.
+ *
+ * Example:
+ * Destiny Okpone
+ * Samuel Okpone
+ */
+function normalizeFullName(value){
+
+    const fullName=String(value||"")
+        .trim()
+        .replace(/\s+/g," ");
+
+    /*
+     * The name must contain exactly two parts.
+     */
+    const nameParts=fullName.split(" ");
+
+    if(nameParts.length!==2){
+        return null;
+    }
+
+    const namePattern=/^[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*$/;
+    if(
+        !namePattern.test(nameParts[0]) ||
+        !namePattern.test(nameParts[1])
+    ){
+        return null;
+    }
+
+
+    /*
+     * Normalize both names.
+     */
+    return nameParts
+        .map(normalizeNamePart)
+        .join(" ");
+}
+
+
+/* =====================================================
+   19. VALIDATE FORM
+===================================================== */
+
+function validateForm() {
 
         const fullName =
             fullNameInput.value.trim();
@@ -798,29 +871,24 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
 
-        if (!fullName) {
+        /* =============================================
+          VALIDATE FULL NAME
+        ============================================= */
 
-            return {
-                valid: false,
-                message: "Please enter your full name."
-            };
-
-        }
+        const normalizedFullName = normalizeFullName(fullName);
 
 
-        if (
-            !/^[A-Za-zÀ-ÿ' -]{2,100}$/.test(
-                fullName
-            )
-        ) {
+        if (!normalizedFullName) {
 
-            return {
-                valid: false,
-                message:
-                    "Please enter a valid full name."
-            };
+        return {
+           valid: false,
+           message: "Please enter exactly two names with a space between them, for example: Destiny Okpone."
+        };
 
-        }
+    }
+
+fullNameInput.value =
+    normalizedFullName;
 
 
         if (

@@ -462,11 +462,9 @@ const createWorkerProfile = async (req, res) => {
            22. GET CLOUDINARY IMAGE INFORMATION
         ================================================== */
 
-        const profilePhotoUrl =
-            uploadedImage.secure_url;
+        const profilePhotoPublicId = uploadedImage.public_id;
 
-        uploadedPublicId =
-            uploadedImage.public_id;
+        uploadedPublicId = profilePhotoPublicId;
 
 
         /* =================================================
@@ -477,7 +475,7 @@ const createWorkerProfile = async (req, res) => {
             trimmedFullName;
 
         worker.profilePhoto =
-            profilePhotoUrl;
+            profilePhotoPublicId
 
         worker.phone =
             trimmedPhone;

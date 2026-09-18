@@ -1,1314 +1,774 @@
 /* =========================================================
-   1. GLOBAL RESET
+   WORKER DASHBOARD STYLES
+   Modern UI — functionality and JS classes preserved.
 ========================================================= */
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* =========================
+   1. RESET & GLOBAL
+========================= */
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+    --bg:#020617;
+    --surface:#0f172a;
+    --surface-2:#111c31;
+    --border:rgba(148,163,184,.14);
+    --text:#f8fafc;
+    --muted:#94a3b8;
+    --green:#22c55e;
+    --green-dark:#16a34a;
+    --blue:#3b82f6;
+    --red:#ef4444;
+    --shadow:0 20px 50px rgba(0,0,0,.28);
 }
 
-html {
-    scroll-behavior: smooth;
+html{scroll-behavior:smooth}
+
+body{
+    min-height:100vh;
+    font-family:"Inter",sans-serif;
+    background:
+        radial-gradient(circle at 15% 10%,rgba(34,197,94,.08),transparent 30%),
+        radial-gradient(circle at 85% 20%,rgba(59,130,246,.08),transparent 30%),
+        var(--bg);
+    color:var(--text);
+    line-height:1.6;
+    overflow-x:hidden;
 }
 
-body {
-    min-height: 100vh;
+button,a{font:inherit}
 
-    font-family: "Inter", sans-serif;
+button{border:0;cursor:pointer}
 
-    background: #020617;
-    color: #ffffff;
+a{text-decoration:none;color:inherit}
 
-    line-height: 1.6;
+button:focus-visible,
+a:focus-visible{
+    outline:2px solid var(--green);
+    outline-offset:3px;
 }
 
-
-/* =========================================================
-   2. BASIC ELEMENTS
-========================================================= */
-
-a {
-    color: inherit;
-    text-decoration: none;
-}
-
-button,
-input,
-select,
-textarea {
-    font-family: inherit;
-}
-
-button {
-    cursor: pointer;
-}
-
-
-/* =========================================================
-   3. BACKGROUND EFFECTS
-========================================================= */
-
+/* =========================
+   2. BACKGROUND GLOWS
+========================= */
 .green-glow,
-.blue-glow {
-    position: fixed;
-
-    width: 350px;
-    height: 350px;
-
-    border-radius: 50%;
-
-    filter: blur(150px);
-
-    opacity: .12;
-
-    pointer-events: none;
-
-    z-index: -1;
+.blue-glow{
+    position:fixed;
+    width:320px;
+    height:320px;
+    border-radius:50%;
+    filter:blur(100px);
+    pointer-events:none;
+    opacity:.13;
+    z-index:-1;
 }
 
-.green-glow {
-    top: -120px;
-    left: -120px;
-
-    background: #22c55e;
+.green-glow{
+    top:5%;
+    left:-120px;
+    background:var(--green);
 }
 
-.blue-glow {
-    right: -120px;
-    bottom: -120px;
-
-    background: #3b82f6;
+.blue-glow{
+    right:-120px;
+    bottom:5%;
+    background:var(--blue);
 }
 
-
-/* =========================================================
-   4. TOPBAR
-========================================================= */
-
-.topbar {
-    position: fixed;
-
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 70px;
-
-    z-index: 1000;
-
-    background: rgba(2, 6, 23, .92);
-
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-
-    border-bottom:
-        1px solid
-        rgba(255, 255, 255, .08);
+/* =========================
+   3. TOPBAR
+========================= */
+.topbar{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    height:70px;
+    z-index:1000;
+    background:rgba(2,6,23,.82);
+    border-bottom:1px solid var(--border);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
 }
 
-.topbar-inner {
-    height: 100%;
-
-    padding: 0 20px 0 40px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: space-between;
+.topbar-inner{
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
 }
 
-.logo {
-    font-size: 23px;
+.logo{
+    font-size:1.35rem;
+    font-weight:800;
+    letter-spacing:-.04em;
+    color:#16a34a;
+}
 
-    font-weight: 800;
+/* =========================
+   4. MENU BUTTON
+========================= */
+.menu-btn{
+    display:none;
+    width:42px;
+    height:42px;
+    padding:10px;
+    border-radius:10px;
+    background:rgba(255,255,255,.06);
+    border:1px solid var(--border);
+}
 
+.menu-btn span{
+    display:block;
+    height:2px;
+    margin:4px 0;
+    border-radius:2px;
+    background:#fff;
+}
+
+/* =========================
+   5. SIDEBAR
+========================= */
+.sidebar{
+    position:fixed;
+    top:70px;
+    right:0;
+    bottom:0;
+    width:270px;
+    display:flex;
+    flex-direction:column;
+    padding:22px 16px;
+    background:rgba(8,15,30,.94);
+    border-left:1px solid var(--border);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    z-index:900;
+}
+
+.sidebar-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:28px;
+    padding:0 8px;
+}
+
+.sidebar-brand{
+    display:flex;
+    align-items:center;
+    gap:11px;
+}
+
+.sidebar-brand-icon{
+    display:grid;
+    place-items:center;
+    width:38px;
+    height:38px;
+    border-radius:11px;
+    background:linear-gradient(135deg,var(--green),var(--green-dark));
+    color:#fff;
+    font-size:.72rem;
+    font-weight:800;
+    box-shadow:0 8px 20px rgba(34,197,94,.2);
+}
+
+.sidebar-brand-text{
+    display:flex;
+    flex-direction:column;
+    line-height:1.25;
+}
+
+.sidebar-brand-text strong{
+    font-size:.9rem;
     color: #16a34a;
 }
 
-
-/* =========================================================
-   5. MOBILE MENU BUTTON
-========================================================= */
-
-.menu-btn {
-    width: 44px;
-    height: 44px;
-
-    display: none;
-
-    flex-direction: column;
-
-    align-items: center;
-    justify-content: center;
-
-    gap: 5px;
-
-    border: none;
-    border-radius: 12px;
-
-    background: #111827;
+.sidebar-brand-text small{
+    color:var(--muted);
+    font-size:.68rem;
+    margin-top:2px;
 }
 
-.menu-btn span {
-    width: 21px;
-    height: 2px;
-
-    background: #ffffff;
-
-    border-radius: 5px;
+.close-menu-btn{
+    display:none;
+    width:36px;
+    height:36px;
+    border-radius:9px;
+    background:rgba(255,255,255,.06);
+    color:#fff;
+    font-size:1.5rem;
 }
 
-
-/* =========================================================
-   6. SIDEBAR
-========================================================= */
-
-.sidebar {
-    position: fixed;
-
-    top: 0;
-    right: 0;
-
-    width: 270px;
-    height: 100vh;
-
-    height: 100dvh;
-
-    padding: 25px 18px;
-
-    display: flex;
-    flex-direction: column;
-
-    overflow: hidden;
-
-    background: rgba(2, 6, 23, .92);
-
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-
-    border-left:
-        1px solid
-        rgba(255, 255, 255, .08);
-
-    z-index: 1500;
+.sidebar-nav{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
 }
 
-.sidebar-header {
-    min-height: 50px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: flex-end;
-
-    margin-bottom: 25px;
-
-    flex-shrink: 0;
-}
-
-.close-menu-btn {
-    display: none;
-
-    width: 38px;
-    height: 38px;
-
-    align-items: center;
-    justify-content: center;
-
-    border: none;
-    border-radius: 10px;
-
-    background: #111827;
-
-    color: #ffffff;
-
-    font-size: 25px;
-}
-
-
-/* =========================================================
-   7. SIDEBAR NAVIGATION
-========================================================= */
-
-.sidebar-nav {
-    display: flex;
-    flex-direction: column;
-
-    gap: 8px;
-
-    flex-shrink: 0;
-}
-
-.nav-link {
-    width: 100%;
-    min-height: 48px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 12px;
-
-    padding: 12px 14px;
-
-    border: 1px solid transparent;
-    border-radius: 13px;
-
-    background: transparent;
-
-    color: #cbd5e1;
-
-    font-size: 14px;
-    font-weight: 600;
-
-    text-align: left;
-
-    transition: .2s ease;
-}
-
-.nav-icon {
-    width: 25px;
-
-    display: inline-flex;
-
-    align-items: center;
-    justify-content: center;
-
-    font-size: 17px;
-}
-
-.nav-link:hover,
-.nav-link.active {
-    color: #ffffff;
-
-    background: rgba(34, 197, 94, .12);
-
-    border-color:
-        rgba(34, 197, 94, .20);
-}
-
-.verify-profile-link .nav-icon {
-    color: #22c55e;
-}
-
-.verify-profile-link.verification-expired {
-    color: #f87171;
-
-    background: rgba(239, 68, 68, .08);
-
-    border-color:
-        rgba(239, 68, 68, .20);
-}
-
-.logout-link:hover {
-    color: #f87171;
-
-    background: rgba(239, 68, 68, .08);
-}
-
-.sidebar-footer {
-    margin-top: auto;
-
-    padding-top: 20px;
-
-    border-top:
-        1px solid
-        rgba(255, 255, 255, .08);
-
-    flex-shrink: 0;
-}
-
-
-/* =========================================================
-   8. MOBILE OVERLAY
-========================================================= */
-
-.overlay {
-    position: fixed;
-
-    inset: 0;
-
-    background: rgba(2, 6, 23, .70);
-
-    opacity: 0;
-    visibility: hidden;
-
-    pointer-events: none;
-
-    transition: .25s ease;
-
-    z-index: 1400;
-}
-
-.overlay.active {
-    opacity: 1;
-
-    visibility: visible;
-
-    pointer-events: auto;
-}
-
-
-/* =========================================================
-   9. MAIN DASHBOARD
-========================================================= */
-
-.dashboard {
-    width: calc(100% - 270px);
-
-    min-height: 100vh;
-
-    margin-right: 270px;
-
-    padding: 105px 35px 60px;
-}
-
-.dashboard-header {
-    width: 100%;
-    max-width: 1400px;
-
-    margin: 0 auto 30px;
-
-    display: flex;
-
-    align-items: flex-start;
-    justify-content: space-between;
-
-    gap: 20px;
-}
-
-.dashboard-header h1 {
-    font-size: 32px;
-
-    font-weight: 800;
-
-    line-height: 1.2;
-}
-
-.dashboard-header h1 span {
-    color: #22c55e;
-}
-
-
-/* =========================================================
-   10. VERIFICATION BUTTON
-========================================================= */
-
-.verification-action-btn {
-    min-height: 42px;
-
-    padding: 9px 16px;
-
-    border: none;
-    border-radius: 11px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #ef4444,
-            #dc2626
-        );
-
-    color: #ffffff;
-
-    font-size: 13px;
-    font-weight: 700;
-}
-
-
-/* =========================================================
-   11. DASHBOARD SECTIONS
-========================================================= */
-
-.dashboard-section {
-    width: 100%;
-    max-width: 1400px;
-
-    margin: 0 auto 32px;
-}
-
-.section-heading {
-    margin-bottom: 14px;
-}
-
-.section-heading h2 {
-    font-size: 20px;
-
-    font-weight: 800;
-}
-
-.information-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
-    gap: 14px;
-}
-
-.information-card {
-    min-height: 95px;
-
-    padding: 19px;
-
-    display: flex;
-    flex-direction: column;
-
-    justify-content: center;
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .08);
-
-    border-radius: 16px;
-
-    background:
-        rgba(15, 23, 42, .78);
-
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-}
-
-.information-label {
-    margin-bottom: 5px;
-
-    color: #64748b;
-
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.information-card strong {
-    color: #f8fafc;
-
-    font-size: 15px;
-    font-weight: 700;
-
-    overflow-wrap: anywhere;
-}
-
-
-/* =========================================================
-   12. PROFILE PHOTO
-========================================================= */
-
-.profile-photo-card {
-
-    width: 100%;
-
-    margin: 0 auto 25px;
-
-    display: flex;
-
-    justify-content: center;
-    align-items: center;
-}
-
-.profile-photo-wrapper {
-
-    width: 120px;
-    height: 120px;
-
-    flex-shrink: 0;
-
-    position: relative;
-
-    overflow: hidden;
-
-    display: flex;
-
-    justify-content: center;
-    align-items: center;
-
-    border-radius: 50%;
-
-    border:
-        3px solid
-        rgba(34, 197, 94, .45);
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(34, 197, 94, .15),
-            rgba(59, 130, 246, .15)
-        );
-
-    box-shadow:
-        0 15px 40px
-        rgba(0, 0, 0, .30);
-}
-
-.profile-photo {
-
-    width: 100%;
-    height: 100%;
-
-    display: block;
-
-    object-fit: cover;
-
-    object-position: center;
-}
-
-.profile-photo[hidden] {
-
-    display: none !important;
-}
-
-.profile-photo-placeholder[hidden] {
-
-    display: none !important;
-}
-
-.profile-photo-placeholder {
-
-    width: 100%;
-    height: 100%;
-
-    display: flex;
-
-    justify-content: center;
-    align-items: center;
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(34, 197, 94, .15),
-            rgba(59, 130, 246, .15)
-        );
-
-    color: #94a3b8;
-
-    font-size: 42px;
-
-    text-align: center;
-
-    user-select: none;
-}
-
-
-/* =========================================================
-   13. EDIT PROFILE FIELDS
-========================================================= */
-
-.editable-field {
-    width: 100%;
-
-    min-height: 44px;
-
-    padding: 10px 12px;
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .10);
-
-    border-radius: 10px;
-
-    outline: none;
-
-    background: #020617;
-
-    color: #ffffff;
-
-    font-size: 14px;
-}
-
-.editable-field:focus {
-
-    border-color:
-        rgba(34, 197, 94, .55);
-
-    box-shadow:
-        0 0 0 3px
-        rgba(34, 197, 94, .08);
-}
-
-textarea.editable-field {
-
-    min-height: 120px;
-
-    resize: vertical;
-}
-
-.edit-actions {
-
-    display: flex;
-
-    gap: 10px;
-
-    margin-top: 10px;
-}
-
-.edit-actions button {
-
-    min-height: 42px;
-
-    padding: 10px 16px;
-
-    border: none;
-    border-radius: 10px;
-
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.update-profile-button {
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
-    color: #ffffff;
-}
-
-.cancel-edit-button {
-
-    background: #1e293b;
-
-    color: #cbd5e1;
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .08) !important;
-}
-
-
-/* =========================================================
-   14. LOADING STATE
-========================================================= */
-
-.is-loading {
-
-    position: relative;
-
-    display: inline-flex;
-
-    align-items: center;
-    justify-content: center;
-
-    gap: 8px;
-
-    pointer-events: none;
-
-    opacity: .70;
-
-    cursor: wait;
-}
-
-.is-loading::after {
-
-    content: "";
-
-    width: 15px;
-    height: 15px;
-
-    flex-shrink: 0;
-
-    border:
-        2px solid
-        rgba(255, 255, 255, .35);
-
-    border-top-color:
-        #ffffff;
-
-    border-radius: 50%;
-
-    animation:
-        dashboardSpinner .7s linear infinite;
-}
-
-@keyframes dashboardSpinner {
-
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
-
-}
-
-
-/* =========================================================
-   15. NOTIFICATION MODAL
-========================================================= */
-
-.notification-modal {
-
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 99999;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    padding: 18px;
-
-    background: rgba(2, 6, 23, .80);
-
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-}
-
-.notification-modal[hidden] {
-    display: none;
-}
-
-
-/* =========================================================
-   NOTIFICATION CARD
-========================================================= */
-
-.notification-card {
-
-    position: relative;
-
-    width: min(390px, calc(100vw - 36px));
-
-    max-height: calc(100vh - 36px);
-
-    overflow-y: auto;
-
-    padding: 32px 25px;
-
-    text-align: center;
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .10);
-
-    border-radius: 20px;
-
-    background: #0f172a;
-
-    box-shadow:
-        0 25px 80px
-        rgba(0, 0, 0, .55);
-}
-
-
-/* =========================================================
-   MODAL TOP-RIGHT CLOSE BUTTON
-========================================================= */
-
-.notification-close-button {
-
-    position: absolute;
-
-    top: 12px;
-    right: 12px;
-
-    width: 40px;
-    height: 40px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .12);
-
-    border-radius: 50%;
-
-    background:
-        rgba(255, 255, 255, .06);
-
-    color: #ffffff;
-
-    font-size: 27px;
-    font-weight: 400;
-
-    line-height: 1;
-
-    cursor: pointer;
-
+.nav-link{
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:13px 14px;
+    border-radius:12px;
+    background:transparent;
+    color:var(--muted);
+    font-size:.88rem;
+    font-weight:600;
+    text-align:left;
     transition:
         background .2s ease,
-        border-color .2s ease,
+        color .2s ease,
         transform .2s ease;
 }
 
-.notification-close-button:hover {
-
-    background:
-        rgba(255, 255, 255, .14);
-
-    border-color:
-        rgba(255, 255, 255, .25);
-
-    transform: scale(1.05);
+.nav-link:hover{
+    color:#fff;
+    background:rgba(255,255,255,.055);
+    transform:translateX(-2px);
 }
 
-.notification-close-button:active {
-    transform: scale(.95);
+.nav-link.active{
+    color:#fff;
+    background:linear-gradient(
+        90deg,
+        rgba(34,197,94,.16),
+        rgba(34,197,94,.04)
+    );
+    border:1px solid rgba(34,197,94,.16);
 }
 
-.notification-close-button:focus-visible {
-
-    outline:
-        2px solid
-        #ffffff;
-
-    outline-offset: 3px;
+.nav-icon{
+    width:22px;
+    display:grid;
+    place-items:center;
+    font-size:1rem;
 }
 
-
-/* =========================================================
-   MODAL ICON
-========================================================= */
-
-.notification-icon {
-
-    width: 62px;
-    height: 62px;
-
-    margin: 0 auto 18px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 50%;
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
-    color: #ffffff;
-
-    font-size: 28px;
-    font-weight: 800;
+.sidebar-footer{
+    margin-top:auto;
+    padding-top:18px;
+    border-top:1px solid var(--border);
 }
 
-.notification-card h2 {
-
-    margin-bottom: 9px;
-
-    font-size: 23px;
-
-    font-weight: 800;
+.logout-link:hover{
+    color:#f87171;
+    background:rgba(239,68,68,.08);
 }
 
-.notification-card p {
-
-    margin-bottom: 22px;
-
-    color: #cbd5e1;
-
-    font-size: 14px;
-
-    line-height: 1.7;
-
-    white-space: pre-line;
-
-    overflow-wrap: anywhere;
+/* =========================
+   6. MOBILE OVERLAY
+========================= */
+.overlay{
+    position:fixed;
+    inset:70px 0 0;
+    background:rgba(0,0,0,.58);
+    opacity:0;
+    visibility:hidden;
+    transition:.25s ease;
+    z-index:850;
 }
 
-.notification-actions {
-
-    display: flex;
-
-    gap: 10px;
+.overlay.active{
+    opacity:1;
+    visibility:visible;
 }
 
-.notification-actions button {
-
-    flex: 1;
-
-    min-height: 46px;
-
-    padding: 11px 15px;
-
-    border: none;
-    border-radius: 12px;
-
-    font-size: 14px;
-    font-weight: 700;
+/* =========================
+   7. MAIN DASHBOARD
+========================= */
+.dashboard{
+    width:calc(100% - 270px);
+    min-height:100vh;
+    margin-right:270px;
+    padding:105px 48px 60px;
 }
 
-#notificationButton {
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
-    color: #ffffff;
+.dashboard-header{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:25px;
+    margin-bottom:38px;
 }
 
+.welcome-content{min-width:0}
 
-/* =========================================================
-   16. MODAL TYPES
-========================================================= */
-
-.notification-card.error {
-
-    border-color:
-        rgba(239, 68, 68, .25);
+.dashboard-eyebrow,
+.section-eyebrow{
+    display:block;
+    margin-bottom:7px;
+    color:var(--green);
+    font-size:.68rem;
+    font-weight:800;
+    letter-spacing:.16em;
 }
 
-.notification-card.error .notification-icon {
-
-    background:
-        linear-gradient(
-            135deg,
-            #ef4444,
-            #dc2626
-        );
+.dashboard-header h1{
+    font-size:clamp(1.8rem,3vw,2.65rem);
+    line-height:1.15;
+    letter-spacing:-.045em;
 }
 
-.notification-card.error #notificationButton {
+.dashboard-header h1 span{
+    color:var(--green);
+}
 
+/* =========================
+   8. VERIFICATION BUTTON
+========================= */
+.verification-action-btn{
+    flex-shrink:0;
+    min-height:46px;
+    padding:0 20px;
+    border-radius:11px;
+    background:linear-gradient(135deg,#ef4444,#dc2626);
+    color:#fff;
+    font-size:.84rem;
+    font-weight:700;
+    box-shadow:0 10px 25px rgba(239,68,68,.16);
+    transition:transform .2s ease,box-shadow .2s ease,opacity .2s ease;
+}
+
+.verification-action-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 14px 28px rgba(239,68,68,.22);
+}
+
+.verification-action-btn:disabled{
+    cursor:not-allowed;
+    opacity:.65;
+    transform:none;
+}
+
+/* =========================
+   9. DASHBOARD SECTIONS
+========================= */
+.dashboard-section{
+    position:relative;
+    margin-bottom:26px;
+    padding:28px;
+    border:1px solid var(--border);
+    border-radius:20px;
     background:
         linear-gradient(
-            135deg,
-            #ef4444,
-            #dc2626
+            145deg,
+            rgba(15,23,42,.9),
+            rgba(15,23,42,.68)
         );
+    box-shadow:var(--shadow);
 }
 
-.notification-card.info {
-
-    border-color:
-        rgba(59, 130, 246, .25);
+.section-heading{
+    margin-bottom:20px;
 }
 
-.notification-card.info .notification-icon {
+.section-heading h2{
+    font-size:1.08rem;
+    font-weight:700;
+    letter-spacing:-.02em;
+}
 
+.section-heading .section-eyebrow{
+    margin-bottom:4px;
+}
+
+/* =========================
+   10. PROFILE PHOTO
+========================= */
+.profile-photo-card{
+    display:flex;
+    margin-bottom:24px;
+}
+
+.profile-photo-wrapper{
+    width:120px;
+    height:120px;
+    position:relative;
+    overflow:hidden;
+    border-radius:50%;
+    border:3px solid rgba(34,197,94,.3);
+    background:rgba(255,255,255,.04);
+    box-shadow:0 12px 30px rgba(0,0,0,.3);
+}
+
+.profile-photo,
+.profile-photo-placeholder{
+    width:100%;
+    height:100%;
+}
+
+.profile-photo{
+    display:block;
+    object-fit:cover;
+}
+
+.profile-photo-placeholder{
+    display:grid;
+    place-items:center;
+    color:var(--muted);
+    font-size:2.2rem;
+    background:linear-gradient(
+        145deg,
+        rgba(34,197,94,.08),
+        rgba(59,130,246,.08)
+    );
+}
+
+/* =========================
+   11. INFORMATION GRID
+========================= */
+.information-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:14px;
+}
+
+.information-card{
+    min-height:88px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:17px 18px;
+    border:1px solid rgba(148,163,184,.11);
+    border-radius:14px;
+    background:rgba(255,255,255,.025);
+    transition:
+        border-color .2s ease,
+        background .2s ease,
+        transform .2s ease;
+}
+
+.information-card:hover{
+    border-color:rgba(34,197,94,.2);
+    background:rgba(255,255,255,.04);
+    transform:translateY(-1px);
+}
+
+.information-label{
+    margin-bottom:5px;
+    color:var(--muted);
+    font-size:.72rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+}
+
+.information-card strong{
+    color:#f8fafc;
+    font-size:.92rem;
+    font-weight:600;
+    word-break:break-word;
+}
+
+/* =========================
+   12. EDITABLE FIELDS
+========================= */
+.editable-field{
+    width:100%;
+    padding:10px 12px;
+    border:1px solid var(--border);
+    border-radius:9px;
+    outline:none;
+    background:rgba(255,255,255,.04);
+    color:#fff;
+}
+
+.editable-field:focus{
+    border-color:var(--green);
+}
+
+.edit-actions{
+    display:flex;
+    gap:8px;
+    margin-top:10px;
+}
+
+.update-profile-button,
+.cancel-edit-button{
+    padding:9px 14px;
+    border-radius:8px;
+    font-size:.8rem;
+    font-weight:600;
+}
+
+.update-profile-button{
+    background:var(--green);
+    color:#fff;
+}
+
+.cancel-edit-button{
+    background:rgba(255,255,255,.07);
+    color:#fff;
+}
+
+/* =========================
+   13. LOADING STATE
+========================= */
+.is-loading{
+    position:relative;
+    pointer-events:none;
+    opacity:.75;
+}
+
+.is-loading::after{
+    content:"";
+    width:16px;
+    height:16px;
+    margin-left:8px;
+    display:inline-block;
+    vertical-align:-3px;
+    border:2px solid rgba(255,255,255,.35);
+    border-top-color:#fff;
+    border-radius:50%;
+    animation:spin .7s linear infinite;
+}
+
+@keyframes spin{
+    to{transform:rotate(360deg)}
+}
+
+/* =========================
+   14. NOTIFICATION MODAL
+========================= */
+.notification-modal{
+    position:fixed;
+    inset:0;
+    display:grid;
+    place-items:center;
+    padding:20px;
+    background:rgba(0,0,0,.72);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    z-index:2000;
+}
+
+.notification-modal[hidden]{display:none}
+
+.notification-card{
+    position:relative;
+    width:min(100%,430px);
+    padding:32px 28px 26px;
+    border:1px solid var(--border);
+    border-radius:20px;
     background:
         linear-gradient(
-            135deg,
-            #3b82f6,
-            #2563eb
+            145deg,
+            #111827,
+            #0b1220
         );
+    box-shadow:0 30px 80px rgba(0,0,0,.48);
+    text-align:center;
+    animation:modalIn .22s ease;
 }
 
-.notification-card.confirm {
-
-    border-color:
-        rgba(245, 158, 11, .25);
+@keyframes modalIn{
+    from{
+        opacity:0;
+        transform:translateY(12px) scale(.98);
+    }
+    to{
+        opacity:1;
+        transform:none;
+    }
 }
 
-.notification-card.confirm .notification-icon {
-
-    background:
-        linear-gradient(
-            135deg,
-            #f59e0b,
-            #d97706
-        );
+.notification-close-button{
+    position:absolute;
+    top:12px;
+    right:12px;
+    width:34px;
+    height:34px;
+    border-radius:9px;
+    background:rgba(255,255,255,.06);
+    color:#cbd5e1;
+    font-size:1.35rem;
+    line-height:1;
 }
 
-.notification-card.success {
-
-    border-color:
-        rgba(34, 197, 94, .25);
+.notification-close-button:hover{
+    background:rgba(255,255,255,.1);
+    color:#fff;
 }
 
-
-/* =========================================================
-   17. TABLET
-========================================================= */
-
-@media (max-width: 1100px) {
-
-    .sidebar {
-
-        width: 240px;
-
-    }
-
-    .dashboard {
-
-        width: calc(100% - 240px);
-
-        margin-right: 240px;
-
-        padding-left: 25px;
-        padding-right: 25px;
-
-    }
-
+.notification-icon{
+    width:54px;
+    height:54px;
+    display:grid;
+    place-items:center;
+    margin:0 auto 17px;
+    border-radius:50%;
+    background:rgba(34,197,94,.12);
+    color:var(--green);
+    font-size:1.45rem;
+    font-weight:800;
 }
 
-
-/* =========================================================
-   18. MOBILE NAVIGATION
-========================================================= */
-
-@media (max-width: 900px) {
-
-    .menu-btn {
-
-        display: flex;
-
-    }
-
-    .sidebar {
-
-        position: fixed;
-
-        top: 0;
-        bottom: 0;
-
-        right: -280px;
-
-        width: 270px;
-
-        height: 100vh;
-        height: 100dvh;
-
-        /*
-         * Keep the sidebar fixed to the viewport.
-         * It must not become a scrolling container.
-         */
-        overflow: hidden;
-
-        display: flex;
-        flex-direction: column;
-
-        transition: right .3s ease;
-
-        border-left: none;
-
-    }
-
-    .sidebar.active {
-
-        right: 0;
-
-    }
-
-    .close-menu-btn {
-
-        display: flex;
-
-    }
-
-    /*
-     * Navigation remains at the top while
-     * the footer stays at the bottom.
-     */
-    .sidebar-nav {
-
-        flex-shrink: 0;
-
-    }
-
-    .sidebar-footer {
-
-        margin-top: auto;
-
-        flex-shrink: 0;
-
-    }
-
-    .dashboard {
-
-        width: 100%;
-
-        margin-right: 0;
-
-        padding:
-            95px
-            24px
-            55px;
-
-    }
-
+.notification-card h2{
+    margin-bottom:8px;
+    color:#fff;
+    font-size:1.18rem;
 }
 
-
-/* =========================================================
-   19. SMALL MOBILE
-========================================================= */
-
-@media (max-width: 600px) {
-
-    .topbar {
-
-        height: 65px;
-
-    }
-
-    .topbar-inner {
-
-        padding: 0 18px;
-
-    }
-
-    .logo {
-
-        font-size: 20px;
-
-    }
-
-    .dashboard {
-
-        padding:
-            85px
-            12px
-            45px;
-
-    }
-
-    .dashboard-header {
-
-        display: block;
-
-    }
-
-    .dashboard-header h1 {
-
-        margin-bottom: 18px;
-
-        font-size: 25px;
-
-    }
-
-    .information-grid {
-
-        grid-template-columns: 1fr;
-
-        gap: 10px;
-
-    }
-
-    .information-card {
-
-        min-height: 88px;
-
-        padding: 16px;
-
-    }
-
-    .section-heading h2 {
-
-        font-size: 19px;
-
-    }
-
-    .verification-action-btn {
-
-        width: 100%;
-
-    }
-
-    .edit-actions {
-
-        flex-direction: column;
-
-    }
-
-    .edit-actions button {
-
-        width: 100%;
-
-    }
-
-
-    /* -----------------------------------------------------
-       Smaller profile photo
-    ----------------------------------------------------- */
-
-    .profile-photo-wrapper {
-
-        width: 100px;
-        height: 100px;
-
-    }
-
-    .profile-photo-placeholder {
-
-        font-size: 36px;
-
-    }
-
-
-    /* -----------------------------------------------------
-       Smaller notification modal
-    ----------------------------------------------------- */
-
-    .notification-card {
-
-        width: min(
-            390px,
-            calc(100vw - 24px)
-        );
-
-        padding: 28px 20px;
-
-    }
-
-    .notification-close-button {
-
-        top: 10px;
-        right: 10px;
-
-        width: 38px;
-        height: 38px;
-
-        font-size: 26px;
-
-    }
-
+.notification-card p{
+    color:var(--muted);
+    font-size:.88rem;
+    line-height:1.7;
 }
 
-
-/* =========================================================
-   20. ACCESSIBILITY
-========================================================= */
-
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-
-    outline:
-        2px solid
-        #22c55e;
-
-    outline-offset: 3px;
-
+.notification-actions{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-top:24px;
 }
 
+.notification-actions button{
+    min-width:120px;
+    min-height:44px;
+    padding:0 18px;
+    border-radius:10px;
+    background:var(--green);
+    color:#fff;
+    font-size:.84rem;
+    font-weight:700;
+    transition:transform .2s ease,opacity .2s ease;
+}
 
-/* =========================================================
-   21. REDUCED MOTION
-========================================================= */
+.notification-actions button:hover{
+    transform:translateY(-1px);
+}
 
-@media (prefers-reduced-motion: reduce) {
+.notification-actions button:disabled{
+    cursor:not-allowed;
+    opacity:.65;
+    transform:none;
+}
+
+/* Modal variants */
+.notification-card.success .notification-icon{
+    background:rgba(34,197,94,.12);
+    color:var(--green);
+}
+
+.notification-card.error .notification-icon{
+    background:rgba(239,68,68,.12);
+    color:#f87171;
+}
+
+.notification-card.info .notification-icon{
+    background:rgba(59,130,246,.12);
+    color:#60a5fa;
+}
+
+.notification-card.confirm .notification-icon{
+    background:rgba(245,158,11,.12);
+    color:#fbbf24;
+}
+
+.notification-card.error .notification-actions button{
+    background:var(--red);
+}
+
+.notification-card.confirm .notification-actions button{
+    background:#f59e0b;
+}
+
+/* =========================
+   15. RESPONSIVE
+========================= */
+@media(max-width:900px){
+
+    .menu-btn{display:block}
+
+    .sidebar{
+        top:70px;
+        width:280px;
+        transform:translateX(100%);
+        transition:transform .25s ease;
+    }
+
+    .sidebar.active{
+        transform:translateX(0);
+    }
+
+    .close-menu-btn{display:block}
+
+    .dashboard{
+        width:100%;
+        margin-right:0;
+        padding:100px 28px 50px;
+    }
+}
+
+@media(max-width:600px){
+
+    .topbar-inner{
+        padding:0 18px;
+    }
+
+    .logo{
+        font-size:1.2rem;
+    }
+
+    .dashboard{
+        padding:92px 16px 40px;
+    }
+
+    .dashboard-header{
+        align-items:stretch;
+        flex-direction:column;
+        margin-bottom:25px;
+    }
+
+    .dashboard-header h1{
+        font-size:1.8rem;
+    }
+
+    .verification-action-btn{
+        width:100%;
+    }
+
+    .dashboard-section{
+        padding:20px;
+        border-radius:16px;
+    }
+
+    .profile-photo-wrapper{
+        width:100px;
+        height:100px;
+    }
+
+    .information-grid{
+        grid-template-columns:1fr;
+    }
+
+    .notification-card{
+        padding:30px 20px 22px;
+    }
+
+    .notification-actions{
+        flex-direction:column;
+    }
+
+    .notification-actions button{
+        width:100%;
+    }
+}
+
+/* =========================
+   16. REDUCED MOTION
+========================= */
+@media(prefers-reduced-motion:reduce){
 
     *,
     *::before,
-    *::after {
-
-        scroll-behavior: auto !important;
-
-        animation-duration: .01ms !important;
-
-        animation-iteration-count: 1 !important;
-
-        transition-duration: .01ms !important;
-
+    *::after{
+        scroll-behavior:auto!important;
+        animation-duration:.01ms!important;
+        animation-iteration-count:1!important;
+        transition-duration:.01ms!important;
     }
-
 }

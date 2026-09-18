@@ -1,129 +1,80 @@
-/* =========================================================
-   1. IMPORT DEPENDENCIES
-========================================================= */
+/* 1. IMPORT DEPENDENCIES */
+const crypto=require("crypto");
+const Worker=require("../models/worker");
 
-const crypto = require("crypto");
-const Worker = require("../models/worker");
+/* 2. EXCHANGE CODE CONFIGURATION */
+const GOOGLE_EXCHANGE_CODE_EXPIRY=60*1000; // 60 seconds
 
-
-/* =========================================================
-   2. EXCHANGE CODE CONFIGURATION
-========================================================= */
-
-const GOOGLE_EXCHANGE_CODE_EXPIRY = 60 * 1000; // 60 seconds
-
-
-/* =========================================================
-   3. HASH EXCHANGE CODE
-========================================================= */
-
-const hashExchangeCode = (code) => {
-  return crypto
-    .createHash("sha256")
-    .update(code)
-    .digest("hex");
+/* 3. HASH EXCHANGE CODE */
+const hashExchangeCode=code=>{
+return crypto.createHash("sha256").update(code).digest("hex");
 };
 
+/* 4. GENERATE GOOGLE EXCHANGE CODE */
+const generateGoogleExchangeCode=async workerId=>{
+// Generate a secure random code
+const rawCode=crypto.randomBytes(32).toString("hex");
 
-/* =========================================================
-   4. GENERATE GOOGLE EXCHANGE CODE
-========================================================= */
+// Store only the hash
+const hashedCode=hashExchangeCode(rawCode);
 
-const generateGoogleExchangeCode = async (workerId) => {
+// Calculate expiration
+const expiresAt=new Date(Date.now()+GOOGLE_EXCHANGE_CODE_EXPIRY);
 
-  // Generate a cryptographically secure random code
-  const rawCode = crypto.randomBytes(32).toString("hex");
+// Save hash and expiry
+await Worker.findByIdAndUpdate(workerId,{
+googleExchangeCode:hashedCode,
+googleExchangeCodeExpires:expiresAt
+});
 
-  // Store only the hash in MongoDB
-  const hashedCode = hashExchangeCode(rawCode);
-
-  // Calculate expiration time
-  const expiresAt = new Date(
-    Date.now() + GOOGLE_EXCHANGE_CODE_EXPIRY
-  );
-
-  // Save hashed code and expiry
-  await Worker.findByIdAndUpdate(workerId, {
-    googleExchangeCode: hashedCode,
-    googleExchangeCodeExpires: expiresAt
-  });
-
-  // Return the RAW code.
-  // This is the code that is temporarily sent to the frontend URL.
-  return rawCode;
+// Return the raw code
+return rawCode;
 };
 
+/* 5. CONSUME GOOGLE EXCHANGE CODE */
+const consumeGoogleExchangeCode=async rawCode=>{
+// Validate code
+if(!rawCode)return null;
 
-/* =========================================================
-   5. CONSUME GOOGLE EXCHANGE CODE
-========================================================= */
+// Hash received code
+const hashedCode=hashExchangeCode(rawCode);
 
-const consumeGoogleExchangeCode = async (rawCode) => {
+// Find worker using hash
+const worker=await Worker.findOne({
+googleExchangeCode:hashedCode
+}).select("+googleExchangeCode +googleExchangeCodeExpires +googleId");
 
-  // Validate code
-  if (!rawCode) {
-    return null;
-  }
+// Code does not exist
+if(!worker)return null;
 
-  // Hash the code received from the frontend
-  const hashedCode = hashExchangeCode(rawCode);
+// Code has expired
+if(
+!worker.googleExchangeCodeExpires||
+worker.googleExchangeCodeExpires.getTime()<Date.now()
+){
+// Clear expired code
+worker.googleExchangeCode=undefined;
+worker.googleExchangeCodeExpires=undefined;
+await worker.save();
+return null;
+}
 
-  // Find worker using the HASH
-  const worker = await Worker.findOne({
-    googleExchangeCode: hashedCode
-  })
-    .select(
-      "+googleExchangeCode +googleExchangeCodeExpires +googleId"
-    );
+/* 6. CONSUME CODE IMMEDIATELY */
 
-  // Code does not exist
-  if (!worker) {
-    return null;
-  }
+worker.googleExchangeCode=undefined;
+worker.googleExchangeCodeExpires=undefined;
+await worker.save();
 
-  // Code has expired
-  if (
-    !worker.googleExchangeCodeExpires ||
-    worker.googleExchangeCodeExpires.getTime() < Date.now()
-  ) {
-    // Clear expired code
-    worker.googleExchangeCode = undefined;
-    worker.googleExchangeCodeExpires = undefined;
-
-    await worker.save();
-
-    return null;
-  }
-
-  /* =======================================================
-     6. CONSUME CODE IMMEDIATELY
-  ======================================================= */
-
-  // Clear the code before returning.
-  // This makes the exchange code one-time use.
-  worker.googleExchangeCode = undefined;
-  worker.googleExchangeCodeExpires = undefined;
-
-  await worker.save();
-
-
-  /* =======================================================
-     7. RETURN WORKER INFORMATION
-  ======================================================= */
-
-  return {
-    workerId: worker._id,
-    email: worker.email
-  };
+/* 7. RETURN WORKER INFORMATION */
+return{
+workerId:worker._id,
+email:worker.email
+};
 };
 
-
-/* =========================================================
-   8. EXPORT FUNCTIONS
-========================================================= */
-
-module.exports = {
-  generateGoogleExchangeCode,
-  consumeGoogleExchangeCode,
-  hashExchangeCode
+/* 8. EXPORT FUNCTIONS */
+module.exports={
+generateGoogleExchangeCode,
+consumeGoogleExchangeCode,
+hashExchangeCode
 };

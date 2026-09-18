@@ -1,2169 +1,448 @@
-/* =========================================================
-
-1. GLOBAL VARIABLES
-   ========================================================= */
-
-:root {
-
---background: #020617;
---surface: #0f172a;
---surface-light: #172033;
-
---border: rgba(255, 255, 255, 0.10);
-
---text: #f8fafc;
---text-muted: #94a3b8;
-
-/* Main SkillConnect green */
---worker-green: #22c55e;
---worker-green-dark: #16a34a;
-
-/* Kept only for the logo gradient */
---client-blue: #3b82f6;
-
---danger: #ef4444;
-
---white: #ffffff;
-
---radius: 16px;
-
+/* 1. GLOBAL VARIABLES */
+:root{
+--background:#020617;
+--surface:#0f172a;
+--surface-light:#172033;
+--border:rgba(255,255,255,.10);
+--text:#f8fafc;
+--text-muted:#94a3b8;
+--worker-green:#22c55e;
+--worker-green-dark:#16a34a;
+--client-blue:#3b82f6;
+--danger:#ef4444;
+--white:#fff;
+--radius:16px;
 }
 
-/* =========================================================
-2. RESET
-========================================================= */
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  }
-
-html {
-scroll-behavior: smooth;
-}
-
-body {
-
-min-height: 100vh;
-
-font-family: "Inter", sans-serif;
-
-color: var(--text);
-
+/* 2. RESET */
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+min-height:100vh;
+font-family:"Inter",sans-serif;
+color:var(--text);
 background:
-    radial-gradient(
-        circle at 10% 20%,
-        rgba(34, 197, 94, 0.12),
-        transparent 30%
-    ),
-    radial-gradient(
-        circle at 90% 80%,
-        rgba(34, 197, 94, 0.12),
-        transparent 30%
-    ),
-    var(--background);
+radial-gradient(circle at 10% 20%,rgba(34,197,94,.12),transparent 30%),
+radial-gradient(circle at 90% 80%,rgba(34,197,94,.12),transparent 30%),
+var(--background);
+}
+button,input{font:inherit}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
 
+/* 3. NAVBAR */
+.navbar{
+width:100%;
+padding:20px 6%;
+display:flex;
+align-items:center;
+justify-content:space-between;
+border-bottom:1px solid var(--border);
+background:rgba(2,6,23,.75);
+backdrop-filter:blur(14px);
 }
 
-button,
-input {
-font: inherit;
+/* LOGO */
+.logo{font-size:1.35rem;font-weight:800;color:#16a34a}
+
+/* NAVIGATION LINK */
+.nav-links a{font-size:.9rem;transition:.2s ease}
+.nav-links a:hover{color:var(--worker-green-dark)}
+
+/* 4. MAIN AUTH PAGE */
+.auth-page{
+width:min(1150px,92%);
+min-height:calc(100vh - 81px);
+margin:auto;
+padding:60px 0;
+display:grid;
+grid-template-columns:1fr 430px;
+gap:70px;
+align-items:center;
 }
 
-button {
-cursor: pointer;
+/* 5. HERO SECTION */
+.hero-section{max-width:620px}
+.hero-badge{
+display:inline-block;
+padding:8px 14px;
+margin-bottom:22px;
+border:1px solid rgba(34,197,94,.25);
+border-radius:999px;
+color:var(--worker-green);
+background:rgba(34,197,94,.08);
+font-size:.78rem;
+font-weight:600;
+}
+.hero-section h1{
+font-size:clamp(2.4rem,5vw,4.2rem);
+line-height:1.05;
+letter-spacing:-.04em;
+}
+.hero-section h1 span{
+background:linear-gradient(var(--worker-green-dark));
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+.hero-description{
+max-width:550px;
+margin-top:22px;
+color:var(--text-muted);
+line-height:1.7;
 }
 
-a {
-color: inherit;
-text-decoration: none;
+/* 6. BENEFITS */
+.benefits{margin-top:35px;display:grid;gap:14px}
+.benefit-card{
+display:flex;
+align-items:flex-start;
+gap:14px;
+padding:16px;
+border:1px solid var(--border);
+border-radius:var(--radius);
+background:rgba(15,23,42,.65);
+}
+.benefit-icon{
+width:34px;
+height:34px;
+flex-shrink:0;
+display:grid;
+place-items:center;
+border-radius:10px;
+color:var(--white);
+background:linear-gradient(135deg,var(--worker-green-dark),var(--worker-green));
+font-weight:800;
+}
+.benefit-card h3{margin-bottom:4px;font-size:.95rem}
+.benefit-card p{
+color:var(--text-muted);
+font-size:.82rem;
+line-height:1.5;
 }
 
-/* =========================================================
-3. NAVBAR
-========================================================= */
-
-.navbar {
-
-width: 100%;
-
-padding: 20px 6%;
-
-display: flex;
-
-align-items: center;
-
-justify-content: space-between;
-
-border-bottom: 1px solid var(--border);
-
-background: rgba(2, 6, 23, 0.75);
-
-backdrop-filter: blur(14px);
-
+/* 7. AUTH CARD */
+.auth-card{
+padding:30px;
+border:1px solid var(--border);
+border-radius:24px;
+background:linear-gradient(145deg,rgba(15,23,42,.96),rgba(15,23,42,.78));
+box-shadow:0 25px 70px rgba(0,0,0,.35);
+backdrop-filter:blur(20px);
 }
 
-/* =========================================================
-LOGO
-========================================================= */
+/* 7A. AUTH HEADER */
+.auth-header{margin-bottom:22px;text-align:center}
+.auth-header h2{font-size:1.45rem;margin-bottom:6px}
+.auth-header p{color:var(--text-muted);font-size:.85rem}
 
-.logo {
-    font-size: 1.35rem;
-    font-weight: 800;
-
-    color: #16a34a;
+/* 8. AUTH TABS */
+.tabs{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:5px;
+padding:5px;
+margin-bottom:25px;
+border-radius:12px;
+background:rgba(255,255,255,.05);
+}
+.tab{
+padding:11px;
+border:none;
+border-radius:9px;
+color:var(--text-muted);
+background:transparent;
+font-weight:600;
+}
+.tab.active{
+color:var(--white);
+background:linear-gradient(135deg,var(--worker-green-dark),var(--worker-green));
 }
 
-/* =========================================================
-NAVIGATION LINK
-========================================================= */
-
-.nav-links a {
-
-font-size: 0.9rem;
-
-transition: 0.2s ease;
-
+/* 9. AUTH FORMS */
+.auth-form{display:none}
+.auth-form.active{display:block}
+.form-group{margin-bottom:17px}
+.form-group label{
+display:block;
+margin-bottom:7px;
+font-size:.82rem;
+font-weight:600;
+}
+.form-group input{
+width:100%;
+padding:13px 14px;
+border:1px solid var(--border);
+border-radius:11px;
+outline:none;
+color:var(--white);
+background:rgba(2,6,23,.65);
+transition:.2s ease;
+}
+.form-group input::placeholder{color:#64748b}
+.form-group input:focus{
+border-color:var(--worker-green);
+box-shadow:0 0 0 3px rgba(34,197,94,.10);
 }
 
-.nav-links a:hover {
-color: var(--worker-green-dark);
+/* 10. PASSWORD INPUT */
+.password-wrapper{position:relative}
+.password-wrapper input{padding-right:65px}
+.password-toggle{
+position:absolute;
+top:50%;
+right:10px;
+transform:translateY(-50%);
+padding:5px;
+border:none;
+color:var(--worker-green);
+background:transparent;
+font-size:.75rem;
+font-weight:600;
 }
 
-/* =========================================================
-4. MAIN AUTH PAGE
-========================================================= */
-
-.auth-page {
-
-width: min(1150px, 92%);
-
-min-height: calc(100vh - 81px);
-
-margin: auto;
-
-padding: 60px 0;
-
-display: grid;
-
-grid-template-columns: 1fr 430px;
-
-gap: 70px;
-
-align-items: center;
-
+/* 11. FORGOT PASSWORD */
+.forgot-password{
+display:block;
+margin:-4px 0 18px auto;
+border:none;
+color:var(--worker-green);
+background:transparent;
+font-size:.78rem;
 }
+.forgot-password:hover{text-decoration:underline}
 
-/* =========================================================
-5. HERO SECTION
-========================================================= */
-
-.hero-section {
-
-max-width: 620px;
-
+/* 12. TERMS */
+.terms-label{
+display:flex;
+align-items:flex-start;
+gap:9px;
+margin:4px 0 18px;
+color:var(--text-muted);
+font-size:.75rem;
+line-height:1.5;
 }
-
-.hero-badge {
-
-display: inline-block;
-
-padding: 8px 14px;
-
-margin-bottom: 22px;
-
-border: 1px solid rgba(34, 197, 94, 0.25);
-
-border-radius: 999px;
-
-color: var(--worker-green);
-
-background: rgba(34, 197, 94, 0.08);
-
-font-size: 0.78rem;
-
-font-weight: 600;
-
+.terms-label input{
+width:16px;
+height:16px;
+margin-top:2px;
+accent-color:var(--worker-green);
 }
+.terms-label a{color:var(--worker-green)}
+.terms-label a:hover{text-decoration:underline}
 
-.hero-section h1 {
-
-font-size: clamp(2.4rem, 5vw, 4.2rem);
-
-line-height: 1.05;
-
-letter-spacing: -0.04em;
-
+/* 13. MAIN AUTH BUTTON */
+.auth-button{
+width:100%;
+padding:13px;
+border:none;
+border-radius:11px;
+color:var(--white);
+background:linear-gradient(135deg,var(--worker-green),var(--worker-green-dark));
+font-weight:700;
+transition:.2s ease;
 }
-
-.hero-section h1 span {
-
-background:
-    linear-gradient(
-        var(--worker-green-dark)
-    );
-
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-
+.auth-button:hover{
+transform:translateY(-1px);
+box-shadow:0 10px 25px rgba(34,197,94,.18);
 }
-
-.hero-description {
-
-max-width: 550px;
-
-margin-top: 22px;
-
-color: var(--text-muted);
-
-line-height: 1.7;
-
-}
-
-/* =========================================================
-6. BENEFITS
-========================================================= */
-
-.benefits {
-
-margin-top: 35px;
-
-display: grid;
-
-gap: 14px;
-
-}
-
-.benefit-card {
-
-display: flex;
-
-align-items: flex-start;
-
-gap: 14px;
-
-padding: 16px;
-
-border: 1px solid var(--border);
-
-border-radius: var(--radius);
-
-background: rgba(15, 23, 42, 0.65);
-
-}
-
-.benefit-icon {
-
-width: 34px;
-height: 34px;
-
-flex-shrink: 0;
-
-display: grid;
-
-place-items: center;
-
-border-radius: 10px;
-
-color: var(--white);
-
-background:
-    linear-gradient(
-        135deg,
-        var(--worker-green-dark),
-        var(--worker-green)
-    );
-
-font-weight: 800;
-
-}
-
-.benefit-card h3 {
-
-margin-bottom: 4px;
-
-font-size: 0.95rem;
-
-}
-
-.benefit-card p {
-
-color: var(--text-muted);
-
-font-size: 0.82rem;
-
-line-height: 1.5;
-
-}
-
-/* =========================================================
-7. AUTH CARD
-========================================================= */
-
-.auth-card {
-
-padding: 30px;
-
-border: 1px solid var(--border);
-
-border-radius: 24px;
-
-background:
-    linear-gradient(
-        145deg,
-        rgba(15, 23, 42, 0.96),
-        rgba(15, 23, 42, 0.78)
-    );
-
-box-shadow:
-    0 25px 70px rgba(0, 0, 0, 0.35);
-
-backdrop-filter: blur(20px);
-
-}
-
-/* =========================================================
-7A. AUTH HEADER
-Centered only inside the authentication container.
-========================================================= */
-
-.auth-header {
-
-margin-bottom: 22px;
-
-text-align: center;
-
-}
-
-.auth-header h2 {
-
-font-size: 1.45rem;
-
-margin-bottom: 6px;
-
-}
-
-.auth-header p {
-
-color: var(--text-muted);
-
-font-size: 0.85rem;
-
-}
-
-/* =========================================================
-8. AUTH TABS
-========================================================= */
-
-.tabs {
-
-display: grid;
-
-grid-template-columns: 1fr 1fr;
-
-gap: 5px;
-
-padding: 5px;
-
-margin-bottom: 25px;
-
-border-radius: 12px;
-
-background: rgba(255, 255, 255, 0.05);
-
-}
-
-.tab {
-
-padding: 11px;
-
-border: none;
-
-border-radius: 9px;
-
-color: var(--text-muted);
-
-background: transparent;
-
-font-weight: 600;
-
-}
-
-.tab.active {
-
-color: var(--white);
-
-background:
-    linear-gradient(
-        135deg,
-        var(--worker-green-dark),
-        var(--worker-green)
-    );
-
-}
-
-/* =========================================================
-9. AUTH FORMS
-========================================================= */
-
-.auth-form {
-display: none;
-}
-
-.auth-form.active {
-display: block;
-}
-
-.form-group {
-margin-bottom: 17px;
-}
-
-.form-group label {
-
-display: block;
-
-margin-bottom: 7px;
-
-font-size: 0.82rem;
-
-font-weight: 600;
-
-}
-
-.form-group input {
-
-width: 100%;
-
-padding: 13px 14px;
-
-border: 1px solid var(--border);
-
-border-radius: 11px;
-
-outline: none;
-
-color: var(--white);
-
-background: rgba(2, 6, 23, 0.65);
-
-transition: 0.2s ease;
-
-}
-
-.form-group input::placeholder {
-color: #64748b;
-}
-
-.form-group input:focus {
-
-border-color: var(--worker-green);
-
-box-shadow:
-    0 0 0 3px rgba(34, 197, 94, 0.10);
-
-}
-
-/* =========================================================
-10. PASSWORD INPUT
-========================================================= */
-
-.password-wrapper {
-position: relative;
-}
-
-.password-wrapper input {
-padding-right: 65px;
-}
-
-.password-toggle {
-
-position: absolute;
-
-top: 50%;
-right: 10px;
-
-transform: translateY(-50%);
-
-padding: 5px;
-
-border: none;
-
-color: var(--worker-green);
-
-background: transparent;
-
-font-size: 0.75rem;
-
-font-weight: 600;
-
-}
-
-/* =========================================================
-11. FORGOT PASSWORD
-========================================================= */
-
-.forgot-password {
-
-display: block;
-
-margin: -4px 0 18px auto;
-
-border: none;
-
-color: var(--worker-green);
-
-background: transparent;
-
-font-size: 0.78rem;
-
-}
-
-.forgot-password:hover {
-text-decoration: underline;
-}
-
-/* =========================================================
-12. TERMS
-========================================================= */
-
-.terms-label {
-
-display: flex;
-
-align-items: flex-start;
-
-gap: 9px;
-
-margin: 4px 0 18px;
-
-color: var(--text-muted);
-
-font-size: 0.75rem;
-
-line-height: 1.5;
-
-}
-
-.terms-label input {
-
-width: 16px;
-height: 16px;
-
-margin-top: 2px;
-
-accent-color: var(--worker-green);
-
-}
-
-.terms-label a {
-
-color: var(--worker-green);
-
-}
-
-.terms-label a:hover {
-text-decoration: underline;
-}
-
-/* =========================================================
-13. MAIN AUTH BUTTON
-========================================================= */
-
-.auth-button {
-
-width: 100%;
-
-padding: 13px;
-
-border: none;
-
-border-radius: 11px;
-
-color: var(--white);
-
-background:
-    linear-gradient(
-        135deg,
-        var(--worker-green),
-        var(--worker-green-dark)
-    );
-
-font-weight: 700;
-
-transition: 0.2s ease;
-
-}
-
-.auth-button:hover {
-
-transform: translateY(-1px);
-
-box-shadow:
-    0 10px 25px rgba(34, 197, 94, 0.18);
-
-}
-
 .auth-button:disabled,
 .google-button:disabled,
-.modal-button:disabled {
-
-cursor: not-allowed;
-
-opacity: 0.65;
-
-transform: none;
-
+.modal-button:disabled{
+cursor:not-allowed;
+opacity:.65;
+transform:none;
 }
 
-/* =========================================================
-14. GOOGLE BUTTON
-========================================================= */
-
-.auth-divider {
-
-display: flex;
-
-align-items: center;
-
-gap: 12px;
-
-margin: 20px 0;
-
-color: #64748b;
-
-font-size: 0.72rem;
-
+/* 14. GOOGLE BUTTON */
+.auth-divider{
+display:flex;
+align-items:center;
+gap:12px;
+margin:20px 0;
+color:#64748b;
+font-size:.72rem;
 }
-
 .auth-divider::before,
-.auth-divider::after {
-
-content: "";
-
-flex: 1;
-
-height: 1px;
-
-background: var(--border);
-
+.auth-divider::after{
+content:"";
+flex:1;
+height:1px;
+background:var(--border);
 }
-
-.google-button {
-
-width: 100%;
-
-padding: 12px;
-
-display: flex;
-
-align-items: center;
-
-justify-content: center;
-
-gap: 10px;
-
-border: 1px solid var(--border);
-
-border-radius: 11px;
-
-color: var(--white);
-
-background: rgba(255, 255, 255, 0.04);
-
-font-weight: 600;
-
-transition: 0.2s ease;
-
+.google-button{
+width:100%;
+padding:12px;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
+border:1px solid var(--border);
+border-radius:11px;
+color:var(--white);
+background:rgba(255,255,255,.04);
+font-weight:600;
+transition:.2s ease;
 }
-
-.google-button:hover {
-
-background: rgba(255, 255, 255, 0.08);
-
-border-color: rgba(255, 255, 255, 0.18);
-
+.google-button:hover{
+background:rgba(255,255,255,.08);
+border-color:rgba(255,255,255,.18);
 }
-
-.google-icon {
-
-width: 22px;
-height: 22px;
-
-display: grid;
-
-place-items: center;
-
-border-radius: 50%;
-
+.google-icon{
+width:22px;
+height:22px;
+display:grid;
+place-items:center;
+border-radius:50%;
 /* Google branding remains unchanged */
-
-color: #4285f4;
-
-background: var(--white);
-
-font-size: 0.85rem;
-
-font-weight: 800;
-
-}
-
-/* =========================================================
-15. MODAL
-========================================================= */
-
-.modal {
-
-position: fixed;
-
-inset: 0;
-
-z-index: 1000;
-
-display: none;
-
-align-items: center;
-
-justify-content: center;
-
-padding: 20px;
-
-}
-
-.modal.show {
-display: flex;
-}
-
-.modal-overlay {
-
-position: absolute;
-
-inset: 0;
-
-background: rgba(0, 0, 0, 0.72);
-
-backdrop-filter: blur(5px);
-
-}
-
-.modal-card {
-
-position: relative;
-
-z-index: 1;
-
-width: min(400px, 100%);
-
-padding: 30px;
-
-text-align: center;
-
-border: 1px solid var(--border);
-
-border-radius: 20px;
-
-background: var(--surface);
-
-box-shadow:
-    0 25px 80px rgba(0, 0, 0, 0.45);
-
-}
-
-.modal-close {
-
-position: absolute;
-
-top: 12px;
-right: 14px;
-
-width: 32px;
-height: 32px;
-
-border: none;
-
-border-radius: 50%;
-
-color: var(--text-muted);
-
-background: rgba(255, 255, 255, 0.06);
-
-font-size: 1.3rem;
-
-}
-
-.modal-icon {
-
-width: 50px;
-height: 50px;
-
-margin: 0 auto 16px;
-
-display: grid;
-
-place-items: center;
-
-border-radius: 50%;
-
-color: var(--white);
-
-background:
-    linear-gradient(
-        135deg,
-        var(--worker-green),
-        var(--worker-green-dark)
-    );
-
-font-size: 1.2rem;
-
-font-weight: 800;
-
-}
-
-.modal-card h3 {
-
-margin-bottom: 8px;
-
-font-size: 1.2rem;
-
-}
-
-.modal-card p {
-
-margin-bottom: 20px;
-
-color: var(--text-muted);
-
-font-size: 0.85rem;
-
-line-height: 1.6;
-
-}
-
-/* =========================================================
-16. MODAL BUTTON
-========================================================= */
-
-.modal-button {
-
-width: 100%;
-
-padding: 12px;
-
-border: none;
-
-border-radius: 10px;
-
-color: var(--white);
-
-background:
-    linear-gradient(
-        135deg,
-        var(--worker-green),
-        var(--worker-green-dark)
-    );
-
-font-weight: 700;
-
-}
-
-/* =========================================================
-17. LOADING STATE
-========================================================= */
-
-.loading {
-
-position: relative;
-
-color: transparent !important;
-
-pointer-events: none;
-
-}
-
-.loading::after {
-
-content: "";
-
-position: absolute;
-
-width: 18px;
-height: 18px;
-
-top: 50%;
-left: 50%;
-
-margin:
-    -9px
-    0
-    0
-    -9px;
-
-border: 2px solid rgba(255, 255, 255, 0.35);
-
-border-top-color: var(--white);
-
-border-radius: 50%;
-
-animation:
-    spin 0.7s linear infinite;
-
-}
-
-@keyframes spin {
-
-to {
-    transform: rotate(360deg);
-}
-
-}
-
-/* =========================================================
-18. MOBILE RESPONSIVENESS
-========================================================= */
-
-@media (max-width: 900px) {
-
-.auth-page {
-
-    /*
-     * Keep the mobile order:
-     *
-     * 1. Hero heading/description
-     * 2. Authentication container
-     * 3. Benefits
-     *
-     * The authentication section is therefore
-     * physically positioned between the hero content
-     * and the benefits.
-     */
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 40px;
-
-    padding: 40px 0;
-
-}
-
-
-.hero-section {
-
-    display: contents;
-
-    max-width: 100%;
-
-    text-align: center;
-
-}
-
-
-.hero-badge {
-
-    order: 1;
-
-    align-self: center;
-
-    margin-bottom: 1px;
-
-}
-
-
-.hero-section h1 {
-
-    order: 2;
-
-    text-align: center;
-
-}
-
-
-.hero-description {
-
-    order: 3;
-
-    margin-left: auto;
-
-    margin-right: auto;
-
-    text-align: center;
-
-    margin-top: 1px;
-
-}
-
-
-.auth-section {
-
-    order: 4;
-
-    width: 100%;
-
-}
-
-
-.benefits {
-
-    order: 5;
-
-    width: 100%;
-
-    margin-top: 0;
-
-}
-
-
-.benefit-card {
-
-    text-align: left;
-
-}
-
-}
-
-/* =========================================================
-19. SMALL MOBILE RESPONSIVENESS
-========================================================= */
-
-@media (max-width: 520px) {
-
-.navbar {
-
-    padding: 17px 5%;
-
-}
-
-
-.auth-page {
-
-    width: 94%;
-
-    padding: 30px 0;
-
-}
-
-
-.auth-card {
-
-    padding: 22px;
-
-    border-radius: 18px;
-
-}
-
-
-.hero-section h1 {
-
-    font-size: 2.3rem;
-
-}
-
-
-.hero-badge {
-
-    font-size: 0.7rem;
-
-}
-
-
-.benefit-card {
-
-    padding: 13px;
-
-}
-
-
-.modal-card {
-
-    padding: 25px 20px;
-
-}
-
-}
-/* =========================================================
-
-1. GLOBAL VARIABLES
-   ========================================================= */
-
-:root {
-
---background: #020617;
---surface: #0f172a;
---surface-light: #172033;
-
---border: rgba(255, 255, 255, 0.10);
-
---text: #f8fafc;
---text-muted: #94a3b8;
-
-/* Main SkillConnect green */
---worker-green: #22c55e;
---worker-green-dark: #16a34a;
-
-/* Kept only for the logo gradient */
---client-blue: #3b82f6;
-
---danger: #ef4444;
-
---white: #ffffff;
-
---radius: 16px;
-
-}
-
-/* =========================================================
-2. RESET
-========================================================= */
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  }
-
-html {
-scroll-behavior: smooth;
-}
-
-body {
-
-min-height: 100vh;
-
-font-family: "Inter", sans-serif;
-
-color: var(--text);
-
-background:
-    radial-gradient(
-        circle at 10% 20%,
-        rgba(34, 197, 94, 0.12),
-        transparent 30%
-    ),
-    radial-gradient(
-        circle at 90% 80%,
-        rgba(34, 197, 94, 0.12),
-        transparent 30%
-    ),
-    var(--background);
-
-}
-
-button,
-input {
-font: inherit;
-}
-
-button {
-cursor: pointer;
-}
-
-a {
-color: inherit;
-text-decoration: none;
-}
-
-/* =========================================================
-3. NAVBAR
-========================================================= */
-
-.navbar {
-
-width: 100%;
-
-padding: 20px 6%;
-
-display: flex;
-
-align-items: center;
-
-justify-content: space-between;
-
-border-bottom: 1px solid var(--border);
-
-background: rgba(2, 6, 23, 0.75);
-
-backdrop-filter: blur(14px);
-
-}
-
-/* =========================================================
-LOGGO
-========================================================= */
-
-.logo {
-
-font-size: 1.35rem;
-
-font-weight: 800;
-
-color: #16a34a;
-
-}
-
-/* =========================================================
-NAVIGATION LINK
-========================================================= */
-
-.nav-links a {
-
-font-size: 0.9rem;
-
-transition: 0.2s ease;
-
-}
-
-.nav-links a:hover {
-color: var(--worker-green-dark);
-}
-
-/* =========================================================
-4. MAIN AUTH PAGE
-========================================================= */
-
-.auth-page {
-
-width: min(1150px, 92%);
-
-min-height: calc(100vh - 81px);
-
-margin: auto;
-
-padding: 60px 0;
-
-display: grid;
-
-grid-template-columns: 1fr 430px;
-
-gap: 70px;
-
-align-items: center;
-
-}
-
-/* =========================================================
-5. HERO SECTION
-========================================================= */
-
-.hero-section {
-
-max-width: 620px;
-
-}
-
-.hero-badge {
-
-display: inline-block;
-
-padding: 8px 14px;
-
-margin-bottom: 22px;
-
-border: 1px solid rgba(34, 197, 94, 0.25);
-
-border-radius: 999px;
-
-color: var(--worker-green);
-
-background: rgba(34, 197, 94, 0.08);
-
-font-size: 0.78rem;
-
-font-weight: 600;
-
-}
-
-.hero-section h1 {
-
-font-size: clamp(2.4rem, 5vw, 4.2rem);
-
-line-height: 1.05;
-
-letter-spacing: -0.04em;
-
-}
-
-.hero-section h1 span {
-
-background:
-    linear-gradient(
-        var(--worker-green)
-    );
-
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-
-}
-
-.hero-description {
-
-max-width: 550px;
-
-margin-top: 22px;
-
-color: var(--text-muted);
-
-line-height: 1.7;
-
-}
-
-/* =========================================================
-6. BENEFITS
-========================================================= */
-
-.benefits {
-
-margin-top: 35px;
-
-display: grid;
-
-gap: 14px;
-
-}
-
-.benefit-card {
-
-display: flex;
-
-align-items: flex-start;
-
-gap: 14px;
-
-padding: 16px;
-
-border: 1px solid var(--border);
-
-border-radius: var(--radius);
-
-background: rgba(15, 23, 42, 0.65);
-
-}
-
-.benefit-icon {
-
-width: 34px;
-height: 34px;
-
-flex-shrink: 0;
-
-display: grid;
-
-place-items: center;
-
-border-radius: 10px;
-
-color: var(--white);
-
-background:
-    linear-gradient(
-        135deg,
-        var(--worker-green-dark),
-        var(--worker-green)
-    );
-
-font-weight: 800;
-
-}
-
-.benefit-card h3 {
-
-margin-bottom: 4px;
-
-font-size: 0.95rem;
-
-}
-
-.benefit-card p {
-
-color: var(--text-muted);
-
-font-size: 0.82rem;
-
-line-height: 1.5;
-
-}
-
-/* =========================================================
-7. AUTH CARD
-========================================================= */
-
-.auth-card {
-
-padding: 30px;
-
-border: 1px solid var(--border);
-
-border-radius: 24px;
-
-background:
-    linear-gradient(
-        145deg,
-        rgba(15, 23, 42, 0.96),
-        rgba(15, 23, 42, 0.78)
-    );
-
-box-shadow:
-    0 25px 70px rgba(0, 0, 0, 0.35);
-
-backdrop-filter: blur(20px);
-
-}
-
-/* =========================================================
-7A. AUTH HEADER
-Centered only inside the authentication container.
-========================================================= */
-
-.auth-header {
-
-margin-bottom: 22px;
-
-text-align: center;
-
-}
-
-.auth-header h2 {
-
-font-size: 1.45rem;
-
-margin-bottom: 6px;
-
-}
-
-.auth-header p {
-
-color: var(--text-muted);
-
-font-size: 0.85rem;
-
-}
-
-/* =========================================================
-8. AUTH TABS
-========================================================= */
-
-.tabs {
-
-display: grid;
-
-grid-template-columns: 1fr 1fr;
-
-gap: 5px;
-
-padding: 5px;
-
-margin-bottom: 25px;
-
-border-radius: 12px;
-
-background: rgba(255, 255, 255, 0.05);
-
-}
-
-.tab {
-
-padding: 11px;
-
-border: none;
-
-border-radius: 9px;
-
-color: var(--text-muted);
-
-background: transparent;
-
-font-weight: 600;
-
-}
-
-.tab.active {
-
-color: var(--white);
-
-background:
-    linear-gradient(
-        135deg,
-        var(--worker-green-dark),
-        var(--worker-green)
-    );
-
-}
-
-/* =========================================================
-9. AUTH FORMS
-========================================================= */
-
-.auth-form {
-display: none;
-}
-
-.auth-form.active {
-display: block;
-}
-
-.form-group {
-margin-bottom: 17px;
-}
-
-.form-group label {
-
-display: block;
-
-margin-bottom: 7px;
-
-font-size: 0.82rem;
-
-font-weight: 600;
-
-}
-
-.form-group input {
-
-width: 100%;
-
-padding: 13px 14px;
-
-border: 1px solid var(--border);
-
-border-radius: 11px;
-
-outline: none;
-
-color: var(--white);
-
-background: rgba(2, 6, 23, 0.65);
-
-transition: 0.2s ease;
-
-}
-
-.form-group input::placeholder {
-color: #64748b;
-}
-
-.form-group input:focus {
-
-border-color: var(--worker-green);
-
-box-shadow:
-    0 0 0 3px rgba(34, 197, 94, 0.10);
-
-}
-
-/* =========================================================
-10. PASSWORD INPUT
-========================================================= */
-
-.password-wrapper {
-position: relative;
-}
-
-.password-wrapper input {
-padding-right: 65px;
-}
-
-.password-toggle {
-
-position: absolute;
-
-top: 50%;
-right: 10px;
-
-transform: translateY(-50%);
-
-padding: 5px;
-
-border: none;
-
-color: var(--worker-green);
-
-background: transparent;
-
-font-size: 0.75rem;
-
-font-weight: 600;
-
-}
-
-/* =========================================================
-11. FORGOT PASSWORD
-========================================================= */
-
-.forgot-password {
-
-display: block;
-
-margin: -4px 0 18px auto;
-
-border: none;
-
-color: var(--worker-green);
-
-background: transparent;
-
-font-size: 0.78rem;
-
-}
-
-.forgot-password:hover {
-text-decoration: underline;
-}
-
-/* =========================================================
-12. TERMS
-========================================================= */
-
-.terms-label {
-
-display: flex;
-
-align-items: flex-start;
-
-gap: 9px;
-
-margin: 4px 0 18px;
-
-color: var(--text-muted);
-
-font-size: 0.75rem;
-
-line-height: 1.5;
-
-}
-
-.terms-label input {
-
-width: 16px;
-height: 16px;
-
-margin-top: 2px;
-
-accent-color: var(--worker-green);
-
-}
-
-.terms-label a {
-
-color: var(--worker-green);
-
-}
-
-.terms-label a:hover {
-text-decoration: underline;
-}
-
-/* =========================================================
-13. MAIN AUTH BUTTON
-========================================================= */
-
-.auth-button {
-
-width: 100%;
-
-padding: 13px;
-
-border: none;
-
-border-radius: 11px;
-
-color: var(--white);
-
-background:
-    linear-gradient(
-        135deg,
-        var(--worker-green),
-        var(--worker-green-dark)
-    );
-
-font-weight: 700;
-
-transition: 0.2s ease;
-
-}
-
-.auth-button:hover {
-
-transform: translateY(-1px);
-
-box-shadow:
-    0 10px 25px rgba(34, 197, 94, 0.18);
-
-}
-
-.auth-button:disabled,
-.google-button:disabled,
-.modal-button:disabled {
-
-cursor: not-allowed;
-
-opacity: 0.65;
-
-transform: none;
-
-}
-
-/* =========================================================
-14. GOOGLE BUTTON
-========================================================= */
-
-.auth-divider {
-
-display: flex;
-
-align-items: center;
-
-gap: 12px;
-
-margin: 20px 0;
-
-color: #64748b;
-
-font-size: 0.72rem;
-
-}
-
-.auth-divider::before,
-.auth-divider::after {
-
-content: "";
-
-flex: 1;
-
-height: 1px;
-
-background: var(--border);
-
-}
-
-.google-button {
-
-width: 100%;
-
-padding: 12px;
-
-display: flex;
-
-align-items: center;
-
-justify-content: center;
-
-gap: 10px;
-
-border: 1px solid var(--border);
-
-border-radius: 11px;
-
-color: var(--white);
-
-background: rgba(255, 255, 255, 0.04);
-
-font-weight: 600;
-
-transition: 0.2s ease;
-
-}
-
-.google-button:hover {
-
-background: rgba(255, 255, 255, 0.08);
-
-border-color: rgba(255, 255, 255, 0.18);
-
-}
-
-.google-icon {
-
-width: 22px;
-height: 22px;
-
-display: grid;
-
-place-items: center;
-
-border-radius: 50%;
-
-/* Google branding remains unchanged */
-
-color: #4285f4;
-
-background: var(--white);
-
-font-size: 0.85rem;
-
-font-weight: 800;
-
-}
-
-/* =========================================================
-15. MODAL
-========================================================= */
-
-.modal {
-
-position: fixed;
-
-inset: 0;
-
-z-index: 1000;
-
-display: none;
-
-align-items: center;
-
-justify-content: center;
-
-padding: 20px;
-
-}
-
-.modal.show {
-display: flex;
-}
-
-.modal-overlay {
-
-position: absolute;
-
-inset: 0;
-
-background: rgba(0, 0, 0, 0.72);
-
-backdrop-filter: blur(5px);
-
-}
-
-.modal-card {
-
-position: relative;
-
-z-index: 1;
-
-width: min(400px, 100%);
-
-padding: 30px;
-
-text-align: center;
-
-border: 1px solid var(--border);
-
-border-radius: 20px;
-
-background: var(--surface);
-
-box-shadow:
-    0 25px 80px rgba(0, 0, 0, 0.45);
-
-}
-
-.modal-close {
-
-position: absolute;
-
-top: 12px;
-right: 14px;
-
-width: 32px;
-height: 32px;
-
-border: none;
-
-border-radius: 50%;
-
-color: var(--text-muted);
-
-background: rgba(255, 255, 255, 0.06);
-
-font-size: 1.3rem;
-
-}
-
-.modal-icon {
-
-width: 50px;
-height: 50px;
-
-margin: 0 auto 16px;
-
-display: grid;
-
-place-items: center;
-
-border-radius: 50%;
-
-color: var(--white);
-
-background:
-    linear-gradient(
-        135deg,
-        var(--worker-green),
-        var(--worker-green-dark)
-    );
-
-font-size: 1.2rem;
-
-font-weight: 800;
-
-}
-
-.modal-card h3 {
-
-margin-bottom: 8px;
-
-font-size: 1.2rem;
-
-}
-
-.modal-card p {
-
-margin-bottom: 20px;
-
-color: var(--text-muted);
-
-font-size: 0.85rem;
-
-line-height: 1.6;
-
-}
-
-/* =========================================================
-16. MODAL BUTTON
-========================================================= */
-
-.modal-button {
-
-width: 100%;
-
-padding: 12px;
-
-border: none;
-
-border-radius: 10px;
-
-color: var(--white);
-
-background:
-    linear-gradient(
-        135deg,
-        var(--worker-green),
-        var(--worker-green-dark)
-    );
-
-font-weight: 700;
-
-}
-
-/* =========================================================
-17. LOADING STATE
-========================================================= */
-
-.loading {
-
-position: relative;
-
-color: transparent !important;
-
-pointer-events: none;
-
-}
-
-.loading::after {
-
-content: "";
-
-position: absolute;
-
-width: 18px;
-height: 18px;
-
-top: 50%;
-left: 50%;
-
-margin:
-    -9px
-    0
-    0
-    -9px;
-
-border: 2px solid rgba(255, 255, 255, 0.35);
-
-border-top-color: var(--white);
-
-border-radius: 50%;
-
-animation:
-    spin 0.7s linear infinite;
-
-}
-
-@keyframes spin {
-
-to {
-    transform: rotate(360deg);
-}
-
-}
-
-/* =========================================================
-18. MOBILE RESPONSIVENESS
-========================================================= */
-
-@media (max-width: 900px) {
-
-.auth-page {
-
-    /*
-     * Keep the mobile order:
-     *
-     * 1. Hero heading/description
-     * 2. Authentication container
-     * 3. Benefits
-     *
-     * The authentication section is therefore
-     * physically positioned between the hero content
-     * and the benefits.
-     */
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 40px;
-
-    padding: 40px 0;
-
-}
-
-
-.hero-section {
-
-    display: contents;
-
-    max-width: 100%;
-
-    text-align: center;
-
-}
-
-
-.hero-badge {
-
-    order: 1;
-
-    align-self: center;
-
-    margin-bottom: 1px;
-
-}
-
-
-.hero-section h1 {
-
-    order: 2;
-
-    text-align: center;
-
-}
-
-
-.hero-description {
-
-    order: 3;
-
-    margin-left: auto;
-
-    margin-right: auto;
-
-    text-align: center;
-
-    margin-top: 1px;
-
-}
-
-
-.auth-section {
-
-    order: 4;
-
-    width: 100%;
-
-}
-
-
-.benefits {
-
-    order: 5;
-
-    width: 100%;
-
-    margin-top: 0;
-
-}
-
-
-.benefit-card {
-
-    text-align: left;
-
-}
-
-}
-
-/* =========================================================
-19. SMALL MOBILE RESPONSIVENESS
-========================================================= */
-
-@media (max-width: 520px) {
-
-.navbar {
-
-    padding: 17px 5%;
-
-}
-
-
-.auth-page {
-
-    width: 94%;
-
-    padding: 30px 0;
-
-}
-
-
-.auth-card {
-
-    padding: 22px;
-
-    border-radius: 18px;
-
-}
-
-
-.hero-section h1 {
-
-    font-size: 2.3rem;
-
-}
-
-
-.hero-badge {
-
-    font-size: 0.7rem;
-
-}
-
-
-.benefit-card {
-
-    padding: 13px;
-
-}
-
-
-.modal-card {
-
-    padding: 25px 20px;
-
-}
-
+color:#4285f4;
+background:var(--white);
+font-size:.85rem;
+font-weight:800;
+}
+
+/* 15. MODAL */
+.modal{
+position:fixed;
+inset:0;
+z-index:1000;
+display:none;
+align-items:center;
+justify-content:center;
+padding:20px;
+}
+.modal.show{display:flex}
+.modal-overlay{
+position:absolute;
+inset:0;
+background:rgba(0,0,0,.72);
+backdrop-filter:blur(5px);
+}
+.modal-card{
+position:relative;
+z-index:1;
+width:min(400px,100%);
+padding:30px;
+text-align:center;
+border:1px solid var(--border);
+border-radius:20px;
+background:var(--surface);
+box-shadow:0 25px 80px rgba(0,0,0,.45);
+}
+.modal-close{
+position:absolute;
+top:12px;
+right:14px;
+width:32px;
+height:32px;
+border:none;
+border-radius:50%;
+color:var(--text-muted);
+background:rgba(255,255,255,.06);
+font-size:1.3rem;
+}
+.modal-icon{
+width:50px;
+height:50px;
+margin:0 auto 16px;
+display:grid;
+place-items:center;
+border-radius:50%;
+color:var(--white);
+background:linear-gradient(135deg,var(--worker-green),var(--worker-green-dark));
+font-size:1.2rem;
+font-weight:800;
+}
+.modal-card h3{margin-bottom:8px;font-size:1.2rem}
+.modal-card p{
+margin-bottom:20px;
+color:var(--text-muted);
+font-size:.85rem;
+line-height:1.6;
+}
+
+/* 16. MODAL BUTTON */
+.modal-button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:10px;
+color:var(--white);
+background:linear-gradient(135deg,var(--worker-green),var(--worker-green-dark));
+font-weight:700;
+}
+
+/* 17. LOADING STATE */
+.loading{
+position:relative;
+color:transparent!important;
+pointer-events:none;
+}
+.loading::after{
+content:"";
+position:absolute;
+width:18px;
+height:18px;
+top:50%;
+left:50%;
+margin:-9px 0 0 -9px;
+border:2px solid rgba(255,255,255,.35);
+border-top-color:var(--white);
+border-radius:50%;
+animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* 18. MOBILE RESPONSIVENESS */
+@media (max-width:900px){
+.auth-page{
+display:flex;
+flex-direction:column;
+gap:40px;
+padding:40px 0;
+}
+.hero-section{
+display:contents;
+max-width:100%;
+text-align:center;
+}
+.hero-badge{
+order:1;
+align-self:center;
+margin-bottom:1px;
+}
+.hero-section h1{
+order:2;
+text-align:center;
+}
+.hero-description{
+order:3;
+margin-left:auto;
+margin-right:auto;
+text-align:center;
+margin-top:1px;
+}
+.auth-section{
+order:4;
+width:100%;
+}
+.benefits{
+order:5;
+width:100%;
+margin-top:0;
+}
+.benefit-card{text-align:left}
+}
+
+/* 19. SMALL MOBILE RESPONSIVENESS */
+@media (max-width:520px){
+.navbar{padding:17px 5%}
+.auth-page{width:94%;padding:30px 0}
+.auth-card{
+padding:22px;
+border-radius:18px;
+}
+.hero-section h1{font-size:2.3rem}
+.hero-badge{font-size:.7rem}
+.benefit-card{padding:13px}
+.modal-card{padding:25px 20px}
 }

@@ -1,102 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-    <!-- =====================================================
-         BASIC PAGE CONFIGURATION
-    ====================================================== -->
-
+    <!-- 1. PAGE CONFIG -->
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <meta
-        name="description"
-        content="Join SkillConnect as a skilled worker and connect with clients."
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Join SkillConnect as a skilled worker and connect with clients.">
     <title>Worker Authentication | SkillConnect</title>
 
+    <!-- 2. GOOGLE FONT -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- =====================================================
-         GOOGLE FONT
-    ====================================================== -->
-
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
-
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
-
-
-    <!-- =====================================================
-         PAGE STYLESHEET
-    ====================================================== -->
-
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
+    <!-- 3. STYLESHEET -->
+    <link rel="stylesheet" href="style.css">
 </head>
 
-
 <body>
-
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
-
+    <!-- 4. HEADER -->
     <header class="navbar">
-
-        <a
-            href="../index.html"
-            class="logo"
-        >
-            SkillConnect
-        </a>
-
+        <a href="../index.html" class="logo">SkillConnect</a>
         <nav class="nav-links">
-
-            <a href="../index.html">
-                Home
-            </a>
-
+            <a href="../index.html">Home</a>
         </nav>
-
     </header>
 
-
-    <!-- =====================================================
-         MAIN AUTHENTICATION PAGE
-    ====================================================== -->
-
+    <!-- 5. AUTHENTICATION PAGE -->
     <main class="auth-page">
 
-
-        <!-- =================================================
-             LEFT / HERO SECTION
-        ================================================== -->
-
+        <!-- HERO -->
         <section class="hero-section">
-
-            <span class="hero-badge">
-                Trusted • Verified • Nearby
-            </span>
+            <span class="hero-badge">Trusted • Verified • Nearby</span>
 
             <h1>
                 Grow Your
@@ -109,125 +43,46 @@
                 skills and grow your service business.
             </p>
 
-
-            <!-- =============================================
-                 BENEFITS
-            ============================================== -->
-
+            <!-- BENEFITS -->
             <div class="benefits">
-
                 <div class="benefit-card">
-
-                    <div class="benefit-icon">
-                        ✓
-                    </div>
-
+                    <div class="benefit-icon">✓</div>
                     <div>
-                        <h3>
-                            Find Clients
-                        </h3>
-
-                        <p>
-                            Connect with people looking
-                            for your skills.
-                        </p>
+                        <h3>Find Clients</h3>
+                        <p>Connect with people looking for your skills.</p>
                     </div>
-
                 </div>
 
                 <div class="benefit-card">
-
-                    <div class="benefit-icon">
-                        ✓
-                    </div>
-
+                    <div class="benefit-icon">✓</div>
                     <div>
-                        <h3>
-                            Grow Your Business
-                        </h3>
-
-                        <p>
-                            Get discovered by clients
-                            near you.
-                        </p>
+                        <h3>Grow Your Business</h3>
+                        <p>Get discovered by clients near you.</p>
                     </div>
-
                 </div>
-
             </div>
-
         </section>
 
-
-
-        <!-- =================================================
-             AUTHENTICATION SECTION
-        ================================================== -->
-
+        <!-- AUTHENTICATION -->
         <section class="auth-section">
-
             <div class="auth-card">
 
-
-                <!-- =========================================
-                     AUTH HEADER
-                ========================================== -->
-
+                <!-- AUTH HEADER -->
                 <div class="auth-header">
-
-                    <h2>
-                        Worker Account
-                    </h2>
-
-                    <p>
-                        Login or create your account
-                    </p>
-
+                    <h2>Worker Account</h2>
+                    <p>Login or create your account</p>
                 </div>
 
-
-                <!-- =========================================
-                     AUTH TABS
-                ========================================== -->
-
+                <!-- AUTH TABS -->
                 <div class="tabs">
-
-                    <button
-                        type="button"
-                        class="tab active"
-                        data-tab="login"
-                    >
-                        Login
-                    </button>
-
-                    <button
-                        type="button"
-                        class="tab"
-                        data-tab="signup"
-                    >
-                        Create Account
-                    </button>
-
+                    <button type="button" class="tab active" data-tab="login">Login</button>
+                    <button type="button" class="tab" data-tab="signup">Create Account</button>
                 </div>
 
-
-
-                <!-- =================================================
-                     LOGIN FORM
-                ================================================== -->
-
-                <form
-                    id="loginForm"
-                    class="auth-form active"
-                    novalidate
-                >
-
+                <!-- LOGIN FORM -->
+                <form id="loginForm" class="auth-form active" novalidate>
                     <div class="form-group">
-
-                        <label for="loginEmail">
-                            Email Address
-                        </label>
-
+                        <label for="loginEmail">Email Address</label>
                         <input
                             type="email"
                             id="loginEmail"
@@ -235,18 +90,12 @@
                             placeholder="Enter your email"
                             autocomplete="email"
                         >
-
                     </div>
 
-
                     <div class="form-group">
-
-                        <label for="loginPassword">
-                            Password
-                        </label>
+                        <label for="loginPassword">Password</label>
 
                         <div class="password-wrapper">
-
                             <input
                                 type="password"
                                 id="loginPassword"
@@ -263,16 +112,10 @@
                             >
                                 Show
                             </button>
-
                         </div>
-
                     </div>
 
-
-                    <!-- =====================================
-                         FORGOT PASSWORD
-                    ====================================== -->
-
+                    <!-- FORGOT PASSWORD -->
                     <button
                         type="button"
                         id="forgotPassword"
@@ -281,11 +124,7 @@
                         Forgot Password?
                     </button>
 
-
-                    <!-- =====================================
-                         LOGIN BUTTON
-                    ====================================== -->
-
+                    <!-- LOGIN -->
                     <button
                         type="submit"
                         id="loginButton"
@@ -294,11 +133,7 @@
                         Login
                     </button>
 
-
-                    <!-- =====================================
-                         GOOGLE LOGIN
-                    ====================================== -->
-
+                    <!-- GOOGLE LOGIN -->
                     <div class="auth-divider">
                         <span>OR</span>
                     </div>
@@ -308,33 +143,15 @@
                         id="googleLoginButton"
                         class="google-button"
                     >
-                        <span class="google-icon">
-                            G
-                        </span>
-
+                        <span class="google-icon">G</span>
                         Continue with Google
                     </button>
-
                 </form>
 
-
-
-                <!-- =================================================
-                     CREATE ACCOUNT FORM
-                ================================================== -->
-
-                <form
-                    id="signupForm"
-                    class="auth-form"
-                    novalidate
-                >
-
+                <!-- CREATE ACCOUNT FORM -->
+                <form id="signupForm" class="auth-form" novalidate>
                     <div class="form-group">
-
-                        <label for="signupEmail">
-                            Email Address
-                        </label>
-
+                        <label for="signupEmail">Email Address</label>
                         <input
                             type="email"
                             id="signupEmail"
@@ -342,18 +159,12 @@
                             placeholder="Enter your email"
                             autocomplete="email"
                         >
-
                     </div>
 
-
                     <div class="form-group">
-
-                        <label for="signupPassword">
-                            Password
-                        </label>
+                        <label for="signupPassword">Password</label>
 
                         <div class="password-wrapper">
-
                             <input
                                 type="password"
                                 id="signupPassword"
@@ -370,20 +181,13 @@
                             >
                                 Show
                             </button>
-
                         </div>
-
                     </div>
 
-
                     <div class="form-group">
-
-                        <label for="confirmPassword">
-                            Confirm Password
-                        </label>
+                        <label for="confirmPassword">Confirm Password</label>
 
                         <div class="password-wrapper">
-
                             <input
                                 type="password"
                                 id="confirmPassword"
@@ -400,22 +204,12 @@
                             >
                                 Show
                             </button>
-
                         </div>
-
                     </div>
 
-
-                    <!-- =====================================
-                         TERMS AND PRIVACY
-                    ====================================== -->
-
+                    <!-- TERMS -->
                     <label class="terms-label">
-
-                        <input
-                            type="checkbox"
-                            id="termsCheckbox"
-                        >
+                        <input type="checkbox" id="termsCheckbox">
 
                         <span>
                             I agree to the
@@ -423,14 +217,9 @@
                                 Terms and Privacy Policy
                             </a>
                         </span>
-
                     </label>
 
-
-                    <!-- =====================================
-                         CREATE ACCOUNT BUTTON
-                    ====================================== -->
-
+                    <!-- CREATE ACCOUNT -->
                     <button
                         type="submit"
                         id="signupButton"
@@ -439,11 +228,7 @@
                         Create Account
                     </button>
 
-
-                    <!-- =====================================
-                         GOOGLE SIGNUP
-                    ====================================== -->
-
+                    <!-- GOOGLE SIGNUP -->
                     <div class="auth-divider">
                         <span>OR</span>
                     </div>
@@ -453,41 +238,20 @@
                         id="googleSignupButton"
                         class="google-button"
                     >
-                        <span class="google-icon">
-                            G
-                        </span>
-
+                        <span class="google-icon">G</span>
                         Continue with Google
                     </button>
-
                 </form>
 
             </div>
-
         </section>
-
     </main>
 
-
-
-    <!-- =====================================================
-         AUTHENTICATION NOTIFICATION MODAL
-         Used for ALL authentication errors/success messages.
-    ====================================================== -->
-
-    <div
-        id="notificationModal"
-        class="modal"
-        aria-hidden="true"
-    >
-
-        <div
-            class="modal-overlay"
-            id="notificationOverlay"
-        ></div>
+    <!-- 6. AUTHENTICATION NOTIFICATION MODAL -->
+    <div id="notificationModal" class="modal" aria-hidden="true">
+        <div class="modal-overlay" id="notificationOverlay"></div>
 
         <div class="modal-card">
-
             <button
                 type="button"
                 id="closeNotification"
@@ -497,24 +261,13 @@
                 ×
             </button>
 
+            <div id="notificationIcon" class="modal-icon">✓</div>
 
-            <div
-                id="notificationIcon"
-                class="modal-icon"
-            >
-                ✓
-            </div>
-
-
-            <h3 id="notificationTitle">
-                Success
-            </h3>
-
+            <h3 id="notificationTitle">Success</h3>
 
             <p id="notificationMessage">
                 Your request was successful.
             </p>
-
 
             <button
                 type="button"
@@ -523,30 +276,14 @@
             >
                 Continue
             </button>
-
         </div>
-
     </div>
 
-
-
-    <!-- =====================================================
-         FORGOT PASSWORD MODAL
-    ====================================================== -->
-
-    <div
-        id="forgotModal"
-        class="modal"
-        aria-hidden="true"
-    >
-
-        <div
-            class="modal-overlay"
-            id="forgotOverlay"
-        ></div>
+    <!-- 7. FORGOT PASSWORD MODAL -->
+    <div id="forgotModal" class="modal" aria-hidden="true">
+        <div class="modal-overlay" id="forgotOverlay"></div>
 
         <div class="modal-card">
-
             <button
                 type="button"
                 id="closeModal"
@@ -556,33 +293,18 @@
                 ×
             </button>
 
+            <div class="modal-icon">?</div>
 
-            <div class="modal-icon">
-                ?
-            </div>
-
-
-            <h3>
-                Forgot Password?
-            </h3>
-
+            <h3>Forgot Password?</h3>
 
             <p>
                 Enter your email address to verify
                 your account.
             </p>
 
-
-            <form
-                id="forgotForm"
-                novalidate
-            >
-
+            <form id="forgotForm" novalidate>
                 <div class="form-group">
-
-                    <label for="resetEmail">
-                        Email Address
-                    </label>
+                    <label for="resetEmail">Email Address</label>
 
                     <input
                         type="email"
@@ -591,9 +313,7 @@
                         placeholder="Enter your email"
                         autocomplete="email"
                     >
-
                 </div>
-
 
                 <button
                     type="submit"
@@ -602,28 +322,14 @@
                 >
                     VERIFY EMAIL
                 </button>
-
             </form>
-
         </div>
-
     </div>
 
-
-
-    <!-- =====================================================
-         FRONTEND CONFIGURATION
-    ====================================================== -->
-
+    <!-- 8. FRONTEND CONFIGURATION -->
     <script src="../config.js"></script>
 
-
-    <!-- =====================================================
-         PAGE JAVASCRIPT
-    ====================================================== -->
-
+    <!-- 9. PAGE JAVASCRIPT -->
     <script src="script.js"></script>
-
 </body>
-
 </html>

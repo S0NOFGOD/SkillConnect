@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Basic document configuration -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile | SkillConnect</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Page styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Background effects -->
+    <div class="green-glow" aria-hidden="true"></div>
+    <div class="blue-glow" aria-hidden="true"></div>
+
+    <!-- Top navigation -->
+    <header class="topbar">
+        <div class="topbar-inner">
+
+            <!-- Dashboard logo/link -->
+            <a href="../worker-dashboard/index.html" class="logo">
+                SkillConnect
+            </a>
+
+            <!-- Mobile menu button -->
+            <button
+                type="button"
+                id="menuBtn"
+                class="menu-btn"
+                aria-label="Open navigation menu"
+                aria-controls="sidebar"
+                aria-expanded="false"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+        </div>
+    </header>
+
+    <!-- Worker navigation sidebar -->
+    <aside id="sidebar" class="sidebar" aria-label="Worker dashboard navigation">
+
+        <!-- Sidebar header -->
+        <div class="sidebar-header">
+            <button
+                type="button"
+                id="closeMenuBtn"
+                class="close-menu-btn"
+                aria-label="Close navigation menu"
+            >
+                ×
+            </button>
+        </div>
+
+        <!-- Sidebar navigation -->
+        <nav class="sidebar-nav">
+
+            <!-- Dashboard -->
+            <a href="../worker-dashboard/index.html" class="nav-link">
+                <span class="nav-icon" aria-hidden="true">🏠</span>
+                <span>Dashboard</span>
+            </a>
+
+            <!-- View services -->
+            <button type="button" id="viewServicesBtn" class="nav-link">
+                <span class="nav-icon" aria-hidden="true">🛠️</span>
+                <span>View Services</span>
+            </button>
+
+            <!-- Current page -->
+            <button type="button" id="editProfileBtn" class="nav-link active">
+                <span class="nav-icon" aria-hidden="true">✏️</span>
+                <span>Edit Profile</span>
+            </button>
+
+        </nav>
+
+        <!-- Logout -->
+        <div class="sidebar-footer">
+            <button type="button" id="logoutBtn" class="nav-link logout-link">
+                <span class="nav-icon" aria-hidden="true">↪</span>
+                <span>Logout</span>
+            </button>
+        </div>
+
+    </aside>
+
+    <!-- Mobile sidebar overlay -->
+    <div id="overlay" class="overlay" aria-hidden="true"></div>
+
+    <!-- Main edit-profile page -->
+    <main class="edit-profile" id="editProfilePage">
+
+        <!-- Page heading -->
+        <section class="page-header">
+            <div>
+                <h1>Edit Profile</h1>
+                <p>Update your personal information.</p>
+            </div>
+        </section>
+
+        <!-- Profile form -->
+        <form id="profileForm" class="profile-form" novalidate>
+
+            <!-- Profile photo -->
+            <section class="profile-section">
+
+                <div class="section-heading">
+                    <h2>Profile Photo</h2>
+                    <p>Maximum file size: 5 MB.</p>
+                </div>
+
+                <div class="photo-editor">
+
+                    <div class="profile-photo-wrapper">
+
+                        <!-- Existing/new profile photo -->
+                        <img
+                            id="profilePhoto"
+                            class="profile-photo"
+                            src=""
+                            alt="Worker profile photo"
+                            hidden
+                        >
+
+                        <!-- Photo placeholder -->
+                        <div
+                            id="profilePhotoPlaceholder"
+                            class="profile-photo-placeholder"
+                            aria-hidden="true"
+                        >
+                            👤
+                        </div>
+
+                    </div>
+
+                    <div class="photo-actions">
+
+                        <!-- Photo selector -->
+                        <label for="profilePhotoInput" class="photo-upload-button">
+                            Change Photo
+                        </label>
+
+                        <input
+                            type="file"
+                            id="profilePhotoInput"
+                            name="profilePhoto"
+                            accept="image/*"
+                            hidden
+                        >
+
+                        <!-- Selected file name -->
+                        <span id="photoFileName" class="photo-file-name">
+                            No new photo selected
+                        </span>
+
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Personal information -->
+            <section class="profile-section">
+
+                <div class="section-heading">
+                    <h2>Personal Information</h2>
+                </div>
+
+                <div class="form-grid">
+
+                    <!-- Full name -->
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+
+                        <input
+                            type="text"
+                            id="fullName"
+                            name="fullName"
+                            autocomplete="name"
+                            maxlength="100"
+                            required
+                        >
+                    </div>
+
+                    <!-- Phone number -->
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            autocomplete="tel"
+                            maxlength="20"
+                            required
+                        >
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Location information -->
+            <section class="profile-section">
+
+                <div class="section-heading">
+                    <h2>Location</h2>
+                </div>
+
+                <div class="form-grid">
+
+                    <!-- Country -->
+                    <div class="form-group">
+                        <label for="country">Country</label>
+
+                        <select id="country" name="country" required>
+                            <option value="">Select Country</option>
+                            <option value="Nigeria">Nigeria</option>
+                        </select>
+                    </div>
+
+                    <!-- State -->
+                    <div class="form-group">
+                        <label for="state">State</label>
+
+                        <select id="state" name="state" required disabled>
+                            <option value="">Select State</option>
+                        </select>
+                    </div>
+
+                    <!-- City -->
+                    <div class="form-group">
+                        <label for="city">City</label>
+
+                        <select id="city" name="city" required disabled>
+                            <option value="">Select City</option>
+                        </select>
+                    </div>
+
+                    <!-- LGA -->
+                    <div class="form-group">
+                        <label for="lga">LGA</label>
+
+                        <select id="lga" name="lga" required disabled>
+                            <option value="">Select LGA</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <!-- Generated location value -->
+                <input type="hidden" id="location" name="location">
+
+            </section>
+
+            <!-- Form actions -->
+            <section class="form-actions">
+
+                <!-- Cancel -->
+                <button
+                    type="button"
+                    id="cancelBtn"
+                    class="cancel-button"
+                >
+                    Cancel
+                </button>
+
+                <!-- Update profile -->
+                <button
+                    type="submit"
+                    id="updateProfileBtn"
+                    class="update-profile-button"
+                >
+                    <span class="button-text">Update Profile</span>
+
+                    <!-- Loading spinner -->
+                    <span
+                        class="button-loader"
+                        aria-hidden="true"
+                        hidden
+                    ></span>
+                </button>
+
+            </section>
+
+        </form>
+    </main>
+
+    <!-- =====================================================
+         REUSABLE NOTIFICATION MODAL
+         JavaScript controls all authentication, validation,
+         backend error and success messages through this modal.
+    ====================================================== -->
+
+    <div
+        id="notificationOverlay"
+        class="notification-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="notificationTitle"
+        aria-describedby="notificationText"
+        hidden
+    >
+        <div id="notificationCard" class="notification-card">
+
+            <!-- Modal close button -->
+            <button
+                type="button"
+                id="notificationCancelButton"
+                class="notification-close-button"
+                aria-label="Close notification"
+            >
+                ×
+            </button>
+
+            <!-- Modal icon -->
+            <div
+                id="notificationIcon"
+                class="notification-icon"
+                aria-hidden="true"
+            >
+                ✓
+            </div>
+
+            <!-- Modal title -->
+            <h2 id="notificationTitle">Notification</h2>
+
+            <!-- Modal message -->
+            <p id="notificationText"></p>
+
+            <!-- Modal action -->
+            <div class="notification-actions">
+                <button type="button" id="notificationButton">
+                    Continue
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Global API configuration -->
+    <script src="../config.js"></script>
+
+    <!-- Nigeria state/city/LGA data -->
+    <script src="../worker-create-profile/nigeria-location.js"></script>
+
+    <!-- Edit-profile logic -->
+    <script src="script.js" defer></script>
+
+</body>
+</html>

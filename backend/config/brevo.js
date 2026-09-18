@@ -1,20 +1,6 @@
 /* =========================================================
-   SKILLCONNECT
-   CONFIG — BREVO
-========================================================= */
-
-
-/* =========================================================
    1. BREVO CONFIGURATION
 ========================================================= */
-
-/*
-   All Brevo environment variables are kept
-   in one central configuration file.
-
-   Other files should import these values
-   instead of reading process.env directly.
-*/
 
 const BREVO_API_KEY =
     process.env.BREVO_API_KEY;
