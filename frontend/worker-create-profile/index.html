@@ -1,47 +1,59 @@
-<!DOCTYPE html><html lang="en"><head><!-- =====================================================
-     META INFORMATION
-====================================================== -->
+<!DOCTYPE html>
 
-<meta charset="UTF-8">
+<html lang="en">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+<head>
 
-<meta
-    name="description"
-    content="Complete your SkillConnect worker profile."
->
+    <!-- =====================================================
+         META INFORMATION
+    ====================================================== -->
 
-<title>Complete Worker Profile | SkillConnect</title>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Complete your SkillConnect worker profile."
+    >
+
+    <title>Complete Worker Profile | SkillConnect</title>
+
+
+    <!-- =====================================================
+         GOOGLE FONT
+    ====================================================== -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =====================================================
+         PAGE STYLESHEET
+    ====================================================== -->
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
 
 
 <!-- =====================================================
-     GOOGLE FONT
-====================================================== -->
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-
-<link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin
->
-
-<link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-    rel="stylesheet"
->
-
-
-<!-- =====================================================
-     PAGE STYLESHEET
-====================================================== -->
-
-<link rel="stylesheet" href="style.css">
-
-</head><body><!-- =====================================================
      HEADER / NAVIGATION
 ====================================================== -->
 
@@ -109,12 +121,6 @@
 
             <!-- =================================================
                  PROFILE PROGRESS
-
-                 This remains inside the profile card so it
-                 stays aligned with the form.
-
-                 CSS makes it sticky when it reaches the
-                 bottom of the fixed navbar.
             ================================================== -->
 
             <div class="progress-container">
@@ -175,49 +181,77 @@
                     </div>
 
 
+                    <!-- =========================================
+                         CLICKABLE PROFILE PHOTO UPLOADER
+
+                         The visible container acts as the
+                         upload button.
+
+                         The actual file input remains hidden
+                         but is connected to the label.
+                    ========================================== -->
+
                     <div class="profile-photo-container">
 
-                        <div
-                            class="profile-photo-preview"
-                            id="profilePhotoPreview"
+                        <label
+                            for="profilePhoto"
+                            class="profile-photo-upload-label"
                         >
 
-                            <span id="profilePhotoPlaceholder">
-                                Add Photo
-                            </span>
-
-                            <img
-                                id="profilePhotoImage"
-                                src=""
-                                alt="Profile photo preview"
-                                hidden
+                            <div
+                                class="profile-photo-preview"
+                                id="profilePhotoPreview"
                             >
 
-                        </div>
+                                <span id="profilePhotoPlaceholder"
+                                class="profile-photo-placeholder"
+                                aria-hidden="true"
+                                >+
+                                </span>
+                                <span class="profile-photo-add-text">
+                                Add Image
+                                </span>
 
-                    </div>
+
+                                <img
+                                    id="profilePhotoImage"
+                                    src=""
+                                    hidden
+                                >
+
+                            </div>
 
 
-                    <div class="form-group">
+                            <!--
+                                The browser still requires a
+                                file input to select a local file.
 
-                        <label for="profilePhoto">
-                            Profile Photo
+                                It is completely hidden from the
+                                user.
+
+                                Clicking the visible profile
+                                photo container opens the file
+                                selector.
+                            -->
+
+                            <input
+                                type="file"
+                                id="profilePhoto"
+                                name="profilePhoto"
+                                class="profile-photo-input"
+                                accept="image/jpeg,image/png,image/webp"
+                                required
+                            >
+
                         </label>
 
-                        <input
-                            type="file"
-                            id="profilePhoto"
-                            name="profilePhoto"
-                            accept="image/jpeg,image/png,image/webp"
-                            required
-                        >
-
-                        <small>
-                            JPG, PNG, or WebP. Maximum file size:
-                            5 MB.
-                        </small>
-
                     </div>
+
+
+                    <small class="profile-photo-help">
+                        JPG, PNG, or WebP. Maximum file size:
+                        5 MB.
+                    </small>
 
                 </div>
 
@@ -488,4 +522,5 @@
 <script src="script.js"></script>
 
 </body>
+
 </html>

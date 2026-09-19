@@ -1,0 +1,1667 @@
+/* =========================================================
+   WORKER CREATE SERVICE STYLES
+   Matches the visual language of worker-dashboard.
+========================================================= */
+
+
+/* =========================================================
+   1. ROOT VARIABLES
+========================================================= */
+
+:root {
+
+    /* Main colors */
+    --background: #020617;
+    --surface: #0f172a;
+    --surface-light: #111c31;
+
+    /* Brand colors */
+    --green: #22c55e;
+    --green-dark: #16a34a;
+    --blue: #3b82f6;
+
+    /* Status colors */
+    --red: #ef4444;
+    --yellow: #f59e0b;
+
+    /* Text colors */
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --muted-light: #cbd5e1;
+
+    /* Borders */
+    --border: rgba(148, 163, 184, 0.14);
+
+    /* Effects */
+    --shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
+    --transition: 0.2s ease;
+
+}
+
+
+/* =========================================================
+   2. GLOBAL RESET
+========================================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* =========================================================
+   3. BODY
+========================================================= */
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+body {
+
+    min-height: 100vh;
+
+    background: var(--background);
+
+    color: var(--text);
+
+    font-family:
+        "Inter",
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    line-height: 1.6;
+
+    overflow-x: hidden;
+
+}
+
+
+/* =========================================================
+   4. BACKGROUND GLOWS
+
+   These create the same subtle background atmosphere
+   used throughout the dashboard.
+========================================================= */
+
+.green-glow {
+
+    position: fixed;
+
+    width: 420px;
+    height: 420px;
+
+    top: -180px;
+    left: -180px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(34, 197, 94, 0.16) 0%,
+            rgba(34, 197, 94, 0.07) 35%,
+            transparent 70%
+        );
+
+    pointer-events: none;
+
+    z-index: -1;
+
+}
+
+
+.blue-glow {
+
+    position: fixed;
+
+    width: 500px;
+    height: 500px;
+
+    right: -250px;
+    bottom: -250px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(59, 130, 246, 0.13) 0%,
+            rgba(59, 130, 246, 0.05) 35%,
+            transparent 70%
+        );
+
+    pointer-events: none;
+
+    z-index: -1;
+
+}
+
+
+/* =========================================================
+   5. TOP NAVIGATION BAR
+========================================================= */
+
+.topbar {
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 70px;
+
+    background:
+        rgba(2, 6, 23, 0.82);
+
+    border-bottom:
+        1px solid var(--border);
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    z-index: 1000;
+
+}
+
+
+/* =========================================================
+   6. TOPBAR INNER
+========================================================= */
+
+.topbar-inner {
+
+    width: 100%;
+    max-width: 1180px;
+
+    height: 100%;
+
+    margin: 0 auto;
+
+    padding:
+        0 24px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-start;
+
+}
+
+
+/* =========================================================
+   7. BACK NAVIGATION
+========================================================= */
+
+.back-navigation {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    min-width: 100px;
+
+    color: var(--muted-light);
+
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition:
+        color var(--transition),
+        transform var(--transition);
+
+}
+
+
+.back-navigation:hover {
+
+    color: var(--text);
+
+    transform: translateX(-2px);
+
+}
+
+
+.back-navigation:focus-visible {
+
+    outline: 2px solid var(--green);
+
+    outline-offset: 4px;
+
+    border-radius: 6px;
+
+}
+
+
+/* =========================================================
+   8. BACK ICON
+========================================================= */
+
+.back-icon {
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 28px;
+    height: 28px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 8px;
+
+    background:
+        rgba(15, 23, 42, 0.75);
+
+    color: var(--muted-light);
+
+    font-size: 18px;
+
+    line-height: 1;
+
+    transition:
+        border-color var(--transition),
+        color var(--transition),
+        background var(--transition);
+
+}
+
+
+.back-navigation:hover .back-icon {
+
+    border-color:
+        rgba(34, 197, 94, 0.35);
+
+    background:
+        rgba(34, 197, 94, 0.08);
+
+    color: var(--green);
+
+}
+
+
+/* =========================================================
+   11. MAIN PAGE
+========================================================= */
+
+.create-service-page {
+
+    width: 100%;
+
+    max-width: 900px;
+
+    margin: 0 auto;
+
+    padding:
+        112px 24px
+        70px;
+
+}
+
+
+/* =========================================================
+   12. PAGE HEADER
+========================================================= */
+
+.page-header {
+
+    margin-bottom: 30px;
+
+}
+
+
+.page-header h1 {
+
+    color: var(--text);
+
+    font-size: clamp(30px, 5vw, 42px);
+
+    font-weight: 800;
+
+    line-height: 1.15;
+
+    letter-spacing: -1.2px;
+
+}
+
+
+.page-header p {
+
+    max-width: 620px;
+
+    margin-top: 10px;
+
+    color: var(--muted);
+
+    font-size: 15px;
+
+}
+
+
+/* =========================================================
+   13. SERVICE FORM SECTION
+========================================================= */
+
+.service-form-section {
+
+    width: 100%;
+
+}
+
+
+.service-form {
+
+    width: 100%;
+
+    padding: 30px;
+
+    background:
+        rgba(15, 23, 42, 0.82);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 20px;
+
+    box-shadow: var(--shadow);
+
+}
+
+
+/* =========================================================
+   14. FORM SECTION HEADING
+========================================================= */
+
+.form-section-heading {
+
+    margin-bottom: 26px;
+
+}
+
+
+.form-section-heading.portfolio-heading {
+
+    margin-top: 40px;
+
+}
+
+
+.form-section-heading h2 {
+
+    color: var(--text);
+
+    font-size: 21px;
+    font-weight: 700;
+
+    line-height: 1.3;
+
+}
+
+
+.form-section-heading p {
+
+    margin-top: 5px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+}
+
+
+/* =========================================================
+   15. FORM GROUP
+========================================================= */
+
+.form-group {
+
+    margin-bottom: 24px;
+
+}
+
+
+.form-label {
+
+    display: block;
+
+    margin-bottom: 9px;
+
+    color: var(--muted-light);
+
+    font-size: 13px;
+    font-weight: 600;
+
+}
+
+
+/* =========================================================
+   16. LABEL ROW
+========================================================= */
+
+.label-row {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 9px;
+
+}
+
+
+.label-row .form-label {
+
+    margin-bottom: 0;
+
+}
+
+
+/* =========================================================
+   17. FORM CONTROLS
+========================================================= */
+
+.form-control {
+
+    width: 100%;
+
+    min-height: 50px;
+
+    padding:
+        13px 15px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 12px;
+
+    outline: none;
+
+    background:
+        rgba(2, 6, 23, 0.65);
+
+    color: var(--text);
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition),
+        background var(--transition);
+
+}
+
+
+.form-control::placeholder {
+
+    color:
+        rgba(148, 163, 184, 0.65);
+
+}
+
+
+.form-control:hover {
+
+    border-color:
+        rgba(148, 163, 184, 0.25);
+
+}
+
+
+.form-control:focus {
+
+    border-color:
+        rgba(34, 197, 94, 0.65);
+
+    background:
+        rgba(2, 6, 23, 0.85);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(34, 197, 94, 0.10);
+
+}
+
+
+/* =========================================================
+   18. SELECT CONTROLS
+========================================================= */
+
+select.form-control {
+
+    cursor: pointer;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    padding-right: 42px;
+
+    background-image:
+        linear-gradient(45deg, transparent 50%, #94a3b8 50%),
+        linear-gradient(135deg, #94a3b8 50%, transparent 50%);
+
+    background-position:
+        calc(100% - 18px) 21px,
+        calc(100% - 13px) 21px;
+
+    background-size:
+        5px 5px, 5px 5px;
+
+    background-repeat: no-repeat;
+
+}
+
+
+select.form-control option {
+
+    background: #0f172a;
+
+    color: var(--text);
+
+}
+
+
+/* =========================================================
+   19. TEXTAREA
+========================================================= */
+
+.description-input {
+
+    min-height: 160px;
+
+    resize: vertical;
+
+    line-height: 1.65;
+
+}
+
+
+/* =========================================================
+   20. FIELD HELP
+========================================================= */
+
+.field-help {
+
+    display: block;
+
+    margin-top: 7px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+
+    line-height: 1.5;
+
+}
+
+
+/* =========================================================
+   21. WORD COUNTER
+========================================================= */
+
+.word-counter {
+
+    flex-shrink: 0;
+
+    color: var(--muted);
+
+    font-size: 11px;
+    font-weight: 600;
+
+}
+
+
+.word-counter.limit-reached {
+
+    color: var(--red);
+
+}
+
+
+/* =========================================================
+   22. PORTFOLIO GRID
+
+   Three images appear side by side on larger screens.
+========================================================= */
+
+.portfolio-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 16px;
+
+}
+
+
+/* =========================================================
+   23. PORTFOLIO UPLOAD CARD
+========================================================= */
+
+.portfolio-upload-card {
+
+    min-width: 0;
+
+}
+
+
+.portfolio-upload-label {
+
+    display: block;
+
+    width: 100%;
+
+    cursor: pointer;
+
+}
+
+
+/* =========================================================
+   24. HIDDEN PORTFOLIO FILE INPUT
+
+   The browser file input is still present because it is
+   required to select an image.
+
+   However, it is completely hidden from the user.
+
+   The visible portfolio container now acts as the
+   upload button.
+========================================================= */
+
+.portfolio-input {
+
+    display: none;
+
+}
+
+
+/* =========================================================
+   25. PORTFOLIO PREVIEW
+========================================================= */
+
+.portfolio-preview {
+
+    position: relative;
+
+    width: 100%;
+
+    aspect-ratio: 1 / 1;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 10px;
+
+    overflow: hidden;
+
+    border:
+        1px dashed
+        rgba(148, 163, 184, 0.30);
+
+    border-radius: 14px;
+
+    background:
+        rgba(2, 6, 23, 0.55);
+
+    color: var(--muted);
+
+    font-size: 12px;
+    font-weight: 600;
+
+    transition:
+        border-color var(--transition),
+        background var(--transition),
+        transform var(--transition);
+
+}
+
+
+.portfolio-upload-label:hover .portfolio-preview {
+
+    border-color:
+        rgba(34, 197, 94, 0.55);
+
+    background:
+        rgba(34, 197, 94, 0.04);
+
+    transform: translateY(-2px);
+
+}
+
+
+.portfolio-upload-label:focus-within .portfolio-preview {
+
+    border-color: var(--green);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(34, 197, 94, 0.10);
+
+}
+
+
+/* =========================================================
+   26. PORTFOLIO PLACEHOLDER
+========================================================= */
+
+.portfolio-placeholder {
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(34, 197, 94, 0.10);
+
+    color: var(--green);
+
+    font-size: 22px;
+    font-weight: 400;
+
+    line-height: 1;
+
+}
+
+
+/* =========================================================
+   27. PORTFOLIO IMAGE
+
+   This class is added by JavaScript after an image
+   has been selected.
+========================================================= */
+
+.portfolio-preview img {
+
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+}
+
+
+/* =========================================================
+   28. PORTFOLIO NUMBER
+========================================================= */
+
+.portfolio-number {
+
+    display: block;
+
+    margin-top: 8px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+    font-weight: 600;
+
+    text-align: center;
+
+}
+
+
+/* =========================================================
+   29. PORTFOLIO HELP
+========================================================= */
+
+.portfolio-help {
+
+    margin-top: 14px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+
+    line-height: 1.6;
+
+}
+
+
+/* =========================================================
+   30. FORM ACTIONS
+========================================================= */
+
+.form-actions {
+
+    margin-top: 32px;
+
+    padding-top: 25px;
+
+    border-top:
+        1px solid var(--border);
+
+}
+
+
+/* =========================================================
+   31. ADD SERVICE BUTTON
+========================================================= */
+
+.add-service-button {
+
+    position: relative;
+
+    width: 100%;
+
+    min-height: 52px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    padding:
+        13px 20px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--green),
+            var(--green-dark)
+        );
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 10px 25px
+        rgba(34, 197, 94, 0.18);
+
+    transition:
+        transform var(--transition),
+        box-shadow var(--transition),
+        opacity var(--transition);
+
+}
+
+
+.add-service-button:hover:not(:disabled) {
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 14px 30px
+        rgba(34, 197, 94, 0.24);
+
+}
+
+
+.add-service-button:active:not(:disabled) {
+
+    transform: translateY(0);
+
+}
+
+
+.add-service-button:focus-visible {
+
+    outline: 2px solid var(--green);
+
+    outline-offset: 3px;
+
+}
+
+
+.add-service-button:disabled {
+
+    opacity: 0.65;
+
+    cursor: not-allowed;
+
+}
+
+
+/* =========================================================
+   32. BUTTON LOADER
+========================================================= */
+
+.button-loader {
+
+    width: 17px;
+    height: 17px;
+
+    border:
+        2px solid
+        rgba(255, 255, 255, 0.35);
+
+    border-top-color: #ffffff;
+
+    border-radius: 50%;
+
+    animation:
+        buttonSpin 0.7s linear infinite;
+
+}
+
+
+@keyframes buttonSpin {
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
+
+/* =========================================================
+   33. NOTIFICATION MODAL OVERLAY
+========================================================= */
+
+.notification-modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(2, 6, 23, 0.78);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    z-index: 2000;
+
+}
+
+
+.notification-modal[hidden] {
+
+    display: none;
+
+}
+
+
+/* =========================================================
+   34. NOTIFICATION CARD
+========================================================= */
+
+.notification-card {
+
+    position: relative;
+
+    width: 100%;
+
+    max-width: 430px;
+
+    padding: 30px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 20px;
+
+    background:
+        rgba(15, 23, 42, 0.96);
+
+    box-shadow:
+        0 30px 80px
+        rgba(0, 0, 0, 0.45);
+
+    text-align: center;
+
+    animation:
+        modalAppear 0.2s ease;
+
+}
+
+
+@keyframes modalAppear {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(10px)
+            scale(0.98);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+
+    }
+
+}
+
+
+/* =========================================================
+   35. NOTIFICATION CLOSE BUTTON
+========================================================= */
+
+.notification-close-button {
+
+    position: absolute;
+
+    top: 13px;
+    right: 13px;
+
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background:
+        rgba(148, 163, 184, 0.08);
+
+    color: var(--muted-light);
+
+    font-family: inherit;
+
+    font-size: 22px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background var(--transition),
+        color var(--transition);
+
+}
+
+
+.notification-close-button:hover {
+
+    background:
+        rgba(239, 68, 68, 0.12);
+
+    color: var(--red);
+
+}
+
+
+.notification-close-button:focus-visible {
+
+    outline: 2px solid var(--green);
+
+    outline-offset: 2px;
+
+}
+
+
+/* =========================================================
+   36. NOTIFICATION ICON
+========================================================= */
+
+.notification-icon {
+
+    width: 58px;
+    height: 58px;
+
+    margin:
+        0 auto 18px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        rgba(34, 197, 94, 0.12);
+
+    color: var(--green);
+
+    font-size: 25px;
+    font-weight: 800;
+
+}
+
+
+/* =========================================================
+   37. NOTIFICATION CARD TITLE
+========================================================= */
+
+.notification-card h2 {
+
+    margin-bottom: 9px;
+
+    color: var(--text);
+
+    font-size: 20px;
+    font-weight: 700;
+
+    line-height: 1.3;
+
+}
+
+
+/* =========================================================
+   38. NOTIFICATION CARD TEXT
+========================================================= */
+
+.notification-card p {
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+    line-height: 1.65;
+
+}
+
+
+/* =========================================================
+   39. NOTIFICATION ACTIONS
+========================================================= */
+
+.notification-actions {
+
+    margin-top: 24px;
+
+}
+
+
+.notification-actions button {
+
+    width: 100%;
+
+    min-height: 46px;
+
+    padding:
+        11px 18px;
+
+    border: none;
+
+    border-radius: 11px;
+
+    background:
+        var(--green);
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background var(--transition),
+        transform var(--transition),
+        opacity var(--transition);
+
+}
+
+
+.notification-actions button:hover:not(:disabled) {
+
+    background:
+        var(--green-dark);
+
+    transform: translateY(-1px);
+
+}
+
+
+.notification-actions button:active:not(:disabled) {
+
+    transform: translateY(0);
+
+}
+
+
+.notification-actions button:focus-visible {
+
+    outline: 2px solid var(--green);
+
+    outline-offset: 3px;
+
+}
+
+
+.notification-actions button:disabled {
+
+    opacity: 0.6;
+
+    cursor: not-allowed;
+
+}
+
+
+/* =========================================================
+   40. MODAL STATUS VARIANTS
+========================================================= */
+
+/* Success */
+
+.notification-card.success .notification-icon {
+
+    background:
+        rgba(34, 197, 94, 0.12);
+
+    color: var(--green);
+
+}
+
+
+/* Error */
+
+.notification-card.error .notification-icon {
+
+    background:
+        rgba(239, 68, 68, 0.12);
+
+    color: var(--red);
+
+}
+
+
+.notification-card.error .notification-actions button {
+
+    background:
+        var(--red);
+
+}
+
+
+.notification-card.error .notification-actions button:hover {
+
+    background:
+        #dc2626;
+
+}
+
+
+/* Information */
+
+.notification-card.info .notification-icon {
+
+    background:
+        rgba(59, 130, 246, 0.12);
+
+    color: var(--blue);
+
+}
+
+.notification-card.info .notification-actions button {
+
+    background:
+        var(--blue);
+
+}
+
+
+/* Confirmation */
+
+.notification-card.confirm .notification-icon {
+
+    background:
+        rgba(245, 158, 11, 0.12);
+
+    color: var(--yellow);
+
+}
+
+
+.notification-card.confirm .notification-actions button {
+
+    background:
+        var(--green);
+
+}
+
+
+/* =========================================================
+   41. DISABLED PAGE STATE
+========================================================= */
+
+.create-service-page[hidden] {
+
+    display: none;
+
+}
+
+
+/* =========================================================
+   42. RESPONSIVE TABLET
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .topbar-inner {
+
+        padding:
+            0 18px;
+
+    }
+
+
+    .create-service-page {
+
+        padding:
+            105px 18px
+            55px;
+
+    }
+
+
+    .service-form {
+
+        padding: 24px;
+
+        border-radius: 18px;
+
+    }
+
+
+    .portfolio-grid {
+
+        gap: 12px;
+
+    }
+
+}
+
+
+/* =========================================================
+   43. RESPONSIVE MOBILE
+========================================================= */
+
+@media (max-width: 520px) {
+
+    .topbar {
+
+        height: 64px;
+
+    }
+
+
+    .topbar-inner {
+
+        padding:
+            0 14px;
+
+    }
+
+
+    .back-navigation {
+
+        min-width: auto;
+
+    }
+
+
+    .back-text {
+
+        display: none;
+
+    }
+
+
+    .back-icon {
+
+        width: 32px;
+        height: 32px;
+
+    }
+
+
+    .create-service-page {
+
+        padding:
+            94px 14px
+            45px;
+
+    }
+
+
+    .page-header {
+
+        margin-bottom: 22px;
+
+    }
+
+
+    .page-header h1 {
+
+        font-size: 30px;
+
+    }
+
+
+    .page-header p {
+
+        font-size: 13px;
+
+    }
+
+
+    .service-form {
+
+        padding: 20px;
+
+        border-radius: 16px;
+
+    }
+
+
+    .form-section-heading h2 {
+
+        font-size: 19px;
+
+    }
+
+
+    .form-section-heading p {
+
+        font-size: 12px;
+
+    }
+
+
+    .form-control {
+
+        min-height: 48px;
+
+        font-size: 13px;
+
+    }
+
+
+    .description-input {
+
+        min-height: 145px;
+
+    }
+
+
+    .portfolio-grid {
+
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+
+        gap: 8px;
+
+    }
+
+
+    .portfolio-preview {
+
+        border-radius: 11px;
+
+        font-size: 10px;
+
+    }
+
+
+    .portfolio-placeholder {
+
+        width: 29px;
+        height: 29px;
+
+        font-size: 19px;
+
+    }
+
+
+    .portfolio-number {
+
+        font-size: 10px;
+
+    }
+
+
+    .portfolio-help {
+
+        font-size: 10px;
+
+    }
+
+
+    .notification-modal {
+
+        padding: 16px;
+
+    }
+
+
+    .notification-card {
+
+        padding: 27px 20px 22px;
+
+        border-radius: 18px;
+
+    }
+
+}
+
+
+/* =========================================================
+   44. VERY SMALL MOBILE SCREENS
+========================================================= */
+
+@media (max-width: 360px) {
+
+    .service-form {
+
+        padding: 17px;
+
+    }
+
+
+    .portfolio-grid {
+
+        gap: 6px;
+
+    }
+
+
+    .portfolio-preview {
+
+        font-size: 9px;
+
+    }
+
+
+    .portfolio-placeholder {
+
+        width: 26px;
+        height: 26px;
+
+        font-size: 17px;
+
+    }
+
+
+    .notification-card {
+
+        padding-left: 17px;
+        padding-right: 17px;
+
+    }
+
+}
+
+
+/* =========================================================
+   45. REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+
+        scroll-behavior: auto;
+
+    }
+
+
+    *,
+    *::before,
+    *::after {
+
+        animation-duration: 0.01ms !important;
+
+        animation-iteration-count: 1 !important;
+
+        transition-duration: 0.01ms !important;
+
+    }
+
+}

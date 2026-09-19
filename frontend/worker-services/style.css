@@ -16,9 +16,27 @@
 ========================================================= */
 
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+}
+
+:root {
+    --bg: #020617;
+    --surface: #0f172a;
+    --surface-2: #111c31;
+    --border: rgba(148, 163, 184, .14);
+
+    --text: #f8fafc;
+    --muted: #94a3b8;
+
+    --green: #22c55e;
+    --green-dark: #16a34a;
+
+    --blue: #3b82f6;
+    --red: #ef4444;
+
+    --shadow: 0 20px 50px rgba(0, 0, 0, .28);
 }
 
 html {
@@ -30,20 +48,45 @@ body {
 
     font-family: "Inter", sans-serif;
 
-    background: #020617;
-    color: #ffffff;
+    background:
+        radial-gradient(
+            circle at 15% 10%,
+            rgba(34, 197, 94, .08),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 85% 20%,
+            rgba(59, 130, 246, .08),
+            transparent 30%
+        ),
+        var(--bg);
+
+    color: var(--text);
 
     line-height: 1.6;
+
+    overflow-x: hidden;
+}
+
+button,
+a {
+    font: inherit;
 }
 
 button {
-    font-family: inherit;
+    border: 0;
     cursor: pointer;
 }
 
 a {
-    color: inherit;
     text-decoration: none;
+    color: inherit;
+}
+
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid var(--green);
+    outline-offset: 3px;
 }
 
 
@@ -55,28 +98,32 @@ a {
 .blue-glow {
     position: fixed;
 
-    width: 350px;
-    height: 350px;
+    width: 320px;
+    height: 320px;
 
     border-radius: 50%;
 
-    filter: blur(150px);
-    opacity: .12;
+    filter: blur(100px);
 
     pointer-events: none;
+
+    opacity: .13;
+
     z-index: -1;
 }
 
 .green-glow {
-    top: -120px;
+    top: 5%;
     left: -120px;
-    background: #22c55e;
+
+    background: var(--green);
 }
 
 .blue-glow {
     right: -120px;
-    bottom: -120px;
-    background: #3b82f6;
+    bottom: 5%;
+
+    background: var(--blue);
 }
 
 
@@ -89,36 +136,38 @@ a {
 
     top: 0;
     left: 0;
+    right: 0;
 
-    width: 100%;
     height: 70px;
 
     z-index: 1000;
 
-    background: rgba(2, 6, 23, .92);
+    background: rgba(2, 6, 23, .82);
 
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid var(--border);
 
-    border-bottom:
-        1px solid
-        rgba(255, 255, 255, .08);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
 }
 
 .topbar-inner {
     height: 100%;
 
-    padding: 0 20px 0 40px;
-
     display: flex;
 
     align-items: center;
     justify-content: space-between;
+
+    padding: 0 28px;
 }
 
 .logo {
-    font-size: 23px;
+    font-size: 1.35rem;
+
     font-weight: 800;
+
+    letter-spacing: -.04em;
+
     color: #16a34a;
 }
 
@@ -128,187 +177,281 @@ a {
 ========================================================= */
 
 .menu-btn {
-    width: 44px;
-    height: 44px;
-
     display: none;
 
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    width: 42px;
+    height: 42px;
 
-    gap: 5px;
+    padding: 10px;
 
-    border: none;
-    border-radius: 12px;
+    border-radius: 10px;
 
-    background: #111827;
+    background: rgba(255, 255, 255, .06);
+
+    border: 1px solid var(--border);
 }
 
 .menu-btn span {
-    width: 21px;
+    display: block;
+
     height: 2px;
 
-    background: #ffffff;
-    border-radius: 5px;
+    margin: 4px 0;
+
+    border-radius: 2px;
+
+    background: #fff;
 }
 
 
 /* =========================================================
    5. SIDEBAR
+   MATCHES WORKER DASHBOARD SIDEBAR
 ========================================================= */
 
 .sidebar {
     position: fixed;
 
-    top: 0;
+    top: 70px;
     right: 0;
+    bottom: 0;
 
     width: 270px;
-    height: 100vh;
-    height: 100dvh;
-
-    padding: 25px 18px;
 
     display: flex;
     flex-direction: column;
 
-    overflow: hidden;
+    padding: 22px 16px;
 
-    background: rgba(2, 6, 23, .92);
+    background: rgba(8, 15, 30, .94);
 
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    border-left: 1px solid var(--border);
 
-    border-left:
-        1px solid
-        rgba(255, 255, 255, .08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 
-    z-index: 1500;
+    z-index: 900;
 }
+
+
+/* =========================================================
+   6. SIDEBAR HEADER
+========================================================= */
 
 .sidebar-header {
-    min-height: 50px;
-
     display: flex;
-    align-items: center;
-    justify-content: flex-end;
 
-    margin-bottom: 25px;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 28px;
+
+    padding: 0 8px;
 }
 
-.close-menu-btn {
-    display: none;
+
+/* =========================================================
+   7. SIDEBAR BRAND
+========================================================= */
+
+.sidebar-brand {
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+}
+
+.sidebar-brand-icon {
+    display: grid;
+
+    place-items: center;
 
     width: 38px;
     height: 38px;
 
-    align-items: center;
-    justify-content: center;
+    border-radius: 11px;
 
-    border: none;
-    border-radius: 10px;
+    background:
+        linear-gradient(
+            135deg,
+            var(--green),
+            var(--green-dark)
+        );
 
-    background: #111827;
-    color: #ffffff;
+    color: #fff;
 
-    font-size: 25px;
+    font-size: .72rem;
+    font-weight: 800;
+
+    box-shadow:
+        0 8px 20px
+        rgba(34, 197, 94, .2);
 }
+
+.sidebar-brand-text {
+    display: flex;
+
+    flex-direction: column;
+
+    line-height: 1.25;
+}
+
+.sidebar-brand-text strong {
+    font-size: .9rem;
+
+    color: #16a34a;
+}
+
+.sidebar-brand-text small {
+    color: var(--muted);
+
+    font-size: .68rem;
+
+    margin-top: 2px;
+}
+
+
+/* =========================================================
+   8. SIDEBAR CLOSE BUTTON
+========================================================= */
+
+.close-menu-btn {
+    display: none;
+
+    width: 36px;
+    height: 36px;
+
+    border-radius: 9px;
+
+    background: rgba(255, 255, 255, .06);
+
+    color: #fff;
+
+    font-size: 1.5rem;
+}
+
+
+/* =========================================================
+   9. SIDEBAR NAVIGATION
+========================================================= */
 
 .sidebar-nav {
     display: flex;
+
     flex-direction: column;
-    gap: 8px;
+
+    gap: 7px;
 }
 
 .nav-link {
     width: 100%;
-    min-height: 48px;
 
     display: flex;
+
     align-items: center;
 
     gap: 12px;
-    padding: 12px 14px;
 
-    border: 1px solid transparent;
-    border-radius: 13px;
+    padding: 13px 14px;
+
+    border-radius: 12px;
 
     background: transparent;
-    color: #cbd5e1;
 
-    font-size: 14px;
+    color: var(--muted);
+
+    font-size: .88rem;
+
     font-weight: 600;
 
     text-align: left;
 
-    transition: .2s ease;
+    transition:
+        background .2s ease,
+        color .2s ease,
+        transform .2s ease;
+}
+
+.nav-link:hover {
+    color: #fff;
+
+    background: rgba(255, 255, 255, .055);
+
+    transform: translateX(-2px);
+}
+
+.nav-link.active {
+    color: #fff;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(34, 197, 94, .16),
+            rgba(34, 197, 94, .04)
+        );
+
+    border: 1px solid rgba(34, 197, 94, .16);
 }
 
 .nav-icon {
-    width: 25px;
+    width: 22px;
 
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
 
-    font-size: 17px;
-}
+    place-items: center;
 
-.nav-link:hover,
-.nav-link.active {
-    color: #ffffff;
-
-    background: rgba(34, 197, 94, .12);
-
-    border-color:
-        rgba(34, 197, 94, .20);
+    font-size: 1rem;
 }
 
 .sidebar-footer {
     margin-top: auto;
 
-    padding-top: 20px;
+    padding-top: 18px;
 
-    border-top:
-        1px solid
-        rgba(255, 255, 255, .08);
+    border-top: 1px solid var(--border);
 }
 
 .logout-link:hover {
     color: #f87171;
+
     background: rgba(239, 68, 68, .08);
 }
 
 
 /* =========================================================
-   6. MOBILE OVERLAY
+   10. MOBILE OVERLAY
 ========================================================= */
 
 .overlay {
     position: fixed;
-    inset: 0;
 
-    background: rgba(2, 6, 23, .70);
+    inset: 70px 0 0;
+
+    background: rgba(0, 0, 0, .58);
 
     opacity: 0;
+
     visibility: hidden;
+
     pointer-events: none;
 
     transition: .25s ease;
 
-    z-index: 1400;
+    z-index: 850;
 }
 
 .overlay.active {
     opacity: 1;
+
     visibility: visible;
+
     pointer-events: auto;
 }
 
 
 /* =========================================================
-   7. MAIN PAGE
+   11. MAIN PAGE
 ========================================================= */
 
 .dashboard {
@@ -323,11 +466,13 @@ a {
 
 .dashboard-header {
     width: 100%;
+
     max-width: 1400px;
 
     margin: 0 auto 30px;
 
     display: flex;
+
     align-items: flex-start;
     justify-content: space-between;
 
@@ -336,7 +481,9 @@ a {
 
 .dashboard-header h1 {
     font-size: 32px;
+
     font-weight: 800;
+
     line-height: 1.2;
 }
 
@@ -354,6 +501,7 @@ a {
     padding: 10px 18px;
 
     border: none;
+
     border-radius: 11px;
 
     background:
@@ -366,16 +514,18 @@ a {
     color: #ffffff;
 
     font-size: 13px;
+
     font-weight: 700;
 }
 
 
 /* =========================================================
-   8. SERVICES SECTION
+   12. SERVICES SECTION
 ========================================================= */
 
 .dashboard-section {
     width: 100%;
+
     max-width: 1400px;
 
     margin: 0 auto;
@@ -387,12 +537,13 @@ a {
 
 .section-heading h2 {
     font-size: 20px;
+
     font-weight: 800;
 }
 
 
 /* =========================================================
-   9. SERVICES CONTAINER
+   13. SERVICES CONTAINER
 ========================================================= */
 
 .services-container {
@@ -406,9 +557,7 @@ a {
 
 
 /* =========================================================
-   10. SERVICE CARD
-
-   JavaScript creates these cards dynamically.
+   14. SERVICE CARD
 ========================================================= */
 
 .service-card {
@@ -417,6 +566,7 @@ a {
     padding: 20px;
 
     display: flex;
+
     flex-direction: column;
 
     justify-content: center;
@@ -455,6 +605,7 @@ a {
     color: #f8fafc;
 
     font-size: 16px;
+
     font-weight: 700;
 }
 
@@ -464,12 +615,13 @@ a {
     color: #64748b;
 
     font-size: 12px;
+
     font-weight: 600;
 }
 
 
 /* =========================================================
-   11. LOADING STATE
+   15. LOADING STATE
 ========================================================= */
 
 .services-loading {
@@ -519,7 +671,7 @@ a {
 
 
 /* =========================================================
-   12. EMPTY STATE
+   16. EMPTY STATE
 ========================================================= */
 
 .services-empty {
@@ -556,6 +708,7 @@ a {
     margin-bottom: 5px;
 
     font-size: 18px;
+
     font-weight: 800;
 }
 
@@ -567,26 +720,27 @@ a {
 
 
 /* =========================================================
-   13. NOTIFICATION MODAL
+   17. NOTIFICATION MODAL
+   MATCHES WORKER DASHBOARD MODAL
 ========================================================= */
 
 .notification-modal {
     position: fixed;
+
     inset: 0;
 
-    z-index: 99999;
+    display: grid;
 
-    display: flex;
+    place-items: center;
 
-    align-items: center;
-    justify-content: center;
+    padding: 20px;
 
-    padding: 18px;
+    background: rgba(0, 0, 0, .72);
 
-    background: rgba(2, 6, 23, .80);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    z-index: 2000;
 }
 
 .notification-modal[hidden] {
@@ -596,24 +750,53 @@ a {
 .notification-card {
     position: relative;
 
-    width: min(390px, calc(100vw - 36px));
+    width: min(100%, 430px);
 
-    padding: 32px 25px;
-
-    text-align: center;
+    padding: 32px 28px 26px;
 
     border:
         1px solid
-        rgba(255, 255, 255, .10);
+        var(--border);
 
     border-radius: 20px;
 
-    background: #0f172a;
+    background:
+        linear-gradient(
+            145deg,
+            #111827,
+            #0b1220
+        );
 
     box-shadow:
-        0 25px 80px
-        rgba(0, 0, 0, .55);
+        0 30px 80px
+        rgba(0, 0, 0, .48);
+
+    text-align: center;
+
+    animation:
+        modalIn .22s ease;
 }
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(12px)
+            scale(.98);
+    }
+
+    to {
+        opacity: 1;
+
+        transform: none;
+    }
+}
+
+
+/* =========================================================
+   18. MODAL CLOSE BUTTON
+========================================================= */
 
 .notification-close-button {
     position: absolute;
@@ -621,237 +804,227 @@ a {
     top: 12px;
     right: 12px;
 
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 34px;
 
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .12);
-
-    border-radius: 50%;
+    border-radius: 9px;
 
     background:
         rgba(255, 255, 255, .06);
 
-    color: #ffffff;
+    color: #cbd5e1;
 
-    font-size: 27px;
+    font-size: 1.35rem;
+
+    line-height: 1;
 }
 
+.notification-close-button:hover {
+    background:
+        rgba(255, 255, 255, .1);
+
+    color: #fff;
+}
+
+
+/* =========================================================
+   19. MODAL ICON
+========================================================= */
+
 .notification-icon {
-    width: 62px;
-    height: 62px;
+    width: 54px;
+    height: 54px;
 
-    margin: 0 auto 18px;
+    display: grid;
 
-    display: flex;
+    place-items: center;
 
-    align-items: center;
-    justify-content: center;
+    margin:
+        0 auto 17px;
 
     border-radius: 50%;
 
     background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
+        rgba(34, 197, 94, .12);
 
-    color: #ffffff;
+    color: var(--green);
 
-    font-size: 28px;
+    font-size: 1.45rem;
+
     font-weight: 800;
 }
 
-.notification-card h2 {
-    margin-bottom: 9px;
 
-    font-size: 23px;
-    font-weight: 800;
+/* =========================================================
+   20. MODAL CONTENT
+========================================================= */
+
+.notification-card h2 {
+    margin-bottom: 8px;
+
+    color: #fff;
+
+    font-size: 1.18rem;
 }
 
 .notification-card p {
-    margin-bottom: 22px;
+    color: var(--muted);
 
-    color: #cbd5e1;
+    font-size: .88rem;
 
-    font-size: 14px;
     line-height: 1.7;
 
     white-space: pre-line;
 }
 
+
+/* =========================================================
+   21. MODAL ACTIONS
+========================================================= */
+
 .notification-actions {
     display: flex;
+
+    justify-content: center;
+
     gap: 10px;
+
+    margin-top: 24px;
 }
 
 .notification-actions button {
-    flex: 1;
+    min-width: 120px;
 
-    min-height: 46px;
+    min-height: 44px;
 
-    border: none;
-    border-radius: 12px;
+    padding: 0 18px;
 
-    font-size: 14px;
+    border-radius: 10px;
+
+    background: var(--green);
+
+    color: #fff;
+
+    font-size: .84rem;
+
     font-weight: 700;
+
+    transition:
+        transform .2s ease,
+        opacity .2s ease;
 }
 
-#notificationButton {
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
+.notification-actions button:hover {
+    transform: translateY(-1px);
+}
 
-    color: #ffffff;
+.notification-actions button:disabled {
+    cursor: not-allowed;
+
+    opacity: .65;
+
+    transform: none;
 }
 
 
 /* =========================================================
-   14. MODAL TYPES
+   22. MODAL VARIANTS
 ========================================================= */
 
-.notification-card.error {
-    border-color:
-        rgba(239, 68, 68, .25);
+.notification-card.success .notification-icon {
+    background:
+        rgba(34, 197, 94, .12);
+
+    color: var(--green);
 }
 
 .notification-card.error .notification-icon {
     background:
-        linear-gradient(
-            135deg,
-            #ef4444,
-            #dc2626
-        );
-}
+        rgba(239, 68, 68, .12);
 
-.notification-card.error #notificationButton {
-    background:
-        linear-gradient(
-            135deg,
-            #ef4444,
-            #dc2626
-        );
-}
-
-.notification-card.confirm {
-    border-color:
-        rgba(245, 158, 11, .25);
-}
-
-.notification-card.confirm .notification-icon {
-    background:
-        linear-gradient(
-            135deg,
-            #f59e0b,
-            #d97706
-        );
-}
-
-.notification-card.success {
-    border-color:
-        rgba(34, 197, 94, .25);
-}
-
-.notification-card.info {
-    border-color:
-        rgba(59, 130, 246, .25);
+    color: #f87171;
 }
 
 .notification-card.info .notification-icon {
     background:
-        linear-gradient(
-            135deg,
-            #3b82f6,
-            #2563eb
-        );
+        rgba(59, 130, 246, .12);
+
+    color: #60a5fa;
+}
+
+.notification-card.confirm .notification-icon {
+    background:
+        rgba(245, 158, 11, .12);
+
+    color: #fbbf24;
+}
+
+.notification-card.error .notification-actions button {
+    background: var(--red);
+}
+
+.notification-card.confirm .notification-actions button {
+    background: #f59e0b;
 }
 
 
 /* =========================================================
-   15. RESPONSIVE DESIGN
+   23. RESPONSIVE DESIGN
 ========================================================= */
-
-@media (max-width: 1100px) {
-
-    .sidebar {
-        width: 240px;
-    }
-
-    .dashboard {
-        width: calc(100% - 240px);
-        margin-right: 240px;
-
-        padding-left: 25px;
-        padding-right: 25px;
-    }
-}
-
 
 @media (max-width: 900px) {
 
     .menu-btn {
-        display: flex;
+        display: block;
     }
 
     .sidebar {
-        right: -280px;
+        top: 70px;
 
-        width: 270px;
+        width: 280px;
 
-        border-left: none;
+        transform: translateX(100%);
 
-        transition: right .3s ease;
+        transition:
+            transform .25s ease;
     }
 
     .sidebar.active {
-        right: 0;
+        transform: translateX(0);
     }
 
     .close-menu-btn {
-        display: flex;
+        display: block;
     }
 
     .dashboard {
         width: 100%;
+
         margin-right: 0;
 
         padding:
-            95px
-            24px
-            55px;
+            100px
+            28px
+            50px;
     }
 }
 
 
 @media (max-width: 600px) {
 
-    .topbar {
-        height: 65px;
-    }
-
     .topbar-inner {
         padding: 0 18px;
     }
 
     .logo {
-        font-size: 20px;
+        font-size: 1.2rem;
     }
 
     .dashboard {
         padding:
-            85px
-            12px
-            45px;
+            92px
+            16px
+            40px;
     }
 
     .dashboard-header {
@@ -875,32 +1048,38 @@ a {
     }
 
     .notification-card {
-        width: min(
-            390px,
-            calc(100vw - 24px)
-        );
+        padding:
+            30px
+            20px
+            22px;
+    }
 
-        padding: 28px 20px;
+    .notification-actions {
+        flex-direction: column;
+    }
+
+    .notification-actions button {
+        width: 100%;
     }
 }
 
 
 /* =========================================================
-   16. ACCESSIBILITY
+   24. ACCESSIBILITY
 ========================================================= */
 
 button:focus-visible,
 a:focus-visible {
     outline:
         2px solid
-        #22c55e;
+        var(--green);
 
     outline-offset: 3px;
 }
 
 
 /* =========================================================
-   17. REDUCED MOTION
+   25. REDUCED MOTION
 ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {

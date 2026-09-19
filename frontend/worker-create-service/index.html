@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <!-- =====================================================
+         BASIC DOCUMENT CONFIGURATION
+    ====================================================== -->
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Create Service | SkillConnect</title>
+
+
+    <!-- =====================================================
+         GOOGLE FONT
+    ====================================================== -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =====================================================
+         PAGE STYLES
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- =====================================================
+         BACKGROUND EFFECTS
+
+         These match the worker-dashboard visual design.
+    ====================================================== -->
+
+    <div
+        class="green-glow"
+        aria-hidden="true"
+    ></div>
+
+    <div
+        class="blue-glow"
+        aria-hidden="true"
+    ></div>
+
+
+    <!-- =====================================================
+         TOP NAVIGATION BAR
+    ====================================================== -->
+
+    <header class="topbar">
+
+        <div class="topbar-inner">
+
+
+            <!-- =================================================
+                 BACK NAVIGATION
+            ================================================== -->
+
+            <a
+                href="../worker-services/index.html"
+                class="back-navigation"
+                id="backNavigation"
+                aria-label="Go back to Worker Services"
+            >
+
+                <span
+                    class="back-icon"
+                    aria-hidden="true"
+                >
+                    ←
+                </span>
+
+                <span class="back-text">
+                    Back
+                </span>
+
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         MAIN CREATE-SERVICE PAGE
+    ====================================================== -->
+
+    <main
+        class="create-service-page"
+        id="createServicePage"
+        hidden
+    >
+
+
+        <!-- =================================================
+             PAGE HEADER
+        ================================================== -->
+
+        <section class="page-header">
+
+            <h1>
+                Add A Service
+            </h1>
+
+            <p>
+                Create a service so clients can discover
+                what you offer.
+            </p>
+
+        </section>
+
+
+        <!-- =================================================
+             SERVICE FORM CARD
+        ================================================== -->
+
+        <section class="service-form-section">
+
+            <form
+                id="serviceForm"
+                class="service-form"
+                novalidate
+            >
+
+
+                <!-- =============================================
+                     SERVICE INFORMATION
+                ============================================== -->
+
+                <div class="form-section-heading">
+
+                    <h2>
+                        Service Information
+                    </h2>
+
+                    <p>
+                        Tell clients about the service you provide.
+                    </p>
+
+                </div>
+
+
+                <!-- =============================================
+                     LOCAL SKILL
+                ============================================== -->
+
+                <div class="form-group">
+
+                    <label
+                        for="skill"
+                        class="form-label"
+                    >
+                        Skill
+                    </label>
+
+                    <select
+                        id="skill"
+                        name="skill"
+                        class="form-control"
+                        required
+                    >
+
+                        <option
+                            value=""
+                            selected
+                            disabled
+                        >
+                            Select your skill
+                        </option>
+
+                    </select>
+
+                    <small class="field-help">
+                        Select the local skill that matches this
+                        service.
+                    </small>
+
+                </div>
+
+
+                <!-- =============================================
+                     EXPERIENCE
+                ============================================== -->
+
+                <div class="form-group">
+
+                    <label
+                        for="experience"
+                        class="form-label"
+                    >
+                        Experience
+                    </label>
+
+                    <select
+                        id="experience"
+                        name="experience"
+                        class="form-control"
+                        required
+                    >
+
+                        <option
+                            value=""
+                            selected
+                            disabled
+                        >
+                            Select your experience
+                        </option>
+
+                        <option value="Less than 1 year">
+                            Less than 1 year
+                        </option>
+
+                        <option value="1 year">
+                            1 year
+                        </option>
+
+                        <option value="2 years">
+                            2 years
+                        </option>
+
+                        <option value="3 years">
+                            3 years
+                        </option>
+
+                        <option value="4 years">
+                            4 years
+                        </option>
+
+                        <option value="5 years+">
+                            5 years+
+                        </option>
+
+                    </select>
+
+                    <small class="field-help">
+                        Choose the amount of experience you have
+                        providing this service.
+                    </small>
+
+                </div>
+
+
+                <!-- =============================================
+                     SERVICE DESCRIPTION
+                ============================================== -->
+
+                <div class="form-group">
+
+                    <div class="label-row">
+
+                        <label
+                            for="description"
+                            class="form-label"
+                        >
+                            Description
+                        </label>
+
+                        <span
+                            id="descriptionWordCount"
+                            class="word-counter"
+                        >
+                            0 / 150 words
+                        </span>
+
+                    </div>
+
+                    <textarea
+                        id="description"
+                        name="description"
+                        class="form-control description-input"
+                        rows="7"
+                        placeholder="Describe the service you provide..."
+                        maxlength="150"
+                        required
+                    ></textarea>
+
+                    <small class="field-help">
+                        Describe your service clearly. Maximum
+                        150 words.
+                    </small>
+
+                </div>
+
+
+                <!-- =============================================
+                     PORTFOLIO
+                ============================================== -->
+
+                <div class="form-section-heading portfolio-heading">
+
+                    <h2>
+                        Portfolio Images
+                    </h2>
+
+                    <p>
+                        Add up to 3 images showing examples of
+                        your work. Each image must not exceed 5MB.
+                    </p>
+
+                </div>
+
+
+                <!-- =============================================
+                     THREE PORTFOLIO IMAGE CONTAINERS
+                ============================================== -->
+
+                <div class="portfolio-grid">
+
+
+                    <!-- =========================================
+                         PORTFOLIO IMAGE 1
+                    ========================================== -->
+
+                    <div class="portfolio-upload-card">
+
+                        <label
+                            for="portfolioPhoto1"
+                            class="portfolio-upload-label"
+                        >
+
+                            <div
+                                id="portfolioPreview1"
+                                class="portfolio-preview"
+                            >
+
+                                <span
+                                    class="portfolio-placeholder"
+                                    aria-hidden="true"
+                                >
+                                    +
+                                </span>
+
+                                <span>
+                                    Add Image
+                                </span>
+
+                            </div>
+
+
+                            <!--
+                                The file input remains available
+                                to the browser but is completely
+                                hidden from the user.
+
+                                Clicking the portfolio container
+                                opens this file selector.
+                            -->
+                            <input
+                                type="file"
+                                id="portfolioPhoto1"
+                                name="portfolioPhotos"
+                                class="portfolio-input"
+                                accept="image/*"
+                            >
+
+                        </label>
+
+                        <span class="portfolio-number">
+                            Image 1
+                        </span>
+
+                    </div>
+
+
+                    <!-- =========================================
+                         PORTFOLIO IMAGE 2
+                    ========================================== -->
+
+                    <div class="portfolio-upload-card">
+
+                        <label
+                            for="portfolioPhoto2"
+                            class="portfolio-upload-label"
+                        >
+
+                            <div
+                                id="portfolioPreview2"
+                                class="portfolio-preview"
+                            >
+
+                                <span
+                                    class="portfolio-placeholder"
+                                    aria-hidden="true"
+                                >
+                                    +
+                                </span>
+
+                                <span>
+                                    Add Image
+                                </span>
+
+                            </div>
+
+
+                            <!--
+                                Hidden file input for portfolio
+                                image 2.
+                            -->
+                            <input
+                                type="file"
+                                id="portfolioPhoto2"
+                                name="portfolioPhotos"
+                                class="portfolio-input"
+                                accept="image/*"
+                            >
+
+                        </label>
+
+                        <span class="portfolio-number">
+                            Image 2
+                        </span>
+
+                    </div>
+
+
+                    <!-- =========================================
+                         PORTFOLIO IMAGE 3
+                    ========================================== -->
+
+                    <div class="portfolio-upload-card">
+
+                        <label
+                            for="portfolioPhoto3"
+                            class="portfolio-upload-label"
+                        >
+
+                            <div
+                                id="portfolioPreview3"
+                                class="portfolio-preview"
+                            >
+
+                                <span
+                                    class="portfolio-placeholder"
+                                    aria-hidden="true"
+                                >
+                                    +
+                                </span>
+
+                                <span>
+                                    Add Image
+                                </span>
+
+                            </div>
+
+
+                            <!--
+                                Hidden file input for portfolio
+                                image 3.
+                            -->
+                            <input
+                                type="file"
+                                id="portfolioPhoto3"
+                                name="portfolioPhotos"
+                                class="portfolio-input"
+                                accept="image/*"
+                            >
+
+                        </label>
+
+                        <span class="portfolio-number">
+                            Image 3
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- =============================================
+                     PORTFOLIO SIZE INFORMATION
+                ============================================== -->
+
+                <p class="portfolio-help">
+                    Supported image formats: JPG, JPEG, PNG, WEBP.
+                    Maximum size: 5MB per image.
+                </p>
+
+
+                <!-- =============================================
+                     FORM SUBMISSION
+                ============================================== -->
+
+                <div class="form-actions">
+
+                    <button
+                        type="submit"
+                        id="addServiceBtn"
+                        class="add-service-button"
+                    >
+
+                        <span class="button-text">
+                            Add A Service
+                        </span>
+
+                        <span
+                            class="button-loader"
+                            aria-hidden="true"
+                            hidden
+                        ></span>
+
+                    </button>
+
+                </div>
+
+
+            </form>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- =====================================================
+         NOTIFICATION MODAL
+
+         This uses the same modal structure and visual behavior
+         as the worker-dashboard.
+    ====================================================== -->
+
+    <div
+        id="notificationOverlay"
+        class="notification-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="notificationTitle"
+        aria-describedby="notificationText"
+        hidden
+    >
+
+        <div
+            id="notificationCard"
+            class="notification-card"
+        >
+
+
+            <!-- =============================================
+                 CLOSE BUTTON
+            ============================================== -->
+
+            <button
+                type="button"
+                id="notificationCancelButton"
+                class="notification-close-button"
+                aria-label="Close notification"
+            >
+                ×
+            </button>
+
+
+            <!-- =============================================
+                 MODAL ICON
+            ============================================== -->
+
+            <div
+                id="notificationIcon"
+                class="notification-icon"
+                aria-hidden="true"
+            >
+                ✓
+            </div>
+
+
+            <!-- =============================================
+                 MODAL TITLE
+            ============================================== -->
+
+            <h2 id="notificationTitle">
+                Notification
+            </h2>
+
+
+            <!-- =============================================
+                 MODAL MESSAGE
+            ============================================== -->
+
+            <p id="notificationText"></p>
+
+
+            <!-- =============================================
+                 MODAL ACTION
+            ============================================== -->
+
+            <div class="notification-actions">
+
+                <button
+                    type="button"
+                    id="notificationButton"
+                >
+                    Continue
+                </button>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CONFIGURATION
+    ====================================================== -->
+
+    <script src="../config.js"></script>
+
+
+    <!-- =====================================================
+         PAGE JAVASCRIPT
+    ====================================================== -->
+
+    <script
+        src="script.js"
+        defer
+    ></script>
+
+
+</body>
+
+</html>
