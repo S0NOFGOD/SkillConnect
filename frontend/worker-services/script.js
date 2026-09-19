@@ -444,7 +444,89 @@ async function loadServices() {
 
 
 /* =========================================================
-   12. DISPLAY SERVICES
+   12. FORMAT SERVICE DATE
+========================================================= */
+
+/*
+   Converts the service date into the required format:
+
+   YYYY-MM-DD
+
+   Example:
+   2026-09-19T00:00:00.000Z
+   becomes:
+   2026-09-19
+*/
+function formatServiceDate(dateValue) {
+
+    /* -----------------------------------------
+       Check that a date value actually exists.
+    ----------------------------------------- */
+    if (!dateValue) {
+        return "Date not provided";
+    }
+
+
+    /* -----------------------------------------
+       Convert the backend value into a Date.
+    ----------------------------------------- */
+    const date = new Date(dateValue);
+
+
+    /* -----------------------------------------
+       Check whether the date is valid.
+    ----------------------------------------- */
+    if (Number.isNaN(date.getTime())) {
+        return "Date not provided";
+    }
+
+
+    /* -----------------------------------------
+       Get the year.
+       Example: 2026
+    ----------------------------------------- */
+    const year =
+        date.getUTCFullYear();
+
+
+    /* -----------------------------------------
+       Get the month.
+
+       JavaScript months start from 0,
+       so we add 1.
+
+       Example:
+       8 + 1 = 9
+    ----------------------------------------- */
+    const month =
+        String(
+            date.getUTCMonth() + 1
+        ).padStart(2, "0");
+
+
+    /* -----------------------------------------
+       Get the day.
+
+       Example:
+       19
+    ----------------------------------------- */
+    const day =
+        String(
+            date.getUTCDate()
+        ).padStart(2, "0");
+
+
+    /* -----------------------------------------
+       Return the final format:
+
+       YYYY-MM-DD
+    ----------------------------------------- */
+    return `${year}-${month}-${day}`;
+}
+
+
+/* =========================================================
+   13. DISPLAY SERVICES
 ========================================================= */
 
 function displayServices(
@@ -452,12 +534,6 @@ function displayServices(
 ) {
 
     servicesContainer.innerHTML = "";
-
-    /*
-       If the backend returns null,
-       undefined, or an empty array,
-       show the empty-state message.
-    */
 
     if (
         !services ||
@@ -485,16 +561,22 @@ function displayServices(
             card.className =
                 "service-card";
 
+
             card.setAttribute(
                 "role",
                 "button"
             );
+
 
             card.setAttribute(
                 "tabindex",
                 "0"
             );
 
+
+            /* -----------------------------------------
+               SERVICE SKILL
+            ----------------------------------------- */
 
             const skill =
                 document.createElement("strong");
@@ -506,6 +588,10 @@ function displayServices(
                 service.skill || "Service";
 
 
+            /* -----------------------------------------
+               SERVICE DATE
+            ----------------------------------------- */
+
             const date =
                 document.createElement("span");
 
@@ -513,23 +599,29 @@ function displayServices(
                 "service-date";
 
             date.textContent =
-                service.date || "Date not provided";
+                formatServiceDate(
+                    service.date
+                );
 
 
-            card.appendChild(skill);
-            card.appendChild(date);
+            /* -----------------------------------------
+               ADD CONTENT TO CARD
+            ----------------------------------------- */
 
+            card.appendChild(
+                skill
+            );
 
-            /*
-               Save the service ID and redirect
-               when the service card is selected.
-            */
+            card.appendChild(
+                date
+            );
 
             card.addEventListener(
                 "click",
-                () => openService(service.id)
+                () => openService(
+                    service.id
+                )
             );
-
 
             card.addEventListener(
                 "keydown",
@@ -577,11 +669,6 @@ function openService(
         return;
     }
 
-
-    /*
-       Store the selected service ID exactly
-       as required by the service-details flow.
-    */
 
     sessionStorage.setItem(
         "serviceId",
