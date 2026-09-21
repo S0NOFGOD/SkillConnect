@@ -80,7 +80,16 @@
                     <label for="description">Description</label>
                     <span id="descriptionWordCount">0 / 150 words</span>
                 </div>
-                <textarea id="description" name="description" rows="7" maxlength="150" placeholder="Describe the service you provide..." required></textarea>
+
+                <textarea
+                    id="description"
+                    name="description"
+                    rows="7"
+                    maxlength="150"
+                    placeholder="Describe the service you provide..."
+                    required
+                ></textarea>
+
                 <small>Clearly describe what clients can expect from you.</small>
             </div>
 
@@ -102,8 +111,15 @@
                             <span class="portfolio-placeholder">+</span>
                             <span class="portfolio-add-text">Add Image</span>
                         </div>
-                        <input type="file" id="portfolioPhoto1" name="portfolioPhotos" accept="image/jpeg,image/png,image/webp">
+
+                        <input
+                            type="file"
+                            id="portfolioPhoto1"
+                            name="portfolioPhotos"
+                            accept="image/jpeg,image/png,image/webp"
+                        >
                     </label>
+
                     <span class="portfolio-number">Image 1</span>
                 </div>
 
@@ -114,8 +130,15 @@
                             <span class="portfolio-placeholder">+</span>
                             <span class="portfolio-add-text">Add Image</span>
                         </div>
-                        <input type="file" id="portfolioPhoto2" name="portfolioPhotos" accept="image/jpeg,image/png,image/webp">
+
+                        <input
+                            type="file"
+                            id="portfolioPhoto2"
+                            name="portfolioPhotos"
+                            accept="image/jpeg,image/png,image/webp"
+                        >
                     </label>
+
                     <span class="portfolio-number">Image 2</span>
                 </div>
 
@@ -126,14 +149,23 @@
                             <span class="portfolio-placeholder">+</span>
                             <span class="portfolio-add-text">Add Image</span>
                         </div>
-                        <input type="file" id="portfolioPhoto3" name="portfolioPhotos" accept="image/jpeg,image/png,image/webp">
+
+                        <input
+                            type="file"
+                            id="portfolioPhoto3"
+                            name="portfolioPhotos"
+                            accept="image/jpeg,image/png,image/webp"
+                        >
                     </label>
+
                     <span class="portfolio-number">Image 3</span>
                 </div>
 
             </div>
 
-            <p class="portfolio-help">JPG, JPEG, PNG or WEBP • Maximum 5 MB per image</p>
+            <p class="portfolio-help">
+                JPG, JPEG, PNG or WEBP • Maximum 5 MB per image
+            </p>
 
             <!-- Actions -->
             <div class="form-actions">
@@ -155,10 +187,25 @@
 </main>
 
 <!-- Notification modal -->
-<div id="notificationOverlay" class="notification-modal" role="dialog" aria-modal="true" aria-labelledby="notificationTitle" aria-describedby="notificationText" hidden>
+<div
+    id="notificationOverlay"
+    class="notification-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="notificationTitle"
+    aria-describedby="notificationText"
+    hidden
+>
     <div id="notificationCard" class="notification-card">
 
-        <button type="button" id="notificationCancelButton" class="notification-close-button" aria-label="Close notification">×</button>
+        <button
+            type="button"
+            id="notificationCancelButton"
+            class="notification-close-button"
+            aria-label="Close notification"
+        >
+            ×
+        </button>
 
         <div id="notificationIcon" class="notification-icon">!</div>
 

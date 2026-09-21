@@ -34,7 +34,10 @@ body{
     font-family:"Inter",sans-serif;
 }
 
-button,input,select,textarea{
+button,
+input,
+select,
+textarea{
     font:inherit;
 }
 
@@ -380,11 +383,13 @@ button,input,select,textarea{
     border-top-color:white;
     border-radius:50%;
     animation:spin .7s linear infinite;
-    display: none !important;
+    display:none !important;
 }
 
 @keyframes spin{
-    to{transform:rotate(360deg)}
+    to{
+        transform:rotate(360deg);
+    }
 }
 
 /* Modal */
@@ -419,8 +424,15 @@ button,input,select,textarea{
 }
 
 @keyframes modalIn{
-    from{opacity:0;transform:translateY(10px) scale(.98)}
-    to{opacity:1;transform:none}
+    from{
+        opacity:0;
+        transform:translateY(10px) scale(.98);
+    }
+
+    to{
+        opacity:1;
+        transform:none;
+    }
 }
 
 #notificationCancelButton{
@@ -477,6 +489,7 @@ button,input,select,textarea{
 /* Responsive */
 
 @media(max-width:700px){
+
     #viewServicePage{
         padding:96px 15px 45px;
     }
@@ -496,6 +509,7 @@ button,input,select,textarea{
 }
 
 @media(max-width:500px){
+
     .topbar{
         height:62px;
     }
@@ -520,18 +534,23 @@ button,input,select,textarea{
         padding:18px;
     }
 
+    /* Keep all 3 portfolio items side by side on mobile */
     .portfolio-grid{
-        grid-template-columns:1fr 1fr;
+        grid-template-columns:repeat(3,1fr);
+        gap:8px;
     }
 
     .portfolio-upload-card:last-child{
-        width:calc(50% - 5px);
+        width:100%;
     }
 }
 
 @media(max-width:360px){
+
+    /* Keep all 3 portfolio items side by side on very small screens */
     .portfolio-grid{
-        grid-template-columns:1fr;
+        grid-template-columns:repeat(3,1fr);
+        gap:6px;
     }
 
     .portfolio-upload-card:last-child{
@@ -540,6 +559,7 @@ button,input,select,textarea{
 }
 
 @media(prefers-reduced-motion:reduce){
+
     *,
     *::before,
     *::after{
