@@ -677,7 +677,7 @@ function openService(
 
 
     window.location.href =
-        "../worker-service-details/index.html";
+        "../worker-view-service/index.html";
 }
 
 

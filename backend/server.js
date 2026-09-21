@@ -55,6 +55,16 @@ const workerCreateServiceRoutes =
     require("./routes/worker-create-service");
 
 
+/*
+   NEW:
+   Routes responsible for viewing,
+   updating and deleting worker services.
+*/
+
+const workerViewServiceRoutes =
+    require("./routes/worker-view-service");
+
+
 const refreshTokenRoutes =
     require("./routes/refreshToken");
 
@@ -321,7 +331,29 @@ app.use(
 
 
 /* =========================================================
-   18. CLIENT AUTHENTICATION
+   18. WORKER VIEW SERVICE
+========================================================= */
+
+/*
+   Handles:
+
+   GET    /api/worker/view-service/:serviceId
+   PUT    /api/worker/view-service/:serviceId
+   DELETE /api/worker/view-service/:serviceId
+
+   The route will handle authentication,
+   validation, viewing, updating and deleting
+   the worker's service.
+*/
+
+app.use(
+    "/api/worker",
+    workerViewServiceRoutes
+);
+
+
+/* =========================================================
+   19. CLIENT AUTHENTICATION
 ========================================================= */
 
 app.use(
@@ -331,7 +363,7 @@ app.use(
 
 
 /* =========================================================
-   19. CLIENT EMAIL OTP
+   20. CLIENT EMAIL OTP
 ========================================================= */
 
 app.use(
@@ -341,7 +373,7 @@ app.use(
 
 
 /* =========================================================
-   20. CLIENT PASSWORD RESET OTP
+   21. CLIENT PASSWORD RESET OTP
 ========================================================= */
 
 app.use(
@@ -351,7 +383,7 @@ app.use(
 
 
 /* =========================================================
-   21. CLIENT CREATE PROFILE
+   22. CLIENT CREATE PROFILE
 ========================================================= */
 
 app.use(
@@ -361,7 +393,7 @@ app.use(
 
 
 /* =========================================================
-   22. CLIENT PASSWORD CHANGE
+   23. CLIENT PASSWORD CHANGE
 ========================================================= */
 
 app.use(
@@ -371,7 +403,7 @@ app.use(
 
 
 /* =========================================================
-   23. CLIENT WORKER SEARCH
+   24. CLIENT WORKER SEARCH
 ========================================================= */
 
 app.use(
@@ -381,7 +413,7 @@ app.use(
 
 
 /* =========================================================
-   24. CLIENT WORKER DETAILS
+   25. CLIENT WORKER DETAILS
 ========================================================= */
 
 app.use(
@@ -391,7 +423,7 @@ app.use(
 
 
 /* =========================================================
-   25. WORKER DASHBOARD
+   26. WORKER DASHBOARD
 ========================================================= */
 
 app.use(
@@ -401,7 +433,7 @@ app.use(
 
 
 /* =========================================================
-   26. WORKER SERVICES
+   27. WORKER SERVICES
 ========================================================= */
 
 app.use(
@@ -411,7 +443,7 @@ app.use(
 
 
 /* =========================================================
-   27. UNKNOWN ROUTE HANDLER
+   28. UNKNOWN ROUTE HANDLER
 ========================================================= */
 
 app.use(
@@ -431,7 +463,7 @@ app.use(
 
 
 /* =========================================================
-   28. GLOBAL ERROR HANDLER
+   29. GLOBAL ERROR HANDLER
 ========================================================= */
 
 app.use(
@@ -489,7 +521,7 @@ app.use(
 
 
 /* =========================================================
-   29. START SERVER
+   30. START SERVER
 ========================================================= */
 
 const startServer = async () => {
@@ -533,7 +565,7 @@ const startServer = async () => {
 
 
 /* =========================================================
-   30. START APPLICATION
+   31. START APPLICATION
 ========================================================= */
 
 startServer();

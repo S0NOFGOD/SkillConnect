@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="View and update your SkillConnect service.">
+<title>View Service | SkillConnect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- Background glow effects -->
+<div class="green-glow" aria-hidden="true"></div>
+<div class="blue-glow" aria-hidden="true"></div>
+
+<!-- Top navigation -->
+<header class="topbar">
+    <div class="topbar-inner">
+        <button type="button" class="back-navigation" id="backNavigation" aria-label="Go back to Worker Services">
+            <span class="back-icon">←</span>
+            <span class="back-text">Back to Services</span>
+        </button>
+    </div>
+</header>
+
+<!-- Main page -->
+<main class="view-service-page" id="viewServicePage" hidden>
+
+    <!-- Page heading -->
+    <section class="page-header">
+        <div>
+            <h1>View Service</h1>
+        </div>
+    </section>
+
+    <!-- Service form -->
+    <section class="service-form-section">
+        <form id="serviceForm" class="service-form" novalidate>
+
+            <!-- Service information -->
+            <div class="section-heading">
+                <div class="section-icon">🛠️</div>
+                <div>
+                    <h2>Service Information</h2>
+                    <p>Keep your service details accurate and professional.</p>
+                </div>
+            </div>
+
+            <!-- Skill -->
+            <div class="form-group">
+                <label for="skill">Skill</label>
+                <select id="skill" name="skill" required>
+                    <option value="" selected disabled>Select your skill</option>
+                </select>
+                <small>Select the skill that matches this service.</small>
+            </div>
+
+            <!-- Experience -->
+            <div class="form-group">
+                <label for="experience">Experience</label>
+                <select id="experience" name="experience" required>
+                    <option value="" selected disabled>Select your experience</option>
+                    <option value="Less than 1 year">Less than 1 year</option>
+                    <option value="1 year">1 year</option>
+                    <option value="2 years">2 years</option>
+                    <option value="3 years">3 years</option>
+                    <option value="4 years">4 years</option>
+                    <option value="5 years+">5 years+</option>
+                </select>
+                <small>Choose your experience level for this service.</small>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+                <div class="label-row">
+                    <label for="description">Description</label>
+                    <span id="descriptionWordCount">0 / 150 words</span>
+                </div>
+                <textarea id="description" name="description" rows="7" maxlength="150" placeholder="Describe the service you provide..." required></textarea>
+                <small>Clearly describe what clients can expect from you.</small>
+            </div>
+
+            <!-- Portfolio -->
+            <div class="section-heading portfolio-heading">
+                <div class="section-icon">📸</div>
+                <div>
+                    <h2>Portfolio</h2>
+                    <p>Show clients examples of your previous work.</p>
+                </div>
+            </div>
+
+            <div class="portfolio-grid">
+
+                <!-- Portfolio 1 -->
+                <div class="portfolio-upload-card">
+                    <label for="portfolioPhoto1">
+                        <div id="portfolioPreview1" class="portfolio-preview">
+                            <span class="portfolio-placeholder">+</span>
+                            <span class="portfolio-add-text">Add Image</span>
+                        </div>
+                        <input type="file" id="portfolioPhoto1" name="portfolioPhotos" accept="image/jpeg,image/png,image/webp">
+                    </label>
+                    <span class="portfolio-number">Image 1</span>
+                </div>
+
+                <!-- Portfolio 2 -->
+                <div class="portfolio-upload-card">
+                    <label for="portfolioPhoto2">
+                        <div id="portfolioPreview2" class="portfolio-preview">
+                            <span class="portfolio-placeholder">+</span>
+                            <span class="portfolio-add-text">Add Image</span>
+                        </div>
+                        <input type="file" id="portfolioPhoto2" name="portfolioPhotos" accept="image/jpeg,image/png,image/webp">
+                    </label>
+                    <span class="portfolio-number">Image 2</span>
+                </div>
+
+                <!-- Portfolio 3 -->
+                <div class="portfolio-upload-card">
+                    <label for="portfolioPhoto3">
+                        <div id="portfolioPreview3" class="portfolio-preview">
+                            <span class="portfolio-placeholder">+</span>
+                            <span class="portfolio-add-text">Add Image</span>
+                        </div>
+                        <input type="file" id="portfolioPhoto3" name="portfolioPhotos" accept="image/jpeg,image/png,image/webp">
+                    </label>
+                    <span class="portfolio-number">Image 3</span>
+                </div>
+
+            </div>
+
+            <p class="portfolio-help">JPG, JPEG, PNG or WEBP • Maximum 5 MB per image</p>
+
+            <!-- Actions -->
+            <div class="form-actions">
+
+                <button type="button" id="deleteServiceBtn" class="delete-service-button">
+                    <span class="delete-button-text">Delete Service</span>
+                    <span class="delete-button-loader" hidden></span>
+                </button>
+
+                <button type="submit" id="updateServiceBtn" class="update-service-button">
+                    <span class="update-button-text">Update Changes</span>
+                    <span class="update-button-loader" hidden></span>
+                </button>
+
+            </div>
+
+        </form>
+    </section>
+</main>
+
+<!-- Notification modal -->
+<div id="notificationOverlay" class="notification-modal" role="dialog" aria-modal="true" aria-labelledby="notificationTitle" aria-describedby="notificationText" hidden>
+    <div id="notificationCard" class="notification-card">
+
+        <button type="button" id="notificationCancelButton" class="notification-close-button" aria-label="Close notification">×</button>
+
+        <div id="notificationIcon" class="notification-icon">!</div>
+
+        <h2 id="notificationTitle">Notification</h2>
+        <p id="notificationText">Something happened.</p>
+
+        <div class="notification-actions">
+            <button type="button" id="notificationButton">Continue</button>
+        </div>
+
+    </div>
+</div>
+
+<!-- Configuration -->
+<script src="../config.js"></script>
+
+<!-- Page JavaScript -->
+<script src="script.js" defer></script>
+
+</body>
+</html>
