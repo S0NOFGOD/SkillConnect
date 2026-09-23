@@ -280,8 +280,15 @@ function validatePortfolioPhotos(){
         portfolioPhoto3?.files?.[0]||null
     ];
 
-    for(const file of portfolioFiles){
-        if(!file)continue;
+    for(let i=0;i<portfolioFiles.length;i++){
+        const file=portfolioFiles[i];
+
+        if(!file){
+            return{
+                valid:false,
+                message:`Please select portfolio photo ${i+1}.`
+            };
+        }
 
         const typeResult=validatePortfolioImageType(file);
 
@@ -464,14 +471,12 @@ async function buildServiceFormData(){
     formData.append("description",descriptionInput.value.trim());
 
     const files=[
-        portfolioPhoto1?.files?.[0]||null,
-        portfolioPhoto2?.files?.[0]||null,
-        portfolioPhoto3?.files?.[0]||null
+        portfolioPhoto1.files[0],
+        portfolioPhoto2.files[0],
+        portfolioPhoto3.files[0]
     ];
 
     for(const file of files){
-        if(!file)continue;
-
         const compressedFile=await compressImage(file);
 
         formData.append(
