@@ -3,6 +3,7 @@ const jwt=require("jsonwebtoken");
 const Worker=require("../models/worker");
 
 const{v2:cloudinary}=require("cloudinary");
+
 cloudinary.config({
     cloud_name:process.env.CLOUDINARY_CLOUD_NAME,
     api_key:process.env.CLOUDINARY_API_KEY,
@@ -12,8 +13,20 @@ cloudinary.config({
 const MAX_PORTFOLIO_IMAGE_SIZE=5*1024*1024;
 const MAX_PORTFOLIO_IMAGES=3;
 const MAX_DESCRIPTION_WORDS=300;
-const LOCAL_SKILLS=["Swimming Instructor","Barber","Hairdresser","Makeup Artist","Tailor","Fashion Designer","Plumber","Electrician","Painter","Welder","Carpenter","Bricklayer","Cleaner","Laundry Service","Mechanic","Auto Electrician","Phone Repair","Computer Repair","Graphic Designer","Web Developer","Photographer","Videographer","Caterer","Baker","Cook","Event Planner","Interior Decorator","AC Technician","Generator Repair","POP Installer","Tiler","Furniture Maker","Driver","Tutor","Fitness Trainer","Other"];
-const EXPERIENCE_OPTIONS=["Less than 1 year","1 year","2 years","3 years","4 years","5 years+"];
+
+const LOCAL_SKILLS=[
+    "Swimming Instructor","Barber","Hairdresser","Makeup Artist","Tailor",
+    "Fashion Designer","Plumber","Electrician","Painter","Welder","Carpenter",
+    "Bricklayer","Cleaner","Laundry Service","Mechanic","Auto Electrician",
+    "Phone Repair","Computer Repair","Graphic Designer","Web Developer",
+    "Photographer","Videographer","Caterer","Baker","Cook","Event Planner",
+    "Interior Decorator","AC Technician","Generator Repair","POP Installer",
+    "Tiler","Furniture Maker","Driver","Tutor","Fitness Trainer","Other"
+];
+
+const EXPERIENCE_OPTIONS=[
+    "Less than 1 year","1 year","2 years","3 years","4 years","5 years+"
+];
 
 function countWords(text){
     if(!text||!text.trim())return 0;
@@ -32,19 +45,25 @@ function uploadImageToCloudinary(fileBuffer,workerId){
                     reject(error);
                     return;
                 }
+
                 if(!result||!result.public_id){
                     reject(new Error("Cloudinary did not return a public_id."));
                     return;
                 }
-                resolve({public_id:result.public_id});
+
+                resolve({
+                    public_id:result.public_id
+                });
             }
         );
+
         Readable.from(fileBuffer).pipe(uploadStream);
     });
 }
 
 async function deleteCloudinaryImages(publicIds){
     if(!Array.isArray(publicIds)||publicIds.length===0)return;
+
     for(const publicId of publicIds){
         try{
             await cloudinary.uploader.destroy(
@@ -107,9 +126,17 @@ async function createWorkerService(req,res){
                 message:"Worker account could not be found."
             });
 
-        const skill=typeof req.body.skill==="string"?req.body.skill.trim():"";
-        const experience=typeof req.body.experience==="string"?req.body.experience.trim():"";
-        const description=typeof req.body.description==="string"?req.body.description.trim():"";
+        const skill=typeof req.body.skill==="string"
+            ?req.body.skill.trim()
+            :"";
+
+        const experience=typeof req.body.experience==="string"
+            ?req.body.experience.trim()
+            :"";
+
+        const description=typeof req.body.description==="string"
+            ?req.body.description.trim()
+            :"";
 
         if(!skill)
             return res.status(400).json({
@@ -123,10 +150,13 @@ async function createWorkerService(req,res){
                 message:"The selected skill is not valid."
             });
 
-        const skillAlreadyExists=Array.isArray(worker.services)&&worker.services.some(
-            service=>typeof service.skill==="string"&&
-            service.skill.trim().toLowerCase()===skill.toLowerCase()
-        );
+        const skillAlreadyExists=
+            Array.isArray(worker.services)&&
+            worker.services.some(
+                service=>
+                    typeof service.skill==="string"&&
+                    service.skill.trim().toLowerCase()===skill.toLowerCase()
+            );
 
         if(skillAlreadyExists)
             return res.status(400).json({
@@ -160,7 +190,8 @@ async function createWorkerService(req,res){
                 message:"The service description cannot exceed 300 words."
             });
 
-        const portfolioFiles=Array.isArray(req.files)?req.files:[];
+        const portfolioFiles=
+            Array.isArray(req.files)?req.files:[];
 
         if(portfolioFiles.length===0)
             return res.status(400).json({
@@ -175,6 +206,7 @@ async function createWorkerService(req,res){
             });
 
         for(const file of portfolioFiles){
+
             if(!file.mimetype||!file.mimetype.startsWith("image/"))
                 return res.status(400).json({
                     success:false,
@@ -197,11 +229,21 @@ async function createWorkerService(req,res){
         let nextServiceId=1;
 
         if(Array.isArray(worker.services)&&worker.services.length>0){
-            const highestServiceId=worker.services.reduce((highest,service)=>{
-                const serviceId=Number(service.id);
-                if(Number.isFinite(serviceId)&&serviceId>highest)return serviceId;
-                return highest;
-            },0);
+
+            const highestServiceId=worker.services.reduce(
+                (highest,service)=>{
+                    const serviceId=Number(service.id);
+
+                    if(
+                        Number.isFinite(serviceId)&&
+                        serviceId>highest
+                    )
+                        return serviceId;
+
+                    return highest;
+                },
+                0
+            );
 
             nextServiceId=highestServiceId+1;
         }
@@ -209,13 +251,20 @@ async function createWorkerService(req,res){
         const portfolioPublicIds=[];
 
         for(const file of portfolioFiles){
-            const uploadedImage=await uploadImageToCloudinary(
-                file.buffer,
-                worker._id.toString()
+
+            const uploadedImage=
+                await uploadImageToCloudinary(
+                    file.buffer,
+                    worker._id.toString()
+                );
+
+            portfolioPublicIds.push(
+                uploadedImage.public_id
             );
 
-            portfolioPublicIds.push(uploadedImage.public_id);
-            uploadedPublicIds.push(uploadedImage.public_id);
+            uploadedPublicIds.push(
+                uploadedImage.public_id
+            );
         }
 
         const newService={
@@ -229,13 +278,17 @@ async function createWorkerService(req,res){
 
         worker.services.push(newService);
 
-        if(!Array.isArray(worker.skills))worker.skills=[];
+        if(!Array.isArray(worker.skills))
+            worker.skills=[];
 
         const hasSkill=worker.skills.some(
-            existingSkill=>existingSkill.trim().toLowerCase()===skill.toLowerCase()
+            existingSkill=>
+                existingSkill.trim().toLowerCase()===
+                skill.toLowerCase()
         );
 
-        if(!hasSkill)worker.skills.push(skill);
+        if(!hasSkill)
+            worker.skills.push(skill);
 
         await worker.save();
 
@@ -253,9 +306,15 @@ async function createWorkerService(req,res){
         });
 
     }catch(error){
-        await deleteCloudinaryImages(uploadedPublicIds);
 
-        console.error("Create worker service error:",error);
+        await deleteCloudinaryImages(
+            uploadedPublicIds
+        );
+
+        console.error(
+            "Create worker service error:",
+            error
+        );
 
         return res.status(500).json({
             success:false,

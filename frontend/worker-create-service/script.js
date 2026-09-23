@@ -24,6 +24,8 @@ const notificationButton=document.getElementById("notificationButton");
 
 const MAX_DESCRIPTION_WORDS=150;
 const MAX_PORTFOLIO_IMAGE_SIZE=5*1024*1024;
+const MAX_COMPRESSED_IMAGE_SIZE=2*1024*1024;
+const MAX_IMAGE_DIMENSION=1920;
 const CREATE_SERVICE_ENDPOINT="/api/worker/create-service";
 const AUTHENTICATION_REDIRECT="../worker-add-service/index.html";
 const SERVICES_REDIRECT="../worker-services/index.html";
@@ -381,20 +383,127 @@ async function extractResponseMessage(response){
     }
 }
 
-function buildServiceFormData(){
+function compressImage(file){
+    return new Promise((resolve,reject)=>{
+        const image=new Image();
+        const objectUrl=URL.createObjectURL(file);
+
+        image.onload=()=>{
+            URL.revokeObjectURL(objectUrl);
+
+            let width=image.width;
+            let height=image.height;
+
+            if(width>MAX_IMAGE_DIMENSION||height>MAX_IMAGE_DIMENSION){
+                if(width>height){
+                    height=Math.round(
+                        height*(MAX_IMAGE_DIMENSION/width)
+                    );
+                    width=MAX_IMAGE_DIMENSION;
+                }else{
+                    width=Math.round(
+                        width*(MAX_IMAGE_DIMENSION/height)
+                    );
+                    height=MAX_IMAGE_DIMENSION;
+                }
+            }
+
+            const canvas=document.createElement("canvas");
+            canvas.width=width;
+            canvas.height=height;
+
+            const context=canvas.getContext("2d");
+
+            if(!context){
+                reject(new Error("Image compression is not supported on this device."));
+                return;
+            }
+
+            context.drawImage(image,0,0,width,height);
+
+            canvas.toBlob(
+                blob=>{
+                    if(!blob){
+                        reject(new Error("The selected image could not be processed."));
+                        return;
+                    }
+
+                    let finalBlob=blob;
+
+                    if(blob.size>MAX_COMPRESSED_IMAGE_SIZE){
+                        canvas.toBlob(
+                            smallerBlob=>{
+                                if(!smallerBlob){
+                                    reject(new Error("The selected image could not be compressed."));
+                                    return;
+                                }
+
+                                finalBlob=smallerBlob;
+
+                                resolve(
+                                    new File(
+                                        [finalBlob],
+                                        `${file.name.replace(/\.[^/.]+$/,"")}.jpg`,
+                                        {type:"image/jpeg"}
+                                    )
+                                );
+                            },
+                            "image/jpeg",
+                            0.65
+                        );
+
+                        return;
+                    }
+
+                    resolve(
+                        new File(
+                            [finalBlob],
+                            `${file.name.replace(/\.[^/.]+$/,"")}.jpg`,
+                            {type:"image/jpeg"}
+                        )
+                    );
+                },
+                "image/jpeg",
+                0.8
+            );
+        };
+
+        image.onerror=()=>{
+            URL.revokeObjectURL(objectUrl);
+            reject(
+                new Error(
+                    `"${file.name}" could not be processed. Please choose a JPG or PNG image.`
+                )
+            );
+        };
+
+        image.src=objectUrl;
+    });
+}
+
+async function buildServiceFormData(){
     const formData=new FormData();
 
     formData.append("skill",skillInput.value.trim());
     formData.append("experience",experienceInput.value.trim());
     formData.append("description",descriptionInput.value.trim());
 
-    [
+    const files=[
         portfolioPhoto1?.files?.[0]||null,
         portfolioPhoto2?.files?.[0]||null,
         portfolioPhoto3?.files?.[0]||null
-    ].forEach(file=>{
-        if(file)formData.append("portfolioPhotos",file);
-    });
+    ];
+
+    for(const file of files){
+        if(!file)continue;
+
+        const compressedFile=await compressImage(file);
+
+        formData.append(
+            "portfolioPhotos",
+            compressedFile
+        );
+    }
 
     return formData;
 }
@@ -427,7 +536,7 @@ async function createService(){
     );
 
     try{
-        const formData=buildServiceFormData();
+        const formData=await buildServiceFormData();
 
         const response=await API_REQUEST(
             CREATE_SERVICE_ENDPOINT,
@@ -484,7 +593,8 @@ async function createService(){
         showNotification(
             "error",
             "Request Failed",
-            "We could not add your service right now. Please check your internet connection and try again."
+            error.message||
+            "We could not add your service right now. Please try again."
         );
 
     }finally{
