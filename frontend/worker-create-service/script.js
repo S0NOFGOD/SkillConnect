@@ -23,7 +23,6 @@ const notificationText=document.getElementById("notificationText");
 const notificationButton=document.getElementById("notificationButton");
 
 const MAX_DESCRIPTION_WORDS=150;
-const MAX_PORTFOLIO_IMAGE_SIZE=5*1024*1024;
 const MAX_COMPRESSED_IMAGE_SIZE=2*1024*1024;
 const MAX_IMAGE_DIMENSION=1920;
 const CREATE_SERVICE_ENDPOINT="/api/worker/create-service";
@@ -194,19 +193,6 @@ function restorePortfolioPreview(preview){
     `;
 }
 
-function validatePortfolioImageSize(file){
-    if(!file)return{valid:true};
-
-    if(file.size>MAX_PORTFOLIO_IMAGE_SIZE){
-        return{
-            valid:false,
-            message:`"${file.name}" is larger than 5MB. Please choose an image that is 5MB or smaller.`
-        };
-    }
-
-    return{valid:true};
-}
-
 function validatePortfolioImageType(file){
     if(!file)return{valid:true};
 
@@ -238,21 +224,6 @@ function validateSelectedPortfolioImage(input,preview){
             "error",
             "Invalid Image",
             typeResult.message
-        );
-
-        return false;
-    }
-
-    const sizeResult=validatePortfolioImageSize(file);
-
-    if(!sizeResult.valid){
-        input.value="";
-        restorePortfolioPreview(preview);
-
-        showNotification(
-            "error",
-            "Image Too Large",
-            sizeResult.message
         );
 
         return false;
@@ -313,10 +284,8 @@ function validatePortfolioPhotos(){
         if(!file)continue;
 
         const typeResult=validatePortfolioImageType(file);
-        if(!typeResult.valid)return typeResult;
 
-        const sizeResult=validatePortfolioImageSize(file);
-        if(!sizeResult.valid)return sizeResult;
+        if(!typeResult.valid)return typeResult;
     }
 
     return{valid:true};
@@ -360,9 +329,11 @@ function validateServiceForm(){
     }
 
     const descriptionResult=validateDescription();
+
     if(!descriptionResult.valid)return descriptionResult;
 
     const portfolioResult=validatePortfolioPhotos();
+
     if(!portfolioResult.valid)return portfolioResult;
 
     return{valid:true};
@@ -415,7 +386,11 @@ function compressImage(file){
             const context=canvas.getContext("2d");
 
             if(!context){
-                reject(new Error("Image compression is not supported on this device."));
+                reject(
+                    new Error(
+                        "Image compression is not supported on this device."
+                    )
+                );
                 return;
             }
 
@@ -424,25 +399,29 @@ function compressImage(file){
             canvas.toBlob(
                 blob=>{
                     if(!blob){
-                        reject(new Error("The selected image could not be processed."));
+                        reject(
+                            new Error(
+                                "The selected image could not be processed."
+                            )
+                        );
                         return;
                     }
-
-                    let finalBlob=blob;
 
                     if(blob.size>MAX_COMPRESSED_IMAGE_SIZE){
                         canvas.toBlob(
                             smallerBlob=>{
                                 if(!smallerBlob){
-                                    reject(new Error("The selected image could not be compressed."));
+                                    reject(
+                                        new Error(
+                                            "The selected image could not be compressed."
+                                        )
+                                    );
                                     return;
                                 }
 
-                                finalBlob=smallerBlob;
-
                                 resolve(
                                     new File(
-                                        [finalBlob],
+                                        [smallerBlob],
                                         `${file.name.replace(/\.[^/.]+$/,"")}.jpg`,
                                         {type:"image/jpeg"}
                                     )
@@ -457,7 +436,7 @@ function compressImage(file){
 
                     resolve(
                         new File(
-                            [finalBlob],
+                            [blob],
                             `${file.name.replace(/\.[^/.]+$/,"")}.jpg`,
                             {type:"image/jpeg"}
                         )
@@ -470,6 +449,7 @@ function compressImage(file){
 
         image.onerror=()=>{
             URL.revokeObjectURL(objectUrl);
+
             reject(
                 new Error(
                     `"${file.name}" could not be processed. Please choose a JPG or PNG image.`
