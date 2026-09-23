@@ -1,20 +1,4 @@
 /* =========================================================
-   SKILLCONNECT WORKER VIEW SERVICES
-   script.js
-
-   PURPOSE:
-   1. Protect the services page.
-   2. Load the authenticated worker's services.
-   3. Allow the access token to be refreshed through config.js.
-   4. Display service cards.
-   5. Save the selected service ID.
-   6. Handle page navigation.
-   7. Handle logout.
-   8. Use modals for authentication/errors/success.
-========================================================= */
-
-
-/* =========================================================
    1. BACKEND ENDPOINTS
 ========================================================= */
 
@@ -22,7 +6,7 @@ const SERVICES_ENDPOINT =
     "/api/worker/services";
 
 const LOGOUT_ENDPOINT =
-    "/api/worker/logout";
+    "/api/auth/worker/logout";
 
 
 /* =========================================================
@@ -812,32 +796,41 @@ logoutBtn.addEventListener(
    18. LOGOUT REQUEST
 ========================================================= */
 
-async function logoutWorker() {
 
-    /*
-       Keep the confirmation modal visible
-       while the backend request is running.
-    */
+
+
+/* =========================================================
+   19. SESSION EXPIRATION EVENT
+========================================================= */
+
+window.addEventListener(
+    "authSessionExpired",
+    () => {
+
+        setServicesLoading(false);
+
+        authenticationError(
+            "Your session has expired. Please log in again."
+        );
+    }
+);
+async function logoutWorker(){
 
     setLoading(
         notificationButton,
         true
     );
 
-    try {
+    try{
 
-        const response =
-            await API_REQUEST(
-                LOGOUT_ENDPOINT,
-                {
-                    method: "POST"
-                }
-            );
+        const response=await API_REQUEST(
+            LOGOUT_ENDPOINT,
+            {
+                method:"POST"
+            }
+        );
 
-
-        if (
-            response.status === 401
-        ) {
+        if(response.status===401){
 
             setLoading(
                 notificationButton,
@@ -853,12 +846,9 @@ async function logoutWorker() {
             return;
         }
 
+        const data=await response.json();
 
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
+        if(!response.ok){
 
             setLoading(
                 notificationButton,
@@ -867,19 +857,13 @@ async function logoutWorker() {
 
             showModal(
                 "Logout Failed",
-                data.message ||
+                data.message||
                     "Unable to log out. Please try again.",
                 "error"
             );
 
             return;
         }
-
-
-        /*
-           Backend successfully revoked the
-           refresh token.
-        */
 
         removeAccessToken();
 
@@ -888,26 +872,10 @@ async function logoutWorker() {
             false
         );
 
-        hideModal(false);
+        window.location.href=
+            "../worker-authentication/index.html";
 
-
-        /*
-           User must manually close the
-           success modal before redirecting.
-        */
-
-        showModal(
-            "Logged Out",
-            data.message ||
-                "You have been logged out successfully.",
-            "success",
-            redirectToLogin,
-            "Continue"
-        );
-
-    }
-
-    catch (error) {
+    }catch(error){
 
         console.error(
             "Logout request failed:",
@@ -928,24 +896,6 @@ async function logoutWorker() {
         );
     }
 }
-
-
-/* =========================================================
-   19. SESSION EXPIRATION EVENT
-========================================================= */
-
-window.addEventListener(
-    "authSessionExpired",
-    () => {
-
-        setServicesLoading(false);
-
-        authenticationError(
-            "Your session has expired. Please log in again."
-        );
-    }
-);
-
 
 /* =========================================================
    20. INITIALIZE PAGE

@@ -1,694 +1,99 @@
-/* =========================================================
-   1. IMPORT DEPENDENCIES
-========================================================= */
+const jwt=require("jsonwebtoken");
+const axios=require("axios");
+const crypto=require("crypto");
+const Worker=require("../models/worker");
 
-const jwt =
-    require("jsonwebtoken");
+const{v2:cloudinary}=require("cloudinary");
+cloudinary.config({
+    cloud_name:process.env.CLOUDINARY_CLOUD_NAME,
+    api_key:process.env.CLOUDINARY_API_KEY,
+    api_secret:process.env.CLOUDINARY_API_SECRET
+});
 
-const Worker =
-    require("../models/worker");
+const TERMII_API_KEY=process.env.TERMII_API_KEY;
+const TERMII_BASE_URL=process.env.TERMII_BASE_URL;
 
-    const cloudinary =
-    require("../config/cloudinary");
+const OTP_EXPIRY_MINUTES=10;
+const generateOTP=()=>crypto.randomInt(100000,1000000).toString();
+const createOTPExpiry=()=>new Date(Date.now()+OTP_EXPIRY_MINUTES*60*1000);
+const generateOTPData=()=>{const otp=generateOTP();const expiresAt=createOTPExpiry();return{otp,expiresAt};};
 
-const {
-    generateOTPData
-} =
-    require("../utils/generateOtp");
-
-const sendPhoneOtp =
-    require("../utils/sendPhoneOtp");
-
-
-/* =========================================================
-   2. AUTHENTICATE ACCESS TOKEN
-========================================================= */
-
-const authenticateAccessToken = (
-    req
-) => {
-
-    const authorization =
-        req.headers.authorization;
-
-    if (
-        !authorization ||
-        !authorization.startsWith(
-            "Bearer "
-        )
-    ) {
-
-        return null;
-
-    }
-
-    const accessToken =
-        authorization
-            .split(" ")[1];
-
-    if (!accessToken) {
-
-        return null;
-
-    }
-
-    try {
-
-        const decoded =
-            jwt.verify(
-                accessToken,
-                process.env.ACCESS_TOKEN_SECRET
-            );
-
-        if (
-            decoded.userType !==
-            "worker"
-        ) {
-
-            return null;
-
-        }
-
-        if (
-            !decoded.userId
-        ) {
-
-            return null;
-
-        }
-
-        return decoded.userId;
-
-    }
-
-    catch (error) {
-
-        return null;
-
-    }
-
+const sendPhoneOtp=async(phone,otp)=>{
+if(!phone)throw new Error("Phone number is required.");
+if(!otp)throw new Error("OTP is required.");
+if(!TERMII_API_KEY)throw new Error("TERMII_API_KEY is not configured.");
+if(!TERMII_BASE_URL)throw new Error("TERMII_BASE_URL is not configured.");
+const message=`Your SkillConnect verification code is ${otp}. This code expires in 10 minutes. Do not share this code with anyone.`;
+const response=await axios.post(`${TERMII_BASE_URL}/api/sms/send`,{to:phone,from:"Termii",sms:message,type:"plain",channel:"dnd",api_key:TERMII_API_KEY},{headers:{"Content-Type":"application/json"}});
+console.log("Termii SMS response:",response.data);
+return{success:true,phone,response:response.data};
 };
 
-
-/* =========================================================
-   3. SEND AUTHENTICATION ERROR
-========================================================= */
-
-const sendAuthenticationError = (
-    res
-) => {
-
-    return res.status(401).json({
-
-        success:
-            false,
-
-        message:
-            "Your authentication session is invalid or has expired. Please sign in again."
-
-    });
-
+const authenticateAccessToken=req=>{
+const authorization=req.headers.authorization;
+if(!authorization||!authorization.startsWith("Bearer "))return null;
+const accessToken=authorization.split(" ")[1];
+if(!accessToken)return null;
+try{
+const decoded=jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET);
+if(decoded.userType!=="worker"||!decoded.userId)return null;
+return decoded.userId;
+}catch(error){return null;}
 };
 
+const sendAuthenticationError=res=>res.status(401).json({success:false,message:"Your authentication session is invalid or has expired. Please sign in again."});
 
-/* =========================================================
-   4. FORMAT WORKER DATA
-========================================================= */
-
-const formatWorkerProfile = (
-    worker
-) => {
-
-    /* -----------------------------------------------------
-       Calculate total number of skills
-    ----------------------------------------------------- */
-
-    const totalSkills =
-        Array.isArray(
-            worker.skills
-        )
-            ? worker.skills.length
-            : 0;
-
-
-    /* -----------------------------------------------------
-       Get first selected skill
-    ----------------------------------------------------- */
-
-    const skill =
-        Array.isArray(
-            worker.skills
-        ) &&
-        worker.skills.length > 0
-
-            ? worker.skills[0]
-
-            : "";
-
-
-    /* -----------------------------------------------------
-       Return safe dashboard information
-    ----------------------------------------------------- */
-
-    return {
-
-        /* Worker name */
-        fullName:
-            worker.fullName || "",
-
-
-        /* Worker profile photo */
-        profilePhoto:worker.profilePhoto
-        ? cloudinary.url(
-            worker.profilePhoto,
-            {
-                secure: true
-            }
-        )
-        : null,
-
-
-        /* Worker phone */
-        phone:
-            worker.phone || "",
-
-
-        /* Phone verification expiry */
-        phoneVerificationExpires:
-            worker.phoneVerificationExpires ||
-            null,
-
-
-        /* Worker location */
-        country:
-            worker.country || "",
-
-        state:
-            worker.state || "",
-
-        city:
-            worker.city || "",
-
-        lga:
-            worker.lga || "",
-
-
-        /* Worker skills */
-        totalSkills:
-            totalSkills,
-
-        skill:
-            skill,
-
-
-        /* Additional profile information */
-        experience:
-            worker.experience || "",
-
-        socialProfile:
-            worker.socialProfile || "",
-
-        description:
-            worker.description || ""
-
-    };
-
+const formatWorkerProfile=worker=>{
+const totalSkills=Array.isArray(worker.skills)?worker.skills.length:0;
+const skill=Array.isArray(worker.skills)&&worker.skills.length>0?worker.skills[0]:"";
+return{
+fullName:worker.fullName||"",
+profilePhoto:worker.profilePhoto?cloudinary.url(worker.profilePhoto,{secure:true}):null,
+phone:worker.phone||"",
+phoneVerificationExpires:worker.phoneVerificationExpires||null,
+country:worker.country||"",
+state:worker.state||"",
+city:worker.city||"",
+lga:worker.lga||"",
+totalSkills,
+skill,
+experience:worker.experience||"",
+socialProfile:worker.socialProfile||"",
+description:worker.description||""
+};
 };
 
-
-/* =========================================================
-   5. GET WORKER DASHBOARD
-========================================================= */
-
-const getWorkerDashboard =
-    async (
-        req,
-        res
-    ) => {
-
-        try {
-
-            /* ------------------------------------------------
-               Authenticate access token
-            ------------------------------------------------ */
-
-            const workerId =
-                authenticateAccessToken(
-                    req
-                );
-
-
-            /* ------------------------------------------------
-               Authentication failed
-            ------------------------------------------------ */
-
-            if (
-                !workerId
-            ) {
-
-                return sendAuthenticationError(
-                    res
-                );
-
-            }
-
-
-            /* ------------------------------------------------
-               Find worker
-            ------------------------------------------------ */
-
-            const worker =
-                await Worker.findById(
-                    workerId
-                );
-
-
-            /* ------------------------------------------------
-               Worker does not exist
-            ------------------------------------------------ */
-
-            if (
-                !worker
-            ) {
-
-                return res.status(404).json({
-
-                    success:
-                        false,
-
-                    message:
-                        "Worker account not found."
-
-                });
-
-            }
-
-
-            /* ------------------------------------------------
-               Return dashboard information
-            ------------------------------------------------ */
-
-            return res.status(200).json({
-
-                success:
-                    true,
-
-                worker:
-                    formatWorkerProfile(
-                        worker
-                    )
-
-            });
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "Get worker dashboard error:",
-                error
-            );
-
-
-            return res.status(500).json({
-
-                success:
-                    false,
-
-                message:
-                    "Unable to load your dashboard. Please try again."
-
-            });
-
-        }
-
-    };
-
-
-/* =========================================================
-   6. START PHONE VERIFICATION
-========================================================= */
-
-const verifyWorkerPhone =
-    async (
-        req,
-        res
-    ) => {
-
-        try {
-
-            /* ------------------------------------------------
-               Authenticate access token
-            ------------------------------------------------ */
-
-            const workerId =
-                authenticateAccessToken(
-                    req
-                );
-
-
-            /* ------------------------------------------------
-               Authentication failed
-            ------------------------------------------------ */
-
-            if (
-                !workerId
-            ) {
-
-                return sendAuthenticationError(
-                    res
-                );
-
-            }
-
-
-            /* ------------------------------------------------
-               Find worker
-            ------------------------------------------------ */
-
-            const worker =
-                await Worker.findById(
-                    workerId
-                );
-
-
-            /* ------------------------------------------------
-               Worker does not exist
-            ------------------------------------------------ */
-
-            if (
-                !worker
-            ) {
-
-                return res.status(404).json({
-
-                    success:
-                        false,
-
-                    message:
-                        "Worker account not found."
-
-                });
-
-            }
-
-
-            /* ------------------------------------------------
-               Make sure worker has a phone number
-            ------------------------------------------------ */
-
-            if (
-                !worker.phone
-            ) {
-
-                return res.status(400).json({
-
-                    success:
-                        false,
-
-                    message:
-                        "Please add a phone number before verifying your profile."
-
-                });
-
-            }
-
-
-            /* ------------------------------------------------
-               Check existing phone verification
-            ------------------------------------------------ */
-
-            if (
-
-                worker.phoneVerificationExpires &&
-
-                new Date(
-                    worker.phoneVerificationExpires
-                ) > new Date()
-
-            ) {
-
-                return res.status(400).json({
-
-                    success:
-                        false,
-
-                    message:
-                        "Your phone number is already verified."
-
-                });
-
-            }
-
-
-            /* =================================================
-               7. GENERATE PHONE OTP
-            ================================================= */
-
-            const {
-                otp,
-                expiresAt
-            } =
-                generateOTPData();
-
-
-            /* =================================================
-               8. SEND OTP THROUGH SMS
-            ================================================= */
-
-            await sendPhoneOtp(
-                worker.phone,
-                otp
-            );
-
-
-            /* =================================================
-               9. SAVE OTP AFTER SMS SUCCESS
-            ================================================= */
-
-            worker.phoneOtp =
-                otp;
-
-
-            worker.phoneOtpExpires =
-                expiresAt;
-
-
-            await worker.save();
-
-
-            /* =================================================
-               10. RETURN SUCCESS
-            ================================================= */
-
-            /*
-               NEVER send the OTP itself to the frontend.
-            */
-
-            return res.status(200).json({
-
-                success:
-                    true,
-
-                message:
-                    "A verification code has been sent to your phone.",
-
-                phone:
-                    worker.phone
-
-            });
-
-        }
-
-        catch (error) {
-
-            /* ------------------------------------------------
-               Log actual server error
-            ------------------------------------------------ */
-
-            console.error(
-                "Worker phone verification error:",
-                error
-            );
-
-
-            /* ------------------------------------------------
-               Return safe error to frontend
-            ------------------------------------------------ */
-
-            return res.status(500).json({
-
-                success:
-                    false,
-
-                message:
-                    "Unable to send your phone verification code. Please try again."
-
-            });
-
-        }
-
-    };
-
-
-/* =========================================================
-   11. LOGOUT WORKER
-========================================================= */
-
-const logoutWorker =
-    async (
-        req,
-        res
-    ) => {
-
-        try {
-
-            /* ------------------------------------------------
-               Authenticate access token
-            ------------------------------------------------ */
-
-            const workerId =
-                authenticateAccessToken(
-                    req
-                );
-
-
-            /* ------------------------------------------------
-               Authentication failed
-            ------------------------------------------------ */
-
-            if (
-                !workerId
-            ) {
-
-                return sendAuthenticationError(
-                    res
-                );
-
-            }
-
-
-            /* ------------------------------------------------
-               Find worker
-            ------------------------------------------------ */
-
-            const worker =
-                await Worker.findById(
-                    workerId
-                );
-
-
-            /* ------------------------------------------------
-               Worker does not exist
-            ------------------------------------------------ */
-
-            if (
-                !worker
-            ) {
-
-                return res.status(404).json({
-
-                    success:
-                        false,
-
-                    message:
-                        "Worker account not found."
-
-                });
-
-            }
-
-
-            /* ------------------------------------------------
-               Revoke refresh token
-            ------------------------------------------------ */
-
-            worker.refreshTokenHash =
-                null;
-
-
-            await worker.save();
-
-
-            /* ------------------------------------------------
-               Clear refresh-token cookie
-            ------------------------------------------------ */
-
-            res.clearCookie(
-                "refreshToken",
-                {
-
-                    httpOnly:
-                        true,
-
-                    secure:
-                        process.env.NODE_ENV ===
-                        "production",
-
-                    sameSite:
-                        process.env.NODE_ENV ===
-                        "production"
-
-                            ? "none"
-
-                            : "lax",
-
-                    path:
-                        "/"
-
-                }
-            );
-
-
-            /* ------------------------------------------------
-               Return successful logout response
-            ------------------------------------------------ */
-
-            return res.status(200).json({
-
-                success:
-                    true,
-
-                message:
-                    "Logged out successfully."
-
-            });
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "Worker logout error:",
-                error
-            );
-
-
-            return res.status(500).json({
-
-                success:
-                    false,
-
-                message:
-                    "Unable to log out. Please try again."
-
-            });
-
-        }
-
-    };
-
-
-/* =========================================================
-   12. EXPORT CONTROLLERS
-========================================================= */
-
-module.exports = {
-
-    getWorkerDashboard,
-
-    verifyWorkerPhone,
-
-    logoutWorker
-
+const getWorkerDashboard=async(req,res)=>{
+try{
+const workerId=authenticateAccessToken(req);
+if(!workerId)return sendAuthenticationError(res);
+const worker=await Worker.findById(workerId);
+if(!worker)return res.status(404).json({success:false,message:"Worker account not found."});
+return res.status(200).json({success:true,worker:formatWorkerProfile(worker)});
+}catch(error){
+console.error("Get worker dashboard error:",error);
+return res.status(500).json({success:false,message:"Unable to load your dashboard. Please try again."});
+}
 };
+
+const verifyWorkerPhone=async(req,res)=>{
+try{
+const workerId=authenticateAccessToken(req);
+if(!workerId)return sendAuthenticationError(res);
+const worker=await Worker.findById(workerId);
+if(!worker)return res.status(404).json({success:false,message:"Worker account not found."});
+if(!worker.phone)return res.status(400).json({success:false,message:"Please add a phone number before verifying your profile."});
+if(worker.phoneVerificationExpires&&new Date(worker.phoneVerificationExpires)>new Date())return res.status(400).json({success:false,message:"Your phone number is already verified."});
+const{otp,expiresAt}=generateOTPData();
+await sendPhoneOtp(worker.phone,otp);
+worker.phoneOtp=otp;
+worker.phoneOtpExpires=expiresAt;
+await worker.save();
+return res.status(200).json({success:true,message:"A verification code has been sent to your phone.",phone:worker.phone});
+}catch(error){
+console.error("Worker phone verification error:",error);
+return res.status(500).json({success:false,message:"Unable to send your phone verification code. Please try again."});
+}
+};
+
+module.exports={getWorkerDashboard,verifyWorkerPhone};

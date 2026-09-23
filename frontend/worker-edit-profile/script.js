@@ -46,7 +46,7 @@ notificationCancelButton=document.getElementById("notificationCancelButton");
    3. API ENDPOINTS
 ========================= */
 const PROFILE_ENDPOINT="/api/worker/edit-profile",
-LOGOUT_ENDPOINT="/api/worker/logout";
+LOGOUT_ENDPOINT="/api/auth/worker/logout";
 
 /* =========================
    4. PAGE STATE

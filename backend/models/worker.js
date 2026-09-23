@@ -30,16 +30,10 @@ const workerSchema=new mongoose.Schema({
         index:true,
         select:false
     },
-    authenticationMethod:{
+    accountType:{
         type:String,
-        enum:["password","google","both"],
+        enum:["password","googleId"],
         default:"password",
-        required:true
-    },
-    accountStatus:{
-        type:String,
-        enum:["active","suspended"],
-        default:"active",
         required:true
     },
     // Email verification.
@@ -163,11 +157,6 @@ const workerSchema=new mongoose.Schema({
     // Google OAuth exchange.
     googleExchangeCode:{
         type:String,
-        default:null,
-        select:false
-    },
-    googleExchangeCodeExpires:{
-        type:Date,
         default:null,
         select:false
     },

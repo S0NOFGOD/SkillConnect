@@ -1,7 +1,13 @@
-const {Readable}=require("stream");
+const{Readable}=require("stream");
 const jwt=require("jsonwebtoken");
 const Worker=require("../models/worker");
-const cloudinary=require("../config/cloudinary");
+
+const{v2:cloudinary}=require("cloudinary");
+cloudinary.config({
+    cloud_name:process.env.CLOUDINARY_CLOUD_NAME,
+    api_key:process.env.CLOUDINARY_API_KEY,
+    api_secret:process.env.CLOUDINARY_API_SECRET
+});
 
 const MAX_PORTFOLIO_IMAGE_SIZE=5*1024*1024;
 const MAX_PORTFOLIO_IMAGES=3;

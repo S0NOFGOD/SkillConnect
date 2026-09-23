@@ -1,0 +1,185 @@
+/* =========================================================
+   CLIENT GOOGLE REDIRECT PAGE
+   SkillConnect client Google authentication redirect.
+========================================================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:"Inter",sans-serif;
+    min-height:100vh;
+    background:#020617;
+    color:#f8fafc;
+}
+
+
+/* =========================================================
+   REDIRECT PAGE
+========================================================= */
+
+.google-redirect-page{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(59,130,246,.15),
+            transparent 45%
+        );
+}
+
+.google-redirect-card{
+    width:100%;
+    max-width:430px;
+    padding:40px 30px;
+    text-align:center;
+    background:rgba(15,23,42,.92);
+    border:1px solid rgba(59,130,246,.2);
+    border-radius:20px;
+    box-shadow:
+        0 0 40px rgba(59,130,246,.08);
+}
+
+.google-icon{
+    width:58px;
+    height:58px;
+    margin:0 auto 22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    background:#fff;
+    color:#4285f4;
+    font-size:28px;
+    font-weight:700;
+}
+
+.google-redirect-card h1{
+    margin-bottom:12px;
+    font-size:24px;
+    font-weight:700;
+}
+
+.google-redirect-card p{
+    color:#94a3b8;
+    font-size:14px;
+    line-height:1.6;
+}
+
+
+/* =========================================================
+   LOADING SPINNER
+========================================================= */
+
+.loading-spinner{
+    width:30px;
+    height:30px;
+    margin:25px auto 0;
+    border:3px solid rgba(255,255,255,.15);
+    border-top-color:#3b82f6;
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   NOTIFICATION MODAL
+========================================================= */
+
+.notification-overlay{
+    position:fixed;
+    inset:0;
+    z-index:1000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:rgba(0,0,0,.7);
+    backdrop-filter:blur(6px);
+}
+
+.notification-overlay[hidden]{
+    display:none;
+}
+
+.notification-card{
+    width:100%;
+    max-width:400px;
+    padding:30px;
+    text-align:center;
+    background:#0f172a;
+    border:1px solid rgba(59,130,246,.25);
+    border-radius:18px;
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.4),
+        0 0 30px rgba(59,130,246,.08);
+}
+
+.notification-card h2{
+    margin-bottom:12px;
+    font-size:20px;
+}
+
+.notification-card p{
+    margin-bottom:22px;
+    color:#94a3b8;
+    font-size:14px;
+    line-height:1.6;
+}
+
+.notification-card button{
+    width:100%;
+    padding:13px 18px;
+    border:0;
+    border-radius:10px;
+    background:#3b82f6;
+    color:#fff;
+    font-family:inherit;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.2s ease;
+}
+
+.notification-card button:hover{
+    background:#2563eb;
+}
+
+.notification-card button:disabled{
+    opacity:.7;
+    cursor:not-allowed;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:480px){
+
+    .google-redirect-card{
+        padding:35px 22px;
+    }
+
+    .google-redirect-card h1{
+        font-size:21px;
+    }
+
+    .notification-card{
+        padding:25px 20px;
+    }
+
+}

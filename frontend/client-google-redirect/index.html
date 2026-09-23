@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <!-- =====================================================
+         BASIC DOCUMENT CONFIGURATION
+    ====================================================== -->
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="SkillConnect client Google authentication redirect"
+    >
+
+    <title>Google Authentication | SkillConnect</title>
+
+
+    <!-- =====================================================
+         GOOGLE FONTS
+    ====================================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =====================================================
+         PAGE STYLES
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+    <!-- =====================================================
+         GOOGLE REDIRECT PAGE
+    ====================================================== -->
+
+    <main class="google-redirect-page">
+
+        <div class="google-redirect-card">
+
+            <!-- Google icon -->
+            <div class="google-icon">
+                G
+            </div>
+
+            <!-- Page heading -->
+            <h1>
+                Connecting to Google
+            </h1>
+
+            <!-- Page message -->
+            <p id="redirectMessage">
+                Please wait while we complete your authentication.
+            </p>
+
+            <!-- Loading spinner -->
+            <div
+                id="redirectLoading"
+                class="loading-spinner"
+                aria-label="Loading"
+            ></div>
+
+        </div>
+
+    </main>
+
+
+    <!-- =====================================================
+         NOTIFICATION MODAL
+    ====================================================== -->
+
+    <div
+        id="notificationOverlay"
+        class="notification-overlay"
+        hidden
+    >
+
+        <div
+            id="notificationCard"
+            class="notification-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="notificationTitle"
+        >
+
+            <h2 id="notificationTitle">
+                Notification
+            </h2>
+
+            <p id="notificationMessage"></p>
+
+            <button
+                id="notificationButton"
+                type="button"
+            >
+                Continue
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CONFIGURATION
+    ====================================================== -->
+
+    <script src="../config.js"></script>
+
+
+    <!-- =====================================================
+         PAGE SCRIPT
+    ====================================================== -->
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
