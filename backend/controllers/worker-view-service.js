@@ -72,9 +72,6 @@ async function getWorkerService(req,res){
         if(!worker)
             return res.status(404).json({success:false,message:"Worker account could not be found."});
 
-        if(worker.accountStatus!=="active")
-            return res.status(403).json({success:false,message:"Your worker account is not active."});
-
         const service=findWorkerService(worker,req.params.serviceId);
 
         if(!service)
@@ -125,9 +122,6 @@ async function updateWorkerService(req,res){
 
         if(!worker)
             return res.status(404).json({success:false,message:"Worker account could not be found."});
-
-        if(worker.accountStatus!=="active")
-            return res.status(403).json({success:false,message:"Your worker account is not active."});
 
         const service=findWorkerService(worker,req.params.serviceId);
 
@@ -225,9 +219,6 @@ async function deleteWorkerService(req,res){
         if(!worker)
             return res.status(404).json({success:false,message:"Worker account could not be found."});
 
-        if(worker.accountStatus!=="active")
-            return res.status(403).json({success:false,message:"Your worker account is not active."});
-
         const service=findWorkerService(worker,req.params.serviceId);
 
         if(!service)
@@ -249,7 +240,7 @@ async function deleteWorkerService(req,res){
         return res.status(200).json({success:true,message:"Service deleted successfully."});
     }catch(error){
         console.error("Delete worker service error:",error);
-        return res.status(500).json({success:false,message:"An error occurred while deleting your service. Please try again."});
+        return res.status(500).json({success:false,message:"An error occurred while deleting your service."});
     }
 }
 

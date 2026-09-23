@@ -91,7 +91,7 @@ async function createWorkerService(req,res){
             });
         }
 
-        const workerId=decodedToken.userId||decodedToken.id;
+        const workerId=decodedToken.userId;
 
         if(decodedToken.userType!=="worker"||!workerId)
             return res.status(403).json({
@@ -105,12 +105,6 @@ async function createWorkerService(req,res){
             return res.status(404).json({
                 success:false,
                 message:"Worker account could not be found."
-            });
-
-        if(worker.accountStatus!=="active")
-            return res.status(403).json({
-                success:false,
-                message:"Your worker account is not active."
             });
 
         const skill=typeof req.body.skill==="string"?req.body.skill.trim():"";

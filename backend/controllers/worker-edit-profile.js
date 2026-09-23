@@ -14,9 +14,8 @@ if(!header.startsWith("Bearer "))return null;
 const token=header.split(" ")[1];
 try{
 const decoded=jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
-const workerId=decoded.workerId||decoded.id||decoded.userId;
-if(!workerId)return null;
-return await Worker.findById(workerId);
+if(decoded.userType!=="worker"||!decoded.userId)return null;
+return await Worker.findById(decoded.userId);
 }catch(error){return null;}
 };
 
