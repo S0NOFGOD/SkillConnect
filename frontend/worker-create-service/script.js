@@ -388,7 +388,7 @@ function compressImage(file){
             if(!context){
                 reject(
                     new Error(
-                        "Image compression is not supported on this device."
+                        "The selected image could not be processed."
                     )
                 );
                 return;
@@ -449,12 +449,7 @@ function compressImage(file){
 
         image.onerror=()=>{
             URL.revokeObjectURL(objectUrl);
-
-            reject(
-                new Error(
-                    `"${file.name}" could not be processed. Please choose a JPG or PNG image.`
-                )
-            );
+            reject(new Error("The selected image could not be processed."));
         };
 
         image.src=objectUrl;
@@ -573,8 +568,7 @@ async function createService(){
         showNotification(
             "error",
             "Request Failed",
-            error.message||
-            "We could not add your service right now. Please try again."
+            "We could not process your portfolio image. Please try again."
         );
 
     }finally{
