@@ -129,18 +129,65 @@ function initializePortfolioInputs(){
 for(let i=1;i<=3;i++){
 const input=getElement(`portfolioPhoto${i}`),preview=getElement(`portfolioPreview${i}`);
 if(!input||!preview)continue;
+
 preview.addEventListener("click",()=>{input.click();});
+
 input.addEventListener("change",()=>{
-const file=input.files[0];if(!file)return;
-if(!validateImageSize(file)){input.value="";showNotification("error","Image Too Large","Each portfolio image must not be larger than 5 MB.","Close");return;}
+const file=input.files[0];
+if(!file)return;
+
+const typeResult=validateImageType(file);
+
+if(!typeResult.valid){
+input.value="";
+showNotification("error","Invalid Image",typeResult.message,"Close");
+return;
+}
+
+const sizeResult=validateImageSize(file);
+
+if(!sizeResult.valid){
+input.value="";
+showNotification("error","Image Too Large",sizeResult.message,"Close");
+return;
+}
+
 const reader=new FileReader();
-reader.onload=event=>{preview.innerHTML=`<img src="${event.target.result}" alt="Portfolio ${i}">`;};
+
+reader.onload=event=>{
+preview.innerHTML=`<img src="${event.target.result}" alt="Portfolio ${i}">`;
+};
+
 reader.readAsDataURL(file);
 });
 }
 }
 
-function validateImageSize(file){const maxSize=5*1024*1024;return file.size<=maxSize;}
+function validateImageType(file){
+if(!file)return{valid:true};
+
+if(!file.type||!file.type.startsWith("image/")){
+return{
+valid:false,
+message:`"${file.name}" is not a supported image file.`
+};
+}
+
+return{valid:true};
+}
+
+function validateImageSize(file){
+const maxSize=5*1024*1024;
+
+if(file.size>maxSize){
+return{
+valid:false,
+message:`"${file.name}" is larger than 5MB. Please choose an image that is 5MB or smaller.`
+};
+}
+
+return{valid:true};
+}
 
 /* =========================================================
    DESCRIPTION WORD COUNTER
@@ -175,7 +222,23 @@ if(!experience){showNotification("error","Experience Required","Please select yo
 if(!description){showNotification("error","Description Required","Please describe the service you provide.","Close");return false;}
 const words=description.split(/\s+/).filter(Boolean);
 if(words.length>150){showNotification("error","Description Too Long","Your service description must not be more than 150 words.","Close");return false;}
-for(let i=1;i<=3;i++){const input=getElement(`portfolioPhoto${i}`),file=input?.files[0];if(file&&!validateImageSize(file)){showNotification("error","Image Too Large",`Portfolio image ${i} must not be larger than 5 MB.`,"Close");return false;}}
+for(let i=1;i<=3;i++){
+const input=getElement(`portfolioPhoto${i}`),file=input?.files[0];
+
+if(file){
+const typeResult=validateImageType(file);
+if(!typeResult.valid){
+showNotification("error","Invalid Image",typeResult.message,"Close");
+return false;
+}
+
+const sizeResult=validateImageSize(file);
+if(!sizeResult.valid){
+showNotification("error","Image Too Large",sizeResult.message,"Close");
+return false;
+}
+}
+}
 return true;
 }
 

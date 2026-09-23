@@ -43,8 +43,7 @@ let modalCloseCallback=null;
 
 function getLocalSkills(){
     return Array.isArray(window.LOCAL_SKILLS)&&window.LOCAL_SKILLS.length
-        ? window.LOCAL_SKILLS
-        : DEFAULT_LOCAL_SKILLS;
+        ?window.LOCAL_SKILLS:DEFAULT_LOCAL_SKILLS;
 }
 
 function populateSkillDropdown(){
@@ -178,43 +177,11 @@ function updateDescriptionWordCount(){
 }
 
 descriptionInput?.addEventListener("input",()=>{
-    if(descriptionInput.value.length>MAX_DESCRIPTION_WORDS){
-        descriptionInput.value=
-            descriptionInput.value.slice(0,MAX_DESCRIPTION_WORDS);
-    }
+    if(descriptionInput.value.length>MAX_DESCRIPTION_WORDS)
+        descriptionInput.value=descriptionInput.value.slice(0,MAX_DESCRIPTION_WORDS);
 
     updateDescriptionWordCount();
 });
-
-function showImagePreview(input,preview){
-    if(!input||!preview)return;
-
-    const file=input.files?.[0];
-
-    if(!file){
-        restorePortfolioPreview(preview);
-        return;
-    }
-
-    if(!file.type.startsWith("image/")){
-        restorePortfolioPreview(preview);
-        return;
-    }
-
-    const imageUrl=URL.createObjectURL(file);
-    preview.innerHTML="";
-
-    const image=document.createElement("img");
-    image.src=imageUrl;
-    image.alt="Selected portfolio image";
-    preview.appendChild(image);
-
-    image.addEventListener(
-        "load",
-        ()=>URL.revokeObjectURL(imageUrl),
-        {once:true}
-    );
-}
 
 function restorePortfolioPreview(preview){
     if(!preview)return;
@@ -224,10 +191,6 @@ function restorePortfolioPreview(preview){
         <span>Add Image</span>
     `;
 }
-
-portfolioPhoto1?.addEventListener("change",()=>showImagePreview(portfolioPhoto1,portfolioPreview1));
-portfolioPhoto2?.addEventListener("change",()=>showImagePreview(portfolioPhoto2,portfolioPreview2));
-portfolioPhoto3?.addEventListener("change",()=>showImagePreview(portfolioPhoto3,portfolioPreview3));
 
 function validatePortfolioImageSize(file){
     if(!file)return{valid:true};
@@ -254,6 +217,88 @@ function validatePortfolioImageType(file){
 
     return{valid:true};
 }
+
+function validateSelectedPortfolioImage(input,preview){
+    const file=input?.files?.[0]||null;
+
+    if(!file){
+        restorePortfolioPreview(preview);
+        return true;
+    }
+
+    const typeResult=validatePortfolioImageType(file);
+
+    if(!typeResult.valid){
+        input.value="";
+        restorePortfolioPreview(preview);
+
+        showNotification(
+            "error",
+            "Invalid Image",
+            typeResult.message
+        );
+
+        return false;
+    }
+
+    const sizeResult=validatePortfolioImageSize(file);
+
+    if(!sizeResult.valid){
+        input.value="";
+        restorePortfolioPreview(preview);
+
+        showNotification(
+            "error",
+            "Image Too Large",
+            sizeResult.message
+        );
+
+        return false;
+    }
+
+    showImagePreview(input,preview);
+    return true;
+}
+
+function showImagePreview(input,preview){
+    if(!input||!preview)return;
+
+    const file=input.files?.[0];
+
+    if(!file){
+        restorePortfolioPreview(preview);
+        return;
+    }
+
+    const imageUrl=URL.createObjectURL(file);
+    preview.innerHTML="";
+
+    const image=document.createElement("img");
+    image.src=imageUrl;
+    image.alt="Selected portfolio image";
+    preview.appendChild(image);
+
+    image.addEventListener(
+        "load",
+        ()=>URL.revokeObjectURL(imageUrl),
+        {once:true}
+    );
+}
+
+portfolioPhoto1?.addEventListener(
+    "change",
+    ()=>validateSelectedPortfolioImage(portfolioPhoto1,portfolioPreview1)
+);
+
+portfolioPhoto2?.addEventListener(
+    "change",
+    ()=>validateSelectedPortfolioImage(portfolioPhoto2,portfolioPreview2)
+);
+
+portfolioPhoto3?.addEventListener(
+    "change",
+    ()=>validateSelectedPortfolioImage(portfolioPhoto3,portfolioPreview3)
+);
 
 function validatePortfolioPhotos(){
     const portfolioFiles=[
@@ -289,8 +334,8 @@ function validateDescription(){
 
     if(characterCount>MAX_DESCRIPTION_WORDS){
         return{
-          valid:false,
-          message:"Your service description cannot contain more than 150 characters."
+            valid:false,
+            message:"Your service description cannot contain more than 150 characters."
         };
     }
 
