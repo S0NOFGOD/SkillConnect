@@ -1,46 +1,49 @@
-const mongoose = require("mongoose");
+const mongoose=require("mongoose");
 
-const clientSchema = new mongoose.Schema({
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
-        trim: true
+const clientSchema=new mongoose.Schema({
+    email:{
+        type:String,
+        required:true,
+        unique:true,
+        lowercase:true,
+        trim:true
     },
-    passwordHash: {
-        type: String
+    passwordHash:{
+        type:String
     },
-    googleId: {
-        type: String,
-        sparse: true
+    googleId:{
+        type:String,
+        sparse:true
     },
-    isEmailVerified: {
-        type: Boolean,
-        default: false
+    isEmailVerified:{
+        type:Boolean,
+        default:false
     },
-    profileCompleted: {
-        type: Boolean,
-        default: false
+    profileCompleted:{
+        type:Boolean,
+        default:false
     },
-    emailOtp: {
-        type: String
+    emailOtp:{
+        type:String
     },
-    emailOtpExpires: {
-        type: Date
+    emailOtpExpires:{
+        type:Date
     },
-    passwordResetOtp: {
-        type: String
+    passwordResetOtp:{
+        type:String
     },
-    passwordResetOtpExpiry: {
-        type: Date
+    passwordResetOtpExpires:{
+        type:Date
     },
-    exchangeCode: {
-        type: String
+    resetAuthorizationExpires:{
+        type:Date
     },
-    refreshTokenHash: {
-        type: String
+    exchangeCode:{
+        type:String
+    },
+    refreshTokenHash:{
+        type:String
     }
 });
 
-module.exports = mongoose.model("Client", clientSchema);
+module.exports=mongoose.model("Client",clientSchema);

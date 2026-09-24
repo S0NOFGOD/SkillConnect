@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Client Password Reset | SkillConnect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+<nav class="navbar">
+<a href="../index.html" class="logo">SkillConnect</a>
+<div class="nav-links"><a href="../index.html">Home</a></div>
+</nav>
+</header>
+<main class="otp-page">
+<section class="otp-section">
+<div class="otp-card">
+<div class="otp-header">
+<span class="otp-badge">Password Reset</span>
+<h1>Verify Reset Code</h1>
+<p>Enter the 6-digit password reset code sent to your email address.</p>
+<p id="clientEmailDisplay" class="client-email">Loading email...</p>
+</div>
+<form id="otpForm" novalidate>
+<div class="otp-box">
+<input type="text" maxlength="1" class="otp-input" inputmode="numeric" autocomplete="one-time-code" aria-label="OTP digit 1" required>
+<input type="text" maxlength="1" class="otp-input" inputmode="numeric" aria-label="OTP digit 2" required>
+<input type="text" maxlength="1" class="otp-input" inputmode="numeric" aria-label="OTP digit 3" required>
+<input type="text" maxlength="1" class="otp-input" inputmode="numeric" aria-label="OTP digit 4" required>
+<input type="text" maxlength="1" class="otp-input" inputmode="numeric" aria-label="OTP digit 5" required>
+<input type="text" maxlength="1" class="otp-input" inputmode="numeric" aria-label="OTP digit 6" required>
+</div>
+<button id="verifyButton" type="submit" class="submit-btn"><span class="btn-text">Verify OTP</span></button>
+</form>
+<p class="resend">Didn't receive the code? <a href="#" id="resendOTP">Resend OTP</a></p>
+<p id="countdown" class="countdown">Resend available in 60s</p>
+</div>
+</section>
+</main>
+<div id="messageModal" class="message-modal" aria-hidden="true">
+<div class="message-modal-overlay" id="messageModalOverlay"></div>
+<div class="message-modal-content" role="dialog" aria-modal="true" aria-labelledby="messageModalTitle">
+<button type="button" id="closeMessageModal" class="modal-close" aria-label="Close">&times;</button>
+<div id="modalIcon" class="modal-icon"></div>
+<h2 id="messageModalTitle">Message</h2>
+<p id="messageModalText"></p>
+<button type="button" id="continueButton" class="continue-btn">Continue</button>
+</div>
+</div>
+<script src="../config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

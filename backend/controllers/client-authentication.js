@@ -6,6 +6,23 @@ const bcrypt=require("bcryptjs");
 const crypto=require("crypto");
 const jwt=require("jsonwebtoken");
 const Client=require("../models/client");
+const {BrevoClient}=require("@getbrevo/brevo");
+
+const sendOTPEmail=async(email,otp,subject,textContent)=>{
+    const brevo=new BrevoClient({
+        apiKey:process.env.BREVO_API_KEY
+    });
+
+    await brevo.transactionalEmails.sendTransacEmail({
+        sender:{
+            email:process.env.BREVO_SENDER_EMAIL,
+            name:process.env.BREVO_SENDER_NAME
+        },
+        to:[{email}],
+        subject,
+        textContent
+    });
+};
 
 const signup=async(req,res)=>{
  try{
@@ -18,11 +35,13 @@ const signup=async(req,res)=>{
   const emailOtp=crypto.randomInt(100000,1000000).toString(),emailOtpExpires=new Date(Date.now()+10*60*1000);
   const client=await Client.create({email,passwordHash,isEmailVerified:false,profileCompleted:false,emailOtp,emailOtpExpires});
 
-  const brevoResponse=await fetch("https://api.brevo.com/v3/smtp/email",{method:"POST",headers:{"Content-Type":"application/json","api-key":process.env.BREVO_API_KEY},body:JSON.stringify({sender:{email:process.env.BREVO_SENDER_EMAIL,name:process.env.BREVO_SENDER_NAME},to:[{email:client.email}],subject:"SkillConnect Email Verification Code",textContent:`Your SkillConnect verification code is ${emailOtp}. This code expires in 10 minutes.`})});
-  if(!brevoResponse.ok){
+  try{
+   await sendOTPEmail(client.email,emailOtp,"SkillConnect Email Verification Code",`Your SkillConnect verification code is ${emailOtp}. This code expires in 10 minutes.`);
+  }catch(error){
    await Client.findByIdAndDelete(client._id);
    return res.status(500).json({success:false,message:"Unable to send the verification code. Please try again."});
   }
+
   return res.status(201).json({success:true,message:"Account created successfully. A verification code has been sent to your email.",email:client.email});
  }catch(error){
   console.error("Client signup error:",error);
@@ -50,8 +69,12 @@ const login=async(req,res)=>{
    client.emailOtpExpires=new Date(Date.now()+10*60*1000);
    await client.save();
 
-   const brevoResponse=await fetch("https://api.brevo.com/v3/smtp/email",{method:"POST",headers:{"Content-Type":"application/json","api-key":process.env.BREVO_API_KEY},body:JSON.stringify({sender:{email:process.env.BREVO_SENDER_EMAIL,name:process.env.BREVO_SENDER_NAME},to:[{email:client.email}],subject:"SkillConnect Email Verification Code",textContent:`Your SkillConnect verification code is ${emailOtp}. This code expires in 10 minutes.`})});
-   if(!brevoResponse.ok)return res.status(500).json({success:false,message:"Unable to send the verification code. Please try again."});
+   try{
+    await sendOTPEmail(client.email,emailOtp,"SkillConnect Email Verification Code",`Your SkillConnect verification code is ${emailOtp}. This code expires in 10 minutes.`);
+   }catch(error){
+    return res.status(500).json({success:false,message:"Unable to send the verification code. Please try again."});
+   }
+
    return res.status(200).json({success:true,requiresEmailVerification:true,message:"Your email is not verified. A new verification code has been sent to your email.",email:client.email});
   }
 
@@ -83,11 +106,14 @@ const forgotPassword=async(req,res)=>{
 
   const passwordResetOtp=crypto.randomInt(100000,1000000).toString();
   client.passwordResetOtp=passwordResetOtp;
-  client.passwordResetOtpExpiry=new Date(Date.now()+10*60*1000);
+  client.passwordResetOtpExpires=new Date(Date.now()+10*60*1000);
   await client.save();
 
-  const brevoResponse=await fetch("https://api.brevo.com/v3/smtp/email",{method:"POST",headers:{"Content-Type":"application/json","api-key":process.env.BREVO_API_KEY},body:JSON.stringify({sender:{email:process.env.BREVO_SENDER_EMAIL,name:process.env.BREVO_SENDER_NAME},to:[{email:client.email}],subject:"SkillConnect Password Reset Code",textContent:`Your SkillConnect password reset code is ${passwordResetOtp}. This code expires in 10 minutes.`})});
-  if(!brevoResponse.ok)return res.status(500).json({success:false,message:"Unable to send the password reset code. Please try again."});
+  try{
+   await sendOTPEmail(client.email,passwordResetOtp,"SkillConnect Password Reset Code",`Your SkillConnect password reset code is ${passwordResetOtp}. This code expires in 10 minutes.`);
+  }catch(error){
+   return res.status(500).json({success:false,message:"Unable to send the password reset code. Please try again."});
+  }
 
   return res.status(200).json({success:true,message:"A password reset code has been sent to your email.",email:client.email});
  }catch(error){
