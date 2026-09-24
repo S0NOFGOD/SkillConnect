@@ -11,8 +11,6 @@ const portfolioPreview1=document.getElementById("portfolioPreview1");
 const portfolioPreview2=document.getElementById("portfolioPreview2");
 const portfolioPreview3=document.getElementById("portfolioPreview3");
 const addServiceBtn=document.getElementById("addServiceBtn");
-const buttonText=addServiceBtn?.querySelector(".button-text");
-const buttonLoader=addServiceBtn?.querySelector(".button-loader");
 
 const notificationOverlay=document.getElementById("notificationOverlay");
 const notificationCard=document.getElementById("notificationCard");
@@ -49,7 +47,9 @@ function getLocalSkills(){
 
 function populateSkillDropdown(){
     if(!skillInput)return;
+
     skillInput.innerHTML="";
+
     const placeholder=document.createElement("option");
     placeholder.value="";
     placeholder.textContent="Select your skill";
@@ -158,10 +158,6 @@ window.addEventListener("authSessionExpired",()=>{
     if(notificationOverlay&&!notificationOverlay.hidden)return;
     showAuthenticationError();
 });
-
-function countWords(text){
-    return text.length;
-}
 
 function updateDescriptionWordCount(){
     if(!descriptionInput||!descriptionWordCount)return;
@@ -373,17 +369,10 @@ function compressImage(file){
             let height=image.height;
 
             if(width>MAX_IMAGE_DIMENSION||height>MAX_IMAGE_DIMENSION){
-                if(width>height){
-                    height=Math.round(
-                        height*(MAX_IMAGE_DIMENSION/width)
-                    );
-                    width=MAX_IMAGE_DIMENSION;
-                }else{
-                    width=Math.round(
-                        width*(MAX_IMAGE_DIMENSION/height)
-                    );
-                    height=MAX_IMAGE_DIMENSION;
-                }
+                const scale=MAX_IMAGE_DIMENSION/Math.max(width,height);
+
+                width=Math.round(width*scale);
+                height=Math.round(height*scale);
             }
 
             const canvas=document.createElement("canvas");
@@ -393,11 +382,7 @@ function compressImage(file){
             const context=canvas.getContext("2d");
 
             if(!context){
-                reject(
-                    new Error(
-                        "The selected image could not be processed."
-                    )
-                );
+                reject(new Error("The selected image could not be processed."));
                 return;
             }
 
@@ -406,48 +391,34 @@ function compressImage(file){
             canvas.toBlob(
                 blob=>{
                     if(!blob){
-                        reject(
-                            new Error(
-                                "The selected image could not be processed."
-                            )
-                        );
+                        reject(new Error("The selected image could not be processed."));
                         return;
                     }
+
+                    const finishCompression=finalBlob=>{
+                        if(!finalBlob){
+                            reject(new Error("The selected image could not be compressed."));
+                            return;
+                        }
+
+                        resolve(
+                            new File(
+                                [finalBlob],
+                                `${file.name.replace(/\.[^/.]+$/,"")}.jpg`,
+                                {type:"image/jpeg"}
+                            )
+                        );
+                    };
 
                     if(blob.size>MAX_COMPRESSED_IMAGE_SIZE){
                         canvas.toBlob(
-                            smallerBlob=>{
-                                if(!smallerBlob){
-                                    reject(
-                                        new Error(
-                                            "The selected image could not be compressed."
-                                        )
-                                    );
-                                    return;
-                                }
-
-                                resolve(
-                                    new File(
-                                        [smallerBlob],
-                                        `${file.name.replace(/\.[^/.]+$/,"")}.jpg`,
-                                        {type:"image/jpeg"}
-                                    )
-                                );
-                            },
+                            finishCompression,
                             "image/jpeg",
                             0.65
                         );
-
-                        return;
+                    }else{
+                        finishCompression(blob);
                     }
-
-                    resolve(
-                        new File(
-                            [blob],
-                            `${file.name.replace(/\.[^/.]+$/,"")}.jpg`,
-                            {type:"image/jpeg"}
-                        )
-                    );
                 },
                 "image/jpeg",
                 0.8
@@ -476,12 +447,29 @@ async function buildServiceFormData(){
         portfolioPhoto3.files[0]
     ];
 
-    for(const file of files){
-        const compressedFile=await compressImage(file);
+    const failedImages=[];
 
-        formData.append(
-            "portfolioPhotos",
-            compressedFile
+    for(let i=0;i<files.length;i++){
+        try{
+            const compressedFile=await compressImage(files[i]);
+
+            formData.append(
+                "portfolioPhotos",
+                compressedFile
+            );
+        }catch(error){
+            console.error(
+                `Portfolio image ${i+1} processing failed:`,
+                error
+            );
+
+            failedImages.push(i+1);
+        }
+    }
+
+    if(failedImages.length){
+        throw new Error(
+            `PORTFOLIO_IMAGES_FAILED:${failedImages.join(",")}`
         );
     }
 
@@ -570,11 +558,28 @@ async function createService(){
     }catch(error){
         console.error("Create service request failed:",error);
 
-        showNotification(
-            "error",
-            "Request Failed",
-            "We could not process your portfolio image. Please try again."
-        );
+        if(error.message?.startsWith("PORTFOLIO_IMAGES_FAILED:")){
+            const failedImages=error.message
+                .replace("PORTFOLIO_IMAGES_FAILED:","")
+                .split(",")
+                .filter(Boolean);
+
+            const imageText=failedImages.length===1
+                ?`portfolio image ${failedImages[0]}`
+                :`portfolio images ${failedImages.slice(0,-1).join(", ")} and ${failedImages[failedImages.length-1]}`;
+
+            showNotification(
+                "error",
+                "Request Failed",
+                `We could not process your ${imageText}. Please try again.`
+            );
+        }else{
+            showNotification(
+                "error",
+                "Request Failed",
+                "We could not process your portfolio image. Please try again."
+            );
+        }
 
     }finally{
         isAddingService=false;
