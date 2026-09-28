@@ -49,6 +49,11 @@ const getLocation=async(req,res)=>{
 
         const address=response.data?.address||{};
 
+        console.log(
+    "NOMINATIM ADDRESS:",
+    JSON.stringify(response.data?.address,null,2)
+);
+
         const country=address.country||"";
         const state=address.state||"";
 
