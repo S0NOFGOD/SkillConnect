@@ -7,10 +7,10 @@ const Worker=require("../models/worker");
 const BREVO_API_KEY=process.env.BREVO_API_KEY;
 const BREVO_SENDER_EMAIL=process.env.BREVO_SENDER_EMAIL;
 const BREVO_SENDER_NAME=process.env.BREVO_SENDER_NAME||"SkillConnect";
-
 const OTP_EXPIRY_MINUTES=10;
 
 const generateOTP=()=>crypto.randomInt(100000,1000000).toString();
+const hashOTP=otp=>crypto.createHash("sha256").update(otp).digest("hex");
 const createOTPExpiry=()=>new Date(Date.now()+OTP_EXPIRY_MINUTES*60*1000);
 const generateOTPData=()=>{
 const otp=generateOTP();
@@ -28,45 +28,35 @@ if(!BREVO_API_KEY)throw new Error("BREVO_API_KEY is not configured.");
 if(!BREVO_SENDER_EMAIL)throw new Error("BREVO_SENDER_EMAIL is not configured.");
 
 const data=JSON.stringify({
-    sender:{
-        name:BREVO_SENDER_NAME,
-        email:BREVO_SENDER_EMAIL
-    },
-    to:[{email:to}],
-    subject,
-    htmlContent
+sender:{name:BREVO_SENDER_NAME,email:BREVO_SENDER_EMAIL},
+to:[{email:to}],
+subject,
+htmlContent
 });
 
 return new Promise((resolve,reject)=>{
-    const request=https.request({
-        hostname:"api.brevo.com",
-        path:"/v3/smtp/email",
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json",
-            "Content-Length":Buffer.byteLength(data),
-            "api-key":BREVO_API_KEY
-        }
-    },response=>{
-        let responseData="";
-        response.on("data",chunk=>responseData+=chunk);
-        response.on("end",()=>{
-            if(response.statusCode>=200&&response.statusCode<300){
-                return resolve({
-                    success:true,
-                    data:responseData
-                });
-            }
-
-            reject(new Error(
-                `Brevo email error (${response.statusCode}): ${responseData}`
-            ));
-        });
-    });
-
-    request.on("error",error=>reject(error));
-    request.write(data);
-    request.end();
+const request=https.request({
+hostname:"api.brevo.com",
+path:"/v3/smtp/email",
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"Content-Length":Buffer.byteLength(data),
+"api-key":BREVO_API_KEY
+}
+},response=>{
+let responseData="";
+response.on("data",chunk=>responseData+=chunk);
+response.on("end",()=>{
+if(response.statusCode>=200&&response.statusCode<300){
+return resolve({success:true,data:responseData});
+}
+reject(new Error(`Brevo email error (${response.statusCode}): ${responseData}`));
+});
+});
+request.on("error",error=>reject(error));
+request.write(data);
+request.end();
 });
 };
 
@@ -77,24 +67,20 @@ if(!otp)throw new Error("OTP is required.");
 let subject,title,message;
 
 if(type==="email-verification"){
-    subject="Verify Your SkillConnect Account";
-    title="Verify Your Email";
-    message="Use the verification code below to verify your SkillConnect account.";
+subject="Verify Your SkillConnect Account";
+title="Verify Your Email";
+message="Use the verification code below to verify your SkillConnect account.";
 }else if(type==="password-reset"){
-    subject="SkillConnect Password Reset";
-    title="Reset Your Password";
-    message="Use the code below to verify your password reset request.";
+subject="SkillConnect Password Reset";
+title="Reset Your Password";
+message="Use the code below to verify your password reset request.";
 }else{
-    throw new Error("Invalid OTP email type.");
+throw new Error("Invalid OTP email type.");
 }
 
 const htmlContent=`<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333;"><h2>${title}</h2><p>${message}</p><div style="font-size:32px;font-weight:bold;letter-spacing:8px;text-align:center;padding:20px;margin:20px 0;background:#f5f5f5;border-radius:8px;">${otp}</div><p>This code expires in 10 minutes.</p><p>If you did not request this code, you can safely ignore this email.</p><p>— SkillConnect</p></div>`;
 
-return sendEmail({
-    to:email,
-    subject,
-    htmlContent
-});
+return sendEmail({to:email,subject,htmlContent});
 };
 
 const generateAccessToken=({userId,userType})=>jwt.sign(
@@ -115,30 +101,15 @@ const hashRefreshToken=refreshToken=>crypto
 .digest("hex");
 
 const generateTokens=async({userId,userType})=>{
-const accessToken=generateAccessToken({
-userId,
-userType
-});
-
-const refreshToken=generateRefreshToken({
-    userId,
-    userType
-});
-
+const accessToken=generateAccessToken({userId,userType});
+const refreshToken=generateRefreshToken({userId,userType});
 const refreshTokenHash=hashRefreshToken(refreshToken);
 
 if(userType==="worker"){
-    await Worker.findByIdAndUpdate(
-        userId,
-        {refreshTokenHash}
-    );
+await Worker.findByIdAndUpdate(userId,{refreshTokenHash});
 }
 
-return{
-    accessToken,
-    refreshToken,
-    refreshTokenHash
-};
+return{accessToken,refreshToken,refreshTokenHash};
 };
 
 
@@ -149,30 +120,19 @@ try{
 const{email,password}=req.body;
 
 if(!email||!password){
-return res.status(400).json({
-success:false,
-message:"Email and password are required."
-});
+return res.status(400).json({success:false,message:"Email and password are required."});
 }
 
 if(password.length<8){
-return res.status(400).json({
-success:false,
-message:"Password must be at least 8 characters."
-});
+return res.status(400).json({success:false,message:"Password must be at least 8 characters."});
 }
 
 const normalizedEmail=email.trim().toLowerCase();
 
-const existingWorker=await Worker.findOne({
-email:normalizedEmail
-});
+const existingWorker=await Worker.findOne({email:normalizedEmail});
 
 if(existingWorker){
-return res.status(400).json({
-success:false,
-message:"An account with this email already exists."
-});
+return res.status(400).json({success:false,message:"An account with this email already exists."});
 }
 
 const passwordHash=await bcrypt.hash(password,10);
@@ -187,7 +147,7 @@ profileCompleted:false
 
 const{otp,expiresAt}=generateOTPData();
 
-worker.emailOtp=otp;
+worker.emailOtpHash=hashOTP(otp);
 worker.emailOtpExpires=expiresAt;
 
 await worker.save();
@@ -223,10 +183,7 @@ try{
 const{email,password}=req.body;
 
 if(!email||!password){
-return res.status(400).json({
-success:false,
-message:"Email and password are required."
-});
+return res.status(400).json({success:false,message:"Email and password are required."});
 }
 
 const normalizedEmail=email.trim().toLowerCase();
@@ -236,10 +193,7 @@ email:normalizedEmail
 }).select("+passwordHash");
 
 if(!worker){
-return res.status(401).json({
-success:false,
-message:"Invalid email or password."
-});
+return res.status(401).json({success:false,message:"Invalid email or password."});
 }
 
 if(worker.accountType==="googleId"){
@@ -249,22 +203,16 @@ message:"This account uses Google authentication. Please continue with Google."
 });
 }
 
-const passwordMatch=await bcrypt.compare(
-password,
-worker.passwordHash
-);
+const passwordMatch=await bcrypt.compare(password,worker.passwordHash);
 
 if(!passwordMatch){
-return res.status(401).json({
-success:false,
-message:"Invalid email or password."
-});
+return res.status(401).json({success:false,message:"Invalid email or password."});
 }
 
 if(!worker.isEmailVerified){
 const{otp,expiresAt}=generateOTPData();
 
-worker.emailOtp=otp;
+worker.emailOtpHash=hashOTP(otp);
 worker.emailOtpExpires=expiresAt;
 
 await worker.save();
@@ -297,6 +245,14 @@ userId:worker._id,
 userType:"worker"
 });
 
+res.cookie("accessToken",accessToken,{
+httpOnly:true,
+secure:process.env.NODE_ENV==="production",
+sameSite:process.env.NODE_ENV==="production"?"none":"lax",
+maxAge:15*60*1000,
+path:"/"
+});
+
 res.cookie("refreshToken",refreshToken,{
 httpOnly:true,
 secure:process.env.NODE_ENV==="production",
@@ -308,7 +264,6 @@ path:"/"
 return res.status(200).json({
 success:true,
 message:"Login successful.",
-accessToken,
 email:worker.email,
 nextStep:"authenticated"
 });
@@ -331,17 +286,12 @@ try{
 const{email}=req.body;
 
 if(!email){
-return res.status(400).json({
-success:false,
-message:"Email is required."
-});
+return res.status(400).json({success:false,message:"Email is required."});
 }
 
 const normalizedEmail=email.trim().toLowerCase();
 
-const worker=await Worker.findOne({
-email:normalizedEmail
-});
+const worker=await Worker.findOne({email:normalizedEmail});
 
 if(!worker){
 return res.status(404).json({
@@ -360,7 +310,7 @@ message:"This account uses Google authentication. Please continue with Google."
 
 const{otp,expiresAt}=generateOTPData();
 
-worker.passwordResetOtp=otp;
+worker.passwordResetOtpHash=hashOTP(otp);
 worker.passwordResetOtpExpires=expiresAt;
 worker.passwordResetVerified=false;
 worker.passwordResetVerifiedAt=null;
@@ -397,9 +347,7 @@ message:"An error occurred while processing your password reset request."
 
 const googleAuthentication=async(req,res)=>{
 try{
-const googleUrl=new URL(
-"https://accounts.google.com/o/oauth2/v2/auth"
-);
+const googleUrl=new URL("https://accounts.google.com/o/oauth2/v2/auth");
 
 [
 "client_id",
@@ -490,14 +438,8 @@ Authorization:`Bearer ${tokenData.access_token}`
 
 const googleUser=await userResponse.json();
 
-if(
-!userResponse.ok||
-!googleUser.email||
-!googleUser.id
-){
-return redirect(
-"Unable to retrieve your Google account information."
-);
+if(!userResponse.ok||!googleUser.email||!googleUser.id){
+return redirect("Unable to retrieve your Google account information.");
 }
 
 const googleEmail=googleUser.email.trim().toLowerCase();
@@ -604,6 +546,14 @@ userType:"worker"
 
 await worker.save();
 
+res.cookie("accessToken",accessToken,{
+httpOnly:true,
+secure:process.env.NODE_ENV==="production",
+sameSite:process.env.NODE_ENV==="production"?"none":"lax",
+maxAge:15*60*1000,
+path:"/"
+});
+
 res.cookie("refreshToken",refreshToken,{
 httpOnly:true,
 secure:process.env.NODE_ENV==="production",
@@ -615,7 +565,6 @@ path:"/"
 return res.status(200).json({
 success:true,
 message:"Google login successful.",
-accessToken,
 email:worker.email,
 nextStep:"authenticated"
 });

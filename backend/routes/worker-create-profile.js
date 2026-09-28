@@ -2,33 +2,33 @@
    1. IMPORT EXPRESS
 ========================================================= */
 
-const express = require("express");
+const express=require("express");
 
 
 /* =========================================================
    2. IMPORT MULTER
 ========================================================= */
 
-const multer = require("multer");
+const multer=require("multer");
 
 
 /* =========================================================
    3. CREATE ROUTER
 ========================================================= */
 
-const router = express.Router();
+const router=express.Router();
 
 
 /* =========================================================
    4. CONFIGURE MULTER
 ========================================================= */
 
-const upload = multer({
+const upload=multer({
 
-    storage: multer.memoryStorage(),
+    storage:multer.memoryStorage(),
 
-    limits: {
-        fileSize: 5 * 1024 * 1024
+    limits:{
+        fileSize:5*1024*1024
     }
 
 });
@@ -39,14 +39,13 @@ const upload = multer({
 ========================================================= */
 
 const {
-
     createWorkerProfile
+}=require("../controllers/worker-create-profile");
 
-} = require("../controllers/worker-create-profile");
 
 
 /* =========================================================
-   6. CREATE WORKER PROFILE
+   7. CREATE WORKER PROFILE
 ========================================================= */
 
 router.post(
@@ -61,7 +60,7 @@ router.post(
 
 
 /* =========================================================
-   7. EXPORT ROUTER
+   8. EXPORT ROUTER
 ========================================================= */
 
-module.exports = router;
+module.exports=router;

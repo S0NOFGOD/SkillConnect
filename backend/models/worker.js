@@ -1,12 +1,5 @@
-/* =========================================================
-   WORKER MODEL
-========================================================= */
 const mongoose=require("mongoose");
 
-
-/* =========================================================
-   WORKER SCHEMA
-========================================================= */
 const workerSchema=new mongoose.Schema({
     // Account information.
     email:{
@@ -42,7 +35,7 @@ const workerSchema=new mongoose.Schema({
         default:false,
         required:true
     },
-    emailOtp:{
+    emailOtpHash:{
         type:String,
         default:null,
         select:false
@@ -53,7 +46,7 @@ const workerSchema=new mongoose.Schema({
         select:false
     },
     // Phone verification.
-    phoneOtp:{
+    phoneOtpHash:{
         type:String,
         default:null,
         select:false
@@ -62,6 +55,14 @@ const workerSchema=new mongoose.Schema({
         type:Date,
         default:null,
         select:false
+    },
+    phoneOtpResendLimit:{
+        type:Number,
+        default:0
+    },
+    phoneOtpResendLimitExpires:{
+        type:Date,
+        default:null
     },
     phoneVerificationExpires:{
         type:Date,
@@ -161,7 +162,7 @@ const workerSchema=new mongoose.Schema({
         select:false
     },
     // Password reset.
-    passwordResetOtp:{
+    passwordResetOtpHash:{
         type:String,
         default:null,
         select:false
@@ -194,9 +195,6 @@ const workerSchema=new mongoose.Schema({
     timestamps:true
 });
 
-/* =========================================================
-   EXPORT MODEL
-========================================================= */
 const Worker=
     mongoose.models.Worker||
     mongoose.model("Worker",workerSchema);

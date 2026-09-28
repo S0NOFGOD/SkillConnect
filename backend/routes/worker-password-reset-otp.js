@@ -68,7 +68,7 @@ const {
     resendPasswordResetOTP
 
 } =
-    require("../controllers/worker-password-reset");
+    require("../controllers/worker-password-reset-otp");
 
 
 /* =========================================================

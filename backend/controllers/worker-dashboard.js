@@ -10,8 +10,8 @@ cloudinary.config({
     api_secret:process.env.CLOUDINARY_API_SECRET
 });
 
-const TERMII_API_KEY=process.env.TERMII_API_KEY;
-const TERMII_BASE_URL=process.env.TERMII_BASE_URL;
+const ROBASE_API_KEY=process.env.ROBASE_API_KEY;
+const ROBASE_BASE_URL="https://api.robase.dev";
 
 const OTP_EXPIRY_MINUTES=10;
 const generateOTP=()=>crypto.randomInt(100000,1000000).toString();
@@ -21,18 +21,15 @@ const generateOTPData=()=>{const otp=generateOTP();const expiresAt=createOTPExpi
 const sendPhoneOtp=async(phone,otp)=>{
 if(!phone)throw new Error("Phone number is required.");
 if(!otp)throw new Error("OTP is required.");
-if(!TERMII_API_KEY)throw new Error("TERMII_API_KEY is not configured.");
-if(!TERMII_BASE_URL)throw new Error("TERMII_BASE_URL is not configured.");
+if(!ROBASE_API_KEY)throw new Error("ROBASE_API_KEY is not configured.");
 const message=`Your SkillConnect verification code is ${otp}. This code expires in 10 minutes. Do not share this code with anyone.`;
-const response=await axios.post(`${TERMII_BASE_URL}/api/sms/send`,{to:phone,from:"Termii",sms:message,type:"plain",channel:"dnd",api_key:TERMII_API_KEY},{headers:{"Content-Type":"application/json"}});
-console.log("Termii SMS response:",response.data);
+const response=await axios.post(`${ROBASE_BASE_URL}/v1/sms/send`,{phone_number:phone,message},{headers:{Authorization:`Bearer ${ROBASE_API_KEY}`,"Content-Type":"application/json"}});
+console.log("Robase SMS response:",response.data);
 return{success:true,phone,response:response.data};
 };
 
 const authenticateAccessToken=req=>{
-const authorization=req.headers.authorization;
-if(!authorization||!authorization.startsWith("Bearer "))return null;
-const accessToken=authorization.split(" ")[1];
+const accessToken=req.cookies?.accessToken;
 if(!accessToken)return null;
 try{
 const decoded=jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET);
@@ -86,7 +83,8 @@ if(!worker.phone)return res.status(400).json({success:false,message:"Please add 
 if(worker.phoneVerificationExpires&&new Date(worker.phoneVerificationExpires)>new Date())return res.status(400).json({success:false,message:"Your phone number is already verified."});
 const{otp,expiresAt}=generateOTPData();
 await sendPhoneOtp(worker.phone,otp);
-worker.phoneOtp=otp;
+const phoneOtpHash=crypto.createHash("sha256").update(otp).digest("hex");
+worker.phoneOtpHash=phoneOtpHash;
 worker.phoneOtpExpires=expiresAt;
 await worker.save();
 return res.status(200).json({success:true,message:"A verification code has been sent to your phone.",phone:worker.phone});

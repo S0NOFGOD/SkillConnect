@@ -1,7 +1,3 @@
-/* =========================================================
-   SKILLCONNECT — CONTROLLER — WORKER PASSWORD RESET OTP
-========================================================= */
-
 const crypto=require("crypto");
 const https=require("https");
 const Worker=require("../models/worker");
@@ -13,6 +9,7 @@ const BREVO_SMS_SENDER_NAME=process.env.BREVO_SMS_SENDER_NAME;
 
 const OTP_EXPIRY_MINUTES=10;
 const generateOTP=()=>crypto.randomInt(100000,1000000).toString();
+const hashOTP=otp=>crypto.createHash("sha256").update(otp).digest("hex");
 const createOTPExpiry=()=>new Date(Date.now()+OTP_EXPIRY_MINUTES*60*1000);
 const generateOTPData=()=>{const otp=generateOTP();const expiresAt=createOTPExpiry();return{otp,expiresAt};};
 
@@ -63,13 +60,13 @@ if(!email||!otp)return res.status(400).json({success:false,message:"Email and OT
 const normalizedEmail=email.trim().toLowerCase();
 const normalizedOTP=otp.trim();
 if(!/^\d{6}$/.test(normalizedOTP))return res.status(400).json({success:false,message:"OTP must be a 6-digit code."});
-const worker=await Worker.findOne({email:normalizedEmail}).select("+passwordResetOtp +passwordResetOtpExpires");
+const worker=await Worker.findOne({email:normalizedEmail}).select("+passwordResetOtpHash +passwordResetOtpExpires");
 if(!worker)return res.status(404).json({success:false,message:"Worker account not found."});
-if(!worker.passwordResetOtp)return res.status(400).json({success:false,message:"No active password reset code found. Please request a new code."});
-if(worker.passwordResetOtp!==normalizedOTP)return res.status(400).json({success:false,message:"Invalid password reset code."});
+if(!worker.passwordResetOtpHash)return res.status(400).json({success:false,message:"No active password reset code found. Please request a new code."});
+if(hashOTP(normalizedOTP)!==worker.passwordResetOtpHash)return res.status(400).json({success:false,message:"Invalid password reset code."});
 if(!worker.passwordResetOtpExpires)return res.status(400).json({success:false,message:"Password reset code has expired. Please request a new code."});
 if(new Date()>worker.passwordResetOtpExpires){
-worker.passwordResetOtp=null;
+worker.passwordResetOtpHash=null;
 worker.passwordResetOtpExpires=null;
 await worker.save();
 return res.status(400).json({success:false,message:"Password reset code has expired. Please request a new code."});
@@ -80,7 +77,7 @@ worker.passwordResetVerified=true;
 worker.passwordResetVerifiedAt=new Date();
 worker.resetAuthorization=resetAuthorization;
 worker.resetAuthorizationExpires=resetAuthorizationExpires;
-worker.passwordResetOtp=null;
+worker.passwordResetOtpHash=null;
 worker.passwordResetOtpExpires=null;
 await worker.save();
 return res.status(200).json({success:true,message:"Password reset code verified successfully.",resetAuthorization,redirect:"../worker-password-change/index.html"});
@@ -100,7 +97,7 @@ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail))return res.status(400).js
 const worker=await Worker.findOne({email:normalizedEmail});
 if(!worker)return res.status(200).json({success:true,message:"If an account exists with this email, a password reset code has been sent."});
 const{otp,expiresAt}=generateOTPData();
-worker.passwordResetOtp=otp;
+worker.passwordResetOtpHash=hashOTP(otp);
 worker.passwordResetOtpExpires=expiresAt;
 worker.passwordResetVerified=false;
 worker.passwordResetVerifiedAt=null;
@@ -110,7 +107,7 @@ await worker.save();
 try{
 await sendOTPEmail({email:worker.email,otp,type:"password-reset"});
 }catch(emailError){
-worker.passwordResetOtp=null;
+worker.passwordResetOtpHash=null;
 worker.passwordResetOtpExpires=null;
 await worker.save();
 throw emailError;

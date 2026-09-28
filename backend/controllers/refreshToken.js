@@ -13,7 +13,7 @@ const generateAccessToken=({userId,userType})=>jwt.sign(
 
 const refreshAccessToken=async(req,res)=>{
     try{
-        const refreshToken=req.cookies.refreshToken;
+        const refreshToken=req.cookies?.refreshToken;
 
         if(!refreshToken){
             return res.status(401).json({
@@ -97,9 +97,16 @@ const refreshAccessToken=async(req,res)=>{
             userType:decoded.userType
         });
 
+        res.cookie("accessToken",newAccessToken,{
+            httpOnly:true,
+            secure:process.env.NODE_ENV==="production",
+            sameSite:process.env.NODE_ENV==="production"?"none":"lax",
+            maxAge:15*60*1000
+        });
+
         return res.status(200).json({
             success:true,
-            accessToken:newAccessToken
+            message:"Access token refreshed successfully."
         });
 
     }catch(error){

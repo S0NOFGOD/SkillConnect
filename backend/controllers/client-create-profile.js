@@ -1,483 +1,191 @@
-/* =========================================================
-   SKILLCONNECT
-   CLIENT CREATE PROFILE CONTROLLER
+const {Readable}=require("stream");
+const cloudinary=require("cloudinary").v2;
+const Client=require("../models/client");
 
-   This file controls:
+cloudinary.config({
+    cloud_name:process.env.CLOUDINARY_CLOUD_NAME,
+    api_key:process.env.CLOUDINARY_API_KEY,
+    api_secret:process.env.CLOUDINARY_API_SECRET
+});
 
-   1. Receiving client profile information
-   2. Finding the client by email
-   3. Checking email verification
-   4. Validating profile information
-   5. Saving the client profile
-   6. Setting profileCompleted = true
-   7. Returning success/error responses
+const createClientProfile=async(req,res,next)=>{
+    try{
 
-   FLOW:
+        const email=String(req.body.email||"")
+            .trim()
+            .toLowerCase();
 
-   Frontend
-        ↓
-   POST /api/client-create-profile
-        ↓
-   Find client
-        ↓
-   Client does not exist
-        ↓
-   Error response
+        const fullName=String(req.body.fullName||"")
+            .trim()
+            .replace(/\s+/g," ");
 
-   Client exists
-        ↓
-   Check isEmailVerified
-        ↓
-   false → Error response
-        ↓
-   true
-        ↓
-   Validate profile
-        ↓
-   Save profile
-        ↓
-   profileCompleted = true
-        ↓
-   Success response
-========================================================= */
+        const phone=String(req.body.phone||"")
+            .trim()
+            .replace(/\s+/g,"");
 
+        const country=String(req.body.country||"").trim();
+        const state=String(req.body.state||"").trim();
+        const city=String(req.body.city||"").trim();
+        const lga=String(req.body.lga||"").trim();
 
-/* =========================================================
-   1. IMPORT CLIENT MODEL
-========================================================= */
+        /* FIND CLIENT */
 
-/*
-   The Client model allows us to find and update
-   the client stored in MongoDB.
-*/
+        const client=await Client.findOne({email});
 
-const Client =
-    require("../models/client");
-
-
-
-/* =========================================================
-   2. CREATE CLIENT PROFILE
-========================================================= */
-
-const createClientProfile = async (
-    req,
-    res
-) => {
-
-    try {
-
-        /* =================================================
-           2.1 GET DATA FROM REQUEST BODY
-        ================================================= */
-
-        /*
-           The frontend sends:
-
-           {
-               clientEmail,
-               fullName,
-               country,
-               state,
-               city
-           }
-        */
-
-        const {
-
-            clientEmail,
-
-            fullName,
-
-            country,
-
-            state,
-
-            city
-
-        } = req.body;
-
-
-
-        /* =================================================
-           2.2 VALIDATE EMAIL
-        ================================================= */
-
-        /*
-           clientEmail is required because we use it
-           to identify the client whose profile is
-           being completed.
-        */
-
-        if (
-            !clientEmail ||
-            typeof clientEmail !== "string"
-        ) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Client email is required."
-
-            });
-
-        }
-
-
-
-        /* =================================================
-           2.3 NORMALIZE EMAIL
-        ================================================= */
-
-        /*
-           Convert the email to lowercase and remove
-           accidental spaces.
-
-           Example:
-
-           " John@Example.com "
-
-           becomes:
-
-           "john@example.com"
-        */
-
-        const normalizedEmail =
-            clientEmail
-                .trim()
-                .toLowerCase();
-
-
-
-        /* =================================================
-           2.4 FIND CLIENT
-        ================================================= */
-
-        /*
-           Search MongoDB for the client using
-           the normalized email address.
-        */
-
-        const client =
-            await Client.findOne({
-
-                email:
-                    normalizedEmail
-
-            });
-
-
-
-        /* =================================================
-           2.5 CLIENT DOES NOT EXIST
-        ================================================= */
-
-        if (!client) {
-
+        if(!client){
             return res.status(404).json({
-
-                success: false,
-
-                message:
-                    "Client account could not be found."
-
+                success:false,
+                message:"Client account not found. Please sign in again."
             });
-
         }
 
+        /* CHECK PHONE */
 
+        const phoneExists=await Client.findOne({
+            phone,
+            _id:{$ne:client._id}
+        });
 
-        /* =================================================
-           2.6 CHECK EMAIL VERIFICATION
-        ================================================= */
-
-        /*
-           The client must verify their email before
-           they are allowed to complete their profile.
-
-           If email verification is false:
-
-           → Return an error
-           → Frontend displays error modal
-           → Frontend redirects to client-email-otp
-        */
-
-        if (
-            client.isEmailVerified !== true
-        ) {
-
-            return res.status(403).json({
-
-                success: false,
-
-                emailNotVerified: true,
-
-                message:
-                    "Please verify your email before completing your profile."
-
+        if(phoneExists){
+            return res.status(409).json({
+                success:false,
+                message:"This phone number is already associated with another account."
             });
-
         }
 
+        /* VALIDATE PROFILE PHOTO */
 
-
-        /* =================================================
-           2.7 VALIDATE FULL NAME
-        ================================================= */
-
-        if (
-            !fullName ||
-            typeof fullName !== "string" ||
-            !fullName.trim()
-        ) {
-
+        if(!req.file){
             return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Please enter your full name."
-
+                success:false,
+                message:"Profile photo is required."
             });
-
         }
 
-
-
-        /* =================================================
-           2.8 VALIDATE COUNTRY
-        ================================================= */
-
-        if (
-            !country ||
-            typeof country !== "string" ||
-            !country.trim()
-        ) {
-
+        if(
+            !["image/jpeg","image/png","image/webp"]
+            .includes(req.file.mimetype)
+        ){
             return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Please select your country."
-
+                success:false,
+                message:"Profile photo must be JPG, PNG, or WebP."
             });
-
         }
 
-
-
-        /* =================================================
-           2.9 VALIDATE STATE
-        ================================================= */
-
-        if (
-            !state ||
-            typeof state !== "string" ||
-            !state.trim()
-        ) {
-
+        if(req.file.size>5*1024*1024){
             return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Please select your state."
-
+                success:false,
+                message:"Profile photo must not exceed 5 MB."
             });
-
         }
 
+        /* VALIDATE FULL NAME */
 
+        const nameParts=fullName.split(" ");
 
-        /* =================================================
-           2.10 VALIDATE CITY
-        ================================================= */
+        const namePattern=
+            /^[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*$/;
 
-        if (
-            !city ||
-            typeof city !== "string" ||
-            !city.trim()
-        ) {
-
+        if(
+            nameParts.length!==2||
+            !namePattern.test(nameParts[0])||
+            !namePattern.test(nameParts[1])
+        ){
             return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Please select your city."
-
+                success:false,
+                message:"Full name must contain exactly two valid names with a space between them."
             });
-
         }
 
+        /* VALIDATE PHONE */
 
+        if(!/^\+234[789]\d{9}$/.test(phone)){
+            return res.status(400).json({
+                success:false,
+                message:"Please enter a valid Nigerian phone number."
+            });
+        }
 
-        /* =================================================
-           2.11 CLEAN PROFILE INFORMATION
-        ================================================= */
+        /* VALIDATE LOCATION */
 
-        /*
-           Remove accidental spaces from the values
-           before saving them to MongoDB.
-        */
+        if(!country){
+            return res.status(400).json({
+                success:false,
+                message:"Country is required."
+            });
+        }
 
-        const cleanFullName =
-            fullName.trim();
+        if(!state){
+            return res.status(400).json({
+                success:false,
+                message:"State is required."
+            });
+        }
 
-        const cleanCountry =
-            country.trim();
+        if(!city){
+            return res.status(400).json({
+                success:false,
+                message:"City is required."
+            });
+        }
 
-        const cleanState =
-            state.trim();
+        if(!lga){
+            return res.status(400).json({
+                success:false,
+                message:"LGA is required."
+            });
+        }
 
-        const cleanCity =
-            city.trim();
+        /* UPLOAD PROFILE PHOTO */
 
+        const uploadResult=await new Promise((resolve,reject)=>{
 
+            const uploadStream=cloudinary.uploader.upload_stream(
+                {
+                    folder:`skillconnect/clients/${client._id}`,
+                    resource_type:"image"
+                },
+                (error,result)=>{
+                    if(error){
+                        reject(error);
+                        return;
+                    }
 
-        /* =================================================
-           2.12 CREATE LOCATION STRING
-        ================================================= */
+                    resolve(result);
+                }
+            );
 
-        /*
-           Store one combined location value.
+            Readable.from(req.file.buffer).pipe(uploadStream);
 
-           Example:
+        });
 
-           Nigeria, Oyo, Ibadan
-        */
+        /* SAVE PROFILE */
 
-        const location =
-            `${cleanCountry}, ${cleanState}, ${cleanCity}`;
-
-
-
-        /* =================================================
-           2.13 SAVE PROFILE INFORMATION
-        ================================================= */
-
-        client.fullName =
-            cleanFullName;
-
-        client.country =
-            cleanCountry;
-
-        client.state =
-            cleanState;
-
-        client.city =
-            cleanCity;
-
-        client.location =
-            location;
-
-
-
-        /* =================================================
-           2.14 MARK PROFILE AS COMPLETED
-        ================================================= */
-
-        /*
-           This is important because the authentication
-           flow can now determine that the client has
-           completed their profile.
-
-           Before:
-
-           profileCompleted = false
-
-           After:
-
-           profileCompleted = true
-        */
-
-        client.profileCompleted =
-            true;
-
-
-
-        /* =================================================
-           2.15 SAVE CLIENT
-        ================================================= */
+        client.profilePhoto=uploadResult.public_id;
+        client.fullName=fullName;
+        client.phone=phone;
+        client.country=country;
+        client.state=state;
+        client.city=city;
+        client.lga=lga;
+        client.profileCompleted=true;
 
         await client.save();
 
-
-
-        /* =================================================
-           2.16 RETURN SUCCESS RESPONSE
-        ================================================= */
-
-        /*
-           The frontend receives this response and:
-
-           1. Shows success modal
-           2. Waits 1.5 seconds
-           3. Redirects to:
-
-              client-worker-search/index.html
-        */
-
         return res.status(200).json({
-
-            success: true,
-
-            message:
-                "Your client profile has been completed successfully.",
-
-            profileCompleted:
-                true
-
+            success:true,
+            message:"Your client profile has been completed successfully."
         });
 
-    }
-
-
-    /* =====================================================
-       3. HANDLE SERVER ERROR
-    ===================================================== */
-
-    catch (error) {
-
-        /*
-           Log the actual error on the backend
-           for debugging.
-        */
+    }catch(error){
 
         console.error(
-            "Client Create Profile Error:",
+            "Client profile creation failed:",
             error
         );
 
-
-        /* ================================================
-           RETURN SERVER ERROR
-        ================================================ */
-
-        return res.status(500).json({
-
-            success: false,
-
-            message:
-                "An error occurred while creating your profile."
-
-        });
-
+        return next(error);
     }
-
 };
 
-
-
-/* =========================================================
-   4. EXPORT CONTROLLER
-========================================================= */
-
-module.exports = {
-
-    createClientProfile
-
-};
+module.exports=createClientProfile;

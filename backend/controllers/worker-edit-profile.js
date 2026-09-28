@@ -9,9 +9,8 @@ cloudinary.config({
 });
 
 const authenticate=async(req)=>{
-const header=req.headers.authorization||"";
-if(!header.startsWith("Bearer "))return null;
-const token=header.split(" ")[1];
+const token=req.cookies?.accessToken;
+if(!token)return null;
 try{
 const decoded=jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
 if(decoded.userType!=="worker"||!decoded.userId)return null;

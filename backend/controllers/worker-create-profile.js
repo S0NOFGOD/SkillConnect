@@ -3,13 +3,16 @@
 ========================================================= */
 
 const Worker=require("../models/worker");
+const axios=require("axios");
 
 const{v2:cloudinary}=require("cloudinary");
+
 cloudinary.config({
     cloud_name:process.env.CLOUDINARY_CLOUD_NAME,
     api_key:process.env.CLOUDINARY_API_KEY,
     api_secret:process.env.CLOUDINARY_API_SECRET
 });
+
 
 /* =========================================================
    CREATE WORKER PROFILE
@@ -19,7 +22,15 @@ const createWorkerProfile=async(req,res)=>{
     let uploadedPublicId=null;
 
     try{
-        const{email,fullName,phone,country,state,city,lga}=req.body;
+        const{
+            email,
+            fullName,
+            phone,
+            country,
+            state,
+            city,
+            lga
+        }=req.body;
 
         if(!email||typeof email!=="string"){
             return res.status(400).json({
@@ -31,7 +42,9 @@ const createWorkerProfile=async(req,res)=>{
 
         const normalizedEmail=email.trim().toLowerCase();
 
-        const worker=await Worker.findOne({email:normalizedEmail});
+        const worker=await Worker.findOne({
+            email:normalizedEmail
+        });
 
         if(!worker){
             return res.status(404).json({
@@ -49,14 +62,6 @@ const createWorkerProfile=async(req,res)=>{
             });
         }
 
-        if(worker.accountStatus&&worker.accountStatus.toLowerCase()==="suspended"){
-            return res.status(403).json({
-                success:false,
-                code:"ACCOUNT_SUSPENDED",
-                message:"Your worker account is currently suspended."
-            });
-        }
-
         if(!req.file){
             return res.status(400).json({
                 success:false,
@@ -65,7 +70,11 @@ const createWorkerProfile=async(req,res)=>{
             });
         }
 
-        const allowedImageTypes=["image/jpeg","image/png","image/webp"];
+        const allowedImageTypes=[
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        ];
 
         if(!allowedImageTypes.includes(req.file.mimetype)){
             return res.status(400).json({
@@ -85,13 +94,24 @@ const createWorkerProfile=async(req,res)=>{
             });
         }
 
-        const trimmedFullName=typeof fullName==="string"?fullName.trim():"";
-        const trimmedPhone=typeof phone==="string"?phone.trim():"";
-        const trimmedCountry=typeof country==="string"?country.trim():"";
-        const trimmedState=typeof state==="string"?state.trim():"";
-        const trimmedCity=typeof city==="string"?city.trim():"";
-        const trimmedLga=typeof lga==="string"?lga.trim():"";
-        const trimmedLocation=typeof location==="string"?location.trim():"";
+        const trimmedFullName=
+            typeof fullName==="string"?fullName.trim():"";
+
+        const trimmedPhone=
+            typeof phone==="string"?phone.trim():"";
+
+        const trimmedCountry=
+            typeof country==="string"?country.trim():"";
+
+        const trimmedState=
+            typeof state==="string"?state.trim():"";
+
+        const trimmedCity=
+            typeof city==="string"?city.trim():"";
+
+        const trimmedLga=
+            typeof lga==="string"?lga.trim():"";
+
 
         if(!trimmedFullName){
             return res.status(400).json({
@@ -182,19 +202,23 @@ const createWorkerProfile=async(req,res)=>{
                             reject(error);
                             return;
                         }
+
                         resolve(result);
                     }
                 );
+
                 uploadStream.end(req.file.buffer);
             });
         };
 
         const uploadedImage=await cloudinaryUpload();
+
         const profilePhotoPublicId=uploadedImage.public_id;
+
         uploadedPublicId=profilePhotoPublicId;
 
         worker.fullName=trimmedFullName;
-        worker.profilePhoto=profilePhotoPublicId
+        worker.profilePhoto=profilePhotoPublicId;
         worker.phone=trimmedPhone;
         worker.country=trimmedCountry;
         worker.state=trimmedState;
@@ -218,12 +242,19 @@ const createWorkerProfile=async(req,res)=>{
                     {resource_type:"image"}
                 );
             }catch(cleanupError){
-                console.error("Cloudinary cleanup failed:",cleanupError);
+                console.error(
+                    "Cloudinary cleanup failed:",
+                    cleanupError
+                );
             }
         }
 
         if(error.http_code&&error.message){
-            console.error("Cloudinary profile photo upload error:",error);
+            console.error(
+                "Cloudinary profile photo upload error:",
+                error
+            );
+
             return res.status(500).json({
                 success:false,
                 code:"PROFILE_PHOTO_UPLOAD_FAILED",
@@ -241,14 +272,19 @@ const createWorkerProfile=async(req,res)=>{
 
         if(error.name==="ValidationError"){
             const firstError=Object.values(error.errors)[0];
+
             return res.status(400).json({
                 success:false,
                 code:"VALIDATION_ERROR",
-                message:firstError?.message||"The profile information provided is invalid."
+                message:firstError?.message||
+                    "The profile information provided is invalid."
             });
         }
 
-        console.error("Create worker profile error:",error);
+        console.error(
+            "Create worker profile error:",
+            error
+        );
 
         return res.status(500).json({
             success:false,
@@ -258,4 +294,7 @@ const createWorkerProfile=async(req,res)=>{
     }
 };
 
-module.exports={createWorkerProfile};
+
+module.exports={
+    createWorkerProfile
+};

@@ -5,6 +5,8 @@ const express=require("express");
 const cors=require("cors");
 const cookieParser=require("cookie-parser");
 
+const locationRoutes=require("./routes/location");
+
 const workerAuthenticationRoutes=require("./routes/worker-authentication");
 const workerEmailOTPRoutes=require("./routes/worker-email-otp");
 const workerPasswordResetOTPRoutes=require("./routes/worker-password-reset-otp");
@@ -16,6 +18,7 @@ const workerServicesRoutes=require("./routes/worker-services");
 const workerCreateServiceRoutes=require("./routes/worker-create-service");
 const workerViewServiceRoutes=require("./routes/worker-view-service");
 const workerLogoutRoutes=require("./routes/worker-logout");
+const workerPhoneOTPRoutes=require("./routes/worker-phone-otp");
 const refreshTokenRoutes=require("./routes/refreshToken");
 
 const clientAuthenticationRoutes=require("./routes/client-authentication");
@@ -92,13 +95,19 @@ app.get("/",(req,res)=>{
 });
 
 
-/* 4. WORKER ROUTES */
+/* 4. LOCATION ROUTES */
+
+app.use("/api/location",locationRoutes);
+
+
+/* 5. WORKER ROUTES */
 
 app.use("/api/worker-authentication",workerAuthenticationRoutes);
 app.use("/api/auth/refresh",refreshTokenRoutes);
 app.use("/api/auth/worker",workerEmailOTPRoutes);
 app.use("/api/auth/worker",workerPasswordResetOTPRoutes);
 app.use("/api/auth/worker",workerLogoutRoutes);
+app.use("/api/worker",workerPhoneOTPRoutes);
 app.use("/api/worker",workerCreateProfileRoutes);
 app.use("/api/worker",workerEditProfileRoutes);
 app.use("/api/worker-password-change",workerPasswordChangeRoutes);
@@ -106,7 +115,7 @@ app.use("/api/worker",workerCreateServiceRoutes);
 app.use("/api/worker",workerViewServiceRoutes);
 
 
-/* 5. CLIENT ROUTES */
+/* 6. CLIENT ROUTES */
 
 app.use("/api/client-authentication",clientAuthenticationRoutes);
 app.use("/api/client-email-otp",clientEmailOTPRoutes);
@@ -117,13 +126,13 @@ app.use("/api/client/worker-search",clientWorkerSearchRoutes);
 app.use("/api/client/worker-details",clientWorkerDetailsRoutes);
 
 
-/* 6. OTHER WORKER ROUTES */
+/* 7. OTHER WORKER ROUTES */
 
 app.use("/api/worker",workerDashboardRoutes);
 app.use("/api/worker",workerServicesRoutes);
 
 
-/* 7. 404 ERROR */
+/* 8. 404 ERROR */
 
 app.use((req,res)=>{
     res.status(404).json({
@@ -133,7 +142,7 @@ app.use((req,res)=>{
 });
 
 
-/* 8. GLOBAL ERROR HANDLER */
+/* 9. GLOBAL ERROR HANDLER */
 
 app.use((error,req,res,next)=>{
     console.error("Server Error:",error);
@@ -148,13 +157,13 @@ app.use((error,req,res,next)=>{
     return res.status(error.statusCode||500).json({
         success:false,
         message:process.env.NODE_ENV==="development"
-            ? error.message
-            : "An internal server error occurred."
+            ?error.message
+            :"An internal server error occurred."
     });
 });
 
 
-/* 9. START SERVER */
+/* 10. START SERVER */
 
 const startServer=async()=>{
     try{

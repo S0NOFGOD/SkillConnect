@@ -1,7 +1,4 @@
-/* =========================================================
-   SKILLCONNECT — CONTROLLER — WORKER EMAIL OTP
-========================================================= */
-
+const crypto=require("crypto");
 const https=require("https");
 const Worker=require("../models/worker");
 
@@ -11,7 +8,8 @@ const BREVO_SENDER_NAME=process.env.BREVO_SENDER_NAME||"SkillConnect";
 const BREVO_SMS_SENDER_NAME=process.env.BREVO_SMS_SENDER_NAME;
 
 const OTP_EXPIRY_MINUTES=10;
-const generateOTP=()=>require("crypto").randomInt(100000,1000000).toString();
+const generateOTP=()=>crypto.randomInt(100000,1000000).toString();
+const hashOTP=otp=>crypto.createHash("sha256").update(otp).digest("hex");
 const createOTPExpiry=()=>new Date(Date.now()+OTP_EXPIRY_MINUTES*60*1000);
 const generateOTPData=()=>{const otp=generateOTP();const expiresAt=createOTPExpiry();return{otp,expiresAt};};
 
@@ -62,17 +60,17 @@ if(!email||!otp)return res.status(400).json({success:false,message:"Email and OT
 const normalizedEmail=email.trim().toLowerCase();
 const normalizedOTP=otp.trim();
 if(!/^\d{6}$/.test(normalizedOTP))return res.status(400).json({success:false,message:"OTP must be a 6-digit code."});
-const worker=await Worker.findOne({email:normalizedEmail}).select("+emailOtp +emailOtpExpires");
+const worker=await Worker.findOne({email:normalizedEmail}).select("+emailOtpHash +emailOtpExpires");
 if(!worker)return res.status(404).json({success:false,message:"Worker account not found."});
-if(!worker.emailOtp||worker.emailOtp!==normalizedOTP)return res.status(400).json({success:false,message:"Invalid verification code."});
+if(!worker.emailOtpHash||hashOTP(normalizedOTP)!==worker.emailOtpHash)return res.status(400).json({success:false,message:"Invalid verification code."});
 if(!worker.emailOtpExpires||new Date()>worker.emailOtpExpires){
-worker.emailOtp=null;
+worker.emailOtpHash=null;
 worker.emailOtpExpires=null;
 await worker.save();
 return res.status(400).json({success:false,message:"Verification code has expired. Please request a new code."});
 }
 worker.isEmailVerified=true;
-worker.emailOtp=null;
+worker.emailOtpHash=null;
 worker.emailOtpExpires=null;
 await worker.save();
 return res.status(200).json({success:true,message:"Email verified successfully.",email:worker.email,nextStep:worker.profileCompleted?"authenticated":"profile"});
@@ -92,7 +90,7 @@ const worker=await Worker.findOne({email:normalizedEmail});
 if(!worker)return res.status(404).json({success:false,message:"Worker account not found."});
 if(worker.isEmailVerified)return res.status(400).json({success:false,message:"This email is already verified."});
 const{otp,expiresAt}=generateOTPData();
-worker.emailOtp=otp;
+worker.emailOtpHash=hashOTP(otp);
 worker.emailOtpExpires=expiresAt;
 await worker.save();
 await sendOTPEmail({email:worker.email,otp,type:"email-verification"});
