@@ -41,7 +41,7 @@ const getLocation=async(req,res)=>{
                     addressdetails:1
                 },
                 headers:{
-                    "User-Agent":"SkillConnect/1.0"
+                    "User-Agent":"SkillConnect/1.0 (SkillConnect location service)"
                 },
                 timeout:10000
             }
@@ -50,20 +50,15 @@ const getLocation=async(req,res)=>{
         const address=response.data?.address||{};
 
         console.log(
-    "NOMINATIM ADDRESS:",
-    JSON.stringify(response.data?.address,null,2)
-);
+            "NOMINATIM ADDRESS:",
+            JSON.stringify(response.data?.address,null,2)
+        );
 
         const country=address.country||"";
         const state=address.state||"";
 
-        const city=
-            address.city||
-            address.town||
-            address.municipality||
-            address.village||
-            address.suburb||
-            "";
+        // Use the detected state as the city.
+        const city=state;
 
         const lga=
             address.county||
