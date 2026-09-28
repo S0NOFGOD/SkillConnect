@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Client Password Change | SkillConnect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<div class="navbar">
+<a href="../index.html" class="logo">SkillConnect</a>
+<nav class="nav-links">
+<a href="../index.html">Home</a>
+</nav>
+</div>
+</header>
+
+<main class="password-page">
+<section class="password-section">
+<div class="password-card">
+
+<div class="password-header">
+<div class="password-badge">Password Reset</div>
+<h1>Create New Password</h1>
+<p>Create a new password to secure your SkillConnect client account.</p>
+</div>
+
+<form id="resetForm" novalidate>
+
+<div class="input-group">
+<label for="password">New Password</label>
+<div class="password-box">
+<input type="password" id="password" name="password" placeholder="Enter your new password" autocomplete="new-password">
+<button type="button" id="passwordToggle" class="toggle" aria-label="Show password">👁</button>
+</div>
+</div>
+
+<div class="input-group">
+<label for="confirmPassword">Confirm Password</label>
+<div class="password-box">
+<input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your new password" autocomplete="new-password">
+<button type="button" id="confirmToggle" class="toggle" aria-label="Show confirm password">👁</button>
+</div>
+</div>
+
+<div class="security-note">🔒 Your new password is securely hashed before being stored.</div>
+
+<button type="submit" id="changePasswordBtn" class="submit-btn">
+<span id="buttonText">Change Password</span>
+<span id="buttonLoader" class="button-loader" hidden>
+<span class="loading-spinner"></span>
+Changing Password...
+</span>
+</button>
+
+</form>
+
+<div class="login-link">
+Remember your password?
+<a href="../client-authentication/index.html">Back to Login</a>
+</div>
+
+</div>
+</section>
+</main>
+
+<div id="authModal" class="message-modal" aria-hidden="true">
+<div class="message-modal-overlay"></div>
+<div class="message-modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+
+<div id="modalIcon" class="modal-icon">!</div>
+
+<h2 id="modalTitle">Message</h2>
+<p id="modalMessage">Something happened.</p>
+
+<button type="button" id="modalCloseBtn" class="modal-continue">Continue</button>
+
+</div>
+</div>
+
+<script src="../config.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>

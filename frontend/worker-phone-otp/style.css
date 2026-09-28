@@ -1,1230 +1,413 @@
-/* =========================================================
-   1. GLOBAL RESET
-========================================================= */
+*{margin:0;padding:0;box-sizing:border-box}
 
-* {
+html{scroll-behavior:smooth}
 
-    margin: 0;
-
-    padding: 0;
-
-    box-sizing: border-box;
-
+body{
+font-family:"Inter",sans-serif;
+background:#020617;
+color:#fff;
+line-height:1.6;
+overflow-x:hidden;
+min-height:100vh
 }
 
+a{text-decoration:none;color:inherit}
 
-/* =========================================================
-   HTML
-========================================================= */
-
-html {
-
-    scroll-behavior: smooth;
-
+header{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+z-index:1000;
+background:rgba(2,6,23,.85);
+backdrop-filter:blur(15px);
+border-bottom:1px solid rgba(255,255,255,.08)
 }
 
-
-/* =========================================================
-   BODY
-========================================================= */
-
-body {
-
-    font-family: "Inter", sans-serif;
-
-    background: #020617;
-
-    color: #ffffff;
-
-    line-height: 1.6;
-
-    overflow-x: hidden;
-
-    min-height: 100vh;
-
+.navbar{
+width:90%;
+max-width:1200px;
+height:70px;
+margin:auto;
+display:flex;
+align-items:center
 }
 
-
-/* =========================================================
-   LINKS
-========================================================= */
-
-a {
-
-    text-decoration: none;
-
-    color: inherit;
-
+.navbar-brand{
+display:inline-flex;
+align-items:center;
+gap:10px;
+font-size:18px;
+font-weight:800;
+letter-spacing:-1px;
+color:#fff;
+transition:.3s
 }
 
-
-/* =========================================================
-   2. FIXED NAVBAR
-========================================================= */
-
-header {
-
-    position: fixed;
-
-    top: 0;
-
-    left: 0;
-
-    width: 100%;
-
-    z-index: 1000;
-
-    background:
-        rgba(2, 6, 23, .85);
-
-    backdrop-filter:
-        blur(15px);
-
-    border-bottom:
-        1px solid
-        rgba(255, 255, 255, .08);
-
+.back-arrow{
+display:inline-flex;
+align-items:center;
+justify-content:center;
+width:34px;
+height:34px;
+border-radius:50%;
+color:#fff;
+background:rgba(255,255,255,.08);
+border:1px solid rgba(255,255,255,.12);
+font-size:22px;
+line-height:1;
+transition:.3s
 }
 
+.back{color:#fff}
 
-/* =========================================================
-   NAVBAR CONTAINER
-========================================================= */
-
-.navbar {
-
-    width: 90%;
-
-    max-width: 1200px;
-
-    height: 70px;
-
-    margin: auto;
-
-    display: flex;
-
-    align-items: center;
-
+.navbar-brand:hover .back-arrow{
+background:rgba(34,197,94,.15);
+border-color:rgba(34,197,94,.35);
+transform:translateX(-3px)
 }
 
-
-/* =========================================================
-   BACK NAVIGATION / SKILLCONNECT BRAND
-========================================================= */
-
-.navbar-brand {
-
-    display: inline-flex;
-
-    align-items: center;
-
-    gap: 10px;
-
-    font-size: 18px;
-
-    font-weight: 800;
-
-    letter-spacing: -1px;
-
-    color: #ffffff;
-
-    transition: .3s;
-
+.otp-page{
+width:90%;
+max-width:1200px;
+min-height:calc(100vh - 70px);
+margin:auto;
+padding-top:110px;
+padding-bottom:70px;
+display:flex;
+justify-content:center;
+align-items:center;
+position:relative
 }
 
-
-/* =========================================================
-   BACK ARROW
-========================================================= */
-
-.back-arrow {
-
-    display: inline-flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    width: 34px;
-
-    height: 34px;
-
-    border-radius: 50%;
-
-    color: #ffffff;
-
-    background:
-        rgba(255, 255, 255, .08);
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .12);
-
-    font-size: 22px;
-
-    line-height: 1;
-
-    transition: .3s;
-
+.otp-page::before{
+content:"";
+position:absolute;
+width:360px;
+height:360px;
+background:#22c55e;
+filter:blur(170px);
+opacity:.18;
+top:100px;
+left:50%;
+transform:translateX(-50%);
+pointer-events:none
 }
 
-
-/* =========================================================
-   BRAND NAME
-========================================================= */
-
-.back {
-
-    color: white
-
+.otp-section{
+width:100%;
+display:flex;
+justify-content:center;
+position:relative;
+z-index:2
 }
 
-
-/* =========================================================
-   BACK NAVIGATION HOVER
-========================================================= */
-
-.navbar-brand:hover .back-arrow {
-
-    background:
-        rgba(34, 197, 94, .15);
-
-    border-color:
-        rgba(34, 197, 94, .35);
-
-    transform:
-        translateX(-3px);
-
+.otp-card{
+width:100%;
+max-width:460px;
+padding:35px;
+border-radius:24px;
+background:rgba(255,255,255,.05);
+border:1px solid rgba(255,255,255,.08);
+backdrop-filter:blur(15px);
+box-shadow:0 25px 70px rgba(0,0,0,.45)
 }
 
-
-.navbar-brand:hover .brand-name {
-
-    opacity: .9;
-
+.otp-header{
+text-align:center;
+margin-bottom:30px
 }
 
-
-/* =========================================================
-   3. MAIN OTP PAGE
-========================================================= */
-
-.otp-page {
-
-    width: 90%;
-
-    max-width: 1200px;
-
-    min-height:
-        calc(100vh - 70px);
-
-    margin: auto;
-
-    padding-top: 110px;
-
-    padding-bottom: 70px;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    position: relative;
-
+.otp-badge{
+display:inline-block;
+padding:8px 18px;
+margin-bottom:18px;
+border-radius:30px;
+color:#22c55e;
+background:rgba(34,197,94,.15);
+border:1px solid rgba(34,197,94,.3);
+font-size:14px;
+font-weight:600
 }
 
-
-/* =========================================================
-   BACKGROUND GREEN GLOW
-========================================================= */
-
-.otp-page::before {
-
-    content: "";
-
-    position: absolute;
-
-    width: 360px;
-
-    height: 360px;
-
-    background: #22c55e;
-
-    filter: blur(170px);
-
-    opacity: .18;
-
-    top: 100px;
-
-    left: 50%;
-
-    transform:
-        translateX(-50%);
-
-    pointer-events: none;
-
+.otp-header h1{
+font-size:32px;
+font-weight:800;
+margin-bottom:10px
 }
 
-
-/* =========================================================
-   4. OTP SECTION
-========================================================= */
-
-.otp-section {
-
-    width: 100%;
-
-    display: flex;
-
-    justify-content: center;
-
-    position: relative;
-
-    z-index: 2;
-
+.otp-header p{
+color:#cbd5e1;
+font-size:15px
 }
 
-
-/* =========================================================
-   5. OTP CARD
-========================================================= */
-
-.otp-card {
-
-    width: 100%;
-
-    max-width: 460px;
-
-    padding: 35px;
-
-    border-radius: 24px;
-
-    background:
-        rgba(255, 255, 255, .05);
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .08);
-
-    backdrop-filter:
-        blur(15px);
-
-    box-shadow:
-        0 25px 70px
-        rgba(0, 0, 0, .45);
-
+.worker-phone{
+margin-top:8px;
+color:#fff!important;
+font-size:15px!important;
+font-weight:700;
+word-break:break-word
 }
 
-
-/* =========================================================
-   6. OTP HEADER
-========================================================= */
-
-.otp-header {
-
-    text-align: center;
-
-    margin-bottom: 30px;
-
+#otpForm{
+display:flex;
+flex-direction:column;
+gap:14px
 }
 
-
-/* =========================================================
-   OTP BADGE
-========================================================= */
-
-.otp-badge {
-
-    display: inline-block;
-
-    padding: 8px 18px;
-
-    margin-bottom: 18px;
-
-    border-radius: 30px;
-
-    color: #22c55e;
-
-    background:
-        rgba(34, 197, 94, .15);
-
-    border:
-        1px solid
-        rgba(34, 197, 94, .3);
-
-    font-size: 14px;
-
-    font-weight: 600;
-
+.otp-box{
+display:flex;
+justify-content:center;
+gap:10px;
+margin:15px 0 25px
 }
 
-
-/* =========================================================
-   OTP HEADING
-========================================================= */
-
-.otp-header h1 {
-
-    font-size: 32px;
-
-    font-weight: 800;
-
-    margin-bottom: 10px;
-
+.otp-input{
+width:55px;
+height:60px;
+padding:0;
+border:1px solid transparent;
+border-radius:14px;
+background:#111827;
+color:#fff;
+font-size:24px;
+font-weight:700;
+text-align:center;
+outline:none;
+transition:.3s
 }
 
-
-.otp-header p {
-
-    color: #cbd5e1;
-
-    font-size: 15px;
-
+.otp-input:focus{
+border:1px solid #22c55e;
+box-shadow:0 0 0 3px rgba(34,197,94,.15)
 }
 
-
-/* =========================================================
-   WORKER PHONE
-========================================================= */
-
-.worker-phone {
-
-    margin-top: 8px;
-
-    color: #ffffff !important;
-
-    font-size: 15px !important;
-
-    font-weight: 700;
-
-    word-break: break-word;
-
+.otp-input:not(:placeholder-shown){
+border-color:rgba(34,197,94,.35)
 }
 
-
-/* =========================================================
-   7. OTP FORM
-========================================================= */
-
-#otpForm {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 14px;
-
+.otp-input.invalid{
+border-color:#ef4444;
+box-shadow:0 0 0 3px rgba(239,68,68,.12)
 }
 
-
-/* =========================================================
-   8. OTP INPUT CONTAINER
-========================================================= */
-
-.otp-box {
-
-    display: flex;
-
-    justify-content: center;
-
-    gap: 10px;
-
-    margin:
-        15px 0 25px;
-
+.submit-btn{
+width:100%;
+border:none;
+border-radius:14px;
+padding:15px;
+font-size:16px;
+font-weight:700;
+cursor:pointer;
+color:#fff;
+background:linear-gradient(135deg,#22c55e,#16a34a);
+transition:.3s;
+display:flex;
+justify-content:center;
+align-items:center;
+gap:10px
 }
 
-
-/* =========================================================
-   OTP INPUT
-========================================================= */
-
-.otp-input {
-
-    width: 55px;
-
-    height: 60px;
-
-    padding: 0;
-
-    border:
-        1px solid
-        transparent;
-
-    border-radius: 14px;
-
-    background: #111827;
-
-    color: #ffffff;
-
-    font-size: 24px;
-
-    font-weight: 700;
-
-    text-align: center;
-
-    outline: none;
-
-    transition: .3s;
-
+.submit-btn:hover{
+transform:translateY(-3px);
+box-shadow:0 10px 30px rgba(34,197,94,.2)
 }
 
-
-/* =========================================================
-   OTP INPUT FOCUS
-========================================================= */
-
-.otp-input:focus {
-
-    border:
-        1px solid
-        #22c55e;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(34, 197, 94, .15);
-
+.submit-btn:disabled{
+opacity:.7;
+cursor:not-allowed;
+transform:none
 }
 
-
-/* =========================================================
-   OTP INPUT WITH VALUE
-========================================================= */
-
-.otp-input:not(:placeholder-shown) {
-
-    border-color:
-        rgba(34, 197, 94, .35);
-
+.submit-btn.loading{
+pointer-events:none;
+opacity:.75
 }
 
-
-/* =========================================================
-   INVALID OTP INPUT
-========================================================= */
-
-.otp-input.invalid {
-
-    border-color:
-        #ef4444;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(239, 68, 68, .12);
-
+.loading-spinner{
+width:18px;
+height:18px;
+border-radius:50%;
+border:3px solid rgba(255,255,255,.35);
+border-top-color:#fff;
+animation:spin .8s linear infinite
 }
 
-
-/* =========================================================
-   9. SUBMIT BUTTON
-========================================================= */
-
-.submit-btn {
-
-    width: 100%;
-
-    border: none;
-
-    border-radius: 14px;
-
-    padding: 15px;
-
-    font-size: 16px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    color: #ffffff;
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
-    transition: .3s;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    gap: 10px;
-
+.resend{
+text-align:center;
+margin-top:25px;
+color:#cbd5e1;
+font-size:14px
 }
 
-
-/* =========================================================
-   SUBMIT BUTTON HOVER
-========================================================= */
-
-.submit-btn:hover {
-
-    transform:
-        translateY(-3px);
-
-    box-shadow:
-        0 10px 30px
-        rgba(34, 197, 94, .20);
-
+.resend a{
+color:#3b82f6;
+font-weight:600;
+transition:.3s
 }
 
+.resend a:hover{color:#22c55e}
 
-/* =========================================================
-   SUBMIT BUTTON DISABLED
-========================================================= */
-
-.submit-btn:disabled {
-
-    opacity: .7;
-
-    cursor: not-allowed;
-
-    transform: none;
-
+.resend a.disabled{
+pointer-events:none;
+opacity:.5;
+cursor:not-allowed
 }
 
-
-/* =========================================================
-   10. LOADING SPINNER
-========================================================= */
-
-.loading-spinner {
-
-    width: 18px;
-
-    height: 18px;
-
-    border-radius: 50%;
-
-    border:
-        3px solid
-        rgba(255, 255, 255, .35);
-
-    border-top-color:
-        #ffffff;
-
-    animation:
-        spin .8s linear infinite;
-
+.countdown{
+margin-top:10px;
+text-align:center;
+color:#94a3b8;
+font-size:13px
 }
 
-
-/* =========================================================
-   BUTTON LOADING STATE
-========================================================= */
-
-.submit-btn.loading {
-
-    pointer-events: none;
-
-    opacity: .75;
-
+.notification-modal{
+position:fixed;
+inset:0;
+z-index:2000;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
+background:rgba(2,6,23,.78);
+backdrop-filter:blur(10px);
+animation:fadeIn .25s ease
 }
 
+.notification-modal[hidden]{display:none}
 
-/* =========================================================
-   11. RESEND OTP
-========================================================= */
-
-.resend {
-
-    text-align: center;
-
-    margin-top: 25px;
-
-    color: #cbd5e1;
-
-    font-size: 14px;
-
+.notification-card{
+width:100%;
+max-width:390px;
+padding:35px 30px;
+text-align:center;
+border-radius:22px;
+background:rgba(15,23,42,.96);
+border:1px solid rgba(255,255,255,.1);
+box-shadow:0 25px 80px rgba(0,0,0,.55);
+animation:scaleIn .25s ease
 }
 
-
-.resend a {
-
-    color: #3b82f6;
-
-    font-weight: 600;
-
-    transition: .3s;
-
+.notification-icon{
+width:64px;
+height:64px;
+margin:0 auto 20px;
+display:flex;
+justify-content:center;
+align-items:center;
+border-radius:50%;
+color:#fff;
+background:linear-gradient(135deg,#22c55e,#16a34a);
+font-size:30px;
+font-weight:800
 }
 
-
-.resend a:hover {
-
-    color: #22c55e;
-
+.notification-icon.success{
+background:linear-gradient(135deg,#22c55e,#16a34a)
 }
 
-
-/* =========================================================
-   DISABLED RESEND LINK
-========================================================= */
-
-.resend a.disabled {
-
-    pointer-events: none;
-
-    opacity: .5;
-
-    cursor: not-allowed;
-
+.notification-icon.error{
+background:linear-gradient(135deg,#ef4444,#dc2626)
 }
 
-
-/* =========================================================
-   12. COUNTDOWN
-========================================================= */
-
-.countdown {
-
-    margin-top: 10px;
-
-    text-align: center;
-
-    color: #94a3b8;
-
-    font-size: 13px;
-
+.notification-card h2{
+margin-bottom:10px;
+font-size:24px;
+font-weight:800
 }
 
-
-/* =========================================================
-   13. NOTIFICATION MODAL
-========================================================= */
-
-.notification-modal {
-
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 2000;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    padding: 20px;
-
-    background:
-        rgba(2, 6, 23, .78);
-
-    backdrop-filter:
-        blur(10px);
-
-    animation:
-        fadeIn .25s ease;
-
+.notification-card p{
+color:#cbd5e1;
+font-size:14px;
+line-height:1.7
 }
 
-
-/* =========================================================
-   HIDDEN MODAL
-========================================================= */
-
-.notification-modal[hidden] {
-
-    display: none;
-
+.notification-close-button{
+width:100%;
+margin-top:25px;
+padding:14px 20px;
+border:none;
+border-radius:12px;
+background:linear-gradient(135deg,#22c55e,#16a34a);
+color:#fff;
+font-family:"Inter",sans-serif;
+font-size:15px;
+font-weight:700;
+cursor:pointer;
+transition:.3s
 }
 
-
-/* =========================================================
-   14. NOTIFICATION CARD
-========================================================= */
-
-.notification-card {
-
-    width: 100%;
-
-    max-width: 390px;
-
-    padding: 35px 30px;
-
-    text-align: center;
-
-    border-radius: 22px;
-
-    background:
-        rgba(15, 23, 42, .96);
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .10);
-
-    box-shadow:
-        0 25px 80px
-        rgba(0, 0, 0, .55);
-
-    animation:
-        scaleIn .25s ease;
-
+.notification-close-button:hover{
+transform:translateY(-2px);
+box-shadow:0 10px 25px rgba(34,197,94,.2)
 }
 
+.notification-close-button:active{transform:translateY(0)}
 
-/* =========================================================
-   15. NOTIFICATION ICON
-========================================================= */
-
-.notification-icon {
-
-    width: 64px;
-
-    height: 64px;
-
-    margin:
-        0 auto 20px;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    border-radius: 50%;
-
-    color: #ffffff;
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
-    font-size: 30px;
-
-    font-weight: 800;
-
+footer{
+padding:30px;
+text-align:center;
+color:#94a3b8;
+border-top:1px solid rgba(255,255,255,.08)
 }
 
-
-/* =========================================================
-   SUCCESS MODAL ICON
-========================================================= */
-
-.notification-icon.success {
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
+@keyframes fadeIn{
+from{opacity:0}
+to{opacity:1}
 }
 
-
-/* =========================================================
-   ERROR MODAL ICON
-========================================================= */
-
-.notification-icon.error {
-
-    background:
-        linear-gradient(
-            135deg,
-            #ef4444,
-            #dc2626
-        );
-
+@keyframes scaleIn{
+from{transform:scale(.85);opacity:0}
+to{transform:scale(1);opacity:1}
 }
 
-
-/* =========================================================
-   16. NOTIFICATION TITLE
-========================================================= */
-
-.notification-card h2 {
-
-    margin-bottom: 10px;
-
-    font-size: 24px;
-
-    font-weight: 800;
-
+@keyframes spin{
+from{transform:rotate(0)}
+to{transform:rotate(360deg)}
 }
 
-
-/* =========================================================
-   17. NOTIFICATION MESSAGE
-========================================================= */
-
-.notification-card p {
-
-    color: #cbd5e1;
-
-    font-size: 14px;
-
-    line-height: 1.7;
-
+@media (min-width:768px){
+.otp-page{width:85%}
+.otp-card{padding:40px}
+.otp-header h1{font-size:38px}
 }
 
-
-/* =========================================================
-   NOTIFICATION CLOSE / CONTINUE BUTTON
-========================================================= */
-
-.notification-close-button {
-
-    width: 100%;
-
-    margin-top: 25px;
-
-    padding: 14px 20px;
-
-    border: none;
-
-    border-radius: 12px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
-    color: #ffffff;
-
-    font-family: "Inter", sans-serif;
-
-    font-size: 15px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition: .3s;
-
+@media (min-width:1024px){
+.otp-page{max-width:1200px}
+.otp-card{max-width:480px}
 }
 
-
-/* =========================================================
-   BUTTON HOVER
-========================================================= */
-
-.notification-close-button:hover {
-
-    transform:
-        translateY(-2px);
-
-    box-shadow:
-        0 10px 25px
-        rgba(34, 197, 94, .20);
-
+@media (max-width:600px){
+.navbar{width:90%;height:65px}
+.back-arrow{width:32px;height:32px;font-size:20px}
+.otp-page{width:92%;padding-top:95px;padding-bottom:50px}
+.otp-card{padding:25px 20px;border-radius:22px}
+.otp-header h1{font-size:28px}
+.otp-header p{font-size:14px}
+.worker-phone{font-size:14px!important}
+.otp-box{gap:7px}
+.otp-input{
+width:46px;
+height:54px;
+font-size:21px;
+border-radius:12px
+}
+.notification-card{padding:30px 22px}
 }
 
-
-/* =========================================================
-   BUTTON ACTIVE
-========================================================= */
-
-.notification-close-button:active {
-
-    transform:
-        translateY(0);
-
+@media (max-width:400px){
+.otp-card{padding:22px 16px}
+.otp-header h1{font-size:25px}
+.otp-box{gap:5px}
+.otp-input{
+width:42px;
+height:50px;
+font-size:19px
 }
-
-
-/* =========================================================
-   18. FOOTER
-========================================================= */
-
-footer {
-
-    padding: 30px;
-
-    text-align: center;
-
-    color: #94a3b8;
-
-    border-top:
-        1px solid
-        rgba(255, 255, 255, .08);
-
+.back-arrow{
+width:30px;
+height:30px;
+font-size:19px
 }
-
-
-/* =========================================================
-   19. ANIMATION — FADE IN
-========================================================= */
-
-@keyframes fadeIn {
-
-    from {
-
-        opacity: 0;
-
-    }
-
-    to {
-
-        opacity: 1;
-
-    }
-
-}
-
-
-/* =========================================================
-   20. ANIMATION — SCALE IN
-========================================================= */
-
-@keyframes scaleIn {
-
-    from {
-
-        transform:
-            scale(.85);
-
-        opacity: 0;
-
-    }
-
-    to {
-
-        transform:
-            scale(1);
-
-        opacity: 1;
-
-    }
-
-}
-
-
-/* =========================================================
-   21. ANIMATION — SPINNER
-========================================================= */
-
-@keyframes spin {
-
-    from {
-
-        transform:
-            rotate(0deg);
-
-    }
-
-    to {
-
-        transform:
-            rotate(360deg);
-
-    }
-
-}
-
-
-/* =========================================================
-   22. TABLET
-========================================================= */
-
-@media (min-width: 768px) {
-
-    .otp-page {
-
-        width: 85%;
-
-    }
-
-
-    .otp-card {
-
-        padding: 40px;
-
-    }
-
-
-    .otp-header h1 {
-
-        font-size: 38px;
-
-    }
-
-}
-
-
-/* =========================================================
-   23. DESKTOP
-========================================================= */
-
-@media (min-width: 1024px) {
-
-    .otp-page {
-
-        max-width: 1200px;
-
-    }
-
-
-    .otp-card {
-
-        max-width: 480px;
-
-    }
-
-}
-
-
-/* =========================================================
-   24. MOBILE
-========================================================= */
-
-@media (max-width: 600px) {
-
-    .navbar {
-
-        width: 90%;
-
-        height: 65px;
-
-    }
-
-
-    .back-arrow {
-
-        width: 32px;
-
-        height: 32px;
-
-        font-size: 20px;
-
-    }
-
-
-    .otp-page {
-
-        width: 92%;
-
-        padding-top: 95px;
-
-        padding-bottom: 50px;
-
-    }
-
-
-    .otp-card {
-
-        padding: 25px 20px;
-
-        border-radius: 22px;
-
-    }
-
-
-    .otp-header h1 {
-
-        font-size: 28px;
-
-    }
-
-
-    .otp-header p {
-
-        font-size: 14px;
-
-    }
-
-
-    .worker-phone {
-
-        font-size: 14px !important;
-
-    }
-
-
-    .otp-box {
-
-        gap: 7px;
-
-    }
-
-
-    .otp-input {
-
-        width: 46px;
-
-        height: 54px;
-
-        font-size: 21px;
-
-        border-radius: 12px;
-
-    }
-
-
-    .notification-card {
-
-        padding: 30px 22px;
-
-    }
-
-}
-
-
-/* =========================================================
-   25. SMALL MOBILE
-========================================================= */
-
-@media (max-width: 400px) {
-
-    .otp-card {
-
-        padding: 22px 16px;
-
-    }
-
-
-    .otp-header h1 {
-
-        font-size: 25px;
-
-    }
-
-
-    .otp-box {
-
-        gap: 5px;
-
-    }
-
-
-    .otp-input {
-
-        width: 42px;
-
-        height: 50px;
-
-        font-size: 19px;
-
-    }
-
-
-    .back-arrow {
-
-        width: 30px;
-
-        height: 30px;
-
-        font-size: 19px;
-
-    }
-
-
-    .notification-card {
-
-        max-width: 340px;
-
-    }
-
+.notification-card{max-width:340px}
 }

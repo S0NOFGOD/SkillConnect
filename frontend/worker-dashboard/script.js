@@ -96,21 +96,10 @@ window.location.href="../worker-authentication/index.html";
 }
 
 function handleAuthenticationError(message="Your session has expired. Please log in again."){
-removeAccessToken();
 showModal("Authentication Required",message,"error",redirectToAuthentication,"Continue");
 }
 
-function checkAccessToken(){
-const accessToken=getAccessToken();
-if(!accessToken){
-showModal("Authentication Required","Please log in to access your worker dashboard.","error",redirectToAuthentication,"Continue");
-return false;
-}
-return true;
-}
-
 async function loadDashboard(){
-if(!checkAccessToken())return;
 try{
 const response=await API_REQUEST(DASHBOARD_ENDPOINT,{method:"GET"});
 if(response.status===401)return;
@@ -172,11 +161,13 @@ showVerificationPrompt();
 return;
 }
 phoneVerification.textContent="Verified";
+verificationActionBtn.classList.add("verified");
 startVerificationCountdown(expiryTime);
 }
 
 function showVerificationPrompt(){
 phoneVerification.textContent="Unverified";
+verificationActionBtn.classList.remove("verified");
 verificationActionBtn.textContent="Verify Profile";
 showModal("Verify Your Profile","Verify your profile to be discovered by nearby clients.","info",sendPhoneOtp,"Continue",true);
 }
@@ -210,6 +201,7 @@ return `${days}d ${hours}h ${minutes}m ${seconds}s`;
 }
 
 verificationActionBtn.addEventListener("click",()=>{
+if(verificationActionBtn.classList.contains("verified"))return;
 if(verificationActionBtn.textContent.trim()!=="Verify Profile")return;
 showVerificationPrompt();
 });
@@ -286,30 +278,17 @@ const data=await response.json();
 
 if(!response.ok){
 setLoading(notificationButton,false);
-showModal(
-"Logout Failed",
-data.message||"Unable to log out. Please try again.",
-"error"
-);
+showModal("Logout Failed",data.message||"Unable to log out. Please try again.","error");
 return;
 }
-
-removeAccessToken();
 
 window.location.href="../worker-authentication/index.html";
 
 }catch(error){
 console.error("Logout request failed:",error);
-
 setLoading(notificationButton,false);
-
 hideModal(false);
-
-showModal(
-"Connection Error",
-"Unable to log out at this time. Please try again.",
-"error"
-);
+showModal("Connection Error","Unable to log out at this time. Please try again.","error");
 }
 }
 

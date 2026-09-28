@@ -41,561 +41,462 @@ let isAddingService=false;
 let modalCloseCallback=null;
 
 function getLocalSkills(){
-    return Array.isArray(window.LOCAL_SKILLS)&&window.LOCAL_SKILLS.length
-        ?window.LOCAL_SKILLS:DEFAULT_LOCAL_SKILLS;
+return Array.isArray(window.LOCAL_SKILLS)&&window.LOCAL_SKILLS.length
+?window.LOCAL_SKILLS:DEFAULT_LOCAL_SKILLS;
 }
 
 function populateSkillDropdown(){
-    if(!skillInput)return;
-
-    skillInput.innerHTML="";
-
-    const placeholder=document.createElement("option");
-    placeholder.value="";
-    placeholder.textContent="Select your skill";
-    placeholder.disabled=true;
-    placeholder.selected=true;
-    skillInput.appendChild(placeholder);
-
-    getLocalSkills().forEach(skill=>{
-        const option=document.createElement("option");
-        option.value=skill;
-        option.textContent=skill;
-        skillInput.appendChild(option);
-    });
+if(!skillInput)return;
+skillInput.innerHTML="";
+const placeholder=document.createElement("option");
+placeholder.value="";
+placeholder.textContent="Select your skill";
+placeholder.disabled=true;
+placeholder.selected=true;
+skillInput.appendChild(placeholder);
+getLocalSkills().forEach(skill=>{
+const option=document.createElement("option");
+option.value=skill;
+option.textContent=skill;
+skillInput.appendChild(option);
+});
 }
 
 function setButtonLoading(button,isLoading,loadingText="Processing..."){
-    if(!button)return;
-
-    if(!button.dataset.originalText&&button.querySelector(".button-text"))
-        button.dataset.originalText=button.querySelector(".button-text").textContent;
-
-    const textElement=button.querySelector(".button-text");
-    const loaderElement=button.querySelector(".button-loader");
-
-    button.disabled=isLoading;
-    button.classList.toggle("is-loading",isLoading);
-
-    if(textElement)
-        textElement.textContent=isLoading?loadingText:(button.dataset.originalText||"Add A Service");
-
-    if(loaderElement)
-        loaderElement.hidden=!isLoading;
+if(!button)return;
+if(!button.dataset.originalText&&button.querySelector(".button-text"))
+button.dataset.originalText=button.querySelector(".button-text").textContent;
+const textElement=button.querySelector(".button-text");
+const loaderElement=button.querySelector(".button-loader");
+button.disabled=isLoading;
+button.classList.toggle("is-loading",isLoading);
+if(textElement)
+textElement.textContent=isLoading?loadingText:(button.dataset.originalText||"Add A Service");
+if(loaderElement)
+loaderElement.hidden=!isLoading;
 }
 
 const MODAL_ICONS={success:"✓",error:"!",info:"i",confirm:"?"};
 
 function showNotification(type,title,message,onClose=null){
-    if(!notificationOverlay||!notificationCard)return;
-
-    modalCloseCallback=onClose;
-    notificationCard.classList.remove("success","error","info","confirm");
-    notificationCard.classList.add(type);
-    notificationIcon.textContent=MODAL_ICONS[type]||"!";
-    notificationTitle.textContent=title;
-    notificationText.textContent=message;
-    notificationButton.disabled=false;
-    notificationButton.textContent="Continue";
-    notificationOverlay.hidden=false;
-    document.body.style.overflow="hidden";
-
-    setTimeout(()=>notificationButton.focus(),0);
+if(!notificationOverlay||!notificationCard)return;
+modalCloseCallback=onClose;
+notificationCard.classList.remove("success","error","info","confirm");
+notificationCard.classList.add(type);
+notificationIcon.textContent=MODAL_ICONS[type]||"!";
+notificationTitle.textContent=title;
+notificationText.textContent=message;
+notificationButton.disabled=false;
+notificationButton.textContent="Continue";
+notificationOverlay.hidden=false;
+document.body.style.overflow="hidden";
+setTimeout(()=>notificationButton.focus(),0);
 }
 
 function closeNotification(){
-    if(!notificationOverlay)return;
-
-    notificationOverlay.hidden=true;
-    document.body.style.overflow="";
-
-    const callback=modalCloseCallback;
-    modalCloseCallback=null;
-
-    if(typeof callback==="function")callback();
+if(!notificationOverlay)return;
+notificationOverlay.hidden=true;
+document.body.style.overflow="";
+const callback=modalCloseCallback;
+modalCloseCallback=null;
+if(typeof callback==="function")callback();
 }
 
 notificationCancelButton?.addEventListener("click",closeNotification);
 notificationButton?.addEventListener("click",closeNotification);
 
 document.addEventListener("keydown",event=>{
-    if(event.key==="Escape"&&notificationOverlay&&!notificationOverlay.hidden)
-        closeNotification();
+if(event.key==="Escape"&&notificationOverlay&&!notificationOverlay.hidden)
+closeNotification();
 });
 
 function showAuthenticationError(
-    message="Your login session has expired. Please log in again."
+message="Your login session has expired. Please log in again."
 ){
-    showNotification(
-        "error",
-        "Authentication Required",
-        message,
-        ()=>window.location.href=AUTHENTICATION_REDIRECT
-    );
-}
-
-function checkAccessToken(){
-    const accessToken=getAccessToken();
-
-    if(!accessToken){
-        if(createServicePage)createServicePage.hidden=true;
-
-        showAuthenticationError(
-            "Your login session could not be found. Please log in again."
-        );
-
-        return false;
-    }
-
-    if(createServicePage)createServicePage.hidden=false;
-    return true;
+showNotification(
+"error",
+"Authentication Required",
+message,
+()=>window.location.href=AUTHENTICATION_REDIRECT
+);
 }
 
 window.addEventListener("authSessionExpired",()=>{
-    isAddingService=false;
-    setButtonLoading(addServiceBtn,false);
-
-    if(notificationOverlay&&!notificationOverlay.hidden)return;
-    showAuthenticationError();
+isAddingService=false;
+setButtonLoading(addServiceBtn,false);
+if(notificationOverlay&&!notificationOverlay.hidden)return;
+showAuthenticationError();
 });
 
 function updateDescriptionWordCount(){
-    if(!descriptionInput||!descriptionWordCount)return;
-
-    const characterCount=descriptionInput.value.length;
-
-    descriptionWordCount.textContent=
-        `${characterCount} / ${MAX_DESCRIPTION_WORDS} words`;
-
-    descriptionWordCount.classList.toggle(
-        "limit-reached",
-        characterCount>=MAX_DESCRIPTION_WORDS
-    );
+if(!descriptionInput||!descriptionWordCount)return;
+const characterCount=descriptionInput.value.length;
+descriptionWordCount.textContent=
+`${characterCount} / ${MAX_DESCRIPTION_WORDS} words`;
+descriptionWordCount.classList.toggle(
+"limit-reached",
+characterCount>=MAX_DESCRIPTION_WORDS
+);
 }
 
 descriptionInput?.addEventListener("input",()=>{
-    if(descriptionInput.value.length>MAX_DESCRIPTION_WORDS)
-        descriptionInput.value=descriptionInput.value.slice(0,MAX_DESCRIPTION_WORDS);
-
-    updateDescriptionWordCount();
+if(descriptionInput.value.length>MAX_DESCRIPTION_WORDS)
+descriptionInput.value=descriptionInput.value.slice(0,MAX_DESCRIPTION_WORDS);
+updateDescriptionWordCount();
 });
 
 function restorePortfolioPreview(preview){
-    if(!preview)return;
-
-    preview.innerHTML=`
-        <span class="portfolio-placeholder" aria-hidden="true">+</span>
-        <span>Add Image</span>
-    `;
+if(!preview)return;
+preview.innerHTML=`
+<span class="portfolio-placeholder" aria-hidden="true">+</span>
+<span>Add Image</span>
+`;
 }
 
 function validatePortfolioImageType(file){
-    if(!file)return{valid:true};
-
-    if(!file.type||!file.type.startsWith("image/")){
-        return{
-            valid:false,
-            message:`"${file.name}" is not a supported image file.`
-        };
-    }
-
-    return{valid:true};
+if(!file)return{valid:true};
+if(!file.type||!file.type.startsWith("image/")){
+return{
+valid:false,
+message:`"${file.name}" is not a supported image file.`
+};
+}
+return{valid:true};
 }
 
 function validateSelectedPortfolioImage(input,preview){
-    const file=input?.files?.[0]||null;
-
-    if(!file){
-        restorePortfolioPreview(preview);
-        return true;
-    }
-
-    const typeResult=validatePortfolioImageType(file);
-
-    if(!typeResult.valid){
-        input.value="";
-        restorePortfolioPreview(preview);
-
-        showNotification(
-            "error",
-            "Invalid Image",
-            typeResult.message
-        );
-
-        return false;
-    }
-
-    showImagePreview(input,preview);
-    return true;
+const file=input?.files?.[0]||null;
+if(!file){
+restorePortfolioPreview(preview);
+return true;
+}
+const typeResult=validatePortfolioImageType(file);
+if(!typeResult.valid){
+input.value="";
+restorePortfolioPreview(preview);
+showNotification("error","Invalid Image",typeResult.message);
+return false;
+}
+showImagePreview(input,preview);
+return true;
 }
 
 function showImagePreview(input,preview){
-    if(!input||!preview)return;
-
-    const file=input.files?.[0];
-
-    if(!file){
-        restorePortfolioPreview(preview);
-        return;
-    }
-
-    const imageUrl=URL.createObjectURL(file);
-    preview.innerHTML="";
-
-    const image=document.createElement("img");
-    image.src=imageUrl;
-    image.alt="Selected portfolio image";
-    preview.appendChild(image);
-
-    image.addEventListener(
-        "load",
-        ()=>URL.revokeObjectURL(imageUrl),
-        {once:true}
-    );
+if(!input||!preview)return;
+const file=input.files?.[0];
+if(!file){
+restorePortfolioPreview(preview);
+return;
+}
+const imageUrl=URL.createObjectURL(file);
+preview.innerHTML="";
+const image=document.createElement("img");
+image.src=imageUrl;
+image.alt="Selected portfolio image";
+preview.appendChild(image);
+image.addEventListener(
+"load",
+()=>URL.revokeObjectURL(imageUrl),
+{once:true}
+);
 }
 
 portfolioPhoto1?.addEventListener(
-    "change",
-    ()=>validateSelectedPortfolioImage(portfolioPhoto1,portfolioPreview1)
+"change",
+()=>validateSelectedPortfolioImage(portfolioPhoto1,portfolioPreview1)
 );
 
 portfolioPhoto2?.addEventListener(
-    "change",
-    ()=>validateSelectedPortfolioImage(portfolioPhoto2,portfolioPreview2)
+"change",
+()=>validateSelectedPortfolioImage(portfolioPhoto2,portfolioPreview2)
 );
 
 portfolioPhoto3?.addEventListener(
-    "change",
-    ()=>validateSelectedPortfolioImage(portfolioPhoto3,portfolioPreview3)
+"change",
+()=>validateSelectedPortfolioImage(portfolioPhoto3,portfolioPreview3)
 );
 
 function validatePortfolioPhotos(){
-    const portfolioFiles=[
-        portfolioPhoto1?.files?.[0]||null,
-        portfolioPhoto2?.files?.[0]||null,
-        portfolioPhoto3?.files?.[0]||null
-    ];
-
-    for(let i=0;i<portfolioFiles.length;i++){
-        const file=portfolioFiles[i];
-
-        if(!file){
-            return{
-                valid:false,
-                message:`Please select portfolio photo ${i+1}.`
-            };
-        }
-
-        const typeResult=validatePortfolioImageType(file);
-
-        if(!typeResult.valid)return typeResult;
-    }
-
-    return{valid:true};
+const portfolioFiles=[
+portfolioPhoto1?.files?.[0]||null,
+portfolioPhoto2?.files?.[0]||null,
+portfolioPhoto3?.files?.[0]||null
+];
+for(let i=0;i<portfolioFiles.length;i++){
+const file=portfolioFiles[i];
+if(!file){
+return{
+valid:false,
+message:`Please select portfolio photo ${i+1}.`
+};
+}
+const typeResult=validatePortfolioImageType(file);
+if(!typeResult.valid)return typeResult;
+}
+return{valid:true};
 }
 
 function validateDescription(){
-    const description=descriptionInput?.value.trim()||"";
-
-    if(!description){
-        return{
-            valid:false,
-            message:"Please enter a description for the service."
-        };
-    }
-
-    const characterCount=description.length;
-
-    if(characterCount>MAX_DESCRIPTION_WORDS){
-        return{
-            valid:false,
-            message:"Your service description cannot contain more than 150 characters."
-        };
-    }
-
-    return{valid:true};
+const description=descriptionInput?.value.trim()||"";
+if(!description){
+return{
+valid:false,
+message:"Please enter a description for the service."
+};
+}
+const characterCount=description.length;
+if(characterCount>MAX_DESCRIPTION_WORDS){
+return{
+valid:false,
+message:"Your service description cannot contain more than 150 characters."
+};
+}
+return{valid:true};
 }
 
 function validateServiceForm(){
-    if(!skillInput||!skillInput.value.trim()){
-        return{
-            valid:false,
-            message:"Please select your skill."
-        };
-    }
-
-    if(!experienceInput||!experienceInput.value.trim()){
-        return{
-            valid:false,
-            message:"Please select your experience."
-        };
-    }
-
-    const descriptionResult=validateDescription();
-
-    if(!descriptionResult.valid)return descriptionResult;
-
-    const portfolioResult=validatePortfolioPhotos();
-
-    if(!portfolioResult.valid)return portfolioResult;
-
-    return{valid:true};
+if(!skillInput||!skillInput.value.trim()){
+return{
+valid:false,
+message:"Please select your skill."
+};
+}
+if(!experienceInput||!experienceInput.value.trim()){
+return{
+valid:false,
+message:"Please select your experience."
+};
+}
+const descriptionResult=validateDescription();
+if(!descriptionResult.valid)return descriptionResult;
+const portfolioResult=validatePortfolioPhotos();
+if(!portfolioResult.valid)return portfolioResult;
+return{valid:true};
 }
 
 async function extractResponseMessage(response){
-    try{
-        const data=await response.json();
-
-        return data.message||
-            data.error||
-            data.errorMessage||
-            data.msg||
-            "Something went wrong. Please try again.";
-    }catch(error){
-        console.error("Unable to read backend response:",error);
-        return"Something went wrong. Please try again.";
-    }
+try{
+const data=await response.json();
+return data.message||
+data.error||
+data.errorMessage||
+data.msg||
+"Something went wrong. Please try again.";
+}catch(error){
+console.error("Unable to read backend response:",error);
+return"Something went wrong. Please try again.";
+}
 }
 
 function compressImage(file){
-    return new Promise((resolve,reject)=>{
-        const image=new Image();
-        const objectUrl=URL.createObjectURL(file);
-
-        image.onload=()=>{
-            URL.revokeObjectURL(objectUrl);
-
-            let width=image.width;
-            let height=image.height;
-
-            if(width>MAX_IMAGE_DIMENSION||height>MAX_IMAGE_DIMENSION){
-                const scale=MAX_IMAGE_DIMENSION/Math.max(width,height);
-
-                width=Math.round(width*scale);
-                height=Math.round(height*scale);
-            }
-
-            const canvas=document.createElement("canvas");
-            canvas.width=width;
-            canvas.height=height;
-
-            const context=canvas.getContext("2d");
-
-            if(!context){
-                reject(new Error("The selected image could not be processed."));
-                return;
-            }
-
-            context.drawImage(image,0,0,width,height);
-
-            canvas.toBlob(
-                blob=>{
-                    if(!blob){
-                        reject(new Error("The selected image could not be processed."));
-                        return;
-                    }
-
-                    const finishCompression=finalBlob=>{
-                        if(!finalBlob){
-                            reject(new Error("The selected image could not be compressed."));
-                            return;
-                        }
-
-                        resolve(
-                            new File(
-                                [finalBlob],
-                                `${file.name.replace(/\.[^/.]+$/,"")}.jpg`,
-                                {type:"image/jpeg"}
-                            )
-                        );
-                    };
-
-                    if(blob.size>MAX_COMPRESSED_IMAGE_SIZE){
-                        canvas.toBlob(
-                            finishCompression,
-                            "image/jpeg",
-                            0.65
-                        );
-                    }else{
-                        finishCompression(blob);
-                    }
-                },
-                "image/jpeg",
-                0.8
-            );
-        };
-
-        image.onerror=()=>{
-            URL.revokeObjectURL(objectUrl);
-            reject(new Error("The selected image could not be processed."));
-        };
-
-        image.src=objectUrl;
-    });
+return new Promise((resolve,reject)=>{
+const image=new Image();
+const objectUrl=URL.createObjectURL(file);
+image.onload=()=>{
+URL.revokeObjectURL(objectUrl);
+let width=image.width;
+let height=image.height;
+if(width>MAX_IMAGE_DIMENSION||height>MAX_IMAGE_DIMENSION){
+const scale=MAX_IMAGE_DIMENSION/Math.max(width,height);
+width=Math.round(width*scale);
+height=Math.round(height*scale);
+}
+const canvas=document.createElement("canvas");
+canvas.width=width;
+canvas.height=height;
+const context=canvas.getContext("2d");
+if(!context){
+reject(new Error("The selected image could not be processed."));
+return;
+}
+context.drawImage(image,0,0,width,height);
+canvas.toBlob(
+blob=>{
+if(!blob){
+reject(new Error("The selected image could not be processed."));
+return;
+}
+const finishCompression=finalBlob=>{
+if(!finalBlob){
+reject(new Error("The selected image could not be compressed."));
+return;
+}
+resolve(
+new File(
+[finalBlob],
+`${file.name.replace(/\.[^/.]+$/,"")}.jpg`,
+{type:"image/jpeg"}
+)
+);
+};
+if(blob.size>MAX_COMPRESSED_IMAGE_SIZE){
+canvas.toBlob(
+finishCompression,
+"image/jpeg",
+0.65
+);
+}else{
+finishCompression(blob);
+}
+},
+"image/jpeg",
+0.8
+);
+};
+image.onerror=()=>{
+URL.revokeObjectURL(objectUrl);
+reject(new Error("The selected image could not be processed."));
+};
+image.src=objectUrl;
+});
 }
 
 async function buildServiceFormData(){
-    const formData=new FormData();
+const formData=new FormData();
+formData.append("skill",skillInput.value.trim());
+formData.append("experience",experienceInput.value.trim());
+formData.append("description",descriptionInput.value.trim());
 
-    formData.append("skill",skillInput.value.trim());
-    formData.append("experience",experienceInput.value.trim());
-    formData.append("description",descriptionInput.value.trim());
+const files=[
+portfolioPhoto1.files[0],
+portfolioPhoto2.files[0],
+portfolioPhoto3.files[0]
+];
 
-    const files=[
-        portfolioPhoto1.files[0],
-        portfolioPhoto2.files[0],
-        portfolioPhoto3.files[0]
-    ];
+const failedImages=[];
 
-    const failedImages=[];
+for(let i=0;i<files.length;i++){
+try{
+const compressedFile=await compressImage(files[i]);
+formData.append("portfolioPhotos",compressedFile);
+}catch(error){
+console.error(
+`Portfolio image ${i+1} processing failed:`,
+error
+);
+failedImages.push(i+1);
+}
+}
 
-    for(let i=0;i<files.length;i++){
-        try{
-            const compressedFile=await compressImage(files[i]);
+if(failedImages.length){
+throw new Error(
+`PORTFOLIO_IMAGES_FAILED:${failedImages.join(",")}`
+);
+}
 
-            formData.append(
-                "portfolioPhotos",
-                compressedFile
-            );
-        }catch(error){
-            console.error(
-                `Portfolio image ${i+1} processing failed:`,
-                error
-            );
-
-            failedImages.push(i+1);
-        }
-    }
-
-    if(failedImages.length){
-        throw new Error(
-            `PORTFOLIO_IMAGES_FAILED:${failedImages.join(",")}`
-        );
-    }
-
-    return formData;
+return formData;
 }
 
 async function createService(){
-    if(isAddingService)return;
+if(isAddingService)return;
 
-    if(!getAccessToken()){
-        showAuthenticationError();
-        return;
-    }
+const validationResult=validateServiceForm();
 
-    const validationResult=validateServiceForm();
+if(!validationResult.valid){
+showNotification(
+"error",
+"Invalid Service",
+validationResult.message
+);
+return;
+}
 
-    if(!validationResult.valid){
-        showNotification(
-            "error",
-            "Invalid Service",
-            validationResult.message
-        );
-        return;
-    }
+isAddingService=true;
 
-    isAddingService=true;
+setButtonLoading(
+addServiceBtn,
+true,
+"Adding Service..."
+);
 
-    setButtonLoading(
-        addServiceBtn,
-        true,
-        "Adding Service..."
-    );
+try{
+const formData=await buildServiceFormData();
 
-    try{
-        const formData=await buildServiceFormData();
+const response=await API_REQUEST(
+CREATE_SERVICE_ENDPOINT,
+{
+method:"POST",
+body:formData
+}
+);
 
-        const response=await API_REQUEST(
-            CREATE_SERVICE_ENDPOINT,
-            {
-                method:"POST",
-                body:formData
-            }
-        );
+if(response.status===401){
+showAuthenticationError();
+return;
+}
 
-        if(response.status===401){
-            showAuthenticationError();
-            return;
-        }
+if(!response.ok){
+const message=await extractResponseMessage(response);
+showNotification(
+"error",
+"Unable To Add Service",
+message
+);
+return;
+}
 
-        if(!response.ok){
-            const message=await extractResponseMessage(response);
+let successMessage="Your service has been added successfully.";
 
-            showNotification(
-                "error",
-                "Unable To Add Service",
-                message
-            );
+try{
+const data=await response.json();
+if(data.message)
+successMessage=data.message;
+}catch(error){
+console.log("No JSON success response returned.");
+}
 
-            return;
-        }
+isAddingService=false;
+setButtonLoading(addServiceBtn,false);
 
-        let successMessage="Your service has been added successfully.";
+showNotification(
+"success",
+"Service Added",
+successMessage,
+()=>window.location.href=SERVICES_REDIRECT
+);
 
-        try{
-            const data=await response.json();
+return;
 
-            if(data.message)
-                successMessage=data.message;
+}catch(error){
+console.error("Create service request failed:",error);
 
-        }catch(error){
-            console.log("No JSON success response returned.");
-        }
+if(error.message?.startsWith("PORTFOLIO_IMAGES_FAILED:")){
+const failedImages=error.message
+.replace("PORTFOLIO_IMAGES_FAILED:","")
+.split(",")
+.filter(Boolean);
 
-        isAddingService=false;
-        setButtonLoading(addServiceBtn,false);
+const imageText=failedImages.length===1
+?`portfolio image ${failedImages[0]}`
+:`portfolio images ${failedImages.slice(0,-1).join(", ")} and ${failedImages[failedImages.length-1]}`;
 
-        showNotification(
-            "success",
-            "Service Added",
-            successMessage,
-            ()=>window.location.href=SERVICES_REDIRECT
-        );
+showNotification(
+"error",
+"Request Failed",
+`We could not process your ${imageText}. Please try again.`
+);
+}else{
+showNotification(
+"error",
+"Request Failed",
+"We could not process your portfolio image. Please try again."
+);
+}
 
-        return;
-
-    }catch(error){
-        console.error("Create service request failed:",error);
-
-        if(error.message?.startsWith("PORTFOLIO_IMAGES_FAILED:")){
-            const failedImages=error.message
-                .replace("PORTFOLIO_IMAGES_FAILED:","")
-                .split(",")
-                .filter(Boolean);
-
-            const imageText=failedImages.length===1
-                ?`portfolio image ${failedImages[0]}`
-                :`portfolio images ${failedImages.slice(0,-1).join(", ")} and ${failedImages[failedImages.length-1]}`;
-
-            showNotification(
-                "error",
-                "Request Failed",
-                `We could not process your ${imageText}. Please try again.`
-            );
-        }else{
-            showNotification(
-                "error",
-                "Request Failed",
-                "We could not process your portfolio image. Please try again."
-            );
-        }
-
-    }finally{
-        isAddingService=false;
-        setButtonLoading(addServiceBtn,false);
-    }
+}finally{
+isAddingService=false;
+setButtonLoading(addServiceBtn,false);
+}
 }
 
 serviceForm?.addEventListener("submit",event=>{
-    event.preventDefault();
-    createService();
+event.preventDefault();
+createService();
 });
 
 function initializeCreateServicePage(){
-    populateSkillDropdown();
-    updateDescriptionWordCount();
-    checkAccessToken();
+populateSkillDropdown();
+updateDescriptionWordCount();
 }
 
 initializeCreateServicePage();

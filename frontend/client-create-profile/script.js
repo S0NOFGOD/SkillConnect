@@ -1,1804 +1,844 @@
-/* =========================================================
-   2. GET FORM ELEMENTS
-========================================================= */
+document.addEventListener("DOMContentLoaded",()=>{
 
-const profileForm =
-    document.getElementById(
-        "clientProfileForm"
-    );
+const profilePage=document.getElementById("profilePage");
+const form=document.getElementById("clientProfileForm");
+const fullNameInput=document.getElementById("fullName");
+const phoneInput=document.getElementById("phone");
+const profilePhotoInput=document.getElementById("profilePhoto");
+const profilePhotoPlaceholder=document.getElementById("profilePhotoPlaceholder");
+const profilePhotoImage=document.getElementById("profilePhotoImage");
+const countryInput=document.getElementById("country");
+const stateInput=document.getElementById("state");
+const cityInput=document.getElementById("city");
+const lgaInput=document.getElementById("lga");
+const locationInput=document.getElementById("location");
+const latitudeInput=document.getElementById("latitude");
+const longitudeInput=document.getElementById("longitude");
+const getLocationBtn=document.getElementById("getLocationBtn");
+const locationButtonText=getLocationBtn.querySelector(".location-button-text");
+const continueBtn=document.getElementById("continueBtn");
+const buttonText=continueBtn.querySelector(".button-text");
 
+const notificationOverlay=document.getElementById("notificationOverlay");
+const notificationCard=document.getElementById("notificationCard");
+const notificationIcon=document.getElementById("notificationIcon");
+const notificationTitle=document.getElementById("notificationTitle");
+const notificationText=document.getElementById("notificationText");
+const notificationButton=document.getElementById("notificationButton");
 
-const fullNameInput =
-    document.getElementById(
-        "fullName"
-    );
+const MAX_IMAGE_DIMENSION=1920;
+const MAX_COMPRESSED_IMAGE_SIZE=5*1024*1024;
 
+const clientEmail=sessionStorage.getItem("clientEmail");
 
-const countrySelect =
-    document.getElementById(
-        "country"
-    );
+if(!clientEmail){
 
+showModal(
+"error",
+"Authentication Required",
+"Your client session could not be found. Please sign in again.",
+"Go to Login",
+()=>{
+window.location.href="../client-authentication/index.html";
+}
+);
 
-const stateSelect =
-    document.getElementById(
-        "state"
-    );
+return;
+}
 
+profilePage.hidden=false;
 
-const citySelect =
-    document.getElementById(
-        "city"
-    );
 
+/* PROFILE PHOTO */
 
-const locationInput =
-    document.getElementById(
-        "location"
-    );
+profilePhotoInput.addEventListener("change",()=>{
 
+const file=profilePhotoInput.files[0];
 
-const continueBtn =
-    document.getElementById(
-        "continueBtn"
-    );
+if(!file){
 
+profilePhotoImage.hidden=true;
+profilePhotoPlaceholder.hidden=false;
+profilePhotoImage.removeAttribute("src");
+updateProgress();
 
-const completionPercent =
-    document.getElementById(
-        "completionPercent"
-    );
+return;
+}
 
+if(!["image/jpeg","image/png","image/webp"].includes(file.type)){
 
+profilePhotoInput.value="";
+profilePhotoImage.hidden=true;
+profilePhotoPlaceholder.hidden=false;
+profilePhotoImage.removeAttribute("src");
 
-/* =========================================================
-   3. NOTIFICATION MODAL ELEMENTS
-========================================================= */
+showModal(
+"error",
+"Invalid Profile Photo",
+"Please select a JPG, PNG, or WebP image."
+);
 
-const notificationOverlay =
-    document.getElementById(
-        "notificationOverlay"
-    );
+updateProgress();
 
+return;
+}
 
-const notificationCard =
-    document.querySelector(
-        ".notification-card"
-    );
+const imageUrl=URL.createObjectURL(file);
 
+profilePhotoImage.src=imageUrl;
+profilePhotoImage.hidden=false;
+profilePhotoPlaceholder.hidden=true;
 
-const notificationIcon =
-    document.getElementById(
-        "notificationIcon"
-    );
+profilePhotoImage.addEventListener(
+"load",
+()=>URL.revokeObjectURL(imageUrl),
+{once:true}
+);
 
+updateProgress();
 
-const notificationTitle =
-    document.getElementById(
-        "notificationTitle"
-    );
+});
 
 
-const notificationText =
-    document.getElementById(
-        "notificationText"
-    );
+/* LOCATION */
 
+getLocationBtn.addEventListener("click",()=>{
 
-const notificationButton =
-    document.getElementById(
-        "notificationButton"
-    );
+if(!navigator.geolocation){
 
+showModal(
+"error",
+"Location Unavailable",
+"Your browser does not support location services."
+);
 
+return;
+}
 
-/* =========================================================
-   4. GET CLIENT EMAIL
-========================================================= */
+setLocationLoading(true);
 
-/*
-   The client email should have been saved
-   during the authentication / OTP flow.
-*/
-
-const clientEmail =
-    sessionStorage.getItem(
-        "clientEmail"
-    );
-
-
-
-/* =========================================================
-   5. NIGERIAN LOCATION DATA
-========================================================= */
-
-/*
-   Structure:
-
-       State
-          ↓
-       Cities
-
-   The country is currently Nigeria.
-*/
-
-const nigeriaLocations = {
-
-    Abia: [
-        "Aba",
-        "Arochukwu",
-        "Umuahia"
-    ],
-
-    Adamawa: [
-        "Jimeta",
-        "Mubi",
-        "Yola"
-    ],
-
-    Akwa_Ibom: [
-        "Eket",
-        "Ikot Ekpene",
-        "Uyo"
-    ],
-
-    Anambra: [
-        "Awka",
-        "Nnewi",
-        "Onitsha"
-    ],
-
-    Bauchi: [
-        "Azare",
-        "Bauchi",
-        "Misau"
-    ],
-
-    Bayelsa: [
-        "Brass",
-        "Yenagoa"
-    ],
-
-    Benue: [
-        "Gboko",
-        "Makurdi",
-        "Otukpo"
-    ],
-
-    Borno: [
-        "Bama",
-        "Biu",
-        "Maiduguri"
-    ],
-
-    Cross_River: [
-        "Calabar",
-        "Ikom",
-        "Ogoja"
-    ],
-
-    Delta: [
-        "Asaba",
-        "Sapele",
-        "Warri"
-    ],
-
-    Ebonyi: [
-        "Abakaliki",
-        "Afikpo"
-    ],
-
-    Edo: [
-        "Benin City",
-        "Ekpoma",
-        "Auchi"
-    ],
-
-    Ekiti: [
-        "Ado-Ekiti",
-        "Ikere",
-        "Ilawe"
-    ],
-
-    Enugu: [
-        "Enugu",
-        "Nsukka",
-        "Oji River"
-    ],
-
-    Gombe: [
-        "Billiri",
-        "Gombe",
-        "Kaltungo"
-    ],
-
-    Imo: [
-        "Owerri",
-        "Orlu",
-        "Okigwe"
-    ],
-
-    Jigawa: [
-        "Dutse",
-        "Hadejia",
-        "Gumel"
-    ],
-
-    Kaduna: [
-        "Kaduna",
-        "Kafanchan",
-        "Zaria"
-    ],
-
-    Kano: [
-        "Kano",
-        "Wudil",
-        "Gaya"
-    ],
-
-    Katsina: [
-        "Daura",
-        "Funtua",
-        "Katsina"
-    ],
-
-    Kebbi: [
-        "Argungu",
-        "Birnin Kebbi",
-        "Yauri"
-    ],
-
-    Kogi: [
-        "Idah",
-        "Lokoja",
-        "Okene"
-    ],
-
-    Kwara: [
-        "Ilorin",
-        "Offa",
-        "Jebba"
-    ],
-
-    Lagos: [
-        "Badagry",
-        "Epe",
-        "Ikeja",
-        "Lagos",
-        "Ikorodu"
-    ],
-
-    Nasarawa: [
-        "Keffi",
-        "Lafia",
-        "Nasarawa"
-    ],
-
-    Niger: [
-        "Bida",
-        "Minna",
-        "Suleja"
-    ],
-
-    Ogun: [
-        "Abeokuta",
-        "Ijebu Ode",
-        "Sagamu"
-    ],
-
-    Ondo: [
-        "Akure",
-        "Ondo",
-        "Owo"
-    ],
-
-    Osun: [
-        "Ife",
-        "Ilesa",
-        "Osogbo"
-    ],
-
-    Oyo: [
-        "Ibadan",
-        "Ogbomoso",
-        "Oyo",
-        "Iseyin",
-        "Eruwa"
-    ],
-
-    Plateau: [
-        "Barkin Ladi",
-        "Jos",
-        "Pankshin"
-    ],
-
-    Rivers: [
-        "Bonny",
-        "Port Harcourt",
-        "Obio-Akpor"
-    ],
-
-    Sokoto: [
-        "Sokoto",
-        "Tambuwal",
-        "Wurno"
-    ],
-
-    Taraba: [
-        "Jalingo",
-        "Wukari",
-        "Gembu"
-    ],
-
-    Yobe: [
-        "Damaturu",
-        "Gashua",
-        "Potiskum"
-    ],
-
-    Zamfara: [
-        "Gusau",
-        "Kaura Namoda",
-        "Talata Mafara"
-    ],
-
-    FCT: [
-        "Abuja",
-        "Gwagwalada",
-        "Kuje",
-        "Bwari",
-        "Kubwa"
-    ]
+navigator.geolocation.getCurrentPosition(
+async position=>{
+
+const latitude=position.coords.latitude;
+const longitude=position.coords.longitude;
+
+try{
+
+const response=await API_REQUEST(
+`/api/location?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}`,
+{method:"GET"}
+);
+
+let data={};
+
+try{
+data=await response.json();
+}catch{
+data={};
+}
+
+if(!response.ok){
+
+showModal(
+"error",
+"Location Failed",
+data.message||
+"Unable to determine your location. Please try again."
+);
+
+return;
+}
+
+countryInput.value=data.country||"";
+stateInput.value=data.state||"";
+cityInput.value=data.city||"";
+lgaInput.value=data.lga||"";
+latitudeInput.value=data.latitude??latitude;
+longitudeInput.value=data.longitude??longitude;
+
+locationInput.value=
+data.lga&&data.city
+?`${data.lga}, ${data.city}`
+:"";
+
+updateProgress();
+
+showModal(
+"success",
+"Location Found",
+"Your current LGA and city have been detected."
+);
+
+}catch(error){
+
+console.error(
+"Client location request failed:",
+error
+);
+
+showModal(
+"error",
+"Connection Error",
+error.message||
+"Unable to determine your location. Please try again."
+);
+
+}finally{
+
+setLocationLoading(false);
+
+}
+
+},
+error=>{
+
+setLocationLoading(false);
+
+let message="Unable to determine your location. Please try again.";
+
+if(error.code===1){
+message="Location permission was denied. Please allow location access and try again.";
+}else if(error.code===2){
+message="Your location could not be determined. Please try again.";
+}else if(error.code===3){
+message="Location request timed out. Please try again.";
+}
+
+showModal(
+"error",
+"Location Failed",
+message
+);
+
+},
+{
+enableHighAccuracy:true,
+timeout:15000,
+maximumAge:0
+}
+);
+
+});
+
+
+/* FIELD CHANGES */
+
+[
+fullNameInput,
+phoneInput,
+countryInput,
+stateInput,
+cityInput,
+lgaInput,
+locationInput
+].forEach(element=>{
+
+element.addEventListener("input",updateProgress);
+element.addEventListener("change",updateProgress);
+
+});
+
+
+/* SUBMIT */
+
+form.addEventListener("submit",async event=>{
+
+event.preventDefault();
+
+const validation=validateForm();
+
+if(!validation.valid){
+
+showModal(
+"error",
+"Invalid Information",
+validation.message
+);
+
+return;
+}
+
+setLoading(true);
+
+try{
+
+/* CONVERT + COMPRESS PHOTO */
+
+const compressedPhoto=await compressImage(
+profilePhotoInput.files[0]
+);
+
+
+/* NORMALIZE DATA */
+
+const normalizedFullName=
+normalizeFullName(fullNameInput.value);
+
+const phone=
+normalizePhone(phoneInput.value);
+
+fullNameInput.value=normalizedFullName;
+phoneInput.value=phone;
+
+
+/* SEND REQUEST */
+
+const formData=new FormData();
+
+formData.append("email",clientEmail);
+formData.append("fullName",normalizedFullName);
+formData.append("phone",phone);
+formData.append("country",countryInput.value);
+formData.append("state",stateInput.value);
+formData.append("city",cityInput.value);
+formData.append("lga",lgaInput.value);
+formData.append("profilePhoto",compressedPhoto);
+
+const response=await API_REQUEST(
+"/api/client-create-profile",
+{
+method:"POST",
+body:formData
+}
+);
+
+let data={};
+
+try{
+data=await response.json();
+}catch{
+data={};
+}
+
+if(!response.ok){
+
+showModal(
+"error",
+"Profile Update Failed",
+data.message||
+"Unable to complete your profile. Please try again."
+);
+
+return;
+}
+
+sessionStorage.removeItem("clientEmail");
+
+showModal(
+"success",
+"Profile Completed",
+data.message||
+"Your client profile has been completed successfully.",
+"Continue",
+()=>{
+window.location.href=
+"../client-dashboard/index.html";
+}
+);
+
+}catch(error){
+
+console.error(
+"Client profile request failed:",
+error
+);
+
+showModal(
+"error",
+"Connection Error",
+error.message||
+"Unable to connect to the server. Please try again."
+);
+
+}finally{
+
+setLoading(false);
+
+}
+
+});
+
+
+/* MODAL */
+
+notificationButton.addEventListener(
+"click",
+()=>closeModal()
+);
+
+updateProgress();
+
+
+/* LOCATION LOADING */
+
+function setLocationLoading(loading){
+
+getLocationBtn.disabled=loading;
+
+getLocationBtn.classList.toggle(
+"loading",
+loading
+);
+
+locationButtonText.textContent=
+loading
+?"Getting Location..."
+:"Get My Location";
+
+}
+
+
+/* PHONE NORMALIZATION */
+
+function normalizePhone(value){
+
+let phone=value
+.trim()
+.replace(/\s+/g,"")
+.replace(/-/g,"")
+.replace(/\(/g,"")
+.replace(/\)/g,"");
+
+if(/^0[789]\d{9}$/.test(phone)){
+phone="+234"+phone.substring(1);
+}else if(/^234[789]\d{9}$/.test(phone)){
+phone="+"+phone;
+}
+
+return phone;
+
+}
+
+
+/* NAME NORMALIZATION */
+
+function normalizeNamePart(name){
+
+return name
+.toLowerCase()
+.split(/([-'])/)
+.map(part=>{
+
+if(part==="-"||part==="'"){
+return part;
+}
+
+return part.charAt(0).toUpperCase()+part.slice(1);
+
+})
+.join("");
+
+}
+
+function normalizeFullName(value){
+
+const fullName=String(value||"")
+.trim()
+.replace(/\s+/g," ");
+
+const nameParts=fullName.split(" ");
+
+if(nameParts.length!==2){
+return null;
+}
+
+const namePattern=
+/^[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*$/;
+
+if(
+!namePattern.test(nameParts[0])||
+!namePattern.test(nameParts[1])
+){
+
+return null;
+
+}
+
+return nameParts
+.map(normalizeNamePart)
+.join(" ");
+
+}
+
+
+/* IMAGE CONVERSION + COMPRESSION */
+
+function compressImage(file){
+
+return new Promise((resolve,reject)=>{
+
+const image=new Image();
+const objectUrl=URL.createObjectURL(file);
+
+image.onload=()=>{
+
+URL.revokeObjectURL(objectUrl);
+
+let width=image.width;
+let height=image.height;
+
+if(
+width>MAX_IMAGE_DIMENSION||
+height>MAX_IMAGE_DIMENSION
+){
+
+if(width>height){
+
+height=Math.round(
+height*
+(MAX_IMAGE_DIMENSION/width)
+);
+
+width=MAX_IMAGE_DIMENSION;
+
+}else{
+
+width=Math.round(
+width*
+(MAX_IMAGE_DIMENSION/height)
+);
+
+height=MAX_IMAGE_DIMENSION;
+
+}
+
+}
+
+const canvas=document.createElement("canvas");
+
+canvas.width=width;
+canvas.height=height;
+
+const context=canvas.getContext("2d");
+
+if(!context){
+
+reject(
+new Error(
+"The selected image could not be processed."
+)
+);
+
+return;
+}
+
+context.drawImage(
+image,
+0,
+0,
+width,
+height
+);
+
+let quality=0.8;
+
+const compress=()=>{
+
+canvas.toBlob(blob=>{
+
+if(!blob){
+
+reject(
+new Error(
+"The selected image could not be compressed."
+)
+);
+
+return;
+
+}
+
+if(blob.size<=MAX_COMPRESSED_IMAGE_SIZE){
+
+resolve(
+new File(
+[blob],
+`${file.name.replace(/\.[^/.]+$/,"")}.jpg`,
+{type:"image/jpeg"}
+)
+);
+
+return;
+
+}
+
+if(quality>0.1){
+
+quality=Math.max(
+0.1,
+quality-0.1
+);
+
+compress();
+
+return;
+
+}
+
+width=Math.floor(width*0.85);
+height=Math.floor(height*0.85);
+
+if(width<320||height<320){
+
+reject(
+new Error(
+"The selected image could not be compressed below 5 MB."
+)
+);
+
+return;
+
+}
+
+canvas.width=width;
+canvas.height=height;
+
+context.drawImage(
+image,
+0,
+0,
+width,
+height
+);
+
+quality=0.8;
+
+compress();
+
+},"image/jpeg",quality);
 
 };
 
+compress();
+
+};
+
+image.onerror=()=>{
+
+URL.revokeObjectURL(objectUrl);
+
+reject(
+new Error(
+"The selected image could not be processed."
+)
+);
+
+};
+
+image.src=objectUrl;
+
+});
+
+}
 
 
-/* =========================================================
-   6. SHOW NOTIFICATION MODAL
-========================================================= */
+/* VALIDATION */
 
-/*
-   ERROR:
+function validateForm(){
 
-       User must manually close.
+const fullName=fullNameInput.value.trim();
+const phone=normalizePhone(phoneInput.value);
+const profilePhoto=profilePhotoInput.files[0];
+const country=countryInput.value;
+const state=stateInput.value;
+const city=cityInput.value;
+const lga=lgaInput.value;
 
-   SUCCESS + REDIRECT:
+if(!profilePhoto){
 
-       Modal appears
-       ↓
-       Wait 1.5 seconds
-       ↓
-       Redirect
+return{
+valid:false,
+message:"Please select a profile photo."
+};
 
-   ERROR + REDIRECT:
+}
 
-       Modal appears
-       ↓
-       Wait 1.5 seconds
-       ↓
-       Redirect
-*/
+if(!["image/jpeg","image/png","image/webp"].includes(profilePhoto.type)){
+
+return{
+valid:false,
+message:"Please select a JPG, PNG, or WebP image."
+};
+
+}
+
+const normalizedFullName=
+normalizeFullName(fullName);
+
+if(!normalizedFullName){
+
+return{
+valid:false,
+message:
+"Please enter exactly two names with a space between them, for example: Destiny Okpone."
+};
+
+}
+
+if(!/^\+234[789]\d{9}$/.test(phone)){
+
+return{
+valid:false,
+message:
+"Please enter a valid Nigerian phone number."
+};
+
+}
+
+if(!country){
+
+return{
+valid:false,
+message:"Please get your current location."
+};
+
+}
+
+if(!state){
+
+return{
+valid:false,
+message:"Please get your current location."
+};
+
+}
+
+if(!city){
+
+return{
+valid:false,
+message:"Please get your current location."
+};
+
+}
+
+if(!lga){
+
+return{
+valid:false,
+message:"Please get your current location."
+};
+
+}
+
+return{
+valid:true,
+message:""
+};
+
+}
+
+
+/* PROGRESS */
+
+function updateProgress(){
+
+const fields=[
+profilePhotoInput.files.length>0,
+fullNameInput.value.trim(),
+normalizePhone(phoneInput.value),
+locationInput.value.trim()
+];
+
+const completed=fields.filter(Boolean).length;
+
+const percentage=Math.round(
+(completed/fields.length)*100
+);
+
+const progressFill=
+document.getElementById("progressFill");
+
+const progressPercentage=
+document.getElementById("progressPercentage");
+
+if(progressFill){
+progressFill.style.width=`${percentage}%`;
+}
+
+if(progressPercentage){
+progressPercentage.textContent=
+`${percentage}%`;
+}
+
+}
+
+
+/* LOADING */
+
+function setLoading(isLoading){
+
+continueBtn.disabled=isLoading;
+
+continueBtn.classList.toggle(
+"loading",
+isLoading
+);
+
+if(buttonText){
+
+buttonText.textContent=
+isLoading
+?"Saving Profile..."
+:"Complete Profile";
+
+}
+
+}
+
+
+/* SHOW MODAL */
 
 function showModal(
-    type,
-    title,
-    message,
-    redirectURL = null
-) {
+type,
+title,
+message,
+buttonLabel="Close",
+onClose=null
+){
 
-    if (
-        !notificationOverlay ||
-        !notificationCard
-    ) {
+notificationCard.className=
+`notification-card ${type}`;
 
-        return;
+notificationIcon.textContent=
+type==="success"
+?"✓"
+:type==="error"
+?"!"
+:"i";
 
-    }
+notificationTitle.textContent=title;
+notificationText.textContent=message;
+notificationButton.textContent=buttonLabel;
 
+notificationButton.onclick=()=>{
 
-    /*
-       Remove previous modal type.
-    */
+closeModal();
 
-    notificationCard.classList.remove(
-        "error",
-        "success",
-        "info"
-    );
+if(onClose){
+onClose();
+}
 
+};
 
-    /*
-       Add current modal type.
-    */
+notificationOverlay.hidden=false;
 
-    notificationCard.classList.add(
-        type
-    );
-
-
-    /*
-       Display title.
-    */
-
-    notificationTitle.textContent =
-        title;
-
-
-    /*
-       Display message.
-    */
-
-    notificationText.textContent =
-        message;
-
-
-    /*
-       Select modal icon.
-    */
-
-    if (
-        type === "error"
-    ) {
-
-        notificationIcon.textContent =
-            "×";
-
-    }
-
-    else if (
-        type === "success"
-    ) {
-
-        notificationIcon.textContent =
-            "✓";
-
-    }
-
-    else {
-
-        notificationIcon.textContent =
-            "i";
-
-    }
-
-
-    /*
-       Display modal.
-    */
-
-    notificationOverlay.hidden =
-        false;
-
-
-    /* =====================================================
-       ERROR WITHOUT REDIRECT
-    ===================================================== */
-
-    if (
-        type === "error" &&
-        !redirectURL
-    ) {
-
-        notificationButton.textContent =
-            "Close";
-
-        return;
-
-    }
-
-
-    /* =====================================================
-       REDIRECT RESPONSE
-    ===================================================== */
-
-    if (redirectURL) {
-
-        notificationButton.textContent =
-            "Continue";
-
-
-        /*
-           Redirect automatically after
-           exactly 1.5 seconds.
-        */
-
-        setTimeout(
-            () => {
-
-                window.location.href =
-                    redirectURL;
-
-            },
-            1500
-        );
-
-    }
+document.body.classList.add("modal-open");
 
 }
 
 
+/* CLOSE MODAL */
 
-/* =========================================================
-   7. CLOSE MODAL
-========================================================= */
+function closeModal(){
 
-if (notificationButton) {
+notificationOverlay.hidden=true;
 
-    notificationButton.addEventListener(
-        "click",
-        () => {
-
-            notificationOverlay.hidden =
-                true;
-
-        }
-    );
-
-}
-
-
-
-/* =========================================================
-   8. CHECK CLIENT EMAIL
-========================================================= */
-
-function checkClientEmail() {
-
-    if (!clientEmail) {
-
-        showModal(
-
-            "error",
-
-            "Session Expired",
-
-            "Your client email could not be found. Please return to client authentication.",
-
-            "../client-authentication/index.html"
-
-        );
-
-        return false;
-
-    }
-
-
-    return true;
-
-}
-
-
-
-/* =========================================================
-   9. LOAD COUNTRY
-========================================================= */
-
-function loadCountry() {
-
-    if (!countrySelect) {
-
-        return;
-
-    }
-
-
-    /*
-       Clear country dropdown.
-    */
-
-    countrySelect.innerHTML = "";
-
-
-    /*
-       Placeholder.
-    */
-
-    const placeholder =
-        document.createElement(
-            "option"
-        );
-
-
-    placeholder.value =
-        "";
-
-
-    placeholder.textContent =
-        "Select country";
-
-
-    placeholder.disabled =
-        true;
-
-
-    placeholder.selected =
-        true;
-
-
-    countrySelect.appendChild(
-        placeholder
-    );
-
-
-    /*
-       Nigeria.
-    */
-
-    const nigeriaOption =
-        document.createElement(
-            "option"
-        );
-
-
-    nigeriaOption.value =
-        "Nigeria";
-
-
-    nigeriaOption.textContent =
-        "Nigeria";
-
-
-    countrySelect.appendChild(
-        nigeriaOption
-    );
-
-}
-
-
-
-/* =========================================================
-   10. LOAD NIGERIAN STATES
-========================================================= */
-
-function loadStates() {
-
-    if (!stateSelect) {
-
-        return;
-
-    }
-
-
-    /*
-       Clear old states.
-    */
-
-    stateSelect.innerHTML = "";
-
-
-    /*
-       Create placeholder.
-    */
-
-    const placeholder =
-        document.createElement(
-            "option"
-        );
-
-
-    placeholder.value =
-        "";
-
-
-    placeholder.textContent =
-        "Select state";
-
-
-    placeholder.disabled =
-        true;
-
-
-    placeholder.selected =
-        true;
-
-
-    stateSelect.appendChild(
-        placeholder
-    );
-
-
-    /*
-       Get all Nigerian states.
-    */
-
-    const states =
-        Object.keys(
-            nigeriaLocations
-        );
-
-
-    /*
-       Add each state.
-    */
-
-    states.forEach(
-        (state) => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-
-            /*
-               Convert:
-
-               Akwa_Ibom
-                   ↓
-               Akwa Ibom
-            */
-
-            const displayName =
-                state.replace(
-                    /_/g,
-                    " "
-                );
-
-
-            option.value =
-                displayName;
-
-
-            option.textContent =
-                displayName;
-
-
-            stateSelect.appendChild(
-                option
-            );
-
-        }
-    );
-
-
-    /*
-       =====================================================
-       IMPORTANT FIX
-       =====================================================
-
-       The HTML starts with:
-
-           disabled
-
-       Therefore we MUST enable the state
-       dropdown after loading the states.
-    */
-
-    stateSelect.disabled =
-        false;
-
-
-    /*
-       Reset city.
-
-       City remains disabled until
-       a state is selected.
-    */
-
-    if (citySelect) {
-
-        citySelect.disabled =
-            true;
-
-
-        citySelect.innerHTML =
-            `<option value="">
-                Select state first
-             </option>`;
-
-    }
-
-
-    /*
-       Update completion percentage.
-    */
-
-    updateCompletion();
-
-}
-
-
-
-/* =========================================================
-   11. LOAD CITIES
-========================================================= */
-
-function loadCities() {
-
-    if (
-        !stateSelect ||
-        !citySelect
-    ) {
-
-        return;
-
-    }
-
-
-    const selectedState =
-        stateSelect.value;
-
-
-    /*
-       Clear existing cities.
-    */
-
-    citySelect.innerHTML = "";
-
-
-    /*
-       No state selected.
-    */
-
-    if (!selectedState) {
-
-        citySelect.disabled =
-            true;
-
-
-        citySelect.innerHTML =
-            `<option value="">
-                Select state first
-             </option>`;
-
-
-        updateLocation();
-
-        updateCompletion();
-
-        return;
-
-    }
-
-
-    /*
-       Convert:
-
-       Akwa Ibom
-           ↓
-       Akwa_Ibom
-    */
-
-    const stateKey =
-        selectedState.replace(
-            / /g,
-            "_"
-        );
-
-
-    /*
-       Find cities.
-    */
-
-    const cities =
-        nigeriaLocations[
-            stateKey
-        ] || [];
-
-
-    /*
-       City placeholder.
-    */
-
-    const placeholder =
-        document.createElement(
-            "option"
-        );
-
-
-    placeholder.value =
-        "";
-
-
-    placeholder.textContent =
-        "Select city";
-
-
-    placeholder.disabled =
-        true;
-
-
-    placeholder.selected =
-        true;
-
-
-    citySelect.appendChild(
-        placeholder
-    );
-
-
-    /*
-       Add cities.
-    */
-
-    cities.forEach(
-        (city) => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-
-            option.value =
-                city;
-
-
-            option.textContent =
-                city;
-
-
-            citySelect.appendChild(
-                option
-            );
-
-        }
-    );
-
-
-    /*
-       IMPORTANT:
-
-       Enable city after cities have
-       been loaded.
-    */
-
-    citySelect.disabled =
-        false;
-
-
-    updateLocation();
-
-    updateCompletion();
-
-}
-
-
-
-/* =========================================================
-   12. UPDATE FINAL LOCATION
-========================================================= */
-
-function updateLocation() {
-
-    if (!locationInput) {
-
-        return;
-
-    }
-
-
-    const country =
-        countrySelect
-            ? countrySelect.value
-            : "";
-
-
-    const state =
-        stateSelect
-            ? stateSelect.value
-            : "";
-
-
-    const city =
-        citySelect
-            ? citySelect.value
-            : "";
-
-
-    /*
-       Build:
-
-       Nigeria, Oyo, Ogbomoso
-    */
-
-    if (
-        country &&
-        state &&
-        city
-    ) {
-
-        locationInput.value =
-            `${country}, ${state}, ${city}`;
-
-    }
-
-    else {
-
-        locationInput.value =
-            "";
-
-    }
-
-}
-
-
-
-/* =========================================================
-   13. UPDATE COMPLETION PERCENTAGE
-========================================================= */
-
-function updateCompletion() {
-
-    if (!completionPercent) {
-
-        return;
-
-    }
-
-
-    let completed =
-        0;
-
-
-    /*
-       Full name.
-    */
-
-    if (
-        fullNameInput &&
-        fullNameInput.value.trim()
-    ) {
-
-        completed++;
-
-    }
-
-
-    /*
-       Country.
-    */
-
-    if (
-        countrySelect &&
-        countrySelect.value
-    ) {
-
-        completed++;
-
-    }
-
-
-    /*
-       State.
-    */
-
-    if (
-        stateSelect &&
-        stateSelect.value
-    ) {
-
-        completed++;
-
-    }
-
-
-    /*
-       City.
-    */
-
-    if (
-        citySelect &&
-        citySelect.value
-    ) {
-
-        completed++;
-
-    }
-
-
-    /*
-       There are 4 required profile
-       values.
-
-       1 = 25%
-       2 = 50%
-       3 = 75%
-       4 = 100%
-    */
-
-    const percentage =
-        Math.round(
-            (completed / 4) * 100
-        );
-
-
-    completionPercent.textContent =
-        `${percentage}%`;
-
-}
-
-
-
-/* =========================================================
-   14. COUNTRY CHANGE
-========================================================= */
-
-if (countrySelect) {
-
-    countrySelect.addEventListener(
-        "change",
-        () => {
-
-            /*
-               Currently only Nigeria
-               is supported.
-            */
-
-            if (
-                countrySelect.value ===
-                "Nigeria"
-            ) {
-
-                loadStates();
-
-            }
-
-            else {
-
-                /*
-                   Disable state.
-                */
-
-                stateSelect.innerHTML =
-                    `<option value="">
-                        Select country first
-                     </option>`;
-
-
-                stateSelect.disabled =
-                    true;
-
-
-                /*
-                   Disable city.
-                */
-
-                citySelect.innerHTML =
-                    `<option value="">
-                        Select state first
-                     </option>`;
-
-
-                citySelect.disabled =
-                    true;
-
-            }
-
-
-            updateLocation();
-
-            updateCompletion();
-
-        }
-    );
-
-}
-
-
-
-/* =========================================================
-   15. STATE CHANGE
-========================================================= */
-
-if (stateSelect) {
-
-    stateSelect.addEventListener(
-        "change",
-        () => {
-
-            /*
-               Load cities belonging
-               to the selected state.
-            */
-
-            loadCities();
-
-        }
-    );
-
-}
-
-
-
-/* =========================================================
-   16. CITY CHANGE
-========================================================= */
-
-if (citySelect) {
-
-    citySelect.addEventListener(
-        "change",
-        () => {
-
-            /*
-               Update:
-
-               Nigeria, Oyo, Ogbomoso
-            */
-
-            updateLocation();
-
-            updateCompletion();
-
-        }
-    );
-
-}
-
-
-
-/* =========================================================
-   17. FULL NAME CHANGE
-========================================================= */
-
-if (fullNameInput) {
-
-    fullNameInput.addEventListener(
-        "input",
-        () => {
-
-            updateCompletion();
-
-        }
-    );
-
-}
-
-
-
-/* =========================================================
-   18. VALIDATE FULL NAME
-========================================================= */
-
-function validateFullName() {
-
-    if (!fullNameInput) {
-
-        return false;
-
-    }
-
-
-    const fullName =
-        fullNameInput.value.trim();
-
-
-    /*
-       Name cannot be empty.
-    */
-
-    if (!fullName) {
-
-        return false;
-
-    }
-
-
-    /*
-       Require at least two words.
-    */
-
-    const nameParts =
-        fullName.split(
-            /\s+/
-        );
-
-
-    if (
-        nameParts.length < 2
-    ) {
-
-        return false;
-
-    }
-
-
-    /*
-       Minimum name length.
-    */
-
-    if (
-        fullName.length < 3
-    ) {
-
-        return false;
-
-    }
-
-
-    return true;
-
-}
-
-
-
-/* =========================================================
-   19. VALIDATE LOCATION
-========================================================= */
-
-function validateLocation() {
-
-    if (
-        !countrySelect ||
-        !stateSelect ||
-        !citySelect
-    ) {
-
-        return false;
-
-    }
-
-
-    /*
-       Country.
-    */
-
-    if (
-        !countrySelect.value
-    ) {
-
-        return false;
-
-    }
-
-
-    /*
-       State.
-    */
-
-    if (
-        !stateSelect.value
-    ) {
-
-        return false;
-
-    }
-
-
-    /*
-       City.
-    */
-
-    if (
-        !citySelect.value
-    ) {
-
-        return false;
-
-    }
-
-
-    /*
-       Create final location.
-    */
-
-    updateLocation();
-
-
-    if (
-        !locationInput.value
-    ) {
-
-        return false;
-
-    }
-
-
-    return true;
-
-}
-
-
-
-/* =========================================================
-   20. VALIDATE COMPLETE PROFILE
-========================================================= */
-
-function validateProfile() {
-
-    /*
-       Validate name.
-    */
-
-    if (
-        !validateFullName()
-    ) {
-        showModal(
-
-            "error",
-
-            "Invalid Name",
-
-            "Please enter your full name."
-
-        );
-
-
-        fullNameInput.focus();
-
-
-        return false;
-
-    }
-
-
-    /*
-       Validate location.
-    */
-
-    if (
-        !validateLocation()
-    ) {
-
-        showModal(
-
-            "error",
-
-            "Incomplete Location",
-
-            "Please select your country, state, and city."
-
-        );
-
-
-        return false;
-
-    }
-
-
-    return true;
-
-}
-
-
-
-/* =========================================================
-   21. SET LOADING STATE
-========================================================= */
-
-function setLoading(
-    loading
-) {
-
-    if (!continueBtn) {
-
-        return;
-
-    }
-
-
-    if (loading) {
-
-        continueBtn.disabled =
-            true;
-
-
-        continueBtn.classList.add(
-            "loading"
-        );
-
-
-        continueBtn.textContent =
-            "Saving Profile...";
-
-    }
-
-    else {
-
-        continueBtn.disabled =
-            false;
-
-
-        continueBtn.classList.remove(
-            "loading"
-        );
-
-
-        continueBtn.textContent =
-            "Continue To Dashboard";
-
-    }
-
-}
-
-
-
-/* =========================================================
-   22. SUBMIT PROFILE
-========================================================= */
-
-if (profileForm) {
-
-    profileForm.addEventListener(
-        "submit",
-        async (event) => {
-
-            /*
-               Stop normal browser submission.
-            */
-
-            event.preventDefault();
-
-
-            /*
-               Frontend validation.
-            */
-
-            if (
-                !validateProfile()
-            ) {
-
-                return;
-
-            }
-
-
-            /*
-               Get latest email.
-            */
-
-            const currentClientEmail =
-                sessionStorage.getItem(
-                    "clientEmail"
-                );
-
-
-            /*
-               Email missing.
-            */
-
-            if (!currentClientEmail) {
-
-                showModal(
-
-                    "error",
-
-                    "Session Expired",
-
-                    "Your client email could not be found. Please return to client authentication.",
-
-                    "../client-authentication/index.html"
-
-                );
-
-
-                return;
-
-            }
-
-
-            /*
-               Show loading state.
-            */
-
-            setLoading(true);
-
-
-            try {
-
-                /* ==========================================
-                   PREPARE PROFILE DATA
-                ========================================== */
-
-                const profileData = {
-
-                    clientEmail:
-                        currentClientEmail,
-
-                    fullName:
-                        fullNameInput.value.trim(),
-
-                    country:
-                        countrySelect.value,
-
-                    state:
-                        stateSelect.value,
-
-                    city:
-                        citySelect.value,
-
-                    location:
-                        locationInput.value
-
-                };
-
-
-                /* ==========================================
-                   SEND DATA TO BACKEND
-                ========================================== */
-
-                const response =
-                    await fetch(
-
-                        API_ENDPOINT("/api/client-create-profile"), {
-
-                            method:
-                                "POST",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json"
-
-                            },
-
-                            credentials:
-                                "include",
-
-                            body:
-                                JSON.stringify(
-                                    profileData
-                                )
-
-                        }
-
-                    );
-
-
-                /* ==========================================
-                   READ RESPONSE
-                ========================================== */
-
-                const data =
-                    await response.json();
-
-
-                /* ==========================================
-                   EMAIL NOT VERIFIED
-                ========================================== */
-
-                if (
-                    data.code ===
-                    "EMAIL_NOT_VERIFIED"
-                ) {
-
-                    showModal(
-
-                        "error",
-
-                        "Email Not Verified",
-
-                        data.message ||
-                        "Please verify your email before completing your profile.",
-
-                        "../client-email-otp/index.html"
-
-                    );
-
-
-                    return;
-
-                }
-
-
-                /* ==========================================
-                   OTHER BACKEND ERRORS
-                ========================================== */
-
-                if (
-                    !response.ok ||
-                    !data.success
-                ) {
-
-                    showModal(
-
-                        "error",
-
-                        "Profile Creation Failed",
-
-                        data.message ||
-                        "We could not save your profile. Please try again."
-
-                    );
-
-
-                    return;
-
-                }
-
-
-                /* ==========================================
-                   SUCCESS
-                ========================================== */
-
-                showModal(
-
-                    "success",
-
-                    "Profile Completed",
-
-                    data.message ||
-                    "Your client profile has been created successfully.",
-
-                    "../client-worker-search/index.html"
-
-                );
-
-            }
-
-            catch (error) {
-
-                /*
-                   Network error.
-                */
-
-                console.error(
-                    "Client profile error:",
-                    error
-                );
-
-
-                showModal(
-
-                    "error",
-
-                    "Connection Error",
-
-                    "Unable to connect to the SkillConnect server. Please check your connection and try again."
-
-                );
-
-            }
-
-            finally {
-
-                /*
-                   Remove loading state.
-                */
-
-                setLoading(false);
-
-            }
-
-        }
-    );
-
-}
-
-
-
-/* =========================================================
-   23. INITIALIZE PAGE
-========================================================= */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-
-        /*
-           Check client session first.
-        */
-
-        if (
-            !checkClientEmail()
-        ) {
-
-            return;
-
-        }
-
-
-        /*
-           Load Nigeria.
-        */
-
-        loadCountry();
-
-
-        /*
-           Load all Nigerian states.
-
-           IMPORTANT:
-
-           loadStates() now also enables
-           the state dropdown.
-        */
-
-        loadStates();
-
-        updateCompletion();
-
-    }
+document.body.classList.remove(
+"modal-open"
 );
+
+}
+
+});

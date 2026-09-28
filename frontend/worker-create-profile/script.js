@@ -1,8 +1,3 @@
-/* =========================================================
-   SKILLCONNECT WORKER CREATE PROFILE
-   FRONTEND PROFILE COMPLETION LOGIC
-========================================================= */
-
 document.addEventListener("DOMContentLoaded",()=>{
 
 const profilePage=document.getElementById("profilePage");
@@ -10,13 +5,17 @@ const form=document.getElementById("workerProfileForm");
 const fullNameInput=document.getElementById("fullName");
 const phoneInput=document.getElementById("phone");
 const profilePhotoInput=document.getElementById("profilePhoto");
-const profilePhotoPreview=document.getElementById("profilePhotoPreview");
 const profilePhotoPlaceholder=document.getElementById("profilePhotoPlaceholder");
 const profilePhotoImage=document.getElementById("profilePhotoImage");
-const countrySelect=document.getElementById("country");
-const stateSelect=document.getElementById("state");
-const citySelect=document.getElementById("city");
-const lgaSelect=document.getElementById("lga");
+const countryInput=document.getElementById("country");
+const stateInput=document.getElementById("state");
+const cityInput=document.getElementById("city");
+const lgaInput=document.getElementById("lga");
+const latitudeInput=document.getElementById("latitude");
+const longitudeInput=document.getElementById("longitude");
+const locationInput=document.getElementById("location");
+const getLocationBtn=document.getElementById("getLocationBtn");
+const locationButtonText=getLocationBtn.querySelector(".location-button-text");
 const continueBtn=document.getElementById("continueBtn");
 const buttonText=continueBtn.querySelector(".button-text");
 
@@ -28,458 +27,509 @@ const notificationText=document.getElementById("notificationText");
 const notificationButton=document.getElementById("notificationButton");
 
 const MAX_IMAGE_DIMENSION=1920;
-const MAX_COMPRESSED_IMAGE_SIZE=2*1024*1024;
+const MAX_COMPRESSED_IMAGE_SIZE=210241024;
 
 const workerEmail=sessionStorage.getItem("workerEmail");
 
 if(!workerEmail){
-    showModal(
-        "error",
-        "Authentication Required",
-        "Your worker session could not be found. Please sign in again.",
-        "Go to Login",
-        ()=>{
-            window.location.href="../worker-authentication/index.html";
-        }
-    );
-    return;
+showModal(
+"error",
+"Authentication Required",
+"Your worker session could not be found. Please sign in again.",
+"Go to Login",
+()=>{
+window.location.href="../worker-authentication/index.html";
+}
+);
+return;
 }
 
 profilePage.hidden=false;
 
-countrySelect.innerHTML=`
-<option value="">Select country</option>
-<option value="Nigeria">Nigeria</option>
-`;
-
-
 /* =====================================================
-   PROFILE PHOTO SELECTION
+PROFILE PHOTO SELECTION
 ===================================================== */
 
 profilePhotoInput.addEventListener("change",async()=>{
 
-    const file=profilePhotoInput.files[0];
+const file=profilePhotoInput.files[0];
 
-    if(!file){
-        profilePhotoImage.hidden=true;
-        profilePhotoPlaceholder.hidden=false;
-        profilePhotoImage.removeAttribute("src");
-        updateProgress();
-        return;
-    }
+if(!file){
+    profilePhotoImage.hidden=true;
+    profilePhotoPlaceholder.hidden=false;
+    profilePhotoImage.removeAttribute("src");
+    updateProgress();
+    return;
+}
 
-    if(!file.type||!file.type.startsWith("image/")){
-        profilePhotoInput.value="";
-        profilePhotoImage.hidden=true;
-        profilePhotoPlaceholder.hidden=false;
-        profilePhotoImage.removeAttribute("src");
+if(!file.type||!file.type.startsWith("image/")){
+    profilePhotoInput.value="";
+    profilePhotoImage.hidden=true;
+    profilePhotoPlaceholder.hidden=false;
+    profilePhotoImage.removeAttribute("src");
 
-        showModal(
-            "error",
-            "Invalid Profile Photo",
-            "Please select an image file."
-        );
-
-        updateProgress();
-        return;
-    }
-
-    const imageUrl=URL.createObjectURL(file);
-
-    profilePhotoImage.src=imageUrl;
-    profilePhotoImage.hidden=false;
-    profilePhotoPlaceholder.hidden=true;
-
-    profilePhotoImage.addEventListener(
-        "load",
-        ()=>URL.revokeObjectURL(imageUrl),
-        {once:true}
+    showModal(
+        "error",
+        "Invalid Profile Photo",
+        "Please select an image file."
     );
 
     updateProgress();
+    return;
+}
+
+const imageUrl=URL.createObjectURL(file);
+
+profilePhotoImage.src=imageUrl;
+profilePhotoImage.hidden=false;
+profilePhotoPlaceholder.hidden=true;
+
+profilePhotoImage.addEventListener(
+    "load",
+    ()=>URL.revokeObjectURL(imageUrl),
+    {once:true}
+);
+
+updateProgress();
 
 });
 
-
 /* =====================================================
-   COUNTRY CHANGE
+GET MY LOCATION
 ===================================================== */
 
-countrySelect.addEventListener("change",()=>{
+getLocationBtn.addEventListener("click",()=>{
 
-    resetSelect(stateSelect,"Select state");
-    resetSelect(citySelect,"Select city");
-    resetSelect(lgaSelect,"Select LGA");
+if(!navigator.geolocation){
+    showModal(
+        "error",
+        "Location Unavailable",
+        "Your device or browser does not support location services."
+    );
+    return;
+}
 
-    stateSelect.disabled=true;
-    citySelect.disabled=true;
-    lgaSelect.disabled=true;
+setLocationLoading(true);
 
-    const country=countrySelect.value;
+navigator.geolocation.getCurrentPosition(
+    async position=>{
 
-    if(!country){
-        updateProgress();
-        return;
+        const latitude=position.coords.latitude;
+        const longitude=position.coords.longitude;
+
+        latitudeInput.value=latitude;
+        longitudeInput.value=longitude;
+
+        try{
+
+            const response=await API_REQUEST(
+                `/api/location?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}`,
+                {
+                    method:"GET"
+                }
+            );
+
+            let data={};
+
+            try{
+                data=await response.json();
+            }catch{
+                data={};
+            }
+
+            if(!response.ok){
+                throw new Error(
+                    data.message||
+                    "Unable to determine your location. Please try again."
+                );
+            }
+
+            const lga=data.lga||data.location?.lga;
+            const city=data.city||data.location?.city;
+            const state=data.state||data.location?.state;
+
+            if(!lga||!city){
+                throw new Error(
+                    "The server could not determine your LGA and city."
+                );
+            }
+
+            lgaInput.value=lga;
+            cityInput.value=city;
+
+            if(state){
+                stateInput.value=state;
+            }
+
+            locationInput.value=`${lga}, ${city}`;
+
+            updateProgress();
+
+        }catch(error){
+
+            latitudeInput.value="";
+            longitudeInput.value="";
+            stateInput.value="";
+            cityInput.value="";
+            lgaInput.value="";
+            locationInput.value="";
+
+            showModal(
+                "error",
+                "Location Failed",
+                error.message||
+                "Unable to determine your location. Please try again."
+            );
+
+        }finally{
+
+            setLocationLoading(false);
+
+        }
+
+    },
+    error=>{
+
+        setLocationLoading(false);
+
+        let message=
+            "Unable to get your location. Please try again.";
+
+        if(error.code===1){
+            message=
+                "Location permission was denied. Please allow location access and try again.";
+        }else if(error.code===2){
+            message=
+                "Your location could not be determined. Please try again.";
+        }else if(error.code===3){
+            message=
+                "Getting your location timed out. Please try again.";
+        }
+
+        showModal(
+            "error",
+            "Location Failed",
+            message
+        );
+
+    },
+    {
+        enableHighAccuracy:true,
+        timeout:15000,
+        maximumAge:0
     }
-
-    const countryData=NIGERIAN_LOCATION_DATA[country];
-
-    if(!countryData){
-        updateProgress();
-        return;
-    }
-
-    Object.keys(countryData).forEach(state=>{
-        const option=document.createElement("option");
-        option.value=state;
-        option.textContent=state;
-        stateSelect.appendChild(option);
-    });
-
-    stateSelect.disabled=false;
-    updateProgress();
+);
 
 });
 
-
 /* =====================================================
-   STATE CHANGE
-===================================================== */
-
-stateSelect.addEventListener("change",()=>{
-
-    resetSelect(citySelect,"Select city");
-    resetSelect(lgaSelect,"Select LGA");
-
-    citySelect.disabled=true;
-    lgaSelect.disabled=true;
-
-    const country=countrySelect.value;
-    const state=stateSelect.value;
-
-    if(!country||!state){
-        updateProgress();
-        return;
-    }
-
-    const stateData=NIGERIAN_LOCATION_DATA[country]?.[state];
-
-    if(!stateData){
-        updateProgress();
-        return;
-    }
-
-    stateData.cities.forEach(city=>{
-        const option=document.createElement("option");
-        option.value=city;
-        option.textContent=city;
-        citySelect.appendChild(option);
-    });
-
-    stateData.lgas.forEach(lga=>{
-        const option=document.createElement("option");
-        option.value=lga;
-        option.textContent=lga;
-        lgaSelect.appendChild(option);
-    });
-
-    citySelect.disabled=false;
-    lgaSelect.disabled=false;
-
-    updateProgress();
-
-});
-
-
-/* =====================================================
-   LOCATION FIELD CHANGES
+FORM FIELD CHANGES
 ===================================================== */
 
 [
-    fullNameInput,
-    phoneInput,
-    countrySelect,
-    stateSelect,
-    citySelect,
-    lgaSelect
+fullNameInput,
+phoneInput
 ].forEach(element=>{
-    element.addEventListener("input",updateProgress);
-    element.addEventListener("change",updateProgress);
+element.addEventListener("input",updateProgress);
+element.addEventListener("change",updateProgress);
 });
 
-
 /* =====================================================
-   SUBMIT PROFILE
+SUBMIT PROFILE
 ===================================================== */
 
 form.addEventListener("submit",async event=>{
 
-    event.preventDefault();
+event.preventDefault();
 
-    const validation=validateForm();
+const validation=validateForm();
 
-    if(!validation.valid){
+if(!validation.valid){
+    showModal(
+        "error",
+        "Invalid Information",
+        validation.message
+    );
+    return;
+}
+
+const phone=normalizePhone(phoneInput.value);
+
+setLoading(true);
+
+try{
+
+    const formData=new FormData();
+
+    formData.append("email",workerEmail);
+    formData.append(
+        "fullName",
+        normalizeFullName(fullNameInput.value)
+    );
+    formData.append("phone",phone);
+    formData.append("country",countryInput.value);
+    formData.append("state",stateInput.value);
+    formData.append("city",cityInput.value);
+    formData.append("lga",lgaInput.value);
+    formData.append("latitude",latitudeInput.value);
+    formData.append("longitude",longitudeInput.value);
+
+
+    /* =========================================
+       RESIZE + CONVERT + COMPRESS PROFILE PHOTO
+    ========================================= */
+
+    const compressedPhoto=await compressImage(
+        profilePhotoInput.files[0]
+    );
+
+    formData.append("profilePhoto",compressedPhoto);
+
+
+    const response=await API_REQUEST(
+        "/api/worker/create-profile",
+        {
+            method:"POST",
+            body:formData
+        }
+    );
+
+
+    let data={};
+
+    try{
+        data=await response.json();
+    }catch{
+        data={};
+    }
+
+
+    if(!response.ok){
         showModal(
             "error",
-            "Invalid Information",
-            validation.message
+            "Profile Update Failed",
+            data.message||
+            "Unable to complete your profile. Please try again."
         );
         return;
     }
 
-    const phone=normalizePhone(phoneInput.value);
 
-    setLoading(true);
+    sessionStorage.removeItem("workerEmail");
 
-    try{
-
-        const formData=new FormData();
-
-        formData.append("email",workerEmail);
-        formData.append(
-            "fullName",
-            normalizeFullName(fullNameInput.value)
-        );
-        formData.append("phone",phone);
-        formData.append("country",countrySelect.value);
-        formData.append("state",stateSelect.value);
-        formData.append("city",citySelect.value);
-        formData.append("lga",lgaSelect.value);
-
-
-        /* =========================================
-           RESIZE + CONVERT + COMPRESS PROFILE PHOTO
-        ========================================= */
-
-        const compressedPhoto=await compressImage(
-            profilePhotoInput.files[0]
-        );
-
-        formData.append("profilePhoto",compressedPhoto);
-
-
-        const response=await API_REQUEST(
-            "/api/worker/create-profile",
-            {
-                method:"POST",
-                body:formData
-            }
-        );
-
-
-        let data={};
-
-        try{
-            data=await response.json();
-        }catch{
-            data={};
+    showModal(
+        "success",
+        "Profile Completed",
+        data.message||
+        "Your worker profile has been completed successfully.",
+        "Continue",
+        ()=>{
+            window.location.href=
+                "../worker-dashboard/index.html";
         }
+    );
 
+}catch(error){
 
-        if(!response.ok){
-            showModal(
-                "error",
-                "Profile Update Failed",
-                data.message||
-                "Unable to complete your profile. Please try again."
-            );
-            return;
-        }
+    console.error(
+        "Worker profile request failed:",
+        error
+    );
 
+    showModal(
+        "error",
+        "Connection Error",
+        error.message||
+        "Unable to connect to the server. Please try again."
+    );
 
-        sessionStorage.removeItem("workerEmail");
+}finally{
 
-        showModal(
-            "success",
-            "Profile Completed",
-            data.message||
-            "Your worker profile has been completed successfully.",
-            "Continue",
-            ()=>{
-                window.location.href=
-                    "../worker-dashboard/index.html";
-            }
-        );
+    setLoading(false);
 
-    }catch(error){
-
-        console.error(
-            "Worker profile request failed:",
-            error
-        );
-
-        showModal(
-            "error",
-            "Connection Error",
-            error.message||
-            "Unable to connect to the server. Please try again."
-        );
-
-    }finally{
-
-        setLoading(false);
-
-    }
+}
 
 });
 
-
 /* =====================================================
-   NOTIFICATION BUTTON
+NOTIFICATION BUTTON
 ===================================================== */
 
 notificationButton.addEventListener(
-    "click",
-    ()=>closeModal()
+"click",
+()=>closeModal()
 );
 
-
 /* =====================================================
-   INITIAL PROGRESS
+INITIAL PROGRESS
 ===================================================== */
 
 updateProgress();
 
-
 /* =====================================================
-   RESET SELECT HELPER
+LOCATION LOADING STATE
 ===================================================== */
 
-function resetSelect(select,placeholder){
+function setLocationLoading(isLoading){
 
-    select.innerHTML="";
+getLocationBtn.disabled=isLoading;
+getLocationBtn.classList.toggle(
+    "loading",
+    isLoading
+);
 
-    const option=document.createElement("option");
-
-    option.value="";
-    option.textContent=placeholder;
-
-    select.appendChild(option);
+if(locationButtonText){
+    locationButtonText.textContent=
+        isLoading
+            ?"Getting Location..."
+            :"Get My Location";
+}
 
 }
 
-
 /* =====================================================
-   NORMALIZE NIGERIAN PHONE NUMBER
+NORMALIZE NIGERIAN PHONE NUMBER
 ===================================================== */
 
 function normalizePhone(value){
 
-    let phone=value
-        .trim()
-        .replace(/\s+/g,"")
-        .replace(/-/g,"")
-        .replace(/\(/g,"")
-        .replace(/\)/g,"");
+let phone=value
+    .trim()
+    .replace(/\s+/g,"")
+    .replace(/-/g,"")
+    .replace(//g,"")
+    .replace(//g,"");
 
-    if(/^0[789]\d{9}$/.test(phone)){
-        phone="+234"+phone.substring(1);
-    }else if(/^234[789]\d{9}$/.test(phone)){
-        phone="+"+phone;
-    }
+if(/^0[789]\d{9}$/.test(phone)){
+    phone="+234"+phone.substring(1);
+}else if(/^234[789]\d{9}$/.test(phone)){
+    phone="+"+phone;
+}
 
-    return phone;
+return phone;
 
 }
 
-
 /* =====================================================
-   FULL NAME NORMALIZATION
+FULL NAME NORMALIZATION
 ===================================================== */
 
 function normalizeNamePart(name){
 
-    return name
-        .toLowerCase()
-        .split(/([-'])/)
-        .map(part=>{
-            if(part==="-"||part==="'")return part;
-            return part.charAt(0).toUpperCase()+part.slice(1);
-        })
-        .join("");
+return name
+    .toLowerCase()
+    .split(/([-'])/)
+    .map(part=>{
+        if(part==="-"||part==="'")return part;
+        return part.charAt(0).toUpperCase()+part.slice(1);
+    })
+    .join("");
 
 }
 
 function normalizeFullName(value){
 
-    const fullName=String(value||"")
-        .trim()
-        .replace(/\s+/g," ");
+const fullName=String(value||"")
+    .trim()
+    .replace(/\s+/g," ");
 
-    const nameParts=fullName.split(" ");
+const nameParts=fullName.split(" ");
 
-    if(nameParts.length!==2)return null;
+if(nameParts.length!==2)return null;
 
-    const namePattern=/^[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*$/;
+const namePattern=/^[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*$/;
 
-    if(
-        !namePattern.test(nameParts[0])||
-        !namePattern.test(nameParts[1])
-    )return null;
+if(
+    !namePattern.test(nameParts[0])||
+    !namePattern.test(nameParts[1])
+)return null;
 
-    return nameParts.map(normalizeNamePart).join(" ");
+return nameParts.map(normalizeNamePart).join(" ");
 
 }
 
-
 /* =====================================================
-   RESIZE + CONVERT + COMPRESS IMAGE
+RESIZE + CONVERT + COMPRESS IMAGE
 ===================================================== */
 
 function compressImage(file){
 
-    return new Promise((resolve,reject)=>{
+return new Promise((resolve,reject)=>{
 
-        const image=new Image();
-        const objectUrl=URL.createObjectURL(file);
+    const image=new Image();
+    const objectUrl=URL.createObjectURL(file);
 
-        image.onload=()=>{
+    image.onload=()=>{
 
-            URL.revokeObjectURL(objectUrl);
+        URL.revokeObjectURL(objectUrl);
 
-            let width=image.width;
-            let height=image.height;
+        let width=image.width;
+        let height=image.height;
 
 
-            /* =========================================
-               RESIZE TO MAXIMUM 1920px
-            ========================================= */
+        /* =========================================
+           RESIZE TO MAXIMUM 1920px
+        ========================================= */
 
-            if(
-                width>MAX_IMAGE_DIMENSION||
-                height>MAX_IMAGE_DIMENSION
-            ){
+        if(
+            width>MAX_IMAGE_DIMENSION||
+            height>MAX_IMAGE_DIMENSION
+        ){
 
-                if(width>height){
+            if(width>height){
 
-                    height=Math.round(
-                        height*(MAX_IMAGE_DIMENSION/width)
-                    );
+                height=Math.round(
+                    height*(MAX_IMAGE_DIMENSION/width)
+                );
 
-                    width=MAX_IMAGE_DIMENSION;
+                width=MAX_IMAGE_DIMENSION;
 
-                }else{
+            }else{
 
-                    width=Math.round(
-                        width*(MAX_IMAGE_DIMENSION/height)
-                    );
+                width=Math.round(
+                    width*(MAX_IMAGE_DIMENSION/height)
+                );
 
-                    height=MAX_IMAGE_DIMENSION;
-
-                }
+                height=MAX_IMAGE_DIMENSION;
 
             }
 
+        }
 
-            const canvas=document.createElement("canvas");
 
-            canvas.width=width;
-            canvas.height=height;
+        const canvas=document.createElement("canvas");
 
-            const context=canvas.getContext("2d");
+        canvas.width=width;
+        canvas.height=height;
 
-            if(!context){
+        const context=canvas.getContext("2d");
+
+        if(!context){
+            reject(
+                new Error(
+                    "The selected image could not be processed."
+                )
+            );
+            return;
+        }
+
+
+        context.drawImage(
+            image,
+            0,
+            0,
+            width,
+            height
+        );
+
+
+        /* =========================================
+           CONVERT TO JPEG + COMPRESS
+        ========================================= */
+
+        canvas.toBlob(blob=>{
+
+            if(!blob){
                 reject(
                     new Error(
                         "The selected image could not be processed."
@@ -489,307 +539,282 @@ function compressImage(file){
             }
 
 
-            context.drawImage(
-                image,
-                0,
-                0,
-                width,
-                height
-            );
+            if(blob.size>MAX_COMPRESSED_IMAGE_SIZE){
 
+                canvas.toBlob(
+                    smallerBlob=>{
 
-            /* =========================================
-               CONVERT TO JPEG + COMPRESS
-            ========================================= */
-
-            canvas.toBlob(blob=>{
-
-                if(!blob){
-                    reject(
-                        new Error(
-                            "The selected image could not be processed."
-                        )
-                    );
-                    return;
-                }
-
-
-                if(blob.size>MAX_COMPRESSED_IMAGE_SIZE){
-
-                    canvas.toBlob(
-                        smallerBlob=>{
-
-                            if(!smallerBlob){
-                                reject(
-                                    new Error(
-                                        "The selected image could not be compressed."
-                                    )
-                                );
-                                return;
-                            }
-
-                            resolve(
-                                new File(
-                                    [smallerBlob],
-                                    `${file.name.replace(/\.[^/.]+$/,"")}.jpg`,
-                                    {type:"image/jpeg"}
+                        if(!smallerBlob){
+                            reject(
+                                new Error(
+                                    "The selected image could not be compressed."
                                 )
                             );
+                            return;
+                        }
 
-                        },
-                        "image/jpeg",
-                        0.65
-                    );
+                        resolve(
+                            new File(
+                                [smallerBlob],
+                                `${file.name.replace(/\.[^/.]+$/,"")}.jpg`,
+                                {type:"image/jpeg"}
+                            )
+                        );
 
-                    return;
-
-                }
-
-
-                resolve(
-                    new File(
-                        [blob],
-                        `${file.name.replace(/\.[^/.]+$/,"")}.jpg`,
-                        {type:"image/jpeg"}
-                    )
+                    },
+                    "image/jpeg",
+                    0.65
                 );
 
-            },"image/jpeg",0.8);
+                return;
 
-        };
+            }
 
 
-        image.onerror=()=>{
-
-            URL.revokeObjectURL(objectUrl);
-
-            reject(
-                new Error(
-                    "The selected image could not be processed."
+            resolve(
+                new File(
+                    [blob],
+                    `${file.name.replace(/\.[^/.]+$/,"")}.jpg`,
+                    {type:"image/jpeg"}
                 )
             );
 
-        };
+        },"image/jpeg",0.8);
+
+    };
 
 
-        image.src=objectUrl;
+    image.onerror=()=>{
 
-    });
+        URL.revokeObjectURL(objectUrl);
+
+        reject(
+            new Error(
+                "The selected image could not be processed."
+            )
+        );
+
+    };
+
+
+    image.src=objectUrl;
+
+});
 
 }
 
-
 /* =====================================================
-   VALIDATE FORM
+VALIDATE FORM
 ===================================================== */
 
 function validateForm(){
 
-    const fullName=fullNameInput.value.trim();
-    const phone=normalizePhone(phoneInput.value);
-    const profilePhoto=profilePhotoInput.files[0];
-    const country=countrySelect.value;
-    const state=stateSelect.value;
-    const city=citySelect.value;
-    const lga=lgaSelect.value;
+const fullName=fullNameInput.value.trim();
+const phone=normalizePhone(phoneInput.value);
+const profilePhoto=profilePhotoInput.files[0];
+const country=countryInput.value;
+const state=stateInput.value;
+const city=cityInput.value;
+const lga=lgaInput.value;
 
 
-    if(!profilePhoto){
-        return{
-            valid:false,
-            message:"Please select a profile photo."
-        };
-    }
-
-
-    if(
-        !profilePhoto.type||
-        !profilePhoto.type.startsWith("image/")
-    ){
-        return{
-            valid:false,
-            message:"Please select an image file."
-        };
-    }
-
-
-    const normalizedFullName=
-        normalizeFullName(fullName);
-
-    if(!normalizedFullName){
-        return{
-            valid:false,
-            message:
-                "Please enter exactly two names with a space between them, for example: Destiny Okpone."
-        };
-    }
-
-    fullNameInput.value=normalizedFullName;
-
-
-    if(!/^\+234[789]\d{9}$/.test(phone)){
-        return{
-            valid:false,
-            message:
-                "Please enter a valid Nigerian phone number."
-        };
-    }
-
-
-    if(!country){
-        return{
-            valid:false,
-            message:"Please select your country."
-        };
-    }
-
-
-    if(!state){
-        return{
-            valid:false,
-            message:"Please select your state."
-        };
-    }
-
-
-    if(!city){
-        return{
-            valid:false,
-            message:"Please select your city."
-        };
-    }
-
-
-    if(!lga){
-        return{
-            valid:false,
-            message:"Please select your LGA."
-        };
-    }
-
-
+if(!profilePhoto){
     return{
-        valid:true,
-        message:""
+        valid:false,
+        message:"Please select a profile photo."
     };
-
 }
 
 
+if(
+    !profilePhoto.type||
+    !profilePhoto.type.startsWith("image/")
+){
+    return{
+        valid:false,
+        message:"Please select an image file."
+    };
+}
+
+
+const normalizedFullName=
+    normalizeFullName(fullName);
+
+if(!normalizedFullName){
+    return{
+        valid:false,
+        message:
+            "Please enter exactly two names with a space between them, for example: Destiny Okpone."
+    };
+}
+
+fullNameInput.value=normalizedFullName;
+
+
+if(!/^\+234[789]\d{9}$/.test(phone)){
+    return{
+        valid:false,
+        message:
+            "Please enter a valid Nigerian phone number."
+    };
+}
+
+
+if(!country){
+    return{
+        valid:false,
+        message:"Please select your country."
+    };
+}
+
+
+if(!state){
+    return{
+        valid:false,
+        message:"Please get your location."
+    };
+}
+
+
+if(!city){
+    return{
+        valid:false,
+        message:"Please get your location."
+    };
+}
+
+
+if(!lga){
+    return{
+        valid:false,
+        message:"Please get your location."
+    };
+}
+
+
+if(!latitudeInput.value||!longitudeInput.value){
+    return{
+        valid:false,
+        message:"Please get your location."
+    };
+}
+
+
+return{
+    valid:true,
+    message:""
+};
+
+}
+
 /* =====================================================
-   UPDATE PROFILE PROGRESS
+UPDATE PROFILE PROGRESS
 ===================================================== */
 
 function updateProgress(){
 
-    const fields=[
-        profilePhotoInput.files.length>0,
-        fullNameInput.value.trim(),
-        normalizePhone(phoneInput.value),
-        countrySelect.value,
-        stateSelect.value,
-        citySelect.value,
-        lgaSelect.value
-    ];
+const fields=[
+    profilePhotoInput.files.length>0,
+    fullNameInput.value.trim(),
+    normalizePhone(phoneInput.value),
+    locationInput.value.trim()
+];
 
-    const completed=fields.filter(Boolean).length;
+const completed=fields.filter(Boolean).length;
 
-    const percentage=Math.round(
-        (completed/fields.length)*100
-    );
+const percentage=Math.round(
+    (completed/fields.length)*100
+);
 
-    const progressFill=
-        document.getElementById("progressFill");
+const progressFill=
+    document.getElementById("progressFill");
 
-    const progressPercentage=
-        document.getElementById("progressPercentage");
+const progressPercentage=
+    document.getElementById("progressPercentage");
 
-    if(progressFill){
-        progressFill.style.width=`${percentage}%`;
-    }
+if(progressFill){
+    progressFill.style.width=`${percentage}%`;
+}
 
-    if(progressPercentage){
-        progressPercentage.textContent=`${percentage}%`;
-    }
+if(progressPercentage){
+    progressPercentage.textContent=`${percentage}%`;
+}
 
 }
 
-
 /* =====================================================
-   BUTTON LOADING STATE
+BUTTON LOADING STATE
 ===================================================== */
 
 function setLoading(isLoading){
 
-    continueBtn.disabled=isLoading;
+continueBtn.disabled=isLoading;
 
-    continueBtn.classList.toggle(
-        "loading",
+continueBtn.classList.toggle(
+    "loading",
+    isLoading
+);
+
+if(buttonText){
+    buttonText.textContent=
         isLoading
-    );
-
-    if(buttonText){
-        buttonText.textContent=
-            isLoading
-                ?"Saving Profile..."
-                :"Continue";
-    }
+            ?"Saving Profile..."
+            :"Continue";
+}
 
 }
 
-
 /* =====================================================
-   SHOW NOTIFICATION MODAL
+SHOW NOTIFICATION MODAL
 ===================================================== */
 
 function showModal(
-    type,
-    title,
-    message,
-    buttonLabel="Close",
-    onClose=null
+type,
+title,
+message,
+buttonLabel="Close",
+onClose=null
 ){
 
-    notificationCard.className=
-        `notification-card ${type}`;
+notificationCard.className=
+    `notification-card ${type}`;
 
-    notificationIcon.textContent=
-        type==="success"
-            ?"✓"
-            :type==="error"
-                ?"!"
-                :"i";
+notificationIcon.textContent=
+    type==="success"
+        ?"✓"
+        :type==="error"
+            ?"!"
+            :"i";
 
-    notificationTitle.textContent=title;
-    notificationText.textContent=message;
-    notificationButton.textContent=buttonLabel;
+notificationTitle.textContent=title;
+notificationText.textContent=message;
+notificationButton.textContent=buttonLabel;
 
-    notificationButton.onclick=()=>{
+notificationButton.onclick=()=>{
 
-        closeModal();
+    closeModal();
 
-        if(onClose)onClose();
+    if(onClose)onClose();
 
-    };
+};
 
-    notificationOverlay.hidden=false;
+notificationOverlay.hidden=false;
 
-    document.body.classList.add("modal-open");
+document.body.classList.add("modal-open");
 
 }
 
-
 /* =====================================================
-   CLOSE NOTIFICATION MODAL
+CLOSE NOTIFICATION MODAL
 ===================================================== */
 
 function closeModal(){
 
-    notificationOverlay.hidden=true;
+notificationOverlay.hidden=true;
 
-    document.body.classList.remove(
-        "modal-open"
-    );
+document.body.classList.remove(
+    "modal-open"
+);
 
 }
 

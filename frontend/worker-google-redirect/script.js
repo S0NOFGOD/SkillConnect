@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded",()=>{initializeNotificationModal();
 const getElement=id=>document.getElementById(id);
 
 function saveWorkerEmail(email){sessionStorage.setItem("workerEmail",email);}
-function saveAccessToken(token){sessionStorage.setItem("accessToken",token);}
 
 let pendingRedirect=null;
 
@@ -90,15 +89,6 @@ return;
 }
 
 if(data.nextStep==="authenticated"){
-if(!data.accessToken){
-handleExchangeError(
-"Authentication completed, but no access token was received."
-);
-return;
-}
-
-saveAccessToken(data.accessToken);
-
 showModal(
 "Login Successful",
 data.message||"Welcome back. Your account is ready.",

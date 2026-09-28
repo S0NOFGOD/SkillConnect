@@ -1,1323 +1,146 @@
-/* ==========================================
-   SKILLCONNECT
-   CLIENT CREATE PROFILE STYLES
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{min-height:100vh;font-family:"Inter",sans-serif;background:#020617;color:#fff;line-height:1.6;overflow-x:hidden}
+body.modal-open{overflow:hidden}
+a{text-decoration:none;color:inherit}
 
-   This file controls:
+header{position:fixed;top:0;left:0;width:100%;z-index:1000;background:rgba(2,6,23,.85);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border-bottom:1px solid rgba(255,255,255,.08)}
+.navbar{width:90%;max-width:1200px;height:70px;margin:auto;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:24px;font-weight:800;letter-spacing:-1px;color:#2563eb}
+.nav-links{display:flex;gap:30px}
+.nav-links a{color:#cbd5e1;font-size:15px;font-weight:600;transition:.3s}
+.nav-links a:hover{color:#3b82f6}
 
-   1. Global page layout
-   2. Client blue theme
-   3. Navigation
-   4. Profile header
-   5. Profile completion
-   6. Client profile form
-   7. Country / state / city dropdowns
-   8. Validation states
-   9. Submit button
-   10. Loading state
-   11. Notification modal
-   12. Responsive mobile design
+.profile-page{width:90%;max-width:1200px;min-height:calc(100vh - 70px);margin:auto;padding-top:110px;padding-bottom:70px;display:flex;justify-content:center;align-items:flex-start;position:relative}
+.profile-page::before{content:"";position:absolute;width:360px;height:360px;background:#3b82f6;filter:blur(170px);opacity:.18;top:100px;left:50%;transform:translateX(-50%);pointer-events:none}
+.profile-section{width:100%;display:flex;justify-content:center;position:relative;z-index:2}
+.profile-card{width:100%;max-width:700px;padding:35px;border-radius:24px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);box-shadow:0 25px 70px rgba(0,0,0,.45)}
 
-   IMPORTANT:
+.profile-header{text-align:center;margin-bottom:30px}
+.profile-badge{display:inline-block;padding:8px 18px;margin-bottom:18px;border-radius:30px;color:#3b82f6;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);font-size:14px;font-weight:600}
+.profile-header h1{margin-bottom:10px;font-size:32px;font-weight:800;letter-spacing:-.8px}
+.profile-header p{color:#cbd5e1;font-size:15px}
 
-   This page follows the same structure as
-   worker-create-profile.
+.progress-container{position:sticky;top:85px;z-index:20;margin-bottom:25px;padding:18px;border-radius:16px;background:rgba(15,23,42,.94);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);box-shadow:0 15px 40px rgba(0,0,0,.25)}
+.progress-info{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:10px;color:#cbd5e1;font-size:13px;font-weight:600}
+#progressPercentage{color:#3b82f6;font-weight:800}
+.progress-bar{width:100%;height:8px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.08)}
+.progress-fill{width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#3b82f6,#2563eb);transition:width .3s ease}
 
-   CLIENT THEME:
-   Blue
+.profile-form{display:flex;flex-direction:column;gap:20px}
+.form-section{padding:24px;border-radius:18px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)}
+.section-heading{margin-bottom:20px}
+.section-heading h2{margin-bottom:6px;font-size:18px;font-weight:700}
+.section-heading p{color:#94a3b8;font-size:14px}
 
-   Worker pages:
-   Green
+.profile-photo-container{display:flex;justify-content:center;align-items:center;margin-bottom:8px}
+.profile-photo-upload-label{display:block;width:100%;max-width:240px;cursor:pointer}
+.profile-photo-input{display:none}
+.profile-photo-preview{position:relative;width:100%;aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px;overflow:hidden;border:1px dashed rgba(148,163,184,.30);border-radius:14px;background:rgba(2,6,23,.55);color:#94a3b8;font-size:12px;font-weight:600;transition:border-color .2s ease,background .2s ease,transform .2s ease}
+.profile-photo-upload-label:hover .profile-photo-preview{border-color:rgba(59,130,246,.55);background:rgba(59,130,246,.04);transform:translateY(-2px)}
+.profile-photo-upload-label:focus-within .profile-photo-preview{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.10)}
+.profile-photo-placeholder{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:rgba(59,130,246,.10);color:#3b82f6;font-size:22px;font-weight:400;line-height:1}
+.profile-photo-add-text{color:#94a3b8;font-size:12px;font-weight:600}
+#profilePhotoImage{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#profilePhotoImage[hidden]{display:none}
+.profile-photo-help{display:block;max-width:240px;margin:7px auto 0;color:#64748b;font-size:12px;line-height:1.5;text-align:center}
 
-   Client pages:
-   Blue
-========================================== */
+.form-group{margin-bottom:18px}
+.form-group:last-child{margin-bottom:0}
+.form-group label{display:block;margin-bottom:8px;color:#e2e8f0;font-size:14px;font-weight:600}
 
+input,select,textarea{width:100%;border:1px solid rgba(255,255,255,.10);border-radius:12px;outline:none;background:#111827;color:#fff;font-family:"Inter",sans-serif;font-size:14px;transition:.3s}
+input,select{min-height:50px;padding:0 14px}
+textarea{min-height:150px;padding:14px;resize:vertical;line-height:1.6}
+input::placeholder,textarea::placeholder{color:#64748b}
+input:hover,select:hover,textarea:hover{border-color:rgba(255,255,255,.18)}
+input:focus,select:focus,textarea:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+select{cursor:pointer}
+select:disabled{opacity:.5;cursor:not-allowed}
 
-/* ==========================================
-   GLOBAL RESET
-========================================== */
+.location-field{display:flex;align-items:center;width:100%;min-height:50px;padding:5px 6px;border:1px solid rgba(255,255,255,.10);border-radius:12px;background:#111827;overflow:hidden;transition:.3s}
+.location-field:focus-within{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+.get-location-btn{display:flex;align-items:center;justify-content:center;flex:0 0 auto;min-height:38px;padding:0 14px;border:0;border-radius:9px;background:rgba(59,130,246,.15);color:#3b82f6;font-family:"Inter",sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.3s}
+.get-location-btn:hover{background:rgba(59,130,246,.22)}
+.get-location-btn:disabled{opacity:.7;cursor:not-allowed}
+.get-location-btn.loading{pointer-events:none}
+.location-input{flex:1;min-width:0;min-height:38px!important;padding:0 12px!important;border:0!important;border-radius:9px!important;background:transparent!important;box-shadow:none!important;color:#cbd5e1!important;font-size:13px!important;font-weight:500}
+.location-input::placeholder{color:#64748b}
+.location-input:focus{border:0!important;box-shadow:none!important;outline:none}
+.location-button-loader{display:none;width:14px;height:14px;margin-left:7px;border:2px solid rgba(255,255,255,.25);border-top-color:#3b82f6;border-radius:50%;animation:spin .8s linear infinite}
+.get-location-btn.loading .location-button-loader{display:inline-block}
 
-* {
+input[type=file]{min-height:auto;padding:12px;cursor:pointer}
+input[type=file]::file-selector-button{margin-right:12px;padding:9px 14px;border:none;border-radius:8px;background:rgba(59,130,246,.15);color:#3b82f6;font-family:"Inter",sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+.form-group small{display:block;margin-top:7px;color:#64748b;font-size:12px}
 
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+.continue-btn{position:relative;width:100%;min-height:54px;border:none;border-radius:14px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;font-family:"Inter",sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:.3s}
+.continue-btn:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(59,130,246,.20)}
+.continue-btn:active{transform:translateY(0)}
+.continue-btn:disabled{opacity:.7;cursor:not-allowed;transform:none}
+.continue-btn.loading{pointer-events:none;opacity:.75}
+.button-loader{display:none;width:18px;height:18px;margin-left:8px;vertical-align:middle;border-radius:50%;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;animation:spin .8s linear infinite}
+.continue-btn.loading .button-loader{display:inline-block}
+.continue-btn.loading .button-text{opacity:.8}
 
+.notification-overlay{position:fixed;inset:0;z-index:2000;display:flex;justify-content:center;align-items:center;padding:20px;background:rgba(2,6,23,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);animation:fadeIn .25s ease}
+.notification-overlay[hidden]{display:none}
+.notification-card{width:100%;max-width:390px;padding:35px 30px;text-align:center;border-radius:22px;background:rgba(15,23,42,.96);border:1px solid rgba(255,255,255,.10);box-shadow:0 25px 80px rgba(0,0,0,.55);animation:scaleIn .25s ease}
+.notification-icon{width:64px;height:64px;margin:0 auto 20px;display:flex;justify-content:center;align-items:center;border-radius:50%;color:#fff;background:linear-gradient(135deg,#3b82f6,#2563eb);font-size:30px;font-weight:800}
+.notification-card.success .notification-icon{background:linear-gradient(135deg,#3b82f6,#2563eb)}
+.notification-card.error .notification-icon{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.notification-card.info .notification-icon{background:linear-gradient(135deg,#3b82f6,#2563eb)}
+.notification-card h2{margin-bottom:10px;font-size:24px;font-weight:800}
+.notification-card p{color:#cbd5e1;font-size:14px;line-height:1.7}
+.notification-button{width:100%;margin-top:25px;min-height:48px;padding:14px 20px;border:none;border-radius:12px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;font-family:"Inter",sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:.3s}
+.notification-button:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(59,130,246,.20)}
+.notification-button:active{transform:translateY(0)}
+
+footer{padding:30px;text-align:center;color:#94a3b8;border-top:1px solid rgba(255,255,255,.08)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #3b82f6;outline-offset:2px}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+@media(min-width:768px){
+.profile-page{width:85%}
+.profile-card{padding:40px}
+.profile-header h1{font-size:38px}
+.profile-photo-upload-label{max-width:260px}
 }
 
-
-/* ==========================================
-   HTML
-========================================== */
-
-html {
-
-    scroll-behavior: smooth;
-
+@media(min-width:1024px){
+.profile-page{max-width:1200px}
+.profile-card{max-width:720px}
+.profile-photo-upload-label{max-width:280px}
 }
 
-
-/* ==========================================
-   BODY
-========================================== */
-
-body {
-
-    font-family: "Inter", sans-serif;
-
-    background: #020617;
-
-    color: #ffffff;
-
-    line-height: 1.6;
-
-    overflow-x: hidden;
-
+@media(max-width:600px){
+.navbar{width:100%;height:65px;padding:0 16px}
+.logo{font-size:21px;letter-spacing:-.8px;white-space:nowrap}
+.nav-links{gap:0}
+.nav-links a{font-size:14px;white-space:nowrap}
+.profile-page{width:92%;padding-top:95px;padding-bottom:50px}
+.profile-card{padding:25px 20px;border-radius:22px}
+.profile-header h1{font-size:28px}
+.profile-header p{font-size:14px}
+.profile-badge{padding:7px 16px;font-size:13px}
+.progress-container{top:80px;padding:15px}
+.form-section{padding:20px;border-radius:16px}
+.section-heading h2{font-size:17px}
+.section-heading p{font-size:13px}
+.profile-photo-upload-label{max-width:220px}
+input,select{min-height:48px}
+textarea{min-height:140px}
+.notification-card{padding:30px 22px}
 }
 
-
-/* ==========================================
-   LINKS
-========================================== */
-
-a {
-
-    text-decoration: none;
-
-    color: inherit;
-
-}
-
-
-/* ==========================================
-   BACKGROUND BLUE GLOW
-========================================== */
-
-/*
-    The client profile page uses
-    the SkillConnect client blue theme.
-*/
-
-body::before {
-
-    content: "";
-
-    position: fixed;
-
-    width: 350px;
-
-    height: 350px;
-
-    top: 80px;
-
-    left: 50%;
-
-    transform: translateX(-50%);
-
-    background: #3b82f6;
-
-    filter: blur(170px);
-
-    opacity: .18;
-
-    z-index: -1;
-
-}
-
-
-/* ==========================================
-   NAVBAR
-========================================== */
-
-header {
-
-    position: fixed;
-
-    top: 0;
-
-    left: 0;
-
-    width: 100%;
-
-    z-index: 1000;
-
-    background:
-        rgba(2, 6, 23, .85);
-
-    backdrop-filter: blur(15px);
-
-    border-bottom:
-        1px solid
-        rgba(255, 255, 255, .08);
-
-}
-
-
-/* ==========================================
-   NAVBAR CONTAINER
-========================================== */
-
-.navbar {
-
-    width: 90%;
-
-    max-width: 1200px;
-
-    height: 70px;
-
-    margin: auto;
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-}
-
-
-/* ==========================================
-   LOGO
-========================================== */
-
-/*
-    The logo keeps the SkillConnect
-    green-to-blue brand gradient.
-*/
-
-.logo {
-
-    font-size: 24px;
-
-    font-weight: 800;
-
-    letter-spacing: -1px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #3b82f6
-        );
-
-    -webkit-background-clip: text;
-
-    -webkit-text-fill-color: transparent;
-
-}
-
-
-/* ==========================================
-   BACK / HOME LINK
-========================================== */
-
-.back-link {
-
-    color: #cbd5e1;
-
-    font-size: 15px;
-
-    font-weight: 600;
-
-    transition: .2s ease;
-
-}
-
-
-/* ==========================================
-   BACK LINK HOVER
-========================================== */
-
-.back-link:hover {
-
-    color: #3b82f6;
-
-}
-
-
-/* ==========================================
-   MAIN PROFILE LAYOUT
-========================================== */
-
-.profile-page {
-
-    width: 90%;
-
-    margin: auto;
-
-    padding-top: 110px;
-
-    padding-bottom: 50px;
-
-}
-
-
-/* ==========================================
-   PROFILE CARD
-========================================== */
-
-.profile-card {
-
-    width: 100%;
-
-    max-width: 700px;
-
-    margin: auto;
-
-    padding: 25px;
-
-    border-radius: 24px;
-
-    background:
-        rgba(255, 255, 255, .05);
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .08);
-
-    backdrop-filter: blur(15px);
-
-}
-
-
-/* ==========================================
-   PROFILE HEADER
-========================================== */
-
-.profile-header {
-
-    text-align: center;
-
-    margin-bottom: 30px;
-
-}
-
-
-/* ==========================================
-   PROFILE ICON
-========================================== */
-
-.profile-icon {
-
-    font-size: 45px;
-
-    margin-bottom: 15px;
-
-}
-
-
-/* ==========================================
-   PROFILE TITLE
-========================================== */
-
-.profile-header h1 {
-
-    font-size: 30px;
-
-    font-weight: 800;
-
-    line-height: 1.2;
-
-    margin-bottom: 12px;
-
-}
-
-
-/* ==========================================
-   PROFILE DESCRIPTION
-========================================== */
-
-.profile-header p {
-
-    color: #cbd5e1;
-
-    font-size: 15px;
-
-}
-
-
-/* ==========================================
-   PROFILE COMPLETION CARD
-========================================== */
-
-.completion-card {
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    padding: 18px;
-
-    margin-bottom: 25px;
-
-    border-radius: 18px;
-
-    background:
-        rgba(59, 130, 246, .08);
-
-    border:
-        1px solid
-        rgba(59, 130, 246, .15);
-
-}
-
-
-/* ==========================================
-   COMPLETION TITLE
-========================================== */
-
-.completion-card h3 {
-
-    font-size: 17px;
-
-}
-
-
-/* ==========================================
-   COMPLETION DESCRIPTION
-========================================== */
-
-.completion-card p {
-
-    color: #94a3b8;
-
-    font-size: 13px;
-
-}
-
-
-/* ==========================================
-   COMPLETION PERCENTAGE
-========================================== */
-
-.completion-card strong {
-
-    color: #3b82f6;
-
-    font-size: 26px;
-
-}
-
-
-/* ==========================================
-   FORM
-========================================== */
-
-form {
-
-    display: flex;
-
-    flex-direction: column;
-
-}
-
-
-/* ==========================================
-   FORM SECTION CARD
-========================================== */
-
-.form-card {
-
-    padding: 20px;
-
-    margin-bottom: 20px;
-
-    border-radius: 20px;
-
-    background:
-        rgba(255, 255, 255, .04);
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .08);
-
-}
-
-
-/* ==========================================
-   FORM SECTION TITLE
-========================================== */
-
-.form-card h2 {
-
-    font-size: 20px;
-
-    margin-bottom: 5px;
-
-}
-
-
-/* ==========================================
-   FORM SECTION DESCRIPTION
-========================================== */
-
-.section-text {
-
-    color: #94a3b8;
-
-    font-size: 14px;
-
-    margin-bottom: 20px;
-
-}
-
-
-/* ==========================================
-   FORM LABEL
-========================================== */
-
-label {
-
-    display: block;
-
-    font-size: 14px;
-
-    font-weight: 600;
-
-    margin-bottom: 8px;
-
-}
-
-
-/* ==========================================
-   INPUTS
-   SELECTS
-========================================== */
-
-input,
-select {
-
-    width: 100%;
-
-    padding: 15px;
-
-    margin-bottom: 18px;
-
-    background: #111827;
-
-    color: #ffffff;
-
-    border:
-        1px solid transparent;
-
-    border-radius: 14px;
-
-    outline: none;
-
-    font-size: 15px;
-
-    font-family: inherit;
-
-    transition: .2s ease;
-
-}
-
-
-/* ==========================================
-   INPUT PLACEHOLDER
-========================================== */
-
-input::placeholder {
-
-    color: #64748b;
-
-}
-
-
-/* ==========================================
-   INPUT / SELECT FOCUS
-========================================== */
-
-input:focus,
-select:focus {
-
-    border-color: #3b82f6;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(59, 130, 246, .15);
-
-}
-
-
-/* ==========================================
-   DISABLED INPUTS / SELECTS
-========================================== */
-
-input:disabled,
-select:disabled {
-
-    opacity: .6;
-
-    cursor: not-allowed;
-
-}
-
-
-/* ==========================================
-   SELECT DROPDOWNS
-========================================== */
-
-select {
-
-    cursor: pointer;
-
-}
-
-
-/* ==========================================
-   DISABLED SELECT DROPDOWNS
-========================================== */
-
-select:disabled {
-
-    cursor: not-allowed;
-
-    background: #0b1220;
-
-}
-
-
-/* ==========================================
-   LOCATION SECTION
-========================================== */
-
-/*
-    Client location uses exactly:
-
-        Country
-           ↓
-        State
-           ↓
-        City
-
-    There is no:
-
-    - Phone number
-    - Country code
-    - Location detection button
-*/
-
-
-#country,
-#state,
-#city {
-
-    width: 100%;
-
-}
-
-
-/* ==========================================
-   LOCATION SELECT HOVER
-========================================== */
-
-#country:hover:not(:disabled),
-#state:hover:not(:disabled),
-#city:hover:not(:disabled) {
-
-    border-color:
-        rgba(59, 130, 246, .5);
-
-}
-
-
-/* ==========================================
-   LOCATION SELECT FOCUS
-========================================== */
-
-#country:focus,
-#state:focus,
-#city:focus {
-
-    border-color: #3b82f6;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(59, 130, 246, .15);
-
-}
-
-
-/* ==========================================
-   HIDDEN LOCATION FIELD
-========================================== */
-
-/*
-    JavaScript stores the final
-    combined location here.
-
-    Example:
-
-    Nigeria, Oyo, Ogbomoso
-
-    The user does not see this field.
-*/
-
-#location {
-
-    display: none;
-
-}
-
-
-/* ==========================================
-   VALIDATION ERROR FIELD
-========================================== */
-
-.field-error {
-
-    border-color:
-        #ef4444 !important;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(239, 68, 68, .12)
-        !important;
-
-}
-
-
-/* ==========================================
-   VALIDATION ERROR MESSAGE
-========================================== */
-
-.field-error-message {
-
-    display: block;
-
-    margin-top: -10px;
-
-    margin-bottom: 16px;
-
-    color: #f87171;
-
-    font-size: 13px;
-
-    font-weight: 500;
-
-}
-
-
-/* ==========================================
-   VALIDATION SUMMARY
-========================================== */
-
-.validation-summary {
-
-    margin-bottom: 20px;
-
-    padding: 15px;
-
-    border-radius: 14px;
-
-    background:
-        rgba(239, 68, 68, .08);
-
-    border:
-        1px solid
-        rgba(239, 68, 68, .2);
-
-    color: #fecaca;
-
-}
-
-
-/* ==========================================
-   VALIDATION SUMMARY TITLE
-========================================== */
-
-.validation-summary strong {
-
-    display: block;
-
-    margin-bottom: 6px;
-
-}
-
-
-/* ==========================================
-   VALIDATION SUMMARY LIST
-========================================== */
-
-.validation-summary ul {
-
-    margin-left: 18px;
-
-}
-
-
-/* ==========================================
-   VALIDATION SUMMARY ITEM
-========================================== */
-
-.validation-summary li {
-
-    margin-bottom: 3px;
-
-}
-
-
-/* ==========================================
-   SUBMIT BUTTON
-========================================== */
-
-.submit-btn {
-
-    width: 100%;
-
-    padding: 16px;
-
-    border: none;
-
-    border-radius: 14px;
-
-    margin-top: 10px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #3b82f6,
-            #2563eb
-        );
-
-    color: #ffffff;
-
-    font-family: inherit;
-
-    font-size: 16px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition: .2s ease;
-
-}
-
-
-/* ==========================================
-   SUBMIT BUTTON HOVER
-========================================== */
-
-.submit-btn:hover {
-
-    transform: translateY(-3px);
-
-    box-shadow:
-        0 10px 30px
-        rgba(59, 130, 246, .20);
-
-}
-
-
-/* ==========================================
-   SUBMIT BUTTON DISABLED
-========================================== */
-
-.submit-btn:disabled {
-
-    opacity: .65;
-
-    cursor: not-allowed;
-
-    transform: none;
-
-}
-
-
-/* ==========================================
-   LOADING STATE
-========================================== */
-
-/*
-    JavaScript adds the "loading"
-    class while the profile is being
-    submitted to the backend.
-*/
-
-.submit-btn.loading {
-
-    position: relative;
-
-    cursor: wait;
-
-    opacity: .75;
-
-}
-
-
-/* ==========================================
-   NOTIFICATION MODAL OVERLAY
-========================================== */
-
-.notification-modal {
-
-    position: fixed;
-
-    inset: 0;
-
-    width: 100%;
-
-    height: 100%;
-
-    z-index: 99999;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    padding: 20px;
-
-    background:
-        rgba(2, 6, 23, .78);
-
-    backdrop-filter: blur(10px);
-
-    -webkit-backdrop-filter: blur(10px);
-
-}
-
-
-/* ==========================================
-   HIDDEN NOTIFICATION MODAL
-========================================== */
-
-.notification-modal[hidden] {
-
-    display: none;
-
-}
-
-
-/* ==========================================
-   NOTIFICATION CARD
-========================================== */
-
-.notification-card {
-
-    width:
-        min(
-            390px,
-            calc(100vw - 40px)
-        );
-
-    max-height:
-        calc(100vh - 40px);
-
-    overflow-y: auto;
-
-    margin: 0;
-
-    padding: 35px 30px;
-
-    text-align: center;
-
-    border-radius: 22px;
-
-    background: #0f172a;
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .10);
-
-    box-shadow:
-        0 25px 80px
-        rgba(0, 0, 0, .55);
-
-}
-
-
-/* ==========================================
-   NOTIFICATION ICON
-========================================== */
-
-.notification-icon {
-
-    width: 64px;
-
-    height: 64px;
-
-    margin: 0 auto 20px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border-radius: 50%;
-
-    color: #ffffff;
-
-    background:
-        linear-gradient(
-            135deg,
-            #3b82f6,
-            #2563eb
-        );
-
-    font-size: 30px;
-
-    font-weight: 800;
-
-}
-
-
-/* ==========================================
-   NOTIFICATION TITLE
-========================================== */
-
-.notification-card h2 {
-
-    margin: 0 0 10px;
-
-    font-size: 24px;
-
-    font-weight: 800;
-
-    line-height: 1.3;
-
-}
-
-
-/* ==========================================
-   NOTIFICATION MESSAGE
-========================================== */
-
-.notification-card p {
-
-    margin: 0 0 25px;
-
-    color: #cbd5e1;
-
-    font-size: 14px;
-
-    line-height: 1.7;
-
-    white-space: pre-line;
-
-}
-
-
-/* ==========================================
-   NOTIFICATION BUTTON
-========================================== */
-
-.notification-card button {
-
-    width: 100%;
-
-    padding: 14px 16px;
-
-    border: none;
-
-    border-radius: 14px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #3b82f6,
-            #2563eb
-        );
-
-    color: #ffffff;
-
-    font-family: inherit;
-
-    font-size: 15px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition: .3s ease;
-
-}
-
-
-/* ==========================================
-   NOTIFICATION BUTTON HOVER
-========================================== */
-
-.notification-card button:hover {
-
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 10px 30px
-        rgba(59, 130, 246, .20);
-
-}
-
-
-/* ==========================================
-   NOTIFICATION BUTTON ACTIVE
-========================================== */
-
-.notification-card button:active {
-
-    transform: translateY(0);
-
-}
-
-
-/* ==========================================
-   ERROR MODAL
-========================================== */
-
-.notification-card.error {
-
-    border-color:
-        rgba(239, 68, 68, .25);
-
-}
-
-
-/* ==========================================
-   ERROR MODAL ICON
-========================================== */
-
-.notification-card.error .notification-icon {
-
-    background:
-        linear-gradient(
-            135deg,
-            #ef4444,
-            #dc2626
-        );
-
-}
-
-
-/* ==========================================
-   SUCCESS MODAL
-========================================== */
-
-.notification-card.success {
-
-    border-color:
-        rgba(59, 130, 246, .25);
-
-}
-
-
-/* ==========================================
-   SUCCESS MODAL ICON
-========================================== */
-
-.notification-card.success .notification-icon {
-
-    background:
-        linear-gradient(
-            135deg,
-            #3b82f6,
-            #2563eb
-        );
-
-}
-
-
-/* ==========================================
-   INFO MODAL
-========================================== */
-
-.notification-card.info {
-
-    border-color:
-        rgba(59, 130, 246, .25);
-
-}
-
-
-/* ==========================================
-   INFO MODAL ICON
-========================================== */
-
-.notification-card.info .notification-icon {
-
-    background:
-        linear-gradient(
-            135deg,
-            #3b82f6,
-            #2563eb
-        );
-
-}
-
-
-/* ==========================================
-   FOOTER
-========================================== */
-
-footer {
-
-    padding: 30px;
-
-    text-align: center;
-
-    color: #94a3b8;
-
-    border-top:
-        1px solid
-        rgba(255, 255, 255, .08);
-
-}
-
-
-/* ==========================================
-   MOBILE RESPONSIVENESS
-========================================== */
-
-@media (max-width: 600px) {
-
-    /* --------------------------------------
-       Modal
-    -------------------------------------- */
-
-    .notification-modal {
-
-        padding: 16px;
-
-    }
-
-
-    .notification-card {
-
-        width:
-            min(
-                390px,
-                calc(100vw - 32px)
-            );
-
-        max-height:
-            calc(100vh - 32px);
-
-        padding: 30px 22px;
-
-    }
-
-
-    /* --------------------------------------
-       Modal Icon
-    -------------------------------------- */
-
-    .notification-icon {
-
-        width: 60px;
-
-        height: 60px;
-
-        font-size: 28px;
-
-    }
-
-
-    /* --------------------------------------
-       Modal Title
-    -------------------------------------- */
-
-    .notification-card h2 {
-
-        font-size: 22px;
-
-    }
-
-
-    /* --------------------------------------
-       Profile Card
-    -------------------------------------- */
-
-    .profile-card {
-
-        padding: 18px;
-
-        border-radius: 20px;
-
-    }
-
-
-    /* --------------------------------------
-       Profile Title
-    -------------------------------------- */
-
-    .profile-header h1 {
-
-        font-size: 26px;
-
-    }
-
-
-    /* --------------------------------------
-       Form Cards
-    -------------------------------------- */
-
-    .form-card {
-
-        padding: 17px;
-
-    }
-
-
-    /* --------------------------------------
-       Inputs / Selects
-    -------------------------------------- */
-
-    input,
-    select {
-
-        padding: 14px;
-
-    }
-
-}
-
-
-/* ==========================================
-   SMALL MOBILE
-========================================== */
-
-@media (max-width: 400px) {
-
-    .notification-card {
-
-        width:
-            calc(100vw - 24px);
-
-        padding: 26px 18px;
-
-    }
-
-
-    .profile-page {
-
-        width: 94%;
-
-    }
-
-
-    .profile-header h1 {
-
-        font-size: 24px;
-
-    }
-
-
-    .completion-card {
-
-        padding: 15px;
-
-    }
-
-
-    .completion-card strong {
-
-        font-size: 22px;
-
-    }
-
+@media(max-width:400px){
+.profile-card{padding:22px 16px}
+.profile-header h1{font-size:25px}
+.nav-links a{font-size:13px}
+.progress-container{top:80px}
+.profile-photo-upload-label{max-width:200px}
+.notification-card{max-width:340px}
 }

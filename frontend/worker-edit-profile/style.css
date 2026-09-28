@@ -1,935 +1,205 @@
-/* =========================================================
-   WORKER EDIT PROFILE STYLES
-   Modern UI — consistent with worker-dashboard.
-========================================================= */
-
-
-/* =========================================================
-   1. RESET & GLOBAL
-========================================================= */
-
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-}
-
-:root{
-    --bg:#020617;
-    --surface:#0f172a;
-    --surface-2:#111c31;
-    --border:rgba(148,163,184,.14);
-    --text:#f8fafc;
-    --muted:#94a3b8;
-    --green:#22c55e;
-    --green-dark:#16a34a;
-    --blue:#3b82f6;
-    --red:#ef4444;
-    --shadow:0 20px 50px rgba(0,0,0,.28);
-}
-
-html{
-    scroll-behavior:smooth;
-}
-
-body{
-    min-height:100vh;
-    font-family:"Inter",sans-serif;
-    background:
-        radial-gradient(
-            circle at 15% 10%,
-            rgba(34,197,94,.08),
-            transparent 30%
-        ),
-        radial-gradient(
-            circle at 85% 20%,
-            rgba(59,130,246,.08),
-            transparent 30%
-        ),
-        var(--bg);
-    color:var(--text);
-    line-height:1.6;
-    overflow-x:hidden;
-}
-
-button,
-input,
-select,
-textarea{
-    font:inherit;
-}
-
-button{
-    border:0;
-    cursor:pointer;
-}
-
-a{
-    text-decoration:none;
-    color:inherit;
-}
-
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-select:focus-visible,
-label:focus-visible{
-    outline:2px solid var(--green);
-    outline-offset:3px;
-}
-
-
-/* =========================================================
-   2. BACKGROUND GLOWS
-========================================================= */
-
-.green-glow,
-.blue-glow{
-    position:fixed;
-    width:320px;
-    height:320px;
-    border-radius:50%;
-    filter:blur(100px);
-    pointer-events:none;
-    opacity:.13;
-    z-index:-1;
-}
-
-.green-glow{
-    top:5%;
-    left:-120px;
-    background:var(--green);
-}
-
-.blue-glow{
-    right:-120px;
-    bottom:5%;
-    background:var(--blue);
-}
-
-
-/* =========================================================
-   3. TOPBAR
-========================================================= */
-
-.topbar{
-    position:fixed;
-    top:0;
-    left:0;
-    right:0;
-    height:70px;
-    z-index:1000;
-    background:rgba(2,6,23,.82);
-    border-bottom:1px solid var(--border);
-    backdrop-filter:blur(18px);
-    -webkit-backdrop-filter:blur(18px);
-}
-
-.topbar-inner{
-    height:100%;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 28px;
-}
-
-.logo{
-    font-size:1.35rem;
-    font-weight:800;
-    letter-spacing:-.04em;
-    color:#16a34a;
-}
-
-
-/* =========================================================
-   4. MENU BUTTON
-========================================================= */
-
-.menu-btn{
-    display:none;
-    width:42px;
-    height:42px;
-    padding:10px;
-    border-radius:10px;
-    background:rgba(255,255,255,.06);
-    border:1px solid var(--border);
-}
-
-.menu-btn span{
-    display:block;
-    height:2px;
-    margin:4px 0;
-    border-radius:2px;
-    background:#fff;
-}
-
-
-/* =========================================================
-   5. SIDEBAR
-========================================================= */
-
-.sidebar{
-    position:fixed;
-    top:70px;
-    right:0;
-    bottom:0;
-    width:270px;
-    display:flex;
-    flex-direction:column;
-    padding:22px 16px;
-    background:rgba(8,15,30,.94);
-    border-left:1px solid var(--border);
-    backdrop-filter:blur(20px);
-    -webkit-backdrop-filter:blur(20px);
-    z-index:900;
-}
-
-.sidebar-header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:28px;
-    padding:0 8px;
-}
-
-.sidebar-brand{
-    display:flex;
-    align-items:center;
-    gap:11px;
-}
-
-.sidebar-brand-icon{
-    display:grid;
-    place-items:center;
-    width:38px;
-    height:38px;
-    border-radius:11px;
-    background:linear-gradient(
-        135deg,
-        var(--green),
-        var(--green-dark)
-    );
-    color:#fff;
-    font-size:.72rem;
-    font-weight:800;
-    box-shadow:0 8px 20px rgba(34,197,94,.2);
-}
-
-.sidebar-brand-text{
-    display:flex;
-    flex-direction:column;
-    line-height:1.25;
-}
-
-.sidebar-brand-text strong{
-    font-size:.9rem;
-    color:#16a34a;
-}
-
-.sidebar-brand-text small{
-    color:var(--muted);
-    font-size:.68rem;
-    margin-top:2px;
-}
-
-.close-menu-btn{
-    display:none;
-    width:36px;
-    height:36px;
-    border-radius:9px;
-    background:rgba(255,255,255,.06);
-    color:#fff;
-    font-size:1.5rem;
-}
-
-.sidebar-nav{
-    display:flex;
-    flex-direction:column;
-    gap:7px;
-}
-
-.nav-link{
-    width:100%;
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:13px 14px;
-    border-radius:12px;
-    background:transparent;
-    color:var(--muted);
-    font-size:.88rem;
-    font-weight:600;
-    text-align:left;
-    transition:
-        background .2s ease,
-        color .2s ease,
-        transform .2s ease;
-}
-
-.nav-link:hover{
-    color:#fff;
-    background:rgba(255,255,255,.055);
-    transform:translateX(-2px);
-}
-
-.nav-link.active{
-    color:#fff;
-    background:linear-gradient(
-        90deg,
-        rgba(34,197,94,.16),
-        rgba(34,197,94,.04)
-    );
-    border:1px solid rgba(34,197,94,.16);
-}
-
-.nav-icon{
-    width:22px;
-    display:grid;
-    place-items:center;
-    font-size:1rem;
-}
-
-.sidebar-footer{
-    margin-top:auto;
-    padding-top:18px;
-    border-top:1px solid var(--border);
-}
-
-.logout-link:hover{
-    color:#f87171;
-    background:rgba(239,68,68,.08);
-}
-
-
-/* =========================================================
-   6. MOBILE OVERLAY
-========================================================= */
-
-.overlay{
-    position:fixed;
-    inset:70px 0 0;
-    background:rgba(0,0,0,.58);
-    opacity:0;
-    visibility:hidden;
-    transition:.25s ease;
-    z-index:850;
-}
-
-.overlay.active{
-    opacity:1;
-    visibility:visible;
-}
-
-
-/* =========================================================
-   7. MAIN EDIT PROFILE
-========================================================= */
-
-.edit-profile{
-    width:calc(100% - 270px);
-    min-height:100vh;
-    margin-right:270px;
-    padding:105px 48px 60px;
-}
-
-.page-header,
-.profile-form{
-    width:100%;
-    max-width:1000px;
-    margin-left:auto;
-    margin-right:auto;
-}
-
-.page-header{
-    margin-bottom:30px;
-}
-
-.page-header h1{
-    margin-bottom:6px;
-    font-size:clamp(1.8rem,3vw,2.65rem);
-    font-weight:700;
-    line-height:1.15;
-    letter-spacing:-.045em;
-}
-
-.page-header p{
-    color:var(--muted);
-    font-size:.88rem;
-}
-
-
-/* =========================================================
-   8. PROFILE SECTIONS
-========================================================= */
-
-.profile-section{
-    position:relative;
-    width:100%;
-    margin-bottom:26px;
-    padding:28px;
-    border:1px solid var(--border);
-    border-radius:20px;
-    background:
-        linear-gradient(
-            145deg,
-            rgba(15,23,42,.9),
-            rgba(15,23,42,.68)
-        );
-    box-shadow:var(--shadow);
-}
-
-.section-heading{
-    margin-bottom:20px;
-}
-
-.section-heading h2{
-    margin-bottom:4px;
-    font-size:1.08rem;
-    font-weight:700;
-    letter-spacing:-.02em;
-}
-
-.section-heading p{
-    color:var(--muted);
-    font-size:.72rem;
-}
-
-
-/* =========================================================
-   9. PROFILE PHOTO
-========================================================= */
-
-.photo-editor{
-    display:flex;
-    align-items:center;
-    gap:22px;
-}
-
-.profile-photo-wrapper{
-    width:120px;
-    height:120px;
-    position:relative;
-    flex-shrink:0;
-    overflow:hidden;
-    border-radius:50%;
-    border:3px solid rgba(34,197,94,.3);
-    background:rgba(255,255,255,.04);
-    box-shadow:0 12px 30px rgba(0,0,0,.3);
-}
-
-.profile-photo,
-.profile-photo-placeholder{
-    width:100%;
-    height:100%;
-}
-
-.profile-photo{
-    display:block;
-    object-fit:cover;
-    object-position:center;
-}
-
-.profile-photo[hidden],
-.profile-photo-placeholder[hidden]{
-    display:none!important;
-}
-
-.profile-photo-placeholder{
-    display:grid;
-    place-items:center;
-    color:var(--muted);
-    font-size:2.2rem;
-    background:linear-gradient(
-        145deg,
-        rgba(34,197,94,.08),
-        rgba(59,130,246,.08)
-    );
-    user-select:none;
-}
-
-.photo-actions{
-    display:flex;
-    flex-direction:column;
-    align-items:flex-start;
-    gap:9px;
-}
-
-.photo-upload-button{
-    min-height:44px;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    padding:0 18px;
-    border-radius:10px;
-    background:var(--green);
-    color:#fff;
-    font-size:.84rem;
-    font-weight:700;
-    cursor:pointer;
-    transition:
-        transform .2s ease,
-        opacity .2s ease;
-}
-
-.photo-upload-button:hover{
-    transform:translateY(-1px);
-}
-
-.photo-file-name{
-    max-width:400px;
-    color:var(--muted);
-    font-size:.72rem;
-    overflow-wrap:anywhere;
-}
-
-
-/* =========================================================
-   10. FORM GRID
-========================================================= */
-
-.form-grid{
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:14px;
-}
-
-.form-group{
-    display:flex;
-    flex-direction:column;
-    gap:7px;
-}
-
-.form-group label{
-    color:#cbd5e1;
-    font-size:.78rem;
-    font-weight:600;
-}
-
-.form-group input,
-.form-group select{
-    width:100%;
-    min-height:46px;
-    padding:11px 13px;
-    border:1px solid rgba(148,163,184,.14);
-    border-radius:10px;
-    outline:none;
-    background:rgba(255,255,255,.025);
-    color:#fff;
-    font-size:.88rem;
-    transition:
-        border-color .2s ease,
-        box-shadow .2s ease,
-        background .2s ease;
-}
-
-.form-group input:focus,
-.form-group select:focus{
-    border-color:var(--green);
-    box-shadow:0 0 0 3px rgba(34,197,94,.08);
-    background:rgba(255,255,255,.04);
-}
-
-.form-group input::placeholder{
-    color:#64748b;
-}
-
-.form-group select:disabled{
-    opacity:.50;
-    cursor:not-allowed;
-}
-
-
-/* =========================================================
-   11. FORM ACTIONS
-========================================================= */
-
-.form-actions{
-    width:100%;
-    display:flex;
-    justify-content:flex-end;
-    gap:10px;
-    margin-top:10px;
-}
-
-.form-actions button{
-    min-height:44px;
-    padding:0 18px;
-    border-radius:10px;
-    font-size:.84rem;
-    font-weight:700;
-}
-
-.cancel-button{
-    border:1px solid var(--border);
-    background:rgba(255,255,255,.06);
-    color:#cbd5e1;
-    transition:
-        background .2s ease,
-        color .2s ease;
-}
-
-.cancel-button:hover{
-    background:rgba(255,255,255,.1);
-    color:#fff;
-}
-
-.update-profile-button{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-    background:var(--green);
-    color:#fff;
-    transition:
-        transform .2s ease,
-        opacity .2s ease,
-        box-shadow .2s ease;
-}
-
-.update-profile-button:hover{
-    transform:translateY(-1px);
-    box-shadow:0 10px 25px rgba(34,197,94,.18);
-}
-
-.update-profile-button:disabled{
-    opacity:.65;
-    cursor:wait;
-    transform:none;
-}
-
-
-/* =========================================================
-   12. BUTTON LOADER
-========================================================= */
-
-.button-loader{
-    width:16px;
-    height:16px;
-    border:2px solid rgba(255,255,255,.35);
-    border-top-color:#fff;
-    border-radius:50%;
-    animation:profileSpinner .7s linear infinite;
-}
-
-.button-loader[hidden]{
-    display:none;
-}
-
-@keyframes profileSpinner{
-
-    from{
-        transform:rotate(0);
-    }
-
-    to{
-        transform:rotate(360deg);
-    }
-
-}
-
-
-/* =========================================================
-   13. NOTIFICATION MODAL
-========================================================= */
-
-.notification-modal{
-    position:fixed;
-    inset:0;
-    display:grid;
-    place-items:center;
-    padding:20px;
-    background:rgba(0,0,0,.72);
-    backdrop-filter:blur(8px);
-    -webkit-backdrop-filter:blur(8px);
-    z-index:2000;
-}
-
-.notification-modal[hidden]{
-    display:none;
-}
-
-.notification-card{
-    position:relative;
-    width:min(100%,430px);
-    padding:32px 28px 26px;
-    border:1px solid var(--border);
-    border-radius:20px;
-    background:
-        linear-gradient(
-            145deg,
-            #111827,
-            #0b1220
-        );
-    box-shadow:0 30px 80px rgba(0,0,0,.48);
-    text-align:center;
-    animation:modalIn .22s ease;
-}
-
-@keyframes modalIn{
-
-    from{
-        opacity:0;
-        transform:translateY(12px) scale(.98);
-    }
-
-    to{
-        opacity:1;
-        transform:none;
-    }
-
-}
-
-
-/* =========================================================
-   14. MODAL CLOSE BUTTON
-========================================================= */
-
-.notification-close-button{
-    position:absolute;
-    top:12px;
-    right:12px;
-    width:34px;
-    height:34px;
-    display:grid;
-    place-items:center;
-    border-radius:9px;
-    background:rgba(255,255,255,.06);
-    border:0;
-    color:#cbd5e1;
-    font-size:1.35rem;
-    line-height:1;
-    transition:
-        background .2s ease,
-        color .2s ease;
-}
-
-.notification-close-button:hover{
-    background:rgba(255,255,255,.1);
-    color:#fff;
-}
-
-
-/* =========================================================
-   15. MODAL CONTENT
-========================================================= */
-
-.notification-icon{
-    width:54px;
-    height:54px;
-    display:grid;
-    place-items:center;
-    margin:0 auto 17px;
-    border-radius:50%;
-    background:rgba(34,197,94,.12);
-    color:var(--green);
-    font-size:1.45rem;
-    font-weight:800;
-}
-
-.notification-card h2{
-    margin-bottom:8px;
-    color:#fff;
-    font-size:1.18rem;
-    font-weight:700;
-}
-
-.notification-card p{
-    color:var(--muted);
-    font-size:.88rem;
-    line-height:1.7;
-    white-space:pre-line;
-    overflow-wrap:anywhere;
-}
-
-.notification-actions{
-    display:flex;
-    justify-content:center;
-    gap:10px;
-    margin-top:24px;
-}
-
-.notification-actions button{
-    min-width:120px;
-    min-height:44px;
-    padding:0 18px;
-    border-radius:10px;
-    background:var(--green);
-    color:#fff;
-    font-size:.84rem;
-    font-weight:700;
-    transition:
-        transform .2s ease,
-        opacity .2s ease;
-}
-
-.notification-actions button:hover{
-    transform:translateY(-1px);
-}
-
-.notification-actions button:disabled{
-    cursor:not-allowed;
-    opacity:.65;
-    transform:none;
-}
-
-
-/* =========================================================
-   16. MODAL TYPES
-========================================================= */
-
-.notification-card.success .notification-icon{
-    background:rgba(34,197,94,.12);
-    color:var(--green);
-}
-
-.notification-card.error .notification-icon{
-    background:rgba(239,68,68,.12);
-    color:#f87171;
-}
-
-.notification-card.info .notification-icon{
-    background:rgba(59,130,246,.12);
-    color:#60a5fa;
-}
-
-.notification-card.confirm .notification-icon{
-    background:rgba(245,158,11,.12);
-    color:#fbbf24;
-}
-
-.notification-card.error .notification-actions button{
-    background:var(--red);
-}
-
-.notification-card.confirm .notification-actions button{
-    background:#f59e0b;
-}
-
-
-/* =========================================================
-   17. RESPONSIVE
-========================================================= */
+*{box-sizing:border-box;margin:0;padding:0}
+
+html{scroll-behavior:smooth}
+
+body{font-family:"Inter",sans-serif;background:#020617;color:#f8fafc;min-height:100vh;line-height:1.5}
+
+button,input,select{font:inherit}
+
+button{border:0}
+
+a{text-decoration:none;color:inherit}
+
+.green-glow{position:fixed;top:-180px;left:-180px;width:500px;height:500px;background:rgba(34,197,94,.10);filter:blur(100px);border-radius:50%;pointer-events:none}
+
+.blue-glow{position:fixed;right:-220px;bottom:-220px;width:500px;height:500px;background:rgba(59,130,246,.08);filter:blur(100px);border-radius:50%;pointer-events:none}
+
+.topbar{position:fixed;top:0;left:0;width:100%;height:70px;background:rgba(2,6,23,.88);border-bottom:1px solid rgba(255,255,255,.06);backdrop-filter:blur(18px);z-index:100}
+
+.topbar-inner{height:100%;display:flex;align-items:center;justify-content:space-between;max-width:1400px;margin:auto;padding:0 28px}
+
+.logo{font-size:21px;font-weight:800;letter-spacing:-.5px;color:#22c55e}
+
+.menu-btn{display:none;width:42px;height:42px;border-radius:10px;background:#111827;cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:5px}
+
+.menu-btn span{display:block;width:20px;height:2px;background:#cbd5e1;border-radius:2px}
+
+.sidebar{position:fixed;top:70px;right:0;bottom:0;width:260px;background:#0b1120;border-left:1px solid rgba(255,255,255,.06);z-index:110;display:flex;flex-direction:column;padding:22px 16px}
+
+.sidebar-header{display:flex;align-items:center;justify-content:space-between;padding:0 8px 22px;border-bottom:1px solid rgba(255,255,255,.06)}
+
+.sidebar-brand{display:flex;align-items:center;gap:10px}
+
+.sidebar-brand-icon{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;background:rgba(34,197,94,.12);color:#22c55e;font-size:12px;font-weight:800}
+
+.sidebar-brand-text{display:flex;flex-direction:column;line-height:1.2}
+
+.sidebar-brand-text strong{font-size:13px;font-weight:700;color:#f8fafc}
+
+.sidebar-brand-text small{margin-top:3px;font-size:10px;color:#64748b}
+
+.close-menu-btn{display:none;width:32px;height:32px;border-radius:8px;background:transparent;color:#64748b;font-size:24px;cursor:pointer}
+
+.sidebar-nav{display:flex;flex-direction:column;gap:6px;padding-top:22px}
+
+.nav-link{display:flex;align-items:center;gap:12px;width:100%;min-height:46px;padding:0 13px;border-radius:10px;background:transparent;color:#94a3b8;font-size:13px;font-weight:600;cursor:pointer;transition:.25s}
+
+.nav-link:hover{background:rgba(255,255,255,.04);color:#e2e8f0}
+
+.nav-link.active{background:rgba(34,197,94,.10);color:#22c55e}
+
+.nav-icon{width:20px;text-align:center;font-size:15px}
+
+.sidebar-footer{margin-top:auto;padding-top:18px;border-top:1px solid rgba(255,255,255,.06)}
+
+.logout-link:hover{color:#f87171;background:rgba(239,68,68,.08)}
+
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:105}
+
+.edit-profile{max-width:1100px;margin:0 auto;padding:110px 32px 60px 32px;margin-right:260px}
+
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+
+.page-header h1{font-size:30px;line-height:1.2;font-weight:800;letter-spacing:-.7px}
+
+.page-header p{margin-top:7px;color:#64748b;font-size:13px}
+
+.profile-form{display:flex;flex-direction:column;gap:20px}
+
+.profile-section{padding:24px;background:rgba(15,23,42,.72);border:1px solid rgba(255,255,255,.07);border-radius:16px;box-shadow:0 12px 35px rgba(0,0,0,.15)}
+
+.section-heading{margin-bottom:20px}
+
+.section-heading h2{font-size:16px;font-weight:700;color:#f1f5f9}
+
+.section-heading p{margin-top:5px;font-size:12px;color:#64748b}
+
+.photo-editor{display:flex;align-items:center;gap:22px}
+
+.profile-photo-wrapper{width:90px;height:90px;flex:0 0 90px;border-radius:50%;overflow:hidden;border:2px solid rgba(34,197,94,.25);background:#111827}
+
+.profile-photo{width:100%;height:100%;object-fit:cover}
+
+.profile-photo-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:34px;color:#64748b}
+
+.photo-actions{display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+
+.photo-upload-button{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 16px;border-radius:9px;background:rgba(34,197,94,.12);color:#22c55e;font-size:12px;font-weight:700;cursor:pointer;transition:.25s}
+
+.photo-upload-button:hover{background:rgba(34,197,94,.20)}
+
+.photo-file-name{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#64748b;font-size:11px}
+
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+
+.form-group{display:flex;flex-direction:column;gap:8px}
+
+.form-group label{font-size:12px;font-weight:600;color:#cbd5e1}
+
+.form-group input,.form-group select{width:100%;min-height:48px;padding:0 14px;border:1px solid rgba(255,255,255,.09);border-radius:10px;background:#111827;color:#e2e8f0;outline:none;transition:.25s}
+
+.form-group input:focus,.form-group select:focus{border-color:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.10)}
+
+.form-group input::placeholder{color:#64748b}
+
+.form-group select{cursor:pointer}
+
+.form-group select:disabled{opacity:.55;cursor:not-allowed}
+
+.location-field{display:flex;align-items:center;width:100%;min-height:50px;padding:5px 6px;border:1px solid rgba(255,255,255,.10);border-radius:12px;background:#111827;overflow:hidden;transition:.3s}
+
+.location-field:focus-within{border-color:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.15)}
+
+.get-location-btn{display:flex;align-items:center;justify-content:center;flex:0 0 auto;min-height:38px;padding:0 14px;border:0;border-radius:9px;background:rgba(34,197,94,.15);color:#22c55e;font-family:"Inter",sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.3s}
+
+.get-location-btn:hover{background:rgba(34,197,94,.22)}
+
+.get-location-btn:disabled{opacity:.7;cursor:not-allowed}
+
+.get-location-btn.loading{pointer-events:none}
+
+.location-input{flex:1;min-width:0;min-height:38px!important;padding:0 12px!important;border:0!important;border-radius:9px!important;background:transparent!important;box-shadow:none!important;color:#cbd5e1!important;font-size:13px!important;font-weight:500}
+
+.location-input::placeholder{color:#64748b}
+
+.location-input:focus{border:0!important;box-shadow:none!important;outline:none}
+
+.location-button-loader{display:none;width:14px;height:14px;margin-left:7px;border:2px solid rgba(255,255,255,.25);border-top-color:#22c55e;border-radius:50%;animation:spin .8s linear infinite}
+
+.get-location-btn.loading .location-button-loader{display:inline-block}
+
+.form-actions{display:flex;justify-content:flex-end;gap:12px;padding-top:4px}
+
+.cancel-button,.update-profile-button{min-height:46px;padding:0 22px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;transition:.25s}
+
+.cancel-button{background:#111827;color:#94a3b8;border:1px solid rgba(255,255,255,.08)}
+
+.cancel-button:hover{background:#1e293b;color:#e2e8f0}
+
+.update-profile-button{display:flex;align-items:center;justify-content:center;gap:8px;min-width:145px;background:#22c55e;color:#022c22}
+
+.update-profile-button:hover{background:#16a34a}
+
+.update-profile-button:disabled,.cancel-button:disabled{opacity:.6;cursor:not-allowed}
+
+.button-loader{width:15px;height:15px;border:2px solid rgba(2,44,34,.25);border-top-color:#022c22;border-radius:50%;animation:profileSpinner .8s linear infinite}
+
+.notification-modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);z-index:500}
+
+.notification-modal[hidden]{display:none}
+
+.notification-card{position:relative;width:min(100%,390px);padding:30px 24px 24px;background:#0f172a;border:1px solid rgba(255,255,255,.08);border-radius:18px;box-shadow:0 25px 70px rgba(0,0,0,.45);text-align:center}
+
+.notification-close-button{position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:8px;background:transparent;color:#64748b;font-size:22px;cursor:pointer}
+
+.notification-close-button:hover{background:rgba(255,255,255,.05);color:#cbd5e1}
+
+.notification-icon{width:48px;height:48px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(34,197,94,.12);color:#22c55e;font-size:21px;font-weight:800}
+
+.notification-card.error .notification-icon{background:rgba(239,68,68,.12);color:#f87171}
+
+.notification-card.warning .notification-icon{background:rgba(245,158,11,.12);color:#fbbf24}
+
+.notification-card.confirm .notification-icon{background:rgba(59,130,246,.12);color:#60a5fa}
+
+.notification-card h2{font-size:18px;font-weight:800;color:#f8fafc}
+
+.notification-card p{margin:9px auto 0;max-width:310px;color:#94a3b8;font-size:13px;line-height:1.6}
+
+.notification-actions{display:flex;justify-content:center;gap:10px;margin-top:22px}
+
+.notification-actions button{min-width:110px;min-height:42px;padding:0 18px;border-radius:9px;background:#22c55e;color:#022c22;font-size:12px;font-weight:700;cursor:pointer;transition:.25s}
+
+.notification-actions button:hover{background:#16a34a}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@keyframes profileSpinner{to{transform:rotate(360deg)}}
 
 @media(max-width:900px){
-
-    .menu-btn{
-        display:block;
-    }
-
-    .sidebar{
-        top:70px;
-        width:280px;
-        transform:translateX(100%);
-        transition:transform .25s ease;
-    }
-
-    .sidebar.active{
-        transform:translateX(0);
-    }
-
-    .close-menu-btn{
-        display:block;
-    }
-
-    .edit-profile{
-        width:100%;
-        margin-right:0;
-        padding:100px 28px 50px;
-    }
-
-    .overlay{
-        inset:70px 0 0;
-    }
-
+.menu-btn{display:flex}
+.sidebar{transform:translateX(100%);transition:transform .3s ease}
+.sidebar.open{transform:translateX(0)}
+.close-menu-btn{display:block}
+.overlay.show{display:block}
+.edit-profile{margin-right:0;padding-left:22px;padding-right:22px}
 }
 
-
-/* =========================================================
-   18. SMALL MOBILE
-========================================================= */
-
-@media(max-width:600px){
-
-    .topbar-inner{
-        padding:0 18px;
-    }
-
-    .logo{
-        font-size:1.2rem;
-    }
-
-    .edit-profile{
-        padding:92px 16px 40px;
-    }
-
-    .page-header{
-        margin-bottom:25px;
-    }
-
-    .page-header h1{
-        font-size:1.8rem;
-    }
-
-    .profile-section{
-        padding:20px;
-        border-radius:16px;
-    }
-
-    .form-grid{
-        grid-template-columns:1fr;
-    }
-
-    .photo-editor{
-        flex-direction:column;
-        align-items:center;
-        text-align:center;
-    }
-
-    .photo-actions{
-        align-items:center;
-        width:100%;
-    }
-
-    .photo-file-name{
-        max-width:100%;
-    }
-
-    .form-actions{
-        flex-direction:column-reverse;
-    }
-
-    .form-actions button{
-        width:100%;
-    }
-
-    .notification-card{
-        padding:30px 20px 22px;
-    }
-
-    .notification-actions{
-        flex-direction:column;
-    }
-
-    .notification-actions button{
-        width:100%;
-    }
-
+@media(max-width:650px){
+.topbar-inner{padding:0 18px}
+.edit-profile{padding:98px 16px 40px}
+.page-header h1{font-size:25px}
+.profile-section{padding:19px}
+.form-grid{grid-template-columns:1fr}
+.photo-editor{align-items:flex-start}
+.form-actions{flex-direction:column-reverse}
+.cancel-button,.update-profile-button{width:100%}
+.location-field{padding:5px}
+.get-location-btn{padding:0 11px;font-size:11px}
+.location-input{padding:0 8px!important;font-size:12px!important}
 }
 
-
-/* =========================================================
-   19. REDUCED MOTION
-========================================================= */
-
-@media(prefers-reduced-motion:reduce){
-
-    *,
-    *::before,
-    *::after{
-        scroll-behavior:auto!important;
-        animation-duration:.01ms!important;
-        animation-iteration-count:1!important;
-        transition-duration:.01ms!important;
-    }
-
+@media(max-width:420px){
+.get-location-btn{min-height:36px;padding:0 9px}
+.location-input{font-size:11px!important}
 }
