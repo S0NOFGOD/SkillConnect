@@ -11,11 +11,6 @@ const countryInput=document.getElementById("country");
 const stateInput=document.getElementById("state");
 const cityInput=document.getElementById("city");
 const lgaInput=document.getElementById("lga");
-const locationInput=document.getElementById("location");
-const latitudeInput=document.getElementById("latitude");
-const longitudeInput=document.getElementById("longitude");
-const getLocationBtn=document.getElementById("getLocationBtn");
-const locationButtonText=getLocationBtn.querySelector(".location-button-text");
 const continueBtn=document.getElementById("continueBtn");
 const buttonText=continueBtn.querySelector(".button-text");
 
@@ -28,7 +23,6 @@ const notificationButton=document.getElementById("notificationButton");
 
 const MAX_IMAGE_DIMENSION=1920;
 const MAX_COMPRESSED_IMAGE_SIZE=5*1024*1024;
-
 const clientEmail=sessionStorage.getItem("clientEmail");
 
 if(!clientEmail){
@@ -38,12 +32,11 @@ showModal(
 "Authentication Required",
 "Your client session could not be found. Please sign in again.",
 "Go to Login",
-()=>{
-window.location.href="../client-authentication/index.html";
-}
+()=>window.location.href="../client-authentication/index.html"
 );
 
 return;
+
 }
 
 profilePage.hidden=false;
@@ -61,8 +54,8 @@ profilePhotoImage.hidden=true;
 profilePhotoPlaceholder.hidden=false;
 profilePhotoImage.removeAttribute("src");
 updateProgress();
-
 return;
+
 }
 
 if(!["image/jpeg","image/png","image/webp"].includes(file.type)){
@@ -79,8 +72,8 @@ showModal(
 );
 
 updateProgress();
-
 return;
+
 }
 
 const imageUrl=URL.createObjectURL(file);
@@ -102,122 +95,97 @@ updateProgress();
 
 /* LOCATION */
 
-getLocationBtn.addEventListener("click",()=>{
+function resetLocationFields(){
 
-if(!navigator.geolocation){
+stateInput.innerHTML='<option value="">Select State</option>';
+cityInput.innerHTML='<option value="">Select City</option>';
+lgaInput.innerHTML='<option value="">Select LGA</option>';
 
-showModal(
-"error",
-"Location Unavailable",
-"Your browser does not support location services."
-);
+stateInput.disabled=true;
+cityInput.disabled=true;
+lgaInput.disabled=true;
 
+}
+
+function populateStates(){
+
+stateInput.innerHTML='<option value="">Select State</option>';
+cityInput.innerHTML='<option value="">Select City</option>';
+lgaInput.innerHTML='<option value="">Select LGA</option>';
+
+cityInput.disabled=true;
+lgaInput.disabled=true;
+
+if(countryInput.value!=="Nigeria"){
+
+stateInput.disabled=true;
 return;
+
 }
 
-setLocationLoading(true);
+getNigeriaStates().forEach(state=>{
 
-navigator.geolocation.getCurrentPosition(
-async position=>{
+const option=document.createElement("option");
 
-const latitude=position.coords.latitude;
-const longitude=position.coords.longitude;
+option.value=state;
+option.textContent=state;
 
-try{
+stateInput.appendChild(option);
 
-const response=await API_REQUEST(
-`/api/location?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}`,
-{method:"GET"}
-);
+});
 
-let data={};
+stateInput.disabled=false;
 
-try{
-data=await response.json();
-}catch{
-data={};
 }
 
-if(!response.ok){
+function populateStateLocations(){
 
-showModal(
-"error",
-"Location Failed",
-data.message||
-"Unable to determine your location. Please try again."
-);
+cityInput.innerHTML='<option value="">Select City</option>';
+lgaInput.innerHTML='<option value="">Select LGA</option>';
 
-return;
+cityInput.disabled=true;
+lgaInput.disabled=true;
+
+if(!stateInput.value)return;
+
+getCitiesByState(stateInput.value).forEach(city=>{
+
+const option=document.createElement("option");
+
+option.value=city;
+option.textContent=city;
+
+cityInput.appendChild(option);
+
+});
+
+getLGAsByState(stateInput.value).forEach(lga=>{
+
+const option=document.createElement("option");
+
+option.value=lga;
+option.textContent=lga;
+
+lgaInput.appendChild(option);
+
+});
+
+cityInput.disabled=false;
+lgaInput.disabled=false;
+
 }
 
-countryInput.value=data.country||"";
-stateInput.value=data.state||"";
-cityInput.value=data.city||"";
-lgaInput.value=data.lga||"";
-latitudeInput.value=data.latitude??latitude;
-longitudeInput.value=data.longitude??longitude;
+countryInput.addEventListener("change",()=>{
 
-locationInput.value=
-data.lga&&data.city
-?`${data.lga}, ${data.city}`
-:"";
-
+populateStates();
 updateProgress();
 
-showModal(
-"success",
-"Location Found",
-"Your current LGA and city have been detected."
-);
+});
 
-}catch(error){
+stateInput.addEventListener("change",()=>{
 
-console.error(
-"Client location request failed:",
-error
-);
-
-showModal(
-"error",
-"Connection Error",
-error.message||
-"Unable to determine your location. Please try again."
-);
-
-}finally{
-
-setLocationLoading(false);
-
-}
-
-},
-error=>{
-
-setLocationLoading(false);
-
-let message="Unable to determine your location. Please try again.";
-
-if(error.code===1){
-message="Location permission was denied. Please allow location access and try again.";
-}else if(error.code===2){
-message="Your location could not be determined. Please try again.";
-}else if(error.code===3){
-message="Location request timed out. Please try again.";
-}
-
-showModal(
-"error",
-"Location Failed",
-message
-);
-
-},
-{
-enableHighAccuracy:true,
-timeout:15000,
-maximumAge:0
-}
-);
+populateStateLocations();
+updateProgress();
 
 });
 
@@ -230,8 +198,7 @@ phoneInput,
 countryInput,
 stateInput,
 cityInput,
-lgaInput,
-locationInput
+lgaInput
 ].forEach(element=>{
 
 element.addEventListener("input",updateProgress);
@@ -257,20 +224,16 @@ validation.message
 );
 
 return;
+
 }
 
 setLoading(true);
 
 try{
 
-/* CONVERT + COMPRESS PHOTO */
-
 const compressedPhoto=await compressImage(
 profilePhotoInput.files[0]
 );
-
-
-/* NORMALIZE DATA */
 
 const normalizedFullName=
 normalizeFullName(fullNameInput.value);
@@ -280,9 +243,6 @@ normalizePhone(phoneInput.value);
 
 fullNameInput.value=normalizedFullName;
 phoneInput.value=phone;
-
-
-/* SEND REQUEST */
 
 const formData=new FormData();
 
@@ -321,6 +281,7 @@ data.message||
 );
 
 return;
+
 }
 
 sessionStorage.removeItem("clientEmail");
@@ -331,10 +292,7 @@ showModal(
 data.message||
 "Your client profile has been completed successfully.",
 "Continue",
-()=>{
-window.location.href=
-"../client-dashboard/index.html";
-}
+()=>window.location.href="../client-dashboard/index.html"
 );
 
 }catch(error){
@@ -367,26 +325,8 @@ notificationButton.addEventListener(
 ()=>closeModal()
 );
 
+populateStates();
 updateProgress();
-
-
-/* LOCATION LOADING */
-
-function setLocationLoading(loading){
-
-getLocationBtn.disabled=loading;
-
-getLocationBtn.classList.toggle(
-"loading",
-loading
-);
-
-locationButtonText.textContent=
-loading
-?"Getting Location..."
-:"Get My Location";
-
-}
 
 
 /* PHONE NORMALIZATION */
@@ -420,9 +360,7 @@ return name
 .split(/([-'])/)
 .map(part=>{
 
-if(part==="-"||part==="'"){
-return part;
-}
+if(part==="-"||part==="'")return part;
 
 return part.charAt(0).toUpperCase()+part.slice(1);
 
@@ -439,9 +377,7 @@ const fullName=String(value||"")
 
 const nameParts=fullName.split(" ");
 
-if(nameParts.length!==2){
-return null;
-}
+if(nameParts.length!==2)return null;
 
 const namePattern=
 /^[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*$/;
@@ -449,11 +385,7 @@ const namePattern=
 if(
 !namePattern.test(nameParts[0])||
 !namePattern.test(nameParts[1])
-){
-
-return null;
-
-}
+)return null;
 
 return nameParts
 .map(normalizeNamePart)
@@ -486,8 +418,7 @@ height>MAX_IMAGE_DIMENSION
 if(width>height){
 
 height=Math.round(
-height*
-(MAX_IMAGE_DIMENSION/width)
+height*(MAX_IMAGE_DIMENSION/width)
 );
 
 width=MAX_IMAGE_DIMENSION;
@@ -495,8 +426,7 @@ width=MAX_IMAGE_DIMENSION;
 }else{
 
 width=Math.round(
-width*
-(MAX_IMAGE_DIMENSION/height)
+width*(MAX_IMAGE_DIMENSION/height)
 );
 
 height=MAX_IMAGE_DIMENSION;
@@ -521,6 +451,7 @@ new Error(
 );
 
 return;
+
 }
 
 context.drawImage(
@@ -565,10 +496,7 @@ return;
 
 if(quality>0.1){
 
-quality=Math.max(
-0.1,
-quality-0.1
-);
+quality=Math.max(0.1,quality-0.1);
 
 compress();
 
@@ -690,7 +618,7 @@ if(!country){
 
 return{
 valid:false,
-message:"Please get your current location."
+message:"Please select your country."
 };
 
 }
@@ -699,7 +627,7 @@ if(!state){
 
 return{
 valid:false,
-message:"Please get your current location."
+message:"Please select your state."
 };
 
 }
@@ -708,7 +636,7 @@ if(!city){
 
 return{
 valid:false,
-message:"Please get your current location."
+message:"Please select your city."
 };
 
 }
@@ -717,7 +645,7 @@ if(!lga){
 
 return{
 valid:false,
-message:"Please get your current location."
+message:"Please select your LGA."
 };
 
 }
@@ -738,11 +666,13 @@ const fields=[
 profilePhotoInput.files.length>0,
 fullNameInput.value.trim(),
 normalizePhone(phoneInput.value),
-locationInput.value.trim()
+countryInput.value,
+stateInput.value,
+cityInput.value,
+lgaInput.value
 ];
 
 const completed=fields.filter(Boolean).length;
-
 const percentage=Math.round(
 (completed/fields.length)*100
 );
@@ -753,14 +683,11 @@ document.getElementById("progressFill");
 const progressPercentage=
 document.getElementById("progressPercentage");
 
-if(progressFill){
+if(progressFill)
 progressFill.style.width=`${percentage}%`;
-}
 
-if(progressPercentage){
-progressPercentage.textContent=
-`${percentage}%`;
-}
+if(progressPercentage)
+progressPercentage.textContent=`${percentage}%`;
 
 }
 
@@ -816,9 +743,7 @@ notificationButton.onclick=()=>{
 
 closeModal();
 
-if(onClose){
-onClose();
-}
+if(onClose)onClose();
 
 };
 

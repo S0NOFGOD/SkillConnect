@@ -4,6 +4,8 @@
 
 const Worker=require("../models/worker");
 const axios=require("axios");
+const crypto=require("crypto");
+const jwt=require("jsonwebtoken");
 
 const{v2:cloudinary}=require("cloudinary");
 
@@ -12,6 +14,28 @@ cloudinary.config({
     api_key:process.env.CLOUDINARY_API_KEY,
     api_secret:process.env.CLOUDINARY_API_SECRET
 });
+
+
+/* =========================================================
+   AUTHENTICATION TOKEN FUNCTIONS
+========================================================= */
+
+const generateAccessToken=({userId,userType})=>jwt.sign(
+    {userId,userType},
+    process.env.ACCESS_TOKEN_SECRET,
+    {expiresIn:process.env.ACCESS_TOKEN_EXPIRE||"15m"}
+);
+
+const generateRefreshToken=({userId,userType})=>jwt.sign(
+    {userId,userType},
+    process.env.REFRESH_TOKEN_SECRET,
+    {expiresIn:process.env.REFRESH_TOKEN_EXPIRE||"7d"}
+);
+
+const hashRefreshToken=refreshToken=>crypto
+    .createHash("sha256")
+    .update(refreshToken)
+    .digest("hex");
 
 
 /* =========================================================
@@ -226,7 +250,37 @@ const createWorkerProfile=async(req,res)=>{
         worker.lga=trimmedLga;
         worker.profileCompleted=true;
 
+        /* CREATE AUTHENTICATION TOKENS */
+        const accessToken=generateAccessToken({
+            userId:worker._id.toString(),
+            userType:"worker"
+        });
+
+        const refreshToken=generateRefreshToken({
+            userId:worker._id.toString(),
+            userType:"worker"
+        });
+
+        worker.refreshTokenHash=hashRefreshToken(refreshToken);
+
         await worker.save();
+
+        /* SET AUTHENTICATION COOKIES */
+        res.cookie("accessToken",accessToken,{
+            httpOnly:true,
+            secure:process.env.NODE_ENV==="production",
+            sameSite:process.env.NODE_ENV==="production"?"none":"lax",
+            maxAge:15*60*1000,
+            path:"/"
+        });
+
+        res.cookie("refreshToken",refreshToken,{
+            httpOnly:true,
+            secure:process.env.NODE_ENV==="production",
+            sameSite:process.env.NODE_ENV==="production"?"none":"lax",
+            maxAge:7*24*60*60*1000,
+            path:"/"
+        });
 
         return res.status(200).json({
             success:true,

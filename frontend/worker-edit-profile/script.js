@@ -16,11 +16,6 @@ countryInput=document.getElementById("country"),
 stateInput=document.getElementById("state"),
 cityInput=document.getElementById("city"),
 lgaInput=document.getElementById("lga"),
-latitudeInput=document.getElementById("latitude"),
-longitudeInput=document.getElementById("longitude"),
-locationInput=document.getElementById("location"),
-getLocationBtn=document.getElementById("getLocationBtn"),
-locationButtonText=getLocationBtn.querySelector(".location-button-text"),
 updateProfileBtn=document.getElementById("updateProfileBtn"),
 buttonText=updateProfileBtn.querySelector(".button-text"),
 buttonLoader=updateProfileBtn.querySelector(".button-loader"),
@@ -64,12 +59,82 @@ function setPageLoading(loading){
     profileForm.style.pointerEvents=loading?"none":"auto";
 }
 
-/* 7. LOCATION LOADING */
-function setLocationLoading(loading){
-    getLocationBtn.disabled=loading;
-    getLocationBtn.classList.toggle("loading",loading);
-    locationButtonText.textContent=loading?"Getting Location...":"Get My Location";
+/* 7. LOCATION DROPDOWNS */
+function resetLocationFields(){
+    stateInput.innerHTML='<option value="">Select State</option>';
+    cityInput.innerHTML='<option value="">Select City</option>';
+    lgaInput.innerHTML='<option value="">Select LGA</option>';
+
+    stateInput.disabled=true;
+    cityInput.disabled=true;
+    lgaInput.disabled=true;
 }
+
+function populateStates(selectedState=""){
+    stateInput.innerHTML='<option value="">Select State</option>';
+    cityInput.innerHTML='<option value="">Select City</option>';
+    lgaInput.innerHTML='<option value="">Select LGA</option>';
+
+    cityInput.disabled=true;
+    lgaInput.disabled=true;
+
+    if(countryInput.value!=="Nigeria"){
+        stateInput.disabled=true;
+        return;
+    }
+
+    getNigeriaStates().forEach(state=>{
+        const option=document.createElement("option");
+        option.value=state;
+        option.textContent=state;
+        stateInput.appendChild(option);
+    });
+
+    stateInput.disabled=false;
+
+    if(selectedState){
+        stateInput.value=selectedState;
+        populateStateLocations();
+    }
+}
+
+function populateStateLocations(selectedCity="",selectedLga=""){
+    cityInput.innerHTML='<option value="">Select City</option>';
+    lgaInput.innerHTML='<option value="">Select LGA</option>';
+
+    cityInput.disabled=true;
+    lgaInput.disabled=true;
+
+    if(!stateInput.value)return;
+
+    getCitiesByState(stateInput.value).forEach(city=>{
+        const option=document.createElement("option");
+        option.value=city;
+        option.textContent=city;
+        cityInput.appendChild(option);
+    });
+
+    getLGAsByState(stateInput.value).forEach(lga=>{
+        const option=document.createElement("option");
+        option.value=lga;
+        option.textContent=lga;
+        lgaInput.appendChild(option);
+    });
+
+    cityInput.disabled=false;
+    lgaInput.disabled=false;
+
+    if(selectedCity)cityInput.value=selectedCity;
+    if(selectedLga)lgaInput.value=selectedLga;
+}
+
+countryInput.addEventListener("change",()=>{
+    populateStates();
+});
+
+stateInput.addEventListener("change",()=>{
+    populateStateLocations();
+});
 
 /* 8. MODAL */
 function showModal({type="success",title="Notification",message="",icon="✓",onClose=null}={}){
@@ -154,6 +219,7 @@ function displayProfilePhoto(photoUrl){
         profilePhotoPlaceholder.hidden=false;
         return;
     }
+
     profilePhoto.src=photoUrl;
     profilePhoto.hidden=false;
     profilePhotoPlaceholder.hidden=true;
@@ -162,15 +228,18 @@ function displayProfilePhoto(photoUrl){
 /* 13. DISPLAY WORKER */
 function displayWorkerData(worker){
     currentWorker=worker;
+
     fullNameInput.value=worker.fullName||"";
     phoneInput.value=worker.phone||"";
+
     countryInput.value=worker.country||"";
-    stateInput.value=worker.state||"";
-    cityInput.value=worker.city||"";
-    lgaInput.value=worker.lga||"";
-    latitudeInput.value=worker.latitude||"";
-    longitudeInput.value=worker.longitude||"";
-    locationInput.value=worker.lga&&worker.city?`${worker.lga}, ${worker.city}`:worker.location||"";
+
+    populateStates(worker.state||"");
+
+    if(worker.state){
+        populateStateLocations(worker.city||"",worker.lga||"");
+    }
+
     displayProfilePhoto(worker.profilePhoto);
 }
 
@@ -181,6 +250,7 @@ function extractWorkerData(data){
 /* 14. LOAD PROFILE */
 async function loadProfile(){
     setPageLoading(true);
+
     try{
         const response=await API_REQUEST(PROFILE_ENDPOINT,{method:"GET"});
 
@@ -214,8 +284,10 @@ async function loadProfile(){
         }
 
         displayWorkerData(worker);
+
     }catch(error){
         console.error("Load profile error:",error);
+
         showModal({
             type:"error",
             title:"Connection Error",
@@ -238,6 +310,7 @@ function normalizeNamePart(name){
 function normalizeFullName(value){
     const fullName=String(value||"").trim().replace(/\s+/g," ");
     const nameParts=fullName.split(" ");
+
     if(nameParts.length!==2)return null;
 
     const namePattern=/^[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*$/;
@@ -255,7 +328,12 @@ function validateProfile(){
     photoError=validatePhoto(photo);
 
     if(photoError){
-        showModal({type:"error",title:"Invalid Photo",message:photoError,icon:"!"});
+        showModal({
+            type:"error",
+            title:"Invalid Photo",
+            message:photoError,
+            icon:"!"
+        });
         return null;
     }
 
@@ -291,11 +369,41 @@ function validateProfile(){
         return null;
     }
 
-    if(!countryInput.value||!stateInput.value||!cityInput.value||!lgaInput.value||!locationInput.value){
+    if(!countryInput.value){
         showModal({
             type:"error",
-            title:"Incomplete Location",
-            message:"Please get your current location before updating your profile.",
+            title:"Country Required",
+            message:"Please select your country.",
+            icon:"!"
+        });
+        return null;
+    }
+
+    if(!stateInput.value){
+        showModal({
+            type:"error",
+            title:"State Required",
+            message:"Please select your state.",
+            icon:"!"
+        });
+        return null;
+    }
+
+    if(!cityInput.value){
+        showModal({
+            type:"error",
+            title:"City Required",
+            message:"Please select your city.",
+            icon:"!"
+        });
+        return null;
+    }
+
+    if(!lgaInput.value){
+        showModal({
+            type:"error",
+            title:"LGA Required",
+            message:"Please select your LGA.",
             icon:"!"
         });
         return null;
@@ -304,123 +412,22 @@ function validateProfile(){
     return{fullName:normalizedFullName,phone};
 }
 
-/* 17. GET MY LOCATION */
-getLocationBtn.addEventListener("click",()=>{
-    if(!navigator.geolocation){
-        showModal({
-            type:"error",
-            title:"Location Unavailable",
-            message:"Your browser does not support location services.",
-            icon:"!"
-        });
-        return;
-    }
-
-    setLocationLoading(true);
-
-    navigator.geolocation.getCurrentPosition(
-        async position=>{
-            const {latitude,longitude}=position.coords;
-
-            try{
-                const response=await API_REQUEST(
-                    `/api/location?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}`,
-                    {method:"GET"}
-                );
-
-                const data=await getResponseData(response);
-
-                if(response.status===401){
-                    showAuthenticationError("Your login session has expired. Please log in again.");
-                    return;
-                }
-
-                if(!response.ok){
-                    showModal({
-                        type:"error",
-                        title:"Location Failed",
-                        message:getBackendMessage(data,"Unable to determine your location. Please try again."),
-                        icon:"!"
-                    });
-                    return;
-                }
-
-                const lga=data.lga||data.location?.lga,
-                city=data.city||data.location?.city,
-                state=data.state||data.location?.state,
-                country=data.country||data.location?.country||"Nigeria";
-
-                if(!lga||!city||!state){
-                    showModal({
-                        type:"error",
-                        title:"Location Not Found",
-                        message:"Unable to determine your LGA and city from your current location.",
-                        icon:"!"
-                    });
-                    return;
-                }
-
-                countryInput.value=country;
-                stateInput.value=state;
-                cityInput.value=city;
-                lgaInput.value=lga;
-                latitudeInput.value=data.latitude??latitude;
-                longitudeInput.value=data.longitude??longitude;
-                locationInput.value=`${lga}, ${city}`;
-
-                showModal({
-                    type:"success",
-                    title:"Location Found",
-                    message:`Your location has been updated to ${lga}, ${city}.`,
-                    icon:"✓"
-                });
-            }catch(error){
-                console.error("Get location error:",error);
-                showModal({
-                    type:"error",
-                    title:"Location Failed",
-                    message:"Unable to determine your location. Please try again.",
-                    icon:"!"
-                });
-            }finally{
-                setLocationLoading(false);
-            }
-        },
-        error=>{
-            setLocationLoading(false);
-
-            let message="Unable to access your location. Please try again.";
-
-            if(error.code===error.PERMISSION_DENIED)
-                message="Location permission was denied. Please allow location access and try again.";
-            else if(error.code===error.POSITION_UNAVAILABLE)
-                message="Your current location could not be determined. Please try again.";
-            else if(error.code===error.TIMEOUT)
-                message="Location request timed out. Please try again.";
-
-            showModal({
-                type:"error",
-                title:"Location Failed",
-                message,
-                icon:"!"
-            });
-        },
-        {enableHighAccuracy:true,timeout:10000,maximumAge:0}
-    );
-});
-
-/* 18. UPDATE PROFILE */
+/* 17. UPDATE PROFILE */
 async function updateProfile(){
     if(isUpdatingProfile)return;
 
     const validated=validateProfile();
+
     if(!validated)return;
 
     const formData=new FormData(profileForm);
 
     formData.set("fullName",validated.fullName);
     formData.set("phone",validated.phone);
-    formData.set("location",locationInput.value);
+    formData.set("country",countryInput.value);
+    formData.set("state",stateInput.value);
+    formData.set("city",cityInput.value);
+    formData.set("lga",lgaInput.value);
 
     isUpdatingProfile=true;
     setUpdateLoading(true);
@@ -460,8 +467,10 @@ async function updateProfile(){
             message:data.message||"Your profile has been updated successfully.",
             icon:"✓"
         });
+
     }catch(error){
         console.error("Update profile error:",error);
+
         showModal({
             type:"error",
             title:"Connection Error",
@@ -474,7 +483,7 @@ async function updateProfile(){
     }
 }
 
-/* 19. PHOTO PREVIEW */
+/* 18. PHOTO PREVIEW */
 profilePhotoInput.addEventListener("change",()=>{
     const file=profilePhotoInput.files[0];
 
@@ -488,7 +497,13 @@ profilePhotoInput.addEventListener("change",()=>{
     if(error){
         profilePhotoInput.value="";
         photoFileName.textContent="No new photo selected";
-        showModal({type:"error",title:"Invalid Photo",message:error,icon:"!"});
+
+        showModal({
+            type:"error",
+            title:"Invalid Photo",
+            message:error,
+            icon:"!"
+        });
         return;
     }
 
@@ -498,13 +513,13 @@ profilePhotoInput.addEventListener("change",()=>{
     profilePhotoPlaceholder.hidden=true;
 });
 
-/* 20. FORM SUBMISSION */
+/* 19. FORM SUBMISSION */
 profileForm.addEventListener("submit",event=>{
     event.preventDefault();
     updateProfile();
 });
 
-/* 21. NAVIGATION */
+/* 20. NAVIGATION */
 editProfileBtn.addEventListener("click",closeMobileMenu);
 
 cancelBtn.addEventListener("click",()=>{
@@ -515,7 +530,7 @@ viewServicesBtn.addEventListener("click",()=>{
     window.location.href="../worker-services/index.html";
 });
 
-/* 22. MOBILE SIDEBAR */
+/* 21. MOBILE SIDEBAR */
 function openMobileMenu(){
     sidebar.classList.add("active");
     overlay.classList.add("active");
@@ -532,7 +547,7 @@ menuBtn.addEventListener("click",openMobileMenu);
 closeMenuBtn.addEventListener("click",closeMobileMenu);
 overlay.addEventListener("click",closeMobileMenu);
 
-/* 23. LOGOUT */
+/* 22. LOGOUT */
 logoutBtn.addEventListener("click",()=>{
     if(isLoggingOut)return;
 
@@ -601,6 +616,7 @@ async function logoutUser(){
         }
 
         window.location.href="../worker-authentication/index.html";
+
     }catch(error){
         console.error("Logout error:",error);
 
@@ -610,6 +626,7 @@ async function logoutUser(){
             message:"Unable to connect to the server. Please try again.",
             icon:"!"
         });
+
     }finally{
         isLoggingOut=false;
         logoutBtn.disabled=false;
@@ -620,5 +637,5 @@ async function logoutUser(){
     }
 }
 
-/* 24. INITIALIZE PAGE */
+/* 23. INITIALIZE PAGE */
 document.addEventListener("DOMContentLoaded",loadProfile);

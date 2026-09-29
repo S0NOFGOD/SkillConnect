@@ -1,6 +1,6 @@
 const DASHBOARD_ENDPOINT="/api/worker/dashboard";
 const SEND_PHONE_OTP_ENDPOINT="/api/worker/send-phone-otp";
-const LOGOUT_ENDPOINT="/api/auth/worker/logout";
+const LOGOUT_ENDPOINT="/api/auth/logout";
 
 const sidebar=document.getElementById("sidebar");
 const overlay=document.getElementById("overlay");
