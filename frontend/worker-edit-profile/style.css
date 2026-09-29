@@ -106,28 +106,6 @@ a{text-decoration:none;color:inherit}
 
 .form-group select:disabled{opacity:.55;cursor:not-allowed}
 
-.location-field{display:flex;align-items:center;width:100%;min-height:50px;padding:5px 6px;border:1px solid rgba(255,255,255,.10);border-radius:12px;background:#111827;overflow:hidden;transition:.3s}
-
-.location-field:focus-within{border-color:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.15)}
-
-.get-location-btn{display:flex;align-items:center;justify-content:center;flex:0 0 auto;min-height:38px;padding:0 14px;border:0;border-radius:9px;background:rgba(34,197,94,.15);color:#22c55e;font-family:"Inter",sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.3s}
-
-.get-location-btn:hover{background:rgba(34,197,94,.22)}
-
-.get-location-btn:disabled{opacity:.7;cursor:not-allowed}
-
-.get-location-btn.loading{pointer-events:none}
-
-.location-input{flex:1;min-width:0;min-height:38px!important;padding:0 12px!important;border:0!important;border-radius:9px!important;background:transparent!important;box-shadow:none!important;color:#cbd5e1!important;font-size:13px!important;font-weight:500}
-
-.location-input::placeholder{color:#64748b}
-
-.location-input:focus{border:0!important;box-shadow:none!important;outline:none}
-
-.location-button-loader{display:none;width:14px;height:14px;margin-left:7px;border:2px solid rgba(255,255,255,.25);border-top-color:#22c55e;border-radius:50%;animation:spin .8s linear infinite}
-
-.get-location-btn.loading .location-button-loader{display:inline-block}
-
 .form-actions{display:flex;justify-content:flex-end;gap:12px;padding-top:4px}
 
 .cancel-button,.update-profile-button{min-height:46px;padding:0 22px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;transition:.25s}
@@ -172,8 +150,6 @@ a{text-decoration:none;color:inherit}
 
 .notification-actions button:hover{background:#16a34a}
 
-@keyframes spin{to{transform:rotate(360deg)}}
-
 @keyframes profileSpinner{to{transform:rotate(360deg)}}
 
 @media(max-width:900px){
@@ -194,12 +170,4 @@ a{text-decoration:none;color:inherit}
 .photo-editor{align-items:flex-start}
 .form-actions{flex-direction:column-reverse}
 .cancel-button,.update-profile-button{width:100%}
-.location-field{padding:5px}
-.get-location-btn{padding:0 11px;font-size:11px}
-.location-input{padding:0 8px!important;font-size:12px!important}
-}
-
-@media(max-width:420px){
-.get-location-btn{min-height:36px;padding:0 9px}
-.location-input{font-size:11px!important}
 }

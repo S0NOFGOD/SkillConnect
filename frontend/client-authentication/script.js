@@ -21,7 +21,7 @@ button.classList.remove("loading");
 }
 
 function isValidEmail(email){
-return /^[^\s@]+@[^\s@]+.[^\s@]+$/.test(email);
+return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 let notificationCallback=null;
@@ -76,7 +76,7 @@ tab.addEventListener("click",()=>{
 document.querySelectorAll(".tab").forEach(item=>item.classList.remove("active"));
 document.querySelectorAll(".auth-form").forEach(form=>form.classList.remove("active"));
 tab.classList.add("active");
-getElement("${tab.dataset.tab}Form").classList.add("active");
+getElement(`${tab.dataset.tab}Form`).classList.add("active");
 });
 });
 }
@@ -126,7 +126,7 @@ sessionStorage.setItem("clientEmail",data.email||email);
 return showNotification("Complete Your Profile",data.message||"Please complete your client profile.","success",()=>location.href="../client-create-profile/index.html");
 }
 
-showNotification("Login Successful",data.message||"You have logged in successfully.","success",()=>location.href="../client-dashboard/index.html");
+showNotification("Login Successful",`Welcome back ${data.fullName||""}`, "success",()=>location.href="../client-dashboard/index.html");
 
 }catch(error){
 console.error("Client login failed:",error);

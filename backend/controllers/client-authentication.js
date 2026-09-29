@@ -32,10 +32,7 @@ process.env.REFRESH_TOKEN_SECRET,
 {expiresIn:process.env.REFRESH_TOKEN_EXPIRE}
 );
 
-client.refreshTokenHash=crypto
-.createHash("sha256")
-.update(refreshToken)
-.digest("hex");
+client.refreshTokenHash=crypto.createHash("sha256").update(refreshToken).digest("hex");
 
 await client.save();
 
@@ -190,7 +187,8 @@ setAuthCookies(res,accessToken,refreshToken);
 
 return res.status(200).json({
 success:true,
-message:"Login successful."
+message:"Login successful.",
+fullName:client.fullName
 });
 
 }catch(error){
@@ -308,9 +306,7 @@ const tokenResponse=await fetch(
 "https://oauth2.googleapis.com/token",
 {
 method:"POST",
-headers:{
-"Content-Type":"application/x-www-form-urlencoded"
-},
+headers:{"Content-Type":"application/x-www-form-urlencoded"},
 body:new URLSearchParams({
 code,
 client_id:process.env.GOOGLE_CLIENT_ID,
@@ -329,9 +325,7 @@ return redirect("Unable to complete Google authentication.");
 const userResponse=await fetch(
 "https://www.googleapis.com/oauth2/v2/userinfo",
 {
-headers:{
-Authorization:`Bearer ${tokenData.access_token}`
-}
+headers:{Authorization:`Bearer ${tokenData.access_token}`}
 }
 );
 
@@ -354,8 +348,7 @@ isEmailVerified:true,
 profileCompleted:false
 });
 
-const exchangeCode=
-`${Date.now()}.${crypto.randomBytes(32).toString("hex")}`;
+const exchangeCode=`${Date.now()}.${crypto.randomBytes(32).toString("hex")}`;
 
 client.exchangeCode=exchangeCode;
 
@@ -370,8 +363,7 @@ return redirect(
 );
 
 if(client.accountType==="googleId"&&client.googleId){
-const exchangeCode=
-`${Date.now()}.${crypto.randomBytes(32).toString("hex")}`;
+const exchangeCode=`${Date.now()}.${crypto.randomBytes(32).toString("hex")}`;
 
 client.exchangeCode=exchangeCode;
 
@@ -412,12 +404,7 @@ message:"The Google exchange code is invalid or has already been used."
 const timestamp=Number(exchangeCode.split(".")[0]);
 const fiveMinutes=5*60*1000;
 
-if(
-!Number.isFinite(timestamp)||
-timestamp<=0||
-Date.now()-timestamp>fiveMinutes||
-Date.now()<timestamp
-){
+if(!Number.isFinite(timestamp)||timestamp<=0||Date.now()-timestamp>fiveMinutes||Date.now()<timestamp){
 client.exchangeCode=null;
 await client.save();
 

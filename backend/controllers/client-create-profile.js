@@ -1,4 +1,6 @@
 const {Readable}=require("stream");
+const crypto=require("crypto");
+const jwt=require("jsonwebtoken");
 const cloudinary=require("cloudinary").v2;
 const Client=require("../models/client");
 
@@ -7,6 +9,63 @@ cloudinary.config({
     api_key:process.env.CLOUDINARY_API_KEY,
     api_secret:process.env.CLOUDINARY_API_SECRET
 });
+
+const createTokens=client=>{
+
+    const payload={
+        userId:client._id.toString(),
+        userType:"client"
+    };
+
+    const accessToken=jwt.sign(
+        payload,
+        process.env.ACCESS_TOKEN_SECRET,
+        {
+            expiresIn:process.env.ACCESS_TOKEN_EXPIRE||"15m"
+        }
+    );
+
+    const refreshToken=jwt.sign(
+        payload,
+        process.env.REFRESH_TOKEN_SECRET,
+        {
+            expiresIn:process.env.REFRESH_TOKEN_EXPIRE||"7d"
+        }
+    );
+
+    return {accessToken,refreshToken};
+
+};
+
+const setAuthCookies=(res,accessToken,refreshToken)=>{
+
+    const isProduction=process.env.NODE_ENV==="production";
+
+    res.cookie(
+        "accessToken",
+        accessToken,
+        {
+            httpOnly:true,
+            secure:isProduction,
+            sameSite:isProduction?"none":"lax",
+            maxAge:15*60*1000,
+            path:"/"
+        }
+    );
+
+    res.cookie(
+        "refreshToken",
+        refreshToken,
+        {
+            httpOnly:true,
+            secure:isProduction,
+            sameSite:isProduction?"none":"lax",
+            maxAge:7*24*60*60*1000,
+            path:"/"
+        }
+    );
+
+};
 
 const createClientProfile=async(req,res,next)=>{
     try{
@@ -170,7 +229,20 @@ const createClientProfile=async(req,res,next)=>{
         client.lga=lga;
         client.profileCompleted=true;
 
+        const {accessToken,refreshToken}=createTokens(client);
+
+        client.refreshTokenHash=crypto
+            .createHash("sha256")
+            .update(refreshToken)
+            .digest("hex");
+
         await client.save();
+
+        setAuthCookies(
+            res,
+            accessToken,
+            refreshToken
+        );
 
         return res.status(200).json({
             success:true,

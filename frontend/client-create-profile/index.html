@@ -56,19 +56,28 @@
 </div><div class="form-section">
 <div class="section-heading">
 <h2>Location</h2>
-<p>Use your current location to determine your LGA and city.</p>
-</div><div class="location-field">
-<button type="button" id="getLocationBtn" class="get-location-btn">
-<span class="location-button-text">Get My Location</span>
-<span class="location-button-loader" aria-hidden="true"></span>
-</button>
-<input type="text" id="location" class="location-input" placeholder="Your LGA and city will appear here" readonly>
-</div><input type="hidden" id="country" name="country" value="Nigeria">
-<input type="hidden" id="state" name="state">
-<input type="hidden" id="city" name="city">
-<input type="hidden" id="lga" name="lga">
-<input type="hidden" id="latitude" name="latitude">
-<input type="hidden" id="longitude" name="longitude">
+<p>Select your country, state, city, and LGA.</p>
+</div><div class="form-group">
+<label for="country">Country</label>
+<select id="country" name="country" required>
+<option value="Nigeria">Nigeria</option>
+</select>
+</div><div class="form-group">
+<label for="state">State</label>
+<select id="state" name="state" required disabled>
+<option value="">Select State</option>
+</select>
+</div><div class="form-group">
+<label for="city">City</label>
+<select id="city" name="city" required disabled>
+<option value="">Select City</option>
+</select>
+</div><div class="form-group">
+<label for="lga">LGA</label>
+<select id="lga" name="lga" required disabled>
+<option value="">Select LGA</option>
+</select>
+</div>
 </div><button type="submit" id="continueBtn" class="continue-btn">
 <span class="button-text">Complete Profile</span>
 <span class="button-loader" aria-hidden="true"></span>
@@ -84,5 +93,5 @@
 </div>
 </div><footer>
 <p>© 2026 SkillConnect. All rights reserved.</p>
-</footer><script src="../config.js"></script><script src="script.js"></script></body>
+</footer><script src="../config.js"></script><script src="../worker-create-profile/nigeria-location.js"></script><script src="script.js"></script></body>
 </html>
