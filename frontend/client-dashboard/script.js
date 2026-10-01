@@ -177,7 +177,7 @@ showNotification(
 
 findWorkersBtn.addEventListener("click",()=>{
 closeMenu();
-window.location.href="../find-workers/index.html";
+window.location.href="../client-workers-search/index.html";
 });
 
 editProfileBtn.addEventListener("click",()=>{

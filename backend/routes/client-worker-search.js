@@ -1,42 +1,10 @@
-/* =========================================================
-   1. IMPORT EXPRESS
-========================================================= */
+const express=require("express");
+const router=express.Router();
 
-const express =
-    require("express");
+const{
+searchWorkers
+}=require("../controllers/client-worker-search");
 
+router.get("/",searchWorkers);
 
-/* =========================================================
-   2. CREATE ROUTER
-========================================================= */
-
-const router =
-    express.Router();
-
-
-/* =========================================================
-   3. IMPORT CLIENT WORKER SEARCH CONTROLLER
-========================================================= */
-
-const {
-    getWorkers
-} =
-    require("../controllers/client-worker-search");
-
-
-/* =========================================================
-   4. GET AVAILABLE WORKERS
-========================================================= */
-
-router.get(
-    "/",
-    getWorkers
-);
-
-
-/* =========================================================
-   5. EXPORT ROUTER
-========================================================= */
-
-module.exports =
-    router;
+module.exports=router;

@@ -15,7 +15,7 @@ const workerDashboardRoutes=require("./routes/worker-dashboard");
 const workerServicesRoutes=require("./routes/worker-services");
 const workerCreateServiceRoutes=require("./routes/worker-create-service");
 const workerViewServiceRoutes=require("./routes/worker-view-service");
-const workerLogoutRoutes=require("./routes/logout");
+const LogoutRoutes=require("./routes/logout");
 const workerPhoneOTPRoutes=require("./routes/worker-phone-otp");
 const refreshTokenRoutes=require("./routes/refreshToken");
 
@@ -97,7 +97,7 @@ app.use("/api/worker-authentication",workerAuthenticationRoutes);
 app.use("/api/auth/refresh",refreshTokenRoutes);
 app.use("/api/auth/worker",workerEmailOTPRoutes);
 app.use("/api/auth/worker",workerPasswordResetOTPRoutes);
-app.use("/api/auth/",workerLogoutRoutes);
+app.use("/api/auth/", LogoutRoutes);
 app.use("/api/worker",workerPhoneOTPRoutes);
 app.use("/api/worker",workerCreateProfileRoutes);
 app.use("/api/worker",workerEditProfileRoutes);
