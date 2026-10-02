@@ -182,7 +182,7 @@ window.location.href="../client-workers-search/index.html";
 
 editProfileBtn.addEventListener("click",()=>{
 closeMenu();
-window.location.href="../client-create-profile/index.html";
+window.location.href="../client-edit-profile/index.html";
 });
 
 logoutBtn.addEventListener("click",()=>{

@@ -57,6 +57,45 @@ maxAge:7*24*60*60*1000
 });
 };
 
+const authenticateClient=req=>{
+const accessToken=req.cookies?.accessToken;
+
+if(!accessToken){
+return{
+valid:false,
+status:401,
+message:"Authentication required."
+};
+}
+
+try{
+const decoded=jwt.verify(
+accessToken,
+process.env.ACCESS_TOKEN_SECRET
+);
+
+if(decoded.userType!=="client"){
+return{
+valid:false,
+status:403,
+message:"Client authentication required."
+};
+}
+
+return{
+valid:true,
+userId:decoded.userId
+};
+
+}catch(error){
+return{
+valid:false,
+status:401,
+message:"Authentication required."
+};
+}
+};
+
 const isValidEmail=email=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const signup=async(req,res)=>{
@@ -453,5 +492,6 @@ login,
 forgotPassword,
 googleAuthentication,
 googleCallback,
-googleExchange
+googleExchange,
+authenticateClient
 };
