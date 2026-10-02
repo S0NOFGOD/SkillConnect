@@ -70,7 +70,13 @@ showNotification(
 });
 
 const renderWorkers=(list)=>{
+
 workersContainer.innerHTML="";
+
+list=list.filter(worker=>{
+return Array.isArray(worker.services)&&
+worker.services.some(service=>service.skill&&String(service.skill).trim());
+});
 
 if(!list.length){
 workersContainer.hidden=true;
@@ -81,14 +87,62 @@ return;
 workersEmpty.hidden=true;
 workersContainer.hidden=false;
 
+const selectedSkill=skillFilter.value.toLowerCase();
+
 list.forEach(worker=>{
+
+const matchingService=selectedSkill
+?worker.services.find(service=>
+service.skill&&
+String(service.skill).toLowerCase()===selectedSkill
+)
+:worker.services.find(service=>
+service.skill&&
+String(service.skill).trim()
+);
+
+if(!matchingService)return;
+
 const name=worker.fullName||"Worker";
-const initials=name.split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase();
-const skill=worker.skill||worker.skills?.[0]||worker.services?.[0]?.skill||"Skilled Worker";
-const location=[worker.lga,worker.city].filter(Boolean).join(", ")||"Location unavailable";
+
+const initials=name
+.split(" ")
+.map(x=>x[0])
+.join("")
+.slice(0,2)
+.toUpperCase();
+
+const skill=matchingService.skill;
+
+const serviceId=matchingService.serviceId;
+
+const location=[
+worker.lga,
+worker.city
+].filter(Boolean).join(", ")||"Location unavailable";
+
+const isVerified=
+worker.phoneVerificationExpires&&
+new Date(worker.phoneVerificationExpires)>new Date();
 
 const card=document.createElement("div");
 card.className="worker-card";
+
+card.addEventListener("click",()=>{
+
+sessionStorage.setItem(
+"workerId",
+worker.workerId
+);
+
+sessionStorage.setItem(
+"serviceId",
+serviceId
+);
+
+window.location.href="../client-worker-details/index.html";
+
+});
 
 const info=document.createElement("div");
 info.className="worker-info";
@@ -108,15 +162,48 @@ const divider=document.createElement("span");
 divider.className="worker-divider";
 divider.textContent="|";
 
+details.append(
+skillElement
+);
+
+if(isVerified){
+
+const verifiedElement=document.createElement("span");
+verifiedElement.className="worker-skill";
+verifiedElement.textContent="Verified";
+
+details.append(
+divider,
+verifiedElement
+);
+
+const locationDivider=document.createElement("span");
+locationDivider.className="worker-divider";
+locationDivider.textContent="|";
+
+details.append(locationDivider);
+
+}else{
+
+details.append(divider);
+
+}
+
 const locationElement=document.createElement("span");
 locationElement.className="worker-location";
 locationElement.textContent=location;
 
-details.append(skillElement,divider,locationElement);
-info.append(workerName,details);
+details.append(locationElement);
+
+info.append(
+workerName,
+details
+);
 
 if(worker.profilePhoto){
+
 const photo=document.createElement("img");
+
 photo.className="worker-photo";
 photo.src=worker.profilePhoto;
 photo.alt=name;
@@ -127,26 +214,42 @@ photo.remove();
 const placeholder=document.createElement("div");
 placeholder.className="worker-photo-placeholder";
 placeholder.textContent=initials;
+
 card.appendChild(placeholder);
 };
 
 card.appendChild(info);
 card.appendChild(photo);
+
 }else{
+
 const placeholder=document.createElement("div");
+
 placeholder.className="worker-photo-placeholder";
 placeholder.textContent=initials;
 
 card.appendChild(info);
 card.appendChild(placeholder);
+
 }
 
 workersContainer.appendChild(card);
+
 });
+
+if(!workersContainer.children.length){
+workersContainer.hidden=true;
+workersEmpty.hidden=false;
+}
+
 };
 
 const loadSkills=()=>{
-const skills=[...new Set(workers.flatMap(worker=>{
+
+const skills=[
+...new Set(
+workers.flatMap(worker=>{
+
 if(Array.isArray(worker.services)){
 return worker.services
 .map(service=>service.skill)
@@ -154,19 +257,28 @@ return worker.services
 }
 
 return worker.skill?[worker.skill]:[];
-}))].sort();
+
+})
+)
+].sort();
 
 skillFilter.innerHTML='<option value="">All Skills</option>';
 
 skills.forEach(skill=>{
+
 const option=document.createElement("option");
+
 option.value=skill;
 option.textContent=skill;
+
 skillFilter.appendChild(option);
+
 });
+
 };
 
 skillFilter.addEventListener("change",()=>{
+
 const selected=skillFilter.value.toLowerCase();
 
 if(!selected){
@@ -176,18 +288,26 @@ return;
 
 renderWorkers(
 workers.filter(worker=>{
+
 const skills=Array.isArray(worker.services)
-?worker.services.map(service=>service.skill).filter(Boolean)
-:worker.skill?[worker.skill]:[];
+?worker.services
+.map(service=>service.skill)
+.filter(Boolean)
+:worker.skill
+?[worker.skill]
+:[];
 
 return skills.some(
 skill=>String(skill).toLowerCase()===selected
 );
+
 })
 );
+
 });
 
 const loadWorkers=async()=>{
+
 workersLoading.hidden=false;
 workersContainer.hidden=true;
 workersEmpty.hidden=true;
@@ -206,8 +326,11 @@ if(!response.ok){
 let message="Unable to find workers. Please try again.";
 
 try{
+
 const data=await response.json();
+
 message=data.message||message;
+
 }catch{}
 
 showNotification(
@@ -217,6 +340,7 @@ message,
 );
 
 return;
+
 }
 
 const data=await response.json();
@@ -228,6 +352,8 @@ loadSkills();
 renderWorkers(workers);
 
 }catch(error){
+
+console.error("Worker search error:",error);
 
 workersLoading.hidden=true;
 
@@ -242,6 +368,7 @@ showNotification(
 };
 
 logoutBtn.addEventListener("click",()=>{
+
 closeSidebar();
 
 notificationButton.onclick=null;
@@ -255,14 +382,17 @@ showNotification(
 
 notificationButton.textContent="Yes";
 notificationCancelButtonMobile.textContent="No";
+
 notificationButton.disabled=false;
 notificationCancelButtonMobile.disabled=false;
+
 notificationAction=null;
 
 notificationButton.onclick=async()=>{
 
 notificationButton.disabled=true;
 notificationCancelButtonMobile.disabled=true;
+
 notificationButton.textContent="Logging out…";
 
 try{
@@ -275,7 +405,9 @@ const response=await API_REQUEST(
 if(response.ok){
 
 notificationOverlay.hidden=true;
+
 location.href="../client-authentication/index.html";
+
 return;
 
 }
@@ -283,12 +415,16 @@ return;
 let message="Logout failed. Please try again.";
 
 try{
+
 const data=await response.json();
+
 message=data.message||message;
+
 }catch{}
 
 notificationButton.disabled=false;
 notificationCancelButtonMobile.disabled=false;
+
 notificationButton.textContent="Yes";
 notificationCancelButtonMobile.textContent="No";
 
@@ -302,6 +438,7 @@ message,
 
 notificationButton.disabled=false;
 notificationCancelButtonMobile.disabled=false;
+
 notificationButton.textContent="Yes";
 notificationCancelButtonMobile.textContent="No";
 
@@ -316,12 +453,17 @@ showNotification(
 };
 
 notificationCancelButtonMobile.onclick=()=>{
+
 notificationOverlay.hidden=true;
+
 notificationButton.disabled=false;
 notificationCancelButtonMobile.disabled=false;
+
 notificationButton.textContent="Continue";
 notificationCancelButtonMobile.textContent="No";
+
 notificationAction=null;
+
 };
 
 });

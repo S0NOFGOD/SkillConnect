@@ -79,7 +79,7 @@ secure:true
 }
 
 return{
-id:worker._id,
+workerId:worker._id,
 profilePhoto,
 fullName:worker.fullName,
 phone:worker.phone,
@@ -89,6 +89,7 @@ city:worker.city,
 lga:worker.lga,
 skills:worker.skills||[],
 services:(worker.services||[]).map(service=>({
+serviceId:service.id,
 skill:service.skill
 }))
 };
@@ -98,8 +99,8 @@ skill:service.skill
 return res.status(200).json({
 success:true,
 message:workerData.length
-?`Workers found near ${client.lga}.`
-:`No workers are currently available in ${client.lga}.`,
+?"Workers found near ${client.lga}."
+:"No workers are currently available in ${client.lga}.",
 client:{
 fullName:client.fullName,
 phone:client.phone,

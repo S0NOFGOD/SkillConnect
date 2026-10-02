@@ -1,52 +1,17 @@
-/* =========================================================
-   1. IMPORT EXPRESS
-========================================================= */
+const express=require("express");
 
-const express =
-    require("express");
-
-
-
-/* =========================================================
-   2. CREATE EXPRESS ROUTER
-========================================================= */
-
-const router =
-    express.Router();
-
-
-
-/* =========================================================
-   3. IMPORT CLIENT WORKER DETAILS CONTROLLER
-========================================================= */
+const router=express.Router();
 
 const {
+    getWorkerDetails,
+    getClientRating,
+    saveClientRating
+}=require("../controllers/client-worker-details");
 
-    getWorkerDetails
+router.post("/",getWorkerDetails);
 
-} = require(
-    "../controllers/client-worker-details"
-);
+router.post("/rating",getClientRating);
 
+router.put("/rating",saveClientRating);
 
-
-/* =========================================================
-   4. GET WORKER DETAILS
-========================================================= */
-
-router.get(
-
-    "/:workerId",
-
-    getWorkerDetails
-
-);
-
-
-
-/* =========================================================
-   5. EXPORT ROUTER
-========================================================= */
-
-module.exports =
-    router;
+module.exports=router;

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Worker Details - SkillConnect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="green-glow"></div>
+<div class="blue-glow"></div>
+
+<nav>
+<button id="backBtn" class="nav-btn" type="button">← Back</button>
+</nav>
+
+<main class="worker-details">
+
+<div id="loadingState" class="loading-state">
+<div class="loading-spinner"></div>
+<p>Loading worker details...</p>
+</div>
+
+<div id="workerContent" class="worker-content" hidden>
+
+<div class="worker-header-card">
+<div class="worker-header">
+<div class="worker-photo-wrapper">
+<img id="workerPhoto" class="worker-photo" src="" alt="Worker profile photo">
+</div>
+<div class="worker-header-info">
+<h1 id="workerName">Worker Name</h1>
+<p id="workerSkill" class="worker-skill">Skill</p>
+<p id="workerLocation" class="worker-location">Location</p>
+</div>
+</div>
+</div>
+
+<section class="info-card">
+<h2>About</h2>
+<p id="workerDescription">Worker description will appear here.</p>
+</section>
+
+<section class="info-card">
+<h2>Worker Information</h2>
+<div class="info-grid">
+
+<div class="info-box">
+<h3>Skill</h3>
+<p id="infoSkill">-</p>
+</div>
+
+<div class="info-box">
+<h3>Experience</h3>
+<p id="infoExperience">-</p>
+</div>
+
+<div class="info-box">
+<h3>Location</h3>
+<p id="infoLocation">-</p>
+</div>
+
+<div class="info-box">
+<h3>Rating</h3>
+<p id="infoRating">-</p>
+</div>
+
+</div>
+</section>
+
+<section class="portfolio-card">
+<h2>Portfolio</h2>
+<div id="portfolioGrid" class="portfolio-grid"></div>
+</section>
+
+<section class="reviews-card">
+
+<div class="section-header">
+<h2>Ratings & Reviews</h2>
+</div>
+
+<div id="reviewList" class="review-list"></div>
+
+<button id="seeMoreBtn" class="see-more-btn" type="button">
+See More
+</button>
+
+</section>
+
+<section class="action-card">
+
+<button id="contactWorkerBtn" class="continue-btn" type="button">
+Contact Worker
+</button>
+
+<button id="rateWorkerBtn" class="rate-btn" type="button">
+Rate Worker
+</button>
+
+</section>
+
+</div>
+
+<div id="errorState" class="error-state" hidden>
+<h2>Unable to Load Worker</h2>
+<p id="errorMessage">Something went wrong.</p>
+<button id="retryBtn" class="continue-btn" type="button">Try Again</button>
+</div>
+
+</main>
+
+<div id="notificationOverlay" class="notification-overlay" hidden>
+<div id="notificationCard" class="notification-card">
+<h2 id="notificationTitle">Notice</h2>
+<p id="notificationMessage">Something went wrong.</p>
+<button id="notificationButton" type="button">OK</button>
+</div>
+</div>
+
+<div id="ratingOverlay" class="notification-overlay" hidden>
+<div id="ratingCard" class="rating-card">
+
+<h2>Rate Worker</h2>
+
+<div class="rating-input-group">
+<label for="ratingInput">Rating</label>
+<select id="ratingInput">
+<option value="">Select rating</option>
+<option value="5">⭐ 5 - Excellent</option>
+<option value="4">⭐ 4 - Very Good</option>
+<option value="3">⭐ 3 - Good</option>
+<option value="2">⭐ 2 - Fair</option>
+<option value="1">⭐ 1 - Poor</option>
+</select>
+</div>
+
+<div class="rating-input-group">
+<label for="reviewInput">Review</label>
+<textarea id="reviewInput" rows="5" placeholder="Write your review..."></textarea>
+</div>
+
+<div class="rating-actions">
+<button id="ratingCancelButton" type="button">Cancel</button>
+<button id="ratingSubmitButton" type="button">Rate Worker</button>
+</div>
+
+</div>
+</div>
+
+<script src="../config.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>

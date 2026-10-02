@@ -139,6 +139,33 @@ const workerSchema=new mongoose.Schema({
             type:String,
             trim:true
         }],
+        ratingAndReview:[{
+            clientId:{
+                type:mongoose.Schema.Types.ObjectId,
+                ref:"Client",
+                required:true
+            },
+            fullName:{
+                type:String,
+                trim:true,
+                required:true
+            },
+            rating:{
+                type:Number,
+                required:true,
+                min:1,
+                max:5
+            },
+            review:{
+                type:String,
+                trim:true,
+                default:""
+            },
+            date:{
+                type:Date,
+                default:Date.now
+            }
+        }],
         date:{
             type:Date,
             default:Date.now

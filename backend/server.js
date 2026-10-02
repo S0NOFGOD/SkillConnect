@@ -114,7 +114,7 @@ app.use("/api/client-create-profile",clientCreateProfileRoutes);
 app.use("/api/client-password-change",clientPasswordChangeRoutes);
 app.use("/api/client-dashboard",clientDashboardRoutes);
 app.use("/api/client/worker-search",clientWorkerSearchRoutes);
-app.use("/api/client/worker-details",clientWorkerDetailsRoutes);
+app.use("/api/client-worker-details",clientWorkerDetailsRoutes);
 
 /* 7. OTHER WORKER ROUTES */
 
