@@ -330,7 +330,7 @@ font-weight:700;
 .stats{
 width:90%;
 max-width:1200px;
-margin:60px auto;
+margin:20px auto 60px;
 display:grid;
 grid-template-columns:1fr;
 gap:20px;
@@ -493,6 +493,7 @@ justify-content:center;
 }
 
 .stats{
+margin:20px auto 60px;
 grid-template-columns:repeat(2,1fr);
 }
 
