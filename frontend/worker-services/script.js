@@ -25,284 +25,469 @@ const notificationButton=document.getElementById("notificationButton");
 let modalAction=null;
 let modalKeepsOpen=false;
 
-function showModal(title,message,type="info",action=null,buttonText="Continue",keepOpen=false){
-notificationTitle.textContent=title;
-notificationText.textContent=message;
-notificationButton.textContent=buttonText;
-notificationCard.className=`notification-card ${type}`;
-modalAction=action;
-modalKeepsOpen=keepOpen;
-notificationButton.disabled=false;
-notificationCloseButton.hidden=false;
-notificationOverlay.hidden=false;
+function showModal(
+    title,
+    message,
+    type="info",
+    action=null,
+    buttonText="Continue",
+    keepOpen=false
+){
+    notificationTitle.textContent=title;
+    notificationText.textContent=message;
+    notificationButton.textContent=buttonText;
+    notificationCard.className=`notification-card ${type}`;
+    modalAction=action;
+    modalKeepsOpen=keepOpen;
+    notificationButton.disabled=false;
+    notificationCloseButton.hidden=false;
+    notificationOverlay.hidden=false;
 }
 
 function hideModal(runAction=false){
-notificationOverlay.hidden=true;
-const action=modalAction;
-modalAction=null;
-modalKeepsOpen=false;
-if(runAction&&action)action();
+    notificationOverlay.hidden=true;
+
+    const action=modalAction;
+
+    modalAction=null;
+    modalKeepsOpen=false;
+
+    if(runAction&&action)action();
 }
 
 function closeModal(){
-if(modalKeepsOpen&&modalAction){
-const action=modalAction;
-modalAction=null;
-modalKeepsOpen=false;
-action();
-return;
-}
-hideModal(true);
+    if(modalKeepsOpen&&modalAction){
+        const action=modalAction;
+
+        modalAction=null;
+        modalKeepsOpen=false;
+
+        action();
+
+        return;
+    }
+
+    hideModal(true);
 }
 
-notificationButton.addEventListener("click",closeModal);
+notificationButton.addEventListener(
+    "click",
+    closeModal
+);
 
-notificationCloseButton.addEventListener("click",()=>{
-if(notificationButton.disabled)return;
-hideModal(false);
-});
+notificationCloseButton.addEventListener(
+    "click",
+    ()=>{
+        if(notificationButton.disabled)return;
+
+        hideModal(false);
+    }
+);
 
 function setLoading(button,loading){
-if(!button)return;
-if(loading){
-if(!button.dataset.originalText)button.dataset.originalText=button.textContent.trim();
-button.disabled=true;
-button.classList.add("is-loading");
-button.textContent="Processing...";
-return;
-}
-button.disabled=false;
-button.classList.remove("is-loading");
-if(button.dataset.originalText){
-button.textContent=button.dataset.originalText;
-delete button.dataset.originalText;
-}
+    if(!button)return;
+
+    if(loading){
+        if(!button.dataset.originalText){
+            button.dataset.originalText=button.textContent.trim();
+        }
+
+        button.disabled=true;
+        button.classList.add("is-loading");
+        button.textContent="Processing...";
+
+        return;
+    }
+
+    button.disabled=false;
+    button.classList.remove("is-loading");
+
+    if(button.dataset.originalText){
+        button.textContent=button.dataset.originalText;
+        delete button.dataset.originalText;
+    }
 }
 
 function redirectToLogin(){
-window.location.href="../worker-authentication/index.html";
+    window.location.href="../worker-authentication/index.html";
 }
 
 function authenticationError(message){
-showModal(
-"Authentication Required",
-message,
-"error",
-redirectToLogin,
-"Continue"
-);
+    showModal(
+        "Authentication Required",
+        message,
+        "error",
+        redirectToLogin,
+        "Continue"
+    );
 }
 
 function setServicesLoading(loading){
-servicesLoading.hidden=!loading;
-if(loading){
-servicesContainer.innerHTML="";
-servicesEmpty.hidden=true;
-}
+    servicesLoading.hidden=!loading;
+
+    if(loading){
+        servicesContainer.innerHTML="";
+        servicesEmpty.hidden=true;
+    }
 }
 
 async function loadServices(){
-setServicesLoading(true);
-try{
-const response=await API_REQUEST(
-SERVICES_ENDPOINT,
-{method:"GET"}
-);
+    setServicesLoading(true);
 
-if(response.status===401)return;
+    try{
+        const response=await API_REQUEST(
+            SERVICES_ENDPOINT,
+            {
+                method:"GET"
+            }
+        );
 
-const data=await response.json();
+        if(response.status===401)return;
 
-if(!response.ok){
-showModal(
-"Unable to Load Services",
-data.message||"Unable to load your services. Please try again.",
-"error"
-);
-return;
-}
+        const data=await response.json();
 
-displayServices(data.services);
+        if(!response.ok){
+            showModal(
+                "Unable to Load Services",
+                data.message||
+                "Unable to load your services. Please try again.",
+                "error"
+            );
 
-}catch(error){
-console.error("Services request failed:",error);
-showModal(
-"Connection Error",
-"Unable to connect to the server. Please try again.",
-"error"
-);
-}finally{
-setServicesLoading(false);
-}
+            return;
+        }
+
+        displayServices(data.services);
+
+    }catch(error){
+        console.error(
+            "Services request failed:",
+            error
+        );
+
+        showModal(
+            "Connection Error",
+            "Unable to connect to the server. Please try again.",
+            "error"
+        );
+
+    }finally{
+        setServicesLoading(false);
+    }
 }
 
 function formatServiceDate(dateValue){
-if(!dateValue)return"Date not provided";
-const date=new Date(dateValue);
-if(Number.isNaN(date.getTime()))return"Date not provided";
-const year=date.getUTCFullYear();
-const month=String(date.getUTCMonth()+1).padStart(2,"0");
-const day=String(date.getUTCDate()).padStart(2,"0");
-return`${year}-${month}-${day}`;
+    if(!dateValue)return"Date not provided";
+
+    const date=new Date(dateValue);
+
+    if(Number.isNaN(date.getTime())){
+        return"Date not provided";
+    }
+
+    const year=date.getUTCFullYear();
+
+    const month=String(
+        date.getUTCMonth()+1
+    ).padStart(2,"0");
+
+    const day=String(
+        date.getUTCDate()
+    ).padStart(2,"0");
+
+    return`${year}-${month}-${day}`;
 }
 
 function displayServices(services){
-servicesContainer.innerHTML="";
+    servicesContainer.innerHTML="";
 
-if(!services||!Array.isArray(services)||services.length===0){
-servicesEmpty.hidden=false;
-return;
-}
+    if(
+        !services||
+        !Array.isArray(services)||
+        services.length===0
+    ){
+        servicesEmpty.hidden=false;
+        return;
+    }
 
-servicesEmpty.hidden=true;
+    servicesEmpty.hidden=true;
 
-const sortedServices=[...services].sort((a,b)=>{
-const dateA=new Date(a.date).getTime();
-const dateB=new Date(b.date).getTime();
-return dateB-dateA;
-});
+    const sortedServices=[...services].sort(
+        (a,b)=>{
+            const dateA=new Date(a.date).getTime();
+            const dateB=new Date(b.date).getTime();
 
-sortedServices.forEach(service=>{
-const card=document.createElement("article");
-card.className="service-card";
-card.setAttribute("role","button");
-card.setAttribute("tabindex","0");
+            return dateB-dateA;
+        }
+    );
 
-const skill=document.createElement("strong");
-skill.className="service-skill";
-skill.textContent=service.skill||"Service";
+    sortedServices.forEach(
+        service=>{
+            const card=document.createElement("article");
 
-const date=document.createElement("span");
-date.className="service-date";
-date.textContent=formatServiceDate(service.date);
+            card.className="service-card";
+            card.setAttribute("role","button");
+            card.setAttribute("tabindex","0");
 
-card.appendChild(skill);
-card.appendChild(date);
+            const skill=document.createElement("strong");
 
-card.addEventListener("click",()=>openService(service.id));
+            skill.className="service-skill";
+            skill.textContent=service.skill||"Service";
 
-card.addEventListener("keydown",event=>{
-if(event.key==="Enter"||event.key===" "){
-event.preventDefault();
-openService(service.id);
-}
-});
+            const serviceInfo=document.createElement("div");
 
-servicesContainer.appendChild(card);
-});
+            serviceInfo.className="service-info";
+
+            const date=document.createElement("span");
+
+            date.className="service-date";
+            date.textContent=formatServiceDate(
+                service.date
+            );
+
+            const approval=document.createElement("span");
+
+            approval.className="service-approval";
+
+            const approvalStatus=
+                service.adminApproval||"in review";
+
+            approval.textContent=approvalStatus;
+
+            if(approvalStatus==="in review"){
+                approval.classList.add("in-review");
+            }
+
+            if(approvalStatus==="rejected"){
+                approval.classList.add("rejected");
+            }
+
+            if(approvalStatus==="approved"){
+                approval.classList.add("approved");
+            }
+
+            serviceInfo.appendChild(date);
+            serviceInfo.appendChild(approval);
+
+            card.appendChild(skill);
+            card.appendChild(serviceInfo);
+
+            card.addEventListener(
+                "click",
+                ()=>{
+                    openService(service.id);
+                }
+            );
+
+            card.addEventListener(
+                "keydown",
+                event=>{
+                    if(
+                        event.key==="Enter"||
+                        event.key===" "
+                    ){
+                        event.preventDefault();
+
+                        openService(service.id);
+                    }
+                }
+            );
+
+            servicesContainer.appendChild(card);
+        }
+    );
 }
 
 function openService(serviceId){
-if(!serviceId){
-showModal(
-"Service Error",
-"This service could not be opened.",
-"error"
+    if(!serviceId){
+        showModal(
+            "Service Error",
+            "This service could not be opened.",
+            "error"
+        );
+
+        return;
+    }
+
+    sessionStorage.setItem(
+        "serviceId",
+        serviceId
+    );
+
+    window.location.href=
+        "../worker-view-service/index.html";
+}
+
+addServiceBtn.addEventListener(
+    "click",
+    ()=>{
+        window.location.href=
+            "../worker-create-service/index.html";
+    }
 );
-return;
-}
 
-sessionStorage.setItem("serviceId",serviceId);
-window.location.href="../worker-view-service/index.html";
-}
+dashboardBtn.addEventListener(
+    "click",
+    ()=>{
+        window.location.href=
+            "../worker-dashboard/index.html";
+    }
+);
 
-addServiceBtn.addEventListener("click",()=>{
-window.location.href="../worker-create-service/index.html";
-});
+viewServicesBtn.addEventListener(
+    "click",
+    ()=>{
+        closeSidebar();
+    }
+);
 
-dashboardBtn.addEventListener("click",()=>{
-window.location.href="../worker-dashboard/index.html";
-});
-
-viewServicesBtn.addEventListener("click",()=>{
-closeSidebar();
-});
-
-editProfileBtn.addEventListener("click",()=>{
-window.location.href="../worker-edit-profile/index.html";
-});
+editProfileBtn.addEventListener(
+    "click",
+    ()=>{
+        window.location.href=
+            "../worker-edit-profile/index.html";
+    }
+);
 
 function openSidebar(){
-sidebar.classList.add("active");
-overlay.classList.add("active");
-menuBtn.setAttribute("aria-expanded","true");
+    sidebar.classList.add("active");
+    overlay.classList.add("active");
+
+    menuBtn.setAttribute(
+        "aria-expanded",
+        "true"
+    );
 }
 
 function closeSidebar(){
-sidebar.classList.remove("active");
-overlay.classList.remove("active");
-menuBtn.setAttribute("aria-expanded","false");
+    sidebar.classList.remove("active");
+    overlay.classList.remove("active");
+
+    menuBtn.setAttribute(
+        "aria-expanded",
+        "false"
+    );
 }
 
-menuBtn.addEventListener("click",openSidebar);
-closeMenuBtn.addEventListener("click",closeSidebar);
-overlay.addEventListener("click",closeSidebar);
-
-logoutBtn.addEventListener("click",()=>{
-showModal(
-"Logout",
-"Are you sure you want to log out?",
-"confirm",
-logoutWorker,
-"Logout",
-true
+menuBtn.addEventListener(
+    "click",
+    openSidebar
 );
-});
+
+closeMenuBtn.addEventListener(
+    "click",
+    closeSidebar
+);
+
+overlay.addEventListener(
+    "click",
+    closeSidebar
+);
+
+logoutBtn.addEventListener(
+    "click",
+    ()=>{
+        showModal(
+            "Logout",
+            "Are you sure you want to log out?",
+            "confirm",
+            logoutWorker,
+            "Logout",
+            true
+        );
+    }
+);
 
 async function logoutWorker(){
-setLoading(notificationButton,true);
+    setLoading(
+        notificationButton,
+        true
+    );
 
-try{
-const response=await API_REQUEST(
-LOGOUT_ENDPOINT,
-{method:"POST"}
-);
+    try{
+        const response=await API_REQUEST(
+            LOGOUT_ENDPOINT,
+            {
+                method:"POST"
+            }
+        );
 
-if(response.status===401){
-setLoading(notificationButton,false);
-hideModal(false);
-authenticationError(
-"Your session has expired. Please log in again."
-);
-return;
+        if(response.status===401){
+            setLoading(
+                notificationButton,
+                false
+            );
+
+            hideModal(false);
+
+            authenticationError(
+                "Your session has expired. Please log in again."
+            );
+
+            return;
+        }
+
+        const data=await response.json();
+
+        if(!response.ok){
+            setLoading(
+                notificationButton,
+                false
+            );
+
+            showModal(
+                "Logout Failed",
+                data.message||
+                "Unable to log out. Please try again.",
+                "error"
+            );
+
+            return;
+        }
+
+        setLoading(
+            notificationButton,
+            false
+        );
+
+        window.location.href=
+            "../worker-authentication/index.html";
+
+    }catch(error){
+        console.error(
+            "Logout request failed:",
+            error
+        );
+
+        setLoading(
+            notificationButton,
+            false
+        );
+
+        hideModal(false);
+
+        showModal(
+            "Connection Error",
+            "Unable to log out at this time. Please try again.",
+            "error"
+        );
+    }
 }
 
-const data=await response.json();
+window.addEventListener(
+    "authSessionExpired",
+    ()=>{
+        setServicesLoading(false);
 
-if(!response.ok){
-setLoading(notificationButton,false);
-showModal(
-"Logout Failed",
-data.message||"Unable to log out. Please try again.",
-"error"
+        authenticationError(
+            "Your session has expired. Please log in again."
+        );
+    }
 );
-return;
-}
 
-setLoading(notificationButton,false);
-
-window.location.href="../worker-authentication/index.html";
-
-}catch(error){
-console.error("Logout request failed:",error);
-setLoading(notificationButton,false);
-hideModal(false);
-showModal(
-"Connection Error",
-"Unable to log out at this time. Please try again.",
-"error"
+document.addEventListener(
+    "DOMContentLoaded",
+    ()=>{
+        loadServices();
+    }
 );
-}
-}
-
-window.addEventListener("authSessionExpired",()=>{
-setServicesLoading(false);
-authenticationError(
-"Your session has expired. Please log in again."
-);
-});
-
-document.addEventListener("DOMContentLoaded",()=>{
-loadServices();
-});

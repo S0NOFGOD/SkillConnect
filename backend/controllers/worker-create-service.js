@@ -1,5 +1,5 @@
 const{Readable}=require("stream");
-const jwt=require("jsonwebtoken");
+const sharp=require("sharp");
 const Worker=require("../models/worker");
 
 const{v2:cloudinary}=require("cloudinary");
@@ -12,7 +12,7 @@ api_secret:process.env.CLOUDINARY_API_SECRET
 
 const MAX_PORTFOLIO_IMAGE_SIZE=5*1024*1024;
 const MAX_PORTFOLIO_IMAGES=3;
-const MAX_DESCRIPTION_WORDS=300;
+const MAX_DESCRIPTION_WORDS=150;
 
 const LOCAL_SKILLS=[
 "Swimming Instructor","Barber","Hairdresser","Makeup Artist","Tailor",
@@ -33,27 +33,55 @@ if(!text||!text.trim())return 0;
 return text.trim().split(/\s+/).length;
 }
 
+async function convertAndCompressImage(fileBuffer){
+let quality=80;
+let outputBuffer;
+
+while(quality>=20){
+
+outputBuffer=await sharp(fileBuffer)
+.jpeg({
+quality,
+mozjpeg:true
+})
+.toBuffer();
+
+if(outputBuffer.length<=MAX_PORTFOLIO_IMAGE_SIZE)
+return outputBuffer;
+
+quality-=10;
+}
+
+throw new Error(
+"Portfolio image could not be compressed to 5 MB or less."
+);
+}
+
 function uploadImageToCloudinary(fileBuffer,workerId){
 return new Promise((resolve,reject)=>{
 const uploadStream=cloudinary.uploader.upload_stream(
 {
 folder:`skillconnect/workers/${workerId}/services`,
-resource_type:"image"
+resource_type:"image",
+format:"jpg"
 },
 (error,result)=>{
 if(error){
 reject(error);
 return;
 }
+
 if(!result||!result.public_id){
 reject(new Error("Cloudinary did not return a public_id."));
 return;
 }
+
 resolve({
 public_id:result.public_id
 });
 }
 );
+
 Readable.from(fileBuffer).pipe(uploadStream);
 });
 }
@@ -68,43 +96,26 @@ publicId,
 {resource_type:"image"}
 );
 }catch(error){
-console.error("Cloudinary cleanup failed:",error);
+console.error(
+"Cloudinary cleanup failed:",
+error
+);
 }
 }
 }
 
 async function createWorkerService(req,res){
+
 const uploadedPublicIds=[];
 
 try{
-const accessToken=req.cookies?.accessToken;
 
-if(!accessToken)
+const workerId=req.workerId;
+
+if(!workerId)
 return res.status(401).json({
 success:false,
 message:"Authentication required. Please log in again."
-});
-
-let decodedToken;
-
-try{
-decodedToken=jwt.verify(
-accessToken,
-process.env.ACCESS_TOKEN_SECRET
-);
-}catch(error){
-return res.status(401).json({
-success:false,
-message:"Your access token is invalid or expired."
-});
-}
-
-const workerId=decodedToken.userId;
-
-if(decodedToken.userType!=="worker"||!workerId)
-return res.status(403).json({
-success:false,
-message:"You are not authorized to create a service."
 });
 
 const worker=await Worker.findById(workerId);
@@ -139,20 +150,6 @@ success:false,
 message:"The selected skill is not valid."
 });
 
-const skillAlreadyExists=
-Array.isArray(worker.services)&&
-worker.services.some(
-service=>
-typeof service.skill==="string"&&
-service.skill.trim().toLowerCase()===skill.toLowerCase()
-);
-
-if(skillAlreadyExists)
-return res.status(400).json({
-success:false,
-message:`You already have a service for ${skill}.`
-});
-
 if(!experience)
 return res.status(400).json({
 success:false,
@@ -171,12 +168,28 @@ success:false,
 message:"Please enter a service description."
 });
 
-const descriptionWordCount=countWords(description);
+const descriptionWordCount=
+countWords(description);
 
 if(descriptionWordCount>MAX_DESCRIPTION_WORDS)
 return res.status(400).json({
 success:false,
-message:"The service description cannot exceed 300 words."
+message:"The service description cannot exceed 150 words."
+});
+
+const skillAlreadyExists=
+Array.isArray(worker.services)&&
+worker.services.some(
+service=>
+typeof service.skill==="string"&&
+service.skill.trim().toLowerCase()===
+skill.toLowerCase()
+);
+
+if(skillAlreadyExists)
+return res.status(400).json({
+success:false,
+message:`You already have a service for ${skill}.`
 });
 
 const portfolioFiles=
@@ -196,19 +209,15 @@ message:"You can upload a maximum of 3 portfolio images."
 
 for(const file of portfolioFiles){
 
-if(!file.mimetype||!file.mimetype.startsWith("image/"))
+if(!file.mimetype||
+!file.mimetype.startsWith("image/"))
 return res.status(400).json({
 success:false,
 message:"Only image files can be uploaded."
 });
 
-if(file.size>MAX_PORTFOLIO_IMAGE_SIZE)
-return res.status(400).json({
-success:false,
-message:"Each portfolio image must not be larger than 5 MB."
-});
-
-if(!file.buffer||!Buffer.isBuffer(file.buffer))
+if(!file.buffer||
+!Buffer.isBuffer(file.buffer))
 return res.status(400).json({
 success:false,
 message:"One or more portfolio images could not be processed."
@@ -217,11 +226,18 @@ message:"One or more portfolio images could not be processed."
 
 let nextServiceId=1;
 
-if(Array.isArray(worker.services)&&worker.services.length>0){
+if(
+Array.isArray(worker.services)&&
+worker.services.length>0
+){
 
-const highestServiceId=worker.services.reduce(
+const highestServiceId=
+worker.services.reduce(
 (highest,service)=>{
-const serviceId=Number(service.id);
+
+const serviceId=Number(
+service.id
+);
 
 if(
 Number.isFinite(serviceId)&&
@@ -234,16 +250,22 @@ return highest;
 0
 );
 
-nextServiceId=highestServiceId+1;
+nextServiceId=
+highestServiceId+1;
 }
 
 const portfolioPublicIds=[];
 
 for(const file of portfolioFiles){
 
+const compressedImage=
+await convertAndCompressImage(
+file.buffer
+);
+
 const uploadedImage=
 await uploadImageToCloudinary(
-file.buffer,
+compressedImage,
 worker._id.toString()
 );
 
@@ -262,15 +284,19 @@ skill,
 experience,
 description,
 portfolios:portfolioPublicIds,
-date:new Date()
+date:new Date(),
+adminApproval:"in review"
 };
 
-worker.services.push(newService);
+worker.services.push(
+newService
+);
 
 if(!Array.isArray(worker.skills))
 worker.skills=[];
 
-const hasSkill=worker.skills.some(
+const hasSkill=
+worker.skills.some(
 existingSkill=>
 existingSkill.trim().toLowerCase()===
 skill.toLowerCase()
@@ -290,7 +316,8 @@ skill:newService.skill,
 experience:newService.experience,
 description:newService.description,
 portfolios:newService.portfolios,
-date:newService.date
+date:newService.date,
+adminApproval:newService.adminApproval
 }
 });
 
@@ -312,4 +339,6 @@ message:"An error occurred while creating your service. Please try again."
 }
 }
 
-module.exports={createWorkerService};
+module.exports={
+createWorkerService
+};

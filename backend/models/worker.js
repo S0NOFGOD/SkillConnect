@@ -165,6 +165,11 @@ const workerSchema=new mongoose.Schema({
         date:{
             type:Date,
             default:Date.now
+        },
+        adminApproval:{
+            type:String,
+            enum:["in review","approved","rejected"],
+            default:"in review"
         }
     }],
 

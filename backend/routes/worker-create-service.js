@@ -8,6 +8,11 @@ const express=require("express");
 /* Multer handles multipart/form-data and uploaded images. */
 const multer=require("multer");
 
+/* Import the worker authentication middleware. */
+const{
+    authenticateWorker
+}=require("../controllers/worker-authentication");
+
 /* Import the create-service controller. */
 const{
     createWorkerService
@@ -26,6 +31,7 @@ const router=express.Router();
    3. MULTER STORAGE
 ========================= */
 
+/* Store uploaded images temporarily in memory. */
 const storage=multer.memoryStorage();
 
 
@@ -33,11 +39,11 @@ const storage=multer.memoryStorage();
    4. MULTER CONFIGURATION
 ========================= */
 
+/* Limit the upload to a maximum of 3 portfolio images. */
 const upload=multer({
     storage,
 
     limits:{
-        fileSize:5*1024*1024,
         files:3
     }
 });
@@ -49,16 +55,34 @@ const upload=multer({
 
 router.post(
     "/create-service",
-    (req,res,next)=>{
-        upload.array("portfolioPhotos",3)(req,res,error=>{
-            if(error instanceof multer.MulterError){
 
-                if(error.code==="LIMIT_FILE_SIZE"){
-                    return res.status(400).json({
-                        success:false,
-                        message:"Each portfolio image must not be larger than 5 MB."
-                    });
-                }
+    /* Authenticate the worker's accessToken cookie first. */
+    (req,res,next)=>{
+        const authentication=
+            authenticateWorker(req);
+
+        if(!authentication.valid){
+            return res.status(
+                authentication.status
+            ).json({
+                success:false,
+                message:authentication.message
+            });
+        }
+
+        req.workerId=authentication.userId;
+
+        next();
+    },
+
+    /* Process the portfolio images after authentication succeeds. */
+    (req,res,next)=>{
+        upload.array(
+            "portfolioPhotos",
+            3
+        )(req,res,error=>{
+
+            if(error instanceof multer.MulterError){
 
                 if(error.code==="LIMIT_FILE_COUNT"){
                     return res.status(400).json({
@@ -81,7 +105,10 @@ router.post(
             }
 
             if(error){
-                console.error("Multer upload error:",error);
+                console.error(
+                    "Multer upload error:",
+                    error
+                );
 
                 return res.status(400).json({
                     success:false,
@@ -92,6 +119,7 @@ router.post(
             next();
         });
     },
+
     createWorkerService
 );
 

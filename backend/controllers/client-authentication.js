@@ -8,16 +8,12 @@ const OTP_EXPIRY_MINUTES=10;
 
 const generateOTP=()=>crypto.randomInt(100000,1000000).toString();
 
-const hashOTP=otp=>
-    crypto.createHash("sha256").update(otp).digest("hex");
+const hashOTP=otp=>crypto.createHash("sha256").update(otp).digest("hex");
 
-const createOTPExpiry=()=>
-    new Date(Date.now()+OTP_EXPIRY_MINUTES*60*1000);
+const createOTPExpiry=()=>new Date(Date.now()+OTP_EXPIRY_MINUTES*60*1000);
 
 const sendOTPEmail=async(email,otp,subject,textContent)=>{
-    const brevo=new BrevoClient({
-        apiKey:process.env.BREVO_API_KEY
-    });
+    const brevo=new BrevoClient({apiKey:process.env.BREVO_API_KEY});
 
     await brevo.transactionalEmails.sendTransacEmail({
         sender:{
@@ -32,38 +28,22 @@ const sendOTPEmail=async(email,otp,subject,textContent)=>{
 
 const createTokens=async client=>{
     const accessToken=jwt.sign(
-        {
-            userId:client._id.toString(),
-            userType:"client"
-        },
+        {userId:client._id.toString(),userType:"client"},
         process.env.ACCESS_TOKEN_SECRET,
-        {
-            expiresIn:process.env.ACCESS_TOKEN_EXPIRE
-        }
+        {expiresIn:process.env.ACCESS_TOKEN_EXPIRE}
     );
 
     const refreshToken=jwt.sign(
-        {
-            userId:client._id.toString(),
-            userType:"client"
-        },
+        {userId:client._id.toString(),userType:"client"},
         process.env.REFRESH_TOKEN_SECRET,
-        {
-            expiresIn:process.env.REFRESH_TOKEN_EXPIRE
-        }
+        {expiresIn:process.env.REFRESH_TOKEN_EXPIRE}
     );
 
-    client.refreshTokenHash=
-        crypto.createHash("sha256")
-        .update(refreshToken)
-        .digest("hex");
+    client.refreshTokenHash=crypto.createHash("sha256").update(refreshToken).digest("hex");
 
     await client.save();
 
-    return{
-        accessToken,
-        refreshToken
-    };
+    return{accessToken,refreshToken};
 };
 
 const setAuthCookies=(res,accessToken,refreshToken)=>{
@@ -109,10 +89,7 @@ const authenticateClient=req=>{
             };
         }
 
-        return{
-            valid:true,
-            userId:decoded.userId
-        };
+        return{valid:true,userId:decoded.userId};
 
     }catch(error){
         return{
@@ -123,9 +100,7 @@ const authenticateClient=req=>{
     }
 };
 
-const isValidEmail=email=>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
+const isValidEmail=email=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 /* =========================================================
    CLIENT SIGNUP
@@ -239,7 +214,6 @@ const signup=async(req,res)=>{
     }
 };
 
-
 /* =========================================================
    CLIENT LOGIN
 ========================================================= */
@@ -331,16 +305,9 @@ const login=async(req,res)=>{
             });
         }
 
-        const{
-            accessToken,
-            refreshToken
-        }=await createTokens(client);
+        const{accessToken,refreshToken}=await createTokens(client);
 
-        setAuthCookies(
-            res,
-            accessToken,
-            refreshToken
-        );
+        setAuthCookies(res,accessToken,refreshToken);
 
         return res.status(200).json({
             success:true,
@@ -358,7 +325,6 @@ const login=async(req,res)=>{
         });
     }
 };
-
 
 /* =========================================================
    FORGOT PASSWORD
@@ -422,7 +388,6 @@ const forgotPassword=async(req,res)=>{
     }
 };
 
-
 /* =========================================================
    START GOOGLE AUTHENTICATION
 ========================================================= */
@@ -457,7 +422,6 @@ const googleAuthentication=async(req,res)=>{
         );
     }
 };
-
 
 /* =========================================================
    GOOGLE CALLBACK
@@ -590,7 +554,6 @@ const googleCallback=async(req,res)=>{
     }
 };
 
-
 /* =========================================================
    GOOGLE EXCHANGE
 ========================================================= */
@@ -625,8 +588,7 @@ const googleExchange=async(req,res)=>{
 
         if(
             !Number.isFinite(timestamp)||
-            timestamp<=0||
-            Date.now()-timestamp>fiveMinutes||
+            timestamp<=0|| Date.now()-timestamp>fiveMinutes||
             Date.now()<timestamp
         ){
             client.exchangeCode=null;
@@ -664,16 +626,9 @@ const googleExchange=async(req,res)=>{
             });
         }
 
-        const{
-            accessToken,
-            refreshToken
-        }=await createTokens(client);
+        const{accessToken,refreshToken}=await createTokens(client);
 
-        setAuthCookies(
-            res,
-            accessToken,
-            refreshToken
-        );
+        setAuthCookies(res,accessToken,refreshToken);
 
         return res.status(200).json({
             success:true,
@@ -695,7 +650,6 @@ const googleExchange=async(req,res)=>{
         });
     }
 };
-
 
 module.exports={
     signup,

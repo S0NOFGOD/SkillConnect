@@ -1,13 +1,33 @@
-const express = require("express");
+const express=require("express");
 
-const router = express.Router();
+const router=express.Router();
 
-const workerServicesController =
-    require("../controllers/worker-services");
+const{
+    authenticateWorker
+}=require("../controllers/worker-authentication");
+
+const{
+    getWorkerServices
+}=require("../controllers/worker-services");
 
 router.get(
     "/services",
-    workerServicesController.getWorkerServices
+    (req,res)=>{
+        const authentication=authenticateWorker(req);
+
+        if(!authentication.valid){
+            return res.status(
+                authentication.status
+            ).json({
+                success:false,
+                message:authentication.message
+            });
+        }
+
+        req.workerId=authentication.userId;
+
+        return getWorkerServices(req,res);
+    }
 );
 
-module.exports = router;
+module.exports=router;

@@ -1,42 +1,8 @@
-const jwt=require("jsonwebtoken");
 const Worker=require("../models/worker");
-
-const authenticateWorkerFromRequest=req=>{
-const accessToken=req.cookies?.accessToken;
-if(!accessToken)return null;
-
-try{
-return jwt.verify(
-accessToken,
-process.env.ACCESS_TOKEN_SECRET
-);
-}catch(error){
-return null;
-}
-};
 
 const getWorkerServices=async(req,res)=>{
 try{
-const decodedToken=authenticateWorkerFromRequest(req);
-
-if(!decodedToken){
-return res.status(401).json({
-success:false,
-message:"Worker authentication is required."
-});
-}
-
-if(
-decodedToken.userType&&
-decodedToken.userType!=="worker"
-){
-return res.status(403).json({
-success:false,
-message:"Worker access is required."
-});
-}
-
-const workerId=decodedToken.userId;
+const workerId=req.workerId;
 
 if(!workerId){
 return res.status(401).json({
@@ -68,7 +34,8 @@ services:null
 const services=worker.services.map(service=>({
 id:service.id,
 skill:service.skill,
-date:service.date
+date:service.date,
+adminApproval:service.adminApproval
 }));
 
 return res.status(200).json({
@@ -77,7 +44,10 @@ services
 });
 
 }catch(error){
-console.error("Get worker services error:",error);
+console.error(
+"Get worker services error:",
+error
+);
 
 return res.status(500).json({
 success:false,

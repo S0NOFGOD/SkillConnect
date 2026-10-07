@@ -21,482 +21,619 @@ const notificationText=document.getElementById("notificationText");
 const notificationButton=document.getElementById("notificationButton");
 
 const MAX_DESCRIPTION_WORDS=150;
-const MAX_COMPRESSED_IMAGE_SIZE=2*1024*1024;
-const MAX_IMAGE_DIMENSION=1920;
 const CREATE_SERVICE_ENDPOINT="/api/worker/create-service";
-const AUTHENTICATION_REDIRECT="../worker-add-service/index.html";
+const AUTHENTICATION_REDIRECT="../worker-authentication/index.html";
 const SERVICES_REDIRECT="../worker-services/index.html";
 
 const DEFAULT_LOCAL_SKILLS=[
-"Swimming Instructor","Barber","Hairdresser","Makeup Artist","Tailor",
-"Bricklayer","Plumber","Electrician","Painter","Welder","Carpenter",
-"Bricklayer","Cleaner","Laundry Service","Mechanic","Auto Electrician",
-"Phone Repair","Computer Repair","Graphic Designer","Web Developer",
-"Photographer","Videographer","Caterer","Baker","Cook","Event Planner",
-"Interior Decorator","AC Technician","Generator Repair","POP Installer",
-"Tiler","Furniture Maker","Driver","Tutor","Fitness Trainer","Other"
+    "Swimming Instructor","Barber","Hairdresser","Makeup Artist","Tailor",
+    "Bricklayer","Plumber","Electrician","Painter","Welder","Carpenter",
+    "Cleaner","Laundry Service","Mechanic","Auto Electrician","Phone Repair",
+    "Computer Repair","Graphic Designer","Web Developer","Photographer",
+    "Videographer","Caterer","Baker","Cook","Event Planner",
+    "Interior Decorator","AC Technician","Generator Repair","POP Installer",
+    "Tiler","Furniture Maker","Driver","Tutor","Fitness Trainer","Other"
 ];
 
 let isAddingService=false;
 let modalCloseCallback=null;
 
 function getLocalSkills(){
-return Array.isArray(window.LOCAL_SKILLS)&&window.LOCAL_SKILLS.length
-?window.LOCAL_SKILLS:DEFAULT_LOCAL_SKILLS;
+    return Array.isArray(window.LOCAL_SKILLS)&&window.LOCAL_SKILLS.length
+        ?window.LOCAL_SKILLS
+        :DEFAULT_LOCAL_SKILLS;
 }
 
 function populateSkillDropdown(){
-if(!skillInput)return;
-skillInput.innerHTML="";
-const placeholder=document.createElement("option");
-placeholder.value="";
-placeholder.textContent="Select your skill";
-placeholder.disabled=true;
-placeholder.selected=true;
-skillInput.appendChild(placeholder);
-getLocalSkills().forEach(skill=>{
-const option=document.createElement("option");
-option.value=skill;
-option.textContent=skill;
-skillInput.appendChild(option);
-});
+    if(!skillInput)return;
+
+    skillInput.innerHTML="";
+
+    const placeholder=document.createElement("option");
+
+    placeholder.value="";
+    placeholder.textContent="Select your skill";
+    placeholder.disabled=true;
+    placeholder.selected=true;
+
+    skillInput.appendChild(placeholder);
+
+    getLocalSkills().forEach(skill=>{
+        const option=document.createElement("option");
+
+        option.value=skill;
+        option.textContent=skill;
+
+        skillInput.appendChild(option);
+    });
 }
 
-function setButtonLoading(button,isLoading,loadingText="Processing..."){
-if(!button)return;
-if(!button.dataset.originalText&&button.querySelector(".button-text"))
-button.dataset.originalText=button.querySelector(".button-text").textContent;
-const textElement=button.querySelector(".button-text");
-const loaderElement=button.querySelector(".button-loader");
-button.disabled=isLoading;
-button.classList.toggle("is-loading",isLoading);
-if(textElement)
-textElement.textContent=isLoading?loadingText:(button.dataset.originalText||"Add A Service");
-if(loaderElement)
-loaderElement.hidden=!isLoading;
+function setButtonLoading(button,isLoading,loadingText="Connecting..."){
+    if(!button)return;
+
+    if(
+        !button.dataset.originalText&&
+        button.querySelector(".button-text")
+    ){
+        button.dataset.originalText=
+            button.querySelector(".button-text").textContent;
+    }
+
+    const textElement=button.querySelector(".button-text");
+    const loaderElement=button.querySelector(".button-loader");
+
+    button.disabled=isLoading;
+    button.classList.toggle("is-loading",isLoading);
+
+    if(textElement){
+        textElement.textContent=
+            isLoading
+                ?loadingText
+                :(button.dataset.originalText||"Add A Service");
+    }
+
+    if(loaderElement){
+        loaderElement.hidden=!isLoading;
+    }
 }
 
-const MODAL_ICONS={success:"✓",error:"!",info:"i",confirm:"?"};
+const MODAL_ICONS={
+    success:"✓",
+    error:"!",
+    info:"i",
+    confirm:"?"
+};
 
 function showNotification(type,title,message,onClose=null){
-if(!notificationOverlay||!notificationCard)return;
-modalCloseCallback=onClose;
-notificationCard.classList.remove("success","error","info","confirm");
-notificationCard.classList.add(type);
-notificationIcon.textContent=MODAL_ICONS[type]||"!";
-notificationTitle.textContent=title;
-notificationText.textContent=message;
-notificationButton.disabled=false;
-notificationButton.textContent="Continue";
-notificationOverlay.hidden=false;
-document.body.style.overflow="hidden";
-setTimeout(()=>notificationButton.focus(),0);
+    if(!notificationOverlay||!notificationCard)return;
+
+    modalCloseCallback=onClose;
+
+    notificationCard.classList.remove(
+        "success",
+        "error",
+        "info",
+        "confirm"
+    );
+
+    notificationCard.classList.add(type);
+
+    notificationIcon.textContent=
+        MODAL_ICONS[type]||"!";
+
+    notificationTitle.textContent=title;
+    notificationText.textContent=message;
+
+    notificationButton.disabled=false;
+    notificationButton.textContent="Continue";
+
+    notificationOverlay.hidden=false;
+
+    document.body.style.overflow="hidden";
+
+    setTimeout(
+        ()=>notificationButton.focus(),
+        0
+    );
 }
 
 function closeNotification(){
-if(!notificationOverlay)return;
-notificationOverlay.hidden=true;
-document.body.style.overflow="";
-const callback=modalCloseCallback;
-modalCloseCallback=null;
-if(typeof callback==="function")callback();
+    if(!notificationOverlay)return;
+
+    notificationOverlay.hidden=true;
+    document.body.style.overflow="";
+
+    const callback=modalCloseCallback;
+
+    modalCloseCallback=null;
+
+    if(typeof callback==="function"){
+        callback();
+    }
 }
 
-notificationCancelButton?.addEventListener("click",closeNotification);
-notificationButton?.addEventListener("click",closeNotification);
+notificationCancelButton?.addEventListener(
+    "click",
+    closeNotification
+);
+
+notificationButton?.addEventListener(
+    "click",
+    closeNotification
+);
 
 document.addEventListener("keydown",event=>{
-if(event.key==="Escape"&&notificationOverlay&&!notificationOverlay.hidden)
-closeNotification();
+    if(
+        event.key==="Escape"&&
+        notificationOverlay&&
+        !notificationOverlay.hidden
+    ){
+        closeNotification();
+    }
 });
 
 function showAuthenticationError(
-message="Your login session has expired. Please log in again."
+    message="Your login session has expired. Please log in again."
 ){
-showNotification(
-"error",
-"Authentication Required",
-message,
-()=>window.location.href=AUTHENTICATION_REDIRECT
-);
+    showNotification(
+        "error",
+        "Authentication Required",
+        message,
+        ()=>window.location.href=AUTHENTICATION_REDIRECT
+    );
 }
 
-window.addEventListener("authSessionExpired",()=>{
-isAddingService=false;
-setButtonLoading(addServiceBtn,false);
-if(notificationOverlay&&!notificationOverlay.hidden)return;
-showAuthenticationError();
-});
+window.addEventListener(
+    "authSessionExpired",
+    ()=>{
+        isAddingService=false;
+
+        setButtonLoading(
+            addServiceBtn,
+            false
+        );
+
+        if(
+            notificationOverlay&&
+            !notificationOverlay.hidden
+        ){
+            return;
+        }
+
+        showAuthenticationError();
+    }
+);
+
+function getWordCount(value){
+    const trimmedValue=value.trim();
+
+    if(!trimmedValue)return 0;
+
+    return trimmedValue
+        .split(/\s+/)
+        .filter(Boolean)
+        .length;
+}
 
 function updateDescriptionWordCount(){
-if(!descriptionInput||!descriptionWordCount)return;
-const characterCount=descriptionInput.value.length;
-descriptionWordCount.textContent=
-`${characterCount} / ${MAX_DESCRIPTION_WORDS} words`;
-descriptionWordCount.classList.toggle(
-"limit-reached",
-characterCount>=MAX_DESCRIPTION_WORDS
-);
+    if(!descriptionInput||!descriptionWordCount)return;
+
+    const wordCount=getWordCount(
+        descriptionInput.value
+    );
+
+    descriptionWordCount.textContent=
+        `${wordCount} / ${MAX_DESCRIPTION_WORDS} words`;
+
+    descriptionWordCount.classList.toggle(
+        "limit-reached",
+        wordCount>=MAX_DESCRIPTION_WORDS
+    );
 }
 
-descriptionInput?.addEventListener("input",()=>{
-if(descriptionInput.value.length>MAX_DESCRIPTION_WORDS)
-descriptionInput.value=descriptionInput.value.slice(0,MAX_DESCRIPTION_WORDS);
-updateDescriptionWordCount();
-});
+descriptionInput?.addEventListener(
+    "input",
+    updateDescriptionWordCount
+);
 
 function restorePortfolioPreview(preview){
-if(!preview)return;
-preview.innerHTML=`
-<span class="portfolio-placeholder" aria-hidden="true">+</span>
-<span>Add Image</span>
-`;
+    if(!preview)return;
+
+    preview.innerHTML=`
+        <span class="portfolio-placeholder" aria-hidden="true">+</span>
+        <span>Add Image</span>
+    `;
 }
 
 function validatePortfolioImageType(file){
-if(!file)return{valid:true};
-if(!file.type||!file.type.startsWith("image/")){
-return{
-valid:false,
-message:`"${file.name}" is not a supported image file.`
-};
-}
-return{valid:true};
-}
+    if(!file){
+        return{
+            valid:true
+        };
+    }
 
-function validateSelectedPortfolioImage(input,preview){
-const file=input?.files?.[0]||null;
-if(!file){
-restorePortfolioPreview(preview);
-return true;
-}
-const typeResult=validatePortfolioImageType(file);
-if(!typeResult.valid){
-input.value="";
-restorePortfolioPreview(preview);
-showNotification("error","Invalid Image",typeResult.message);
-return false;
-}
-showImagePreview(input,preview);
-return true;
+    if(
+        !file.type||
+        !file.type.startsWith("image/")
+    ){
+        return{
+            valid:false,
+            message:`"${file.name}" is not a supported image file.`
+        };
+    }
+
+    return{
+        valid:true
+    };
 }
 
 function showImagePreview(input,preview){
-if(!input||!preview)return;
-const file=input.files?.[0];
-if(!file){
-restorePortfolioPreview(preview);
-return;
+    if(!input||!preview)return;
+
+    const file=input.files?.[0];
+
+    if(!file){
+        restorePortfolioPreview(preview);
+        return;
+    }
+
+    const imageUrl=URL.createObjectURL(file);
+
+    preview.innerHTML="";
+
+    const image=document.createElement("img");
+
+    image.src=imageUrl;
+    image.alt="Selected portfolio image";
+
+    preview.appendChild(image);
+
+    image.addEventListener(
+        "load",
+        ()=>URL.revokeObjectURL(imageUrl),
+        {once:true}
+    );
 }
-const imageUrl=URL.createObjectURL(file);
-preview.innerHTML="";
-const image=document.createElement("img");
-image.src=imageUrl;
-image.alt="Selected portfolio image";
-preview.appendChild(image);
-image.addEventListener(
-"load",
-()=>URL.revokeObjectURL(imageUrl),
-{once:true}
-);
+
+function validateSelectedPortfolioImage(input,preview){
+    const file=input?.files?.[0]||null;
+
+    if(!file){
+        restorePortfolioPreview(preview);
+        return true;
+    }
+
+    const typeResult=
+        validatePortfolioImageType(file);
+
+    if(!typeResult.valid){
+        input.value="";
+        restorePortfolioPreview(preview);
+
+        showNotification(
+            "error",
+            "Invalid Image",
+            typeResult.message
+        );
+
+        return false;
+    }
+
+    showImagePreview(
+        input,
+        preview
+    );
+
+    return true;
 }
 
 portfolioPhoto1?.addEventListener(
-"change",
-()=>validateSelectedPortfolioImage(portfolioPhoto1,portfolioPreview1)
+    "change",
+    ()=>validateSelectedPortfolioImage(
+        portfolioPhoto1,
+        portfolioPreview1
+    )
 );
 
 portfolioPhoto2?.addEventListener(
-"change",
-()=>validateSelectedPortfolioImage(portfolioPhoto2,portfolioPreview2)
+    "change",
+    ()=>validateSelectedPortfolioImage(
+        portfolioPhoto2,
+        portfolioPreview2
+    )
 );
 
 portfolioPhoto3?.addEventListener(
-"change",
-()=>validateSelectedPortfolioImage(portfolioPhoto3,portfolioPreview3)
+    "change",
+    ()=>validateSelectedPortfolioImage(
+        portfolioPhoto3,
+        portfolioPreview3
+    )
 );
 
 function validatePortfolioPhotos(){
-const portfolioFiles=[
-portfolioPhoto1?.files?.[0]||null,
-portfolioPhoto2?.files?.[0]||null,
-portfolioPhoto3?.files?.[0]||null
-];
-for(let i=0;i<portfolioFiles.length;i++){
-const file=portfolioFiles[i];
-if(!file){
-return{
-valid:false,
-message:`Please select portfolio photo ${i+1}.`
-};
-}
-const typeResult=validatePortfolioImageType(file);
-if(!typeResult.valid)return typeResult;
-}
-return{valid:true};
+    const portfolioFiles=[
+        portfolioPhoto1?.files?.[0]||null,
+        portfolioPhoto2?.files?.[0]||null,
+        portfolioPhoto3?.files?.[0]||null
+    ];
+
+    for(let i=0;i<portfolioFiles.length;i++){
+
+        const file=portfolioFiles[i];
+
+        if(!file){
+            return{
+                valid:false,
+                message:`Please select portfolio photo ${i+1}.`
+            };
+        }
+
+        const typeResult=
+            validatePortfolioImageType(file);
+
+        if(!typeResult.valid){
+            return typeResult;
+        }
+    }
+
+    return{
+        valid:true
+    };
 }
 
 function validateDescription(){
-const description=descriptionInput?.value.trim()||"";
-if(!description){
-return{
-valid:false,
-message:"Please enter a description for the service."
-};
-}
-const characterCount=description.length;
-if(characterCount>MAX_DESCRIPTION_WORDS){
-return{
-valid:false,
-message:"Your service description cannot contain more than 150 characters."
-};
-}
-return{valid:true};
+    const description=
+        descriptionInput?.value.trim()||"";
+
+    if(!description){
+        return{
+            valid:false,
+            message:"Please enter a description for the service."
+        };
+    }
+
+    const wordCount=
+        getWordCount(description);
+
+    if(wordCount>MAX_DESCRIPTION_WORDS){
+        return{
+            valid:false,
+            message:"Your service description cannot contain more than 150 words."
+        };
+    }
+
+    return{
+        valid:true
+    };
 }
 
 function validateServiceForm(){
-if(!skillInput||!skillInput.value.trim()){
-return{
-valid:false,
-message:"Please select your skill."
-};
-}
-if(!experienceInput||!experienceInput.value.trim()){
-return{
-valid:false,
-message:"Please select your experience."
-};
-}
-const descriptionResult=validateDescription();
-if(!descriptionResult.valid)return descriptionResult;
-const portfolioResult=validatePortfolioPhotos();
-if(!portfolioResult.valid)return portfolioResult;
-return{valid:true};
+
+    const portfolioResult=
+        validatePortfolioPhotos();
+
+    if(!portfolioResult.valid){
+        return portfolioResult;
+    }
+
+    if(
+        !skillInput||
+        !skillInput.value.trim()
+    ){
+        return{
+            valid:false,
+            message:"Please select your skill."
+        };
+    }
+
+    if(
+        !experienceInput||
+        !experienceInput.value.trim()
+    ){
+        return{
+            valid:false,
+            message:"Please select your experience."
+        };
+    }
+
+    const descriptionResult=
+        validateDescription();
+
+    if(!descriptionResult.valid){
+        return descriptionResult;
+    }
+
+    return{
+        valid:true
+    };
 }
 
 async function extractResponseMessage(response){
-try{
-const data=await response.json();
-return data.message||
-data.error||
-data.errorMessage||
-data.msg||
-"Something went wrong. Please try again.";
-}catch(error){
-console.error("Unable to read backend response:",error);
-return"Something went wrong. Please try again.";
-}
+    try{
+        const data=await response.json();
+
+        return data.message||
+            data.error||
+            data.errorMessage||
+            data.msg||
+            "Something went wrong. Please try again.";
+
+    }catch(error){
+
+        console.error(
+            "Unable to read backend response:",
+            error
+        );
+
+        return "Something went wrong. Please try again.";
+    }
 }
 
-function compressImage(file){
-return new Promise((resolve,reject)=>{
-const image=new Image();
-const objectUrl=URL.createObjectURL(file);
-image.onload=()=>{
-URL.revokeObjectURL(objectUrl);
-let width=image.width;
-let height=image.height;
-if(width>MAX_IMAGE_DIMENSION||height>MAX_IMAGE_DIMENSION){
-const scale=MAX_IMAGE_DIMENSION/Math.max(width,height);
-width=Math.round(width*scale);
-height=Math.round(height*scale);
-}
-const canvas=document.createElement("canvas");
-canvas.width=width;
-canvas.height=height;
-const context=canvas.getContext("2d");
-if(!context){
-reject(new Error("The selected image could not be processed."));
-return;
-}
-context.drawImage(image,0,0,width,height);
-canvas.toBlob(
-blob=>{
-if(!blob){
-reject(new Error("The selected image could not be processed."));
-return;
-}
-const finishCompression=finalBlob=>{
-if(!finalBlob){
-reject(new Error("The selected image could not be compressed."));
-return;
-}
-resolve(
-new File(
-[finalBlob],
-`${file.name.replace(/\.[^/.]+$/,"")}.jpg`,
-{type:"image/jpeg"}
-)
-);
-};
-if(blob.size>MAX_COMPRESSED_IMAGE_SIZE){
-canvas.toBlob(
-finishCompression,
-"image/jpeg",
-0.65
-);
-}else{
-finishCompression(blob);
-}
-},
-"image/jpeg",
-0.8
-);
-};
-image.onerror=()=>{
-URL.revokeObjectURL(objectUrl);
-reject(new Error("The selected image could not be processed."));
-};
-image.src=objectUrl;
-});
-}
+function buildServiceFormData(){
 
-async function buildServiceFormData(){
-const formData=new FormData();
-formData.append("skill",skillInput.value.trim());
-formData.append("experience",experienceInput.value.trim());
-formData.append("description",descriptionInput.value.trim());
+    const formData=new FormData();
 
-const files=[
-portfolioPhoto1.files[0],
-portfolioPhoto2.files[0],
-portfolioPhoto3.files[0]
-];
+    formData.append(
+        "skill",
+        skillInput.value.trim()
+    );
 
-const failedImages=[];
+    formData.append(
+        "experience",
+        experienceInput.value.trim()
+    );
 
-for(let i=0;i<files.length;i++){
-try{
-const compressedFile=await compressImage(files[i]);
-formData.append("portfolioPhotos",compressedFile);
-}catch(error){
-console.error(
-`Portfolio image ${i+1} processing failed:`,
-error
-);
-failedImages.push(i+1);
-}
-}
+    formData.append(
+        "description",
+        descriptionInput.value.trim()
+    );
 
-if(failedImages.length){
-throw new Error(
-`PORTFOLIO_IMAGES_FAILED:${failedImages.join(",")}`
-);
-}
+    formData.append(
+        "portfolioPhotos",
+        portfolioPhoto1.files[0]
+    );
 
-return formData;
+    formData.append(
+        "portfolioPhotos",
+        portfolioPhoto2.files[0]
+    );
+
+    formData.append(
+        "portfolioPhotos",
+        portfolioPhoto3.files[0]
+    );
+
+    return formData;
 }
 
 async function createService(){
-if(isAddingService)return;
 
-const validationResult=validateServiceForm();
+    if(isAddingService)return;
 
-if(!validationResult.valid){
-showNotification(
-"error",
-"Invalid Service",
-validationResult.message
+    const validationResult=
+        validateServiceForm();
+
+    if(!validationResult.valid){
+
+        showNotification(
+            "error",
+            "Invalid Service",
+            validationResult.message
+        );
+
+        return;
+    }
+
+    isAddingService=true;
+
+    setButtonLoading(
+        addServiceBtn,
+        true,
+        "Connecting..."
+    );
+
+    try{
+
+        const formData=
+            buildServiceFormData();
+
+        const response=
+            await API_REQUEST(
+                CREATE_SERVICE_ENDPOINT,
+                {
+                    method:"POST",
+                    body:formData
+                }
+            );
+
+        if(response.status===401){
+
+            showAuthenticationError();
+
+            return;
+        }
+
+        if(!response.ok){
+
+            const message=
+                await extractResponseMessage(
+                    response
+                );
+
+            showNotification(
+                "error",
+                "Unable To Add Service",
+                message
+            );
+
+            return;
+        }
+
+        let successMessage=
+            "Your service has been added successfully.";
+
+        try{
+
+            const data=
+                await response.json();
+
+            if(data.message){
+                successMessage=data.message;
+            }
+
+        }catch(error){
+
+            console.log(
+                "No JSON success response returned."
+            );
+        }
+
+        showNotification(
+            "success",
+            "Service Added",
+            successMessage,
+            ()=>{
+                window.location.href=
+                    SERVICES_REDIRECT;
+            }
+        );
+
+    }catch(error){
+
+        console.error(
+            "Create service request failed:",
+            error
+        );
+
+        showNotification(
+            "error",
+            "Request Failed",
+            "Something went wrong. Please try again."
+        );
+
+    }finally{
+
+        isAddingService=false;
+
+        setButtonLoading(
+            addServiceBtn,
+            false
+        );
+    }
+}
+
+serviceForm?.addEventListener(
+    "submit",
+    event=>{
+        event.preventDefault();
+        createService();
+    }
 );
-return;
-}
-
-isAddingService=true;
-
-setButtonLoading(
-addServiceBtn,
-true,
-"Adding Service..."
-);
-
-try{
-const formData=await buildServiceFormData();
-
-const response=await API_REQUEST(
-CREATE_SERVICE_ENDPOINT,
-{
-method:"POST",
-body:formData
-}
-);
-
-if(response.status===401){
-showAuthenticationError();
-return;
-}
-
-if(!response.ok){
-const message=await extractResponseMessage(response);
-showNotification(
-"error",
-"Unable To Add Service",
-message
-);
-return;
-}
-
-let successMessage="Your service has been added successfully.";
-
-try{
-const data=await response.json();
-if(data.message)
-successMessage=data.message;
-}catch(error){
-console.log("No JSON success response returned.");
-}
-
-isAddingService=false;
-setButtonLoading(addServiceBtn,false);
-
-showNotification(
-"success",
-"Service Added",
-successMessage,
-()=>window.location.href=SERVICES_REDIRECT
-);
-
-return;
-
-}catch(error){
-console.error("Create service request failed:",error);
-
-if(error.message?.startsWith("PORTFOLIO_IMAGES_FAILED:")){
-const failedImages=error.message
-.replace("PORTFOLIO_IMAGES_FAILED:","")
-.split(",")
-.filter(Boolean);
-
-const imageText=failedImages.length===1
-?`portfolio image ${failedImages[0]}`
-:`portfolio images ${failedImages.slice(0,-1).join(", ")} and ${failedImages[failedImages.length-1]}`;
-
-showNotification(
-"error",
-"Request Failed",
-`We could not process your ${imageText}. Please try again.`
-);
-}else{
-showNotification(
-"error",
-"Request Failed",
-"We could not process your portfolio image. Please try again."
-);
-}
-
-}finally{
-isAddingService=false;
-setButtonLoading(addServiceBtn,false);
-}
-}
-
-serviceForm?.addEventListener("submit",event=>{
-event.preventDefault();
-createService();
-});
 
 function initializeCreateServicePage(){
-populateSkillDropdown();
-updateDescriptionWordCount();
+    populateSkillDropdown();
+    updateDescriptionWordCount();
 }
 
 initializeCreateServicePage();
