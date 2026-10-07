@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Worker Services | Admin | SkillConnect</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+    <div
+        class="purple-glow"
+        aria-hidden="true"
+    ></div>
+
+    <div
+        class="blue-glow"
+        aria-hidden="true"
+    ></div>
+
+
+    <header class="topbar">
+
+        <div class="topbar-inner">
+
+            <a
+                href="../admin-dashboard/index.html"
+                class="logo"
+            >
+                SkillConnect
+            </a>
+
+
+            <button
+                type="button"
+                id="menuBtn"
+                class="menu-btn"
+                aria-label="Open navigation menu"
+                aria-controls="sidebar"
+                aria-expanded="false"
+            >
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <aside
+        id="sidebar"
+        class="sidebar"
+        aria-label="Admin dashboard navigation"
+    >
+
+        <div class="sidebar-header">
+
+            <div class="sidebar-brand">
+
+                <span class="sidebar-brand-icon">
+                    SC
+                </span>
+
+                <div class="sidebar-brand-text">
+
+                    <strong>
+                        SkillConnect
+                    </strong>
+
+                    <small>
+                        Admin Portal
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="closeMenuBtn"
+                class="close-menu-btn"
+                aria-label="Close navigation menu"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <button
+                type="button"
+                id="dashboardBtn"
+                class="nav-link"
+            >
+
+                <span
+                    class="nav-icon"
+                    aria-hidden="true"
+                >
+                    🏠
+                </span>
+
+                <span>
+                    Dashboard
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                id="servicesBtn"
+                class="nav-link active"
+            >
+
+                <span
+                    class="nav-icon"
+                    aria-hidden="true"
+                >
+                    🛠️
+                </span>
+
+                <span>
+                    Services
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                id="adminBtn"
+                class="nav-link"
+            >
+
+                <span
+                    class="nav-icon"
+                    aria-hidden="true"
+                >
+                    👥
+                </span>
+
+                <span>
+                    Admin
+                </span>
+
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <button
+                type="button"
+                id="logoutBtn"
+                class="nav-link logout-link"
+            >
+
+                <span
+                    class="nav-icon"
+                    aria-hidden="true"
+                >
+                    ↪
+                </span>
+
+                <span>
+                    Logout
+                </span>
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <div
+        id="overlay"
+        class="overlay"
+        aria-hidden="true"
+    ></div>
+
+
+    <main
+        class="services-page"
+        id="servicesContent"
+    >
+
+        <section class="page-header">
+
+            <div>
+
+                <h1>
+                    Worker Services
+                </h1>
+
+                <p>
+                    Review worker services awaiting admin approval.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <section class="services-section">
+
+            <div
+                id="servicesContainer"
+                class="services-container"
+            ></div>
+
+        </section>
+
+    </main>
+
+
+    <div
+        id="notificationOverlay"
+        class="notification-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="notificationTitle"
+        aria-describedby="notificationText"
+        hidden
+    >
+
+        <div
+            id="notificationCard"
+            class="notification-card"
+        >
+
+            <button
+                type="button"
+                id="notificationCancelButton"
+                class="notification-close-button"
+                aria-label="Close notification"
+            >
+                ×
+            </button>
+
+
+            <div
+                id="notificationIcon"
+                class="notification-icon"
+                aria-hidden="true"
+            >
+                ✓
+            </div>
+
+
+            <h2 id="notificationTitle">
+                Notification
+            </h2>
+
+
+            <p id="notificationText"></p>
+
+
+            <div class="notification-actions">
+
+                <button
+                    type="button"
+                    id="notificationButton"
+                >
+                    Continue
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script src="../config.js"></script>
+
+    <script
+        src="script.js"
+        defer
+    ></script>
+
+</body>
+
+</html>

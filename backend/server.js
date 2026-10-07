@@ -32,6 +32,7 @@ const clientViewRatingsRoutes=require("./routes/client-view-ratings");
 
 const adminAuthenticationRoutes=require("./routes/admin-authentication");
 const adminDashboardRoutes=require("./routes/admin-dashboard");
+const adminWorkerServicesRoutes=require("./routes/admin-worker-services");
 const createAdmin=require("./controllers/create-admin");
 
 const app=express();
@@ -130,6 +131,7 @@ app.use("/api/client-view-ratings",clientViewRatingsRoutes);
 
 app.use("/api/admin/auth",adminAuthenticationRoutes);
 app.use("/api/admin-dashboard",adminDashboardRoutes);
+app.use("/api/admin-worker-services",adminWorkerServicesRoutes);
 
 /* 8. OTHER WORKER ROUTES */
 
