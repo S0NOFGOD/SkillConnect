@@ -1,6 +1,7 @@
 const crypto=require("crypto");
 const https=require("https");
 const Worker=require("../models/worker");
+const { worker } = require("cluster");
 
 const BREVO_API_KEY=process.env.BREVO_API_KEY;
 const BREVO_SENDER_EMAIL=process.env.BREVO_SENDER_EMAIL;
@@ -69,7 +70,7 @@ worker.emailOtpExpires=null;
 await worker.save();
 return res.status(400).json({success:false,message:"Verification code has expired. Please request a new code."});
 }
-worker.isEmailVerified=true;
+worker.emailVerified=true;
 worker.emailOtpHash=null;
 worker.emailOtpExpires=null;
 await worker.save();
@@ -88,12 +89,19 @@ if(!email)return res.status(400).json({success:false,message:"Email is required.
 const normalizedEmail=email.trim().toLowerCase();
 const worker=await Worker.findOne({email:normalizedEmail});
 if(!worker)return res.status(404).json({success:false,message:"Worker account not found."});
-if(worker.isEmailVerified)return res.status(400).json({success:false,message:"This email is already verified."});
-const{otp,expiresAt}=generateOTPData();
-worker.emailOtpHash=hashOTP(otp);
-worker.emailOtpExpires=expiresAt;
-await worker.save();
+
+const otp=generateOTP();
+
 await sendOTPEmail({email:worker.email,otp,type:"email-verification"});
+
+const emailOtpHash=hashOTP(otp);
+const emailOtpExpires=createOTPExpiry();
+
+worker.emailOtpHash=emailOtpHash;
+worker.emailOtpExpires=emailOtpExpires;
+
+await worker.save();
+
 return res.status(200).json({success:true,message:"A new verification code has been sent to your email.",email:worker.email,nextStep:"email-verification"});
 }catch(error){
 console.error("Worker resend email OTP error:",error);

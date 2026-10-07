@@ -1,7 +1,6 @@
 const mongoose=require("mongoose");
 
 const workerSchema=new mongoose.Schema({
-    // Account information.
     email:{
         type:String,
         required:true,
@@ -29,8 +28,7 @@ const workerSchema=new mongoose.Schema({
         default:"password",
         required:true
     },
-    // Email verification.
-    isEmailVerified:{
+    emailVerified:{
         type:Boolean,
         default:false,
         required:true
@@ -45,7 +43,7 @@ const workerSchema=new mongoose.Schema({
         default:null,
         select:false
     },
-    // Phone verification.
+
     phoneOtpHash:{
         type:String,
         default:null,
@@ -68,13 +66,12 @@ const workerSchema=new mongoose.Schema({
         type:Date,
         default:null
     },
-    // Worker profile.
+
     fullName:{
         type:String,
         trim:true,
         default:null
     },
-    // Stores the Cloudinary public_id, not the image URL.
     profilePhoto:{
         type:String,
         trim:true,
@@ -108,13 +105,12 @@ const workerSchema=new mongoose.Schema({
         default:null,
         index:true
     },
-    // Worker skills.
+
     skills:[{
         type:String,
         trim:true
     }],
 
-    // Worker services.
     services:[{
         id:{
             type:Number,
@@ -171,24 +167,42 @@ const workerSchema=new mongoose.Schema({
             default:Date.now
         }
     }],
+
     profileCompleted:{
         type:Boolean,
         default:false,
         required:true
     },
-    // Refresh-token session.
+
+    contacts:[{
+        clientId:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"Client",
+            required:true
+        },
+        date:{
+            type:Date,
+            default:Date.now
+        }
+    }],
+
+    totalContact:{
+        type:Number,
+        default:0
+    },
+
     refreshTokenHash:{
         type:String,
         default:null,
         select:false
     },
-    // Google OAuth exchange.
+
     googleExchangeCode:{
         type:String,
         default:null,
         select:false
     },
-    // Password reset.
+
     passwordResetOtpHash:{
         type:String,
         default:null,
@@ -206,11 +220,6 @@ const workerSchema=new mongoose.Schema({
     passwordResetVerifiedAt:{
         type:Date,
         default:null
-    },
-    resetAuthorization:{
-        type:String,
-        default:null,
-        select:false
     },
     resetAuthorizationExpires:{
         type:Date,

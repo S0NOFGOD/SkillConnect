@@ -8,7 +8,6 @@ const otpInputs=[...document.querySelectorAll(".otp-input")];
 const verifyButton=document.getElementById("verifyButton");
 const resendOTP=document.getElementById("resendOTP");
 const countdown=document.getElementById("countdown");
-
 const notificationModal=document.getElementById("notificationModal");
 const notificationIcon=document.getElementById("notificationIcon");
 const notificationTitle=document.getElementById("notificationTitle");
@@ -22,9 +21,6 @@ let countdownTimer=null;
 let resendAvailable=false;
 let currentLoadingAction=null;
 
-/* =========================
-   1. NOTIFICATION MODAL
-========================= */
 function showNotification(title,message,type="success",action=null){
     notificationTitle.textContent=title;
     notificationMessage.textContent=message;
@@ -36,43 +32,26 @@ function showNotification(title,message,type="success",action=null){
 
 function closeNotification(){
     notificationModal.hidden=true;
-
     const action=notificationAction;
     notificationAction=null;
-
     if(typeof action==="function")action();
 }
 
-notificationCloseButton.addEventListener(
-    "click",
-    closeNotification
-);
+notificationCloseButton.addEventListener("click",closeNotification);
 
-notificationModal.addEventListener(
-    "click",
-    event=>{
-        if(event.target===notificationModal){
-            closeNotification();
-        }
-    }
-);
+notificationModal.addEventListener("click",event=>{
+    if(event.target===notificationModal)closeNotification();
+});
 
-/* =========================
-   2. INITIAL EMAIL CHECK
-========================= */
 function initializeEmail(){
     if(!clientEmail){
         clientEmailElement.textContent="Email not found";
-
         showNotification(
             "Email Not Found",
             "We could not find your email address. Please return to client authentication and try again.",
             "error",
-            ()=>{
-                window.location.href="../client-authentication/index.html";
-            }
+            ()=>window.location.href="../client-authentication/index.html"
         );
-
         return false;
     }
 
@@ -80,9 +59,6 @@ function initializeEmail(){
     return true;
 }
 
-/* =========================
-   3. OTP INPUT
-========================= */
 otpInputs.forEach((input,index)=>{
     input.addEventListener("input",()=>{
         input.value=input.value.replace(/\D/g,"").slice(0,1);
@@ -94,11 +70,7 @@ otpInputs.forEach((input,index)=>{
     });
 
     input.addEventListener("keydown",event=>{
-        if(
-            event.key==="Backspace"&&
-            !input.value&&
-            index>0
-        ){
+        if(event.key==="Backspace"&&!input.value&&index>0){
             otpInputs[index-1].focus();
         }
 
@@ -129,22 +101,14 @@ otpInputs.forEach((input,index)=>{
     });
 });
 
-/* =========================
-   4. GET OTP
-========================= */
 function getOTP(){
     return otpInputs.map(input=>input.value).join("");
 }
 
-/* =========================
-   5. VALIDATE OTP
-========================= */
 function validateOTP(){
     const otp=getOTP();
 
-    otpInputs.forEach(input=>{
-        input.classList.remove("invalid");
-    });
+    otpInputs.forEach(input=>input.classList.remove("invalid"));
 
     if(!/^\d{6}$/.test(otp)){
         otpInputs.forEach(input=>{
@@ -166,33 +130,25 @@ function validateOTP(){
     return otp;
 }
 
-/* =========================
-   6. LOADING STATE
-========================= */
 function setVerifyLoading(loading){
     currentLoadingAction=loading?"verify":null;
     verifyButton.disabled=loading;
 
     if(loading){
         verifyButton.classList.add("loading");
-        verifyButton.innerHTML=
-            '<span class="loading-spinner"></span><span>Verifying...</span>';
+        verifyButton.innerHTML='<span class="loading-spinner"></span><span>Connecting...</span>';
     }else{
         verifyButton.classList.remove("loading");
-        verifyButton.innerHTML=
-            '<span class="btn-text">Verify Email</span>';
+        verifyButton.innerHTML='<span class="btn-text">Verify OTP</span>';
     }
 }
 
 function setResendLoading(loading){
     currentLoadingAction=loading?"resend":null;
     resendOTP.classList.toggle("disabled",loading);
-    resendOTP.textContent=loading?"Sending...":"Resend OTP";
+    resendOTP.textContent=loading?"Connecting...":"Resend OTP";
 }
 
-/* =========================
-   7. API RESPONSE
-========================= */
 async function getResponseData(response){
     try{
         return await response.json();
@@ -202,91 +158,76 @@ async function getResponseData(response){
 }
 
 function getServerMessage(data,fallback){
-    return data.message||
-        data.error||
-        data.msg||
-        fallback;
+    return data.message||data.error||data.msg||fallback;
 }
 
-/* =========================
-   8. VERIFY OTP
-========================= */
-otpForm.addEventListener(
-    "submit",
-    async event=>{
-        event.preventDefault();
+otpForm.addEventListener("submit",async event=>{
+    event.preventDefault();
 
-        if(!clientEmail)return;
+    if(!clientEmail)return;
 
-        const otp=validateOTP();
+    const otp=validateOTP();
 
-        if(!otp)return;
+    if(!otp)return;
 
-        setVerifyLoading(true);
+    setVerifyLoading(true);
 
-        try{
-            const response=await API_REQUEST(
-                VERIFY_OTP_ENDPOINT,
-                {
-                    method:"POST",
-                    headers:{
-                        "Content-Type":"application/json"
-                    },
-                    body:JSON.stringify({
-                        email:clientEmail,
-                        otp
-                    })
-                }
-            );
-
-            const data=await getResponseData(response);
-
-            if(!response.ok){
-                showNotification(
-                    "Verification Failed",
-                    getServerMessage(
-                        data,
-                        "We could not verify your email. Please check your OTP and try again."
-                    ),
-                    "error"
-                );
-
-                return;
+    try{
+        const response=await fetch(
+            API_ENDPOINT(VERIFY_OTP_ENDPOINT),
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    email:clientEmail,
+                    otp
+                })
             }
+        );
 
+        const data=await getResponseData(response);
+
+        if(!response.ok){
             showNotification(
-                "Email Verified",
+                "Verification Failed",
                 getServerMessage(
                     data,
-                    "Your email has been successfully verified."
+                    "We could not verify your email. Please check your OTP and try again."
                 ),
-                "success",
-                ()=>{
-                    window.location.href="../client-create-profile/index.html";
-                }
-            );
-
-        }catch(error){
-            console.error(
-                "Client email OTP verification failed:",
-                error
-            );
-
-            showNotification(
-                "Connection Error",
-                "Unable to connect to the server. Please try again.",
                 "error"
             );
-
-        }finally{
-            setVerifyLoading(false);
+            return;
         }
-    }
-);
 
-/* =========================
-   9. RESEND COUNTDOWN
-========================= */
+        showNotification(
+            "Email Verified",
+            getServerMessage(
+                data,
+                "Your email has been successfully verified."
+            ),
+            "success",
+            ()=>window.location.href="../client-create-profile/index.html"
+        );
+
+    }catch(error){
+        console.error(
+            "Client email OTP verification failed:",
+            error
+        );
+
+        showNotification(
+            "Connection Error",
+            "Unable to connect to the server. Please try again.",
+            "error"
+        );
+
+    }finally{
+        setVerifyLoading(false);
+    }
+});
+
 function startCountdown(seconds=60){
     clearInterval(countdownTimer);
 
@@ -294,8 +235,7 @@ function startCountdown(seconds=60){
     resendAvailable=false;
     resendOTP.classList.add("disabled");
 
-    countdown.textContent=
-        `Resend available in ${remaining}s`;
+    countdown.textContent=`Resend available in ${remaining}s`;
 
     countdownTimer=setInterval(()=>{
         remaining--;
@@ -309,88 +249,73 @@ function startCountdown(seconds=60){
             return;
         }
 
-        countdown.textContent=
-            `Resend available in ${remaining}s`;
+        countdown.textContent=`Resend available in ${remaining}s`;
     },1000);
 }
 
-/* =========================
-   10. RESEND OTP
-========================= */
-resendOTP.addEventListener(
-    "click",
-    async event=>{
-        event.preventDefault();
+resendOTP.addEventListener("click",async event=>{
+    event.preventDefault();
 
-        if(
-            !clientEmail||
-            !resendAvailable||
-            currentLoadingAction
-        )return;
+    if(!clientEmail||!resendAvailable||currentLoadingAction)return;
 
-        setResendLoading(true);
+    setResendLoading(true);
 
-        try{
-            const response=await API_REQUEST(
-                RESEND_OTP_ENDPOINT,
-                {
-                    method:"POST",
-                    headers:{
-                        "Content-Type":"application/json"
-                    },
-                    body:JSON.stringify({
-                        email:clientEmail
-                    })
-                }
-            );
-
-            const data=await getResponseData(response);
-
-            if(!response.ok){
-                showNotification(
-                    "Resend Failed",
-                    getServerMessage(
-                        data,
-                        "We could not resend the verification code. Please try again."
-                    ),
-                    "error"
-                );
-
-                return;
+    try{
+        const response=await fetch(
+            API_ENDPOINT(RESEND_OTP_ENDPOINT),
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    email:clientEmail
+                })
             }
+        );
 
-            startCountdown(60);
+        const data=await getResponseData(response);
 
+        if(!response.ok){
             showNotification(
-                "OTP Sent",
+                "Resend Failed",
                 getServerMessage(
                     data,
-                    "A new verification code has been sent to your email."
+                    "We could not resend the verification code. Please try again."
                 ),
-                "success"
-            );
-
-        }catch(error){
-            console.error(
-                "Client email OTP resend failed:",
-                error
-            );
-
-            showNotification(
-                "Connection Error",
-                "Unable to connect to the server. Please try again.",
                 "error"
             );
-
-        }finally{
-            setResendLoading(false);
+            return;
         }
-    }
-);
 
-/* =========================
-   11. INITIALIZE PAGE
-========================= */
+        startCountdown(60);
+
+        showNotification(
+            "OTP Sent",
+            getServerMessage(
+                data,
+                "A new verification code has been sent to your email."
+            ),
+            "success"
+        );
+
+    }catch(error){
+        console.error(
+            "Client email OTP resend failed:",
+            error
+        );
+
+        showNotification(
+            "Connection Error",
+            "Unable to connect to the server. Please try again.",
+            "error"
+        );
+
+    }finally{
+        setResendLoading(false);
+    }
+});
+
 if(initializeEmail()){
     startCountdown(60);
 }

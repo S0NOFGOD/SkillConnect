@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard | SkillConnect</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+    <div class="purple-glow" aria-hidden="true"></div>
+
+    <div class="blue-glow" aria-hidden="true"></div>
+
+
+    <header class="topbar">
+
+        <div class="topbar-inner">
+
+            <a href="index.html" class="logo">
+                SkillConnect
+            </a>
+
+            <button
+                type="button"
+                id="menuBtn"
+                class="menu-btn"
+                aria-label="Open navigation menu"
+                aria-controls="sidebar"
+                aria-expanded="false"
+            >
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <aside
+        id="sidebar"
+        class="sidebar"
+        aria-label="Admin dashboard navigation"
+    >
+
+        <div class="sidebar-header">
+
+            <div class="sidebar-brand">
+
+                <span class="sidebar-brand-icon">
+                    SC
+                </span>
+
+                <div class="sidebar-brand-text">
+
+                    <strong>
+                        SkillConnect
+                    </strong>
+
+                    <small>
+                        Admin Portal
+                    </small>
+
+                </div>
+
+            </div>
+
+            <button
+                type="button"
+                id="closeMenuBtn"
+                class="close-menu-btn"
+                aria-label="Close navigation menu"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <a
+                href="index.html"
+                class="nav-link active"
+            >
+
+                <span
+                    class="nav-icon"
+                    aria-hidden="true"
+                >
+                    🏠
+                </span>
+
+                <span>
+                    Dashboard
+                </span>
+
+            </a>
+
+
+            <button
+                type="button"
+                id="servicesBtn"
+                class="nav-link"
+            >
+
+                <span
+                    class="nav-icon"
+                    aria-hidden="true"
+                >
+                    🛠️
+                </span>
+
+                <span>
+                    Services
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                id="adminBtn"
+                class="nav-link"
+            >
+
+                <span
+                    class="nav-icon"
+                    aria-hidden="true"
+                >
+                    👥
+                </span>
+
+                <span>
+                    Admin
+                </span>
+
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <button
+                type="button"
+                id="logoutBtn"
+                class="nav-link logout-link"
+            >
+
+                <span
+                    class="nav-icon"
+                    aria-hidden="true"
+                >
+                    ↪
+                </span>
+
+                <span>
+                    Logout
+                </span>
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <div
+        id="overlay"
+        class="overlay"
+        aria-hidden="true"
+    ></div>
+
+
+    <main
+        class="dashboard"
+        id="dashboardContent"
+    >
+
+        <section class="dashboard-header">
+
+            <div class="welcome-content">
+
+                <h1>
+                    Welcome,
+                    <span id="adminFirstName">
+                        Admin
+                    </span>
+                </h1>
+
+                <p class="page-description">
+                    Monitor and manage the SkillConnect platform from one place.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <section class="dashboard-section">
+
+            <div class="section-heading">
+
+                <h2>
+                    Platform Overview
+                </h2>
+
+            </div>
+
+            <div class="information-grid">
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        Total Workers
+                    </span>
+
+                    <strong id="totalWorkers">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        Total Clients
+                    </span>
+
+                    <strong id="totalClients">
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="dashboard-section">
+
+            <div class="section-heading">
+
+                <h2>
+                    Worker Information
+                </h2>
+
+            </div>
+
+            <div class="information-grid">
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        Verified Workers
+                    </span>
+
+                    <strong id="verifiedWorkerCount">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        Total Services
+                    </span>
+
+                    <strong id="totalServices">
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="dashboard-section">
+
+            <div class="section-heading">
+
+                <h2>
+                    Client Information
+                </h2>
+
+            </div>
+
+            <div class="information-grid">
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        Total Contact
+                    </span>
+
+                    <strong id="clientContact">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        Total Ratings
+                    </span>
+
+                    <strong id="totalRatings">
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <div
+        id="notificationOverlay"
+        class="notification-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="notificationTitle"
+        aria-describedby="notificationText"
+        hidden
+    >
+
+        <div
+            id="notificationCard"
+            class="notification-card"
+        >
+
+            <button
+                type="button"
+                id="notificationCancelButton"
+                class="notification-close-button"
+                aria-label="Close notification"
+            >
+                ×
+            </button>
+
+
+            <div
+                id="notificationIcon"
+                class="notification-icon"
+                aria-hidden="true"
+            >
+                ✓
+            </div>
+
+
+            <h2 id="notificationTitle">
+                Notification
+            </h2>
+
+
+            <p id="notificationText"></p>
+
+
+            <div class="notification-actions">
+
+                <button
+                    type="button"
+                    id="notificationButton"
+                >
+                    Continue
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script src="../config.js"></script>
+
+    <script
+        src="script.js"
+        defer
+    ></script>
+
+</body>
+
+</html>

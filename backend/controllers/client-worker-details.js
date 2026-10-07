@@ -1,59 +1,13 @@
-const jwt=require("jsonwebtoken");
 const cloudinary=require("cloudinary").v2;
 const Worker=require("../models/worker");
 const Client=require("../models/client");
+const{authenticateClient}=require("./client-authentication");
 
 cloudinary.config({
     cloud_name:process.env.CLOUDINARY_CLOUD_NAME,
     api_key:process.env.CLOUDINARY_API_KEY,
     api_secret:process.env.CLOUDINARY_API_SECRET
 });
-
-const authenticateClient=req=>{
-    const accessToken=req.cookies?.accessToken;
-
-    if(!accessToken){
-        return {
-            valid:false,
-            status:401,
-            message:"Authentication required."
-        };
-    }
-
-    try{
-
-        const decoded=jwt.verify(
-            accessToken,
-            process.env.ACCESS_TOKEN_SECRET
-        );
-
-        if(
-            !decoded.userId||
-            decoded.userType!=="client"
-        ){
-            return {
-                valid:false,
-                status:401,
-                message:"Invalid authentication credentials."
-            };
-        }
-
-        return {
-            valid:true,
-            userId:decoded.userId
-        };
-
-    }catch(error){
-
-        return {
-            valid:false,
-            status:401,
-            message:"Authentication token is invalid or expired."
-        };
-
-    }
-};
-
 
 /* =========================
    GET WORKER DETAILS
@@ -117,7 +71,8 @@ try{
 
     const totalRating=
         ratingAndReview.reduce(
-            (total,item)=>total+Number(item.rating||0),
+            (total,item)=>
+                total+Number(item.rating||0),
             0
         );
 
@@ -185,6 +140,85 @@ try{
 }
 };
 
+/* =========================
+   CONTACT WORKER
+========================= */
+
+const contactWorker=async(req,res)=>{
+try{
+
+    const authentication=authenticateClient(req);
+
+    if(!authentication.valid){
+
+        return res.status(authentication.status).json({
+            success:false,
+            message:authentication.message
+        });
+
+    }
+
+    const workerId=req.body.workerId;
+
+    if(!workerId){
+
+        return res.status(400).json({
+            success:false,
+            message:"Worker ID is required."
+        });
+
+    }
+
+    const client=await Client.findById(
+        authentication.userId
+    );
+
+    if(!client){
+
+        return res.status(404).json({
+            success:false,
+            message:"Client account not found."
+        });
+
+    }
+
+    const worker=await Worker.findById(workerId);
+
+    if(!worker){
+
+        return res.status(404).json({
+            success:false,
+            message:"Worker not found."
+        });
+
+    }
+
+    worker.totalContact=
+        Number(worker.totalContact||0)+1;
+
+    await worker.save();
+
+    return res.status(200).json({
+        success:true,
+        message:"Worker contact recorded successfully.",
+        phone:worker.phone,
+        totalContact:worker.totalContact
+    });
+
+}catch(error){
+
+    console.error(
+        "Contact worker error:",
+        error
+    );
+
+    return res.status(500).json({
+        success:false,
+        message:"Unable to contact worker. Please try again."
+    });
+
+}
+};
 
 /* =========================
    GET CLIENT RATING
@@ -278,7 +312,6 @@ try{
 }
 };
 
-
 /* =========================
    SAVE CLIENT RATING
 ========================= */
@@ -300,6 +333,7 @@ try{
     const workerId=req.body.workerId;
     const id=req.body.serviceId;
     const rating=Number(req.body.rating);
+
     const review=
         typeof req.body.review==="string"?
         req.body.review.trim():
@@ -440,9 +474,9 @@ try{
 }
 };
 
-
 module.exports={
     getWorkerDetails,
+    contactWorker,
     getClientRating,
     saveClientRating
 };

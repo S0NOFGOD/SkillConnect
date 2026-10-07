@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Secure administrator login for SkillConnect.">
+    <title>Admin Authentication | SkillConnect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="navbar">
+    <a href="../index.html" class="logo">SkillConnect</a>
+    <nav class="nav-links">
+        <a href="../index.html">Home</a>
+    </nav>
+</header>
+
+<main class="auth-page">
+
+    <section class="hero-section">
+
+        <span class="hero-badge">Secure • Private • Admin</span>
+
+        <h1>
+            Manage <span>SkillConnect</span>
+        </h1>
+
+        <p class="hero-description">
+            Securely access the SkillConnect administration dashboard and manage the platform.
+        </p>
+
+        <div class="benefits">
+
+            <div class="benefit-card">
+
+                <div class="benefit-icon">✓</div>
+
+                <div>
+                    <h3>Secure Access</h3>
+                    <p>
+                        Access the administration system through your authorized admin account.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="benefit-card">
+
+                <div class="benefit-icon">✓</div>
+
+                <div>
+                    <h3>Manage the Platform</h3>
+                    <p>
+                        Monitor and manage SkillConnect from one secure dashboard.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <section class="auth-section">
+
+        <div class="auth-card">
+
+            <div class="auth-header">
+
+                <h2>Admin Account</h2>
+
+                <p>
+                    Login to access the administration dashboard
+                </p>
+
+            </div>
+
+            <form id="loginForm" class="auth-form" novalidate>
+
+                <div class="form-group">
+
+                    <label for="loginEmail">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        id="loginEmail"
+                        name="email"
+                        placeholder="Enter your email"
+                        autocomplete="email"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="loginPassword">
+                        Password
+                    </label>
+
+                    <div class="password-wrapper">
+
+                        <input
+                            type="password"
+                            id="loginPassword"
+                            name="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                        >
+
+                        <button
+                            type="button"
+                            id="toggleLoginPassword"
+                            class="password-toggle"
+                            aria-label="Show password"
+                        >
+                            Show
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <button
+                    type="submit"
+                    id="loginButton"
+                    class="auth-button"
+                >
+                    Login
+                </button>
+
+            </form>
+
+        </div>
+
+    </section>
+
+</main>
+
+<!-- NOTIFICATION MODAL -->
+
+<div
+    id="notificationModal"
+    class="modal"
+    aria-hidden="true"
+>
+
+    <div
+        class="modal-overlay"
+        id="notificationOverlay"
+    ></div>
+
+    <div class="modal-card">
+
+        <button
+            type="button"
+            id="closeNotification"
+            class="modal-close"
+            aria-label="Close notification"
+        >
+            ×
+        </button>
+
+        <div
+            id="notificationIcon"
+            class="modal-icon"
+        >
+            ✓
+        </div>
+
+        <h3 id="notificationTitle">
+            Success
+        </h3>
+
+        <p id="notificationMessage">
+            Your request was successful.
+        </p>
+
+        <button
+            type="button"
+            id="notificationButton"
+            class="modal-button"
+        >
+            Continue
+        </button>
+
+    </div>
+
+</div>
+
+<script src="../config.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>

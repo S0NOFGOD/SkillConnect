@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Ratings & Reviews - SkillConnect</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet"
+>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="green-glow"></div>
+<div class="blue-glow"></div>
+
+
+<nav>
+
+<button
+    id="backBtn"
+    class="nav-btn"
+    type="button"
+>
+    ← Back
+</button>
+
+</nav>
+
+
+<main class="ratings-page">
+
+
+<div
+    id="loadingState"
+    class="loading-state"
+>
+
+<div class="loading-spinner"></div>
+
+<p>Loading ratings...</p>
+
+</div>
+
+
+<div
+    id="ratingsContent"
+    class="ratings-content"
+    hidden
+>
+
+
+<div class="ratings-header-card">
+
+<h1>Ratings & Reviews</h1>
+
+<p>
+See what clients have said about this worker.
+</p>
+
+<section class="ratings-card">
+
+<span
+    id="reviewCount"
+    class="review-count"
+>
+    0 Reviews
+</span>
+
+
+<div
+    id="reviewList"
+    class="review-list"
+></div>
+
+
+</section>
+
+
+</div>
+
+
+<div
+    id="errorState"
+    class="error-state"
+    hidden
+>
+
+<h2>Unable to Load Ratings</h2>
+
+<p id="errorMessage">
+Something went wrong.
+</p>
+
+<button
+    id="retryBtn"
+    class="continue-btn"
+    type="button"
+>
+    Try Again
+</button>
+
+</div>
+
+
+</div>
+
+
+
+
+</main>
+
+
+<div
+    id="notificationOverlay"
+    class="notification-overlay"
+    hidden
+>
+
+<div class="notification-card">
+
+<h2 id="notificationTitle">
+Notice
+</h2>
+
+<p id="notificationMessage">
+Something went wrong.
+</p>
+
+<button
+    id="notificationButton"
+    type="button"
+>
+    Continue
+</button>
+
+</div>
+
+</div>
+
+
+<script src="../config.js"></script>
+<script src="script.js"></script>
+
+</body>
+
+</html>

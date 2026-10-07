@@ -21,9 +21,6 @@ const notificationTitle=document.getElementById("notificationTitle");
 const notificationText=document.getElementById("notificationText");
 const notificationButton=document.getElementById("notificationButton");
 
-const MAX_IMAGE_DIMENSION=1920;
-const MAX_COMPRESSED_IMAGE_SIZE=210241024;
-
 const workerEmail=sessionStorage.getItem("workerEmail");
 
 if(!workerEmail){
@@ -140,7 +137,7 @@ showModal("error","Invalid Information",validation.message);
 return;
 }
 
-const phone=normalizePhone(phoneInput.value);
+const phone=phoneInput.value.trim();
 
 setLoading(true);
 
@@ -148,15 +145,13 @@ try{
 const formData=new FormData();
 
 formData.append("email",workerEmail);
-formData.append("fullName",normalizeFullName(fullNameInput.value));
+formData.append("fullName",fullNameInput.value.trim());
 formData.append("phone",phone);
 formData.append("country",countryInput.value);
 formData.append("state",stateInput.value);
 formData.append("city",cityInput.value);
 formData.append("lga",lgaInput.value);
-
-const compressedPhoto=await compressImage(profilePhotoInput.files[0]);
-formData.append("profilePhoto",compressedPhoto);
+formData.append("profilePhoto",profilePhotoInput.files[0]);
 
 const response=await API_REQUEST("/api/worker/create-profile",{
 method:"POST",
@@ -219,108 +214,10 @@ phone="+"+phone;
 return phone;
 }
 
-/* FULL NAME NORMALIZATION */
-function normalizeNamePart(name){
-return name.toLowerCase().split(/([-'])/).map(part=>{
-if(part==="-"||part==="'")return part;
-return part.charAt(0).toUpperCase()+part.slice(1);
-}).join("");
-}
-
-function normalizeFullName(value){
-const fullName=String(value||"").trim().replace(/\s+/g," ");
-const nameParts=fullName.split(" ");
-
-if(nameParts.length!==2)return null;
-
-const namePattern=/^[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*$/;
-
-if(!namePattern.test(nameParts[0])||!namePattern.test(nameParts[1]))return null;
-
-return nameParts.map(normalizeNamePart).join(" ");
-}
-
-/* RESIZE + CONVERT + COMPRESS IMAGE */
-function compressImage(file){
-return new Promise((resolve,reject)=>{
-const image=new Image();
-const objectUrl=URL.createObjectURL(file);
-
-image.onload=()=>{
-URL.revokeObjectURL(objectUrl);
-
-let width=image.width;
-let height=image.height;
-
-if(width>MAX_IMAGE_DIMENSION||height>MAX_IMAGE_DIMENSION){
-if(width>height){
-height=Math.round(height*(MAX_IMAGE_DIMENSION/width));
-width=MAX_IMAGE_DIMENSION;
-}else{
-width=Math.round(width*(MAX_IMAGE_DIMENSION/height));
-height=MAX_IMAGE_DIMENSION;
-}
-}
-
-const canvas=document.createElement("canvas");
-canvas.width=width;
-canvas.height=height;
-
-const context=canvas.getContext("2d");
-
-if(!context){
-reject(new Error("The selected image could not be processed."));
-return;
-}
-
-context.drawImage(image,0,0,width,height);
-
-canvas.toBlob(blob=>{
-if(!blob){
-reject(new Error("The selected image could not be processed."));
-return;
-}
-
-if(blob.size>MAX_COMPRESSED_IMAGE_SIZE){
-canvas.toBlob(smallerBlob=>{
-if(!smallerBlob){
-reject(new Error("The selected image could not be compressed."));
-return;
-}
-
-resolve(new File(
-[smallerBlob],
-`${file.name.replace(/\.[^/.]+$/,"")}.jpg`,
-{type:"image/jpeg"}
-));
-
-},"image/jpeg",0.65);
-
-return;
-}
-
-resolve(new File(
-[blob],
-`${file.name.replace(/\.[^/.]+$/,"")}.jpg`,
-{type:"image/jpeg"}
-));
-
-},"image/jpeg",0.8);
-};
-
-image.onerror=()=>{
-URL.revokeObjectURL(objectUrl);
-reject(new Error("The selected image could not be processed."));
-};
-
-image.src=objectUrl;
-});
-}
-
 /* VALIDATE FORM */
 function validateForm(){
 const fullName=fullNameInput.value.trim();
-const phone=normalizePhone(phoneInput.value);
+const phone=phoneInput.value.trim();
 const profilePhoto=profilePhotoInput.files[0];
 const country=countryInput.value;
 const state=stateInput.value;
@@ -335,18 +232,27 @@ if(!profilePhoto.type||!profilePhoto.type.startsWith("image/")){
 return{valid:false,message:"Please select an image file."};
 }
 
-const normalizedFullName=normalizeFullName(fullName);
+const nameParts=fullName.replace(/\s+/g," ").split(" ");
+const namePattern=/^[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*$/;
 
-if(!normalizedFullName){
+if(
+nameParts.length!==2||
+!namePattern.test(nameParts[0])||
+!namePattern.test(nameParts[1])
+){
 return{
 valid:false,
 message:"Please enter exactly two names with a space between them, for example: Destiny Okpone."
 };
 }
 
-fullNameInput.value=normalizedFullName;
+const phoneForValidation=phone.replace(/\s+/g,"").replace(/-/g,"").replace(/\(/g,"").replace(/\)/g,"");
 
-if(!/^\+234[789]\d{9}$/.test(phone)){
+if(
+!/^0[789]\d{9}$/.test(phoneForValidation)&&
+!/^234[789]\d{9}$/.test(phoneForValidation)&&
+!(/^\+234[789]\d{9}$/.test(phoneForValidation))
+){
 return{
 valid:false,
 message:"Please enter a valid Nigerian phone number."
@@ -377,7 +283,7 @@ function updateProgress(){
 const fields=[
 profilePhotoInput.files.length>0,
 fullNameInput.value.trim(),
-normalizePhone(phoneInput.value),
+phoneInput.value.trim(),
 countryInput.value,
 stateInput.value,
 cityInput.value,
@@ -405,12 +311,12 @@ continueBtn.disabled=isLoading;
 continueBtn.classList.toggle("loading",isLoading);
 
 if(buttonText){
-buttonText.textContent=isLoading?"Saving Profile...":"Continue";
+buttonText.textContent=isLoading?"Connecting...":"Continue";
 }
 }
 
 /* SHOW NOTIFICATION MODAL */
-function showModal(type,title,message,buttonLabel="Close",onClose=null){
+function showModal(type,title,message,buttonLabel="Continue",onClose=null){
 notificationCard.className=`notification-card ${type}`;
 notificationIcon.textContent=type==="success"?"✓":type==="error"?"!":"i";
 notificationTitle.textContent=title;

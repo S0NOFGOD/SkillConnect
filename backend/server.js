@@ -28,6 +28,11 @@ const clientPasswordChangeRoutes=require("./routes/client-password-change");
 const clientDashboardRoutes=require("./routes/client-dashboard");
 const clientWorkerSearchRoutes=require("./routes/client-worker-search");
 const clientWorkerDetailsRoutes=require("./routes/client-worker-details");
+const clientViewRatingsRoutes=require("./routes/client-view-ratings");
+
+const adminAuthenticationRoutes=require("./routes/admin-authentication");
+const adminDashboardRoutes=require("./routes/admin-dashboard");
+const createAdmin=require("./controllers/create-admin");
 
 const app=express();
 const PORT=process.env.PORT||5000;
@@ -38,25 +43,25 @@ const connectDB=async()=>{
 try{
 const mongoURI=process.env.MONGODB_URI;
 
-    if(!mongoURI){
-        throw new Error(
-            "MONGODB_URI is not defined in the .env file."
-        );
-    }
+if(!mongoURI){
+throw new Error(
+"MONGODB_URI is not defined in the .env file."
+);
+}
 
-    const connection=await mongoose.connect(mongoURI);
+const connection=await mongoose.connect(mongoURI);
 
-    console.log(
-        `MongoDB connected: ${connection.connection.host}`
-    );
+console.log(
+`MongoDB connected: ${connection.connection.host}`
+);
 
 }catch(error){
-    console.error(
-        "MongoDB connection failed:",
-        error.message
-    );
+console.error(
+"MongoDB connection failed:",
+error.message
+);
 
-    process.exit(1);
+process.exit(1);
 }
 
 };
@@ -67,7 +72,9 @@ app.set("trust proxy",1);
 
 const allowedOrigins=[
 process.env.FRONTEND_URL,
-process.env.FRONTEND_PRODUCTION_URL
+process.env.FRONTEND_PRODUCTION_URL,
+"http://localhost:5500",
+"http://127.0.0.1:5500"
 ].filter(Boolean);
 
 app.use(cors({
@@ -117,13 +124,19 @@ app.use("/api/client-password-change",clientPasswordChangeRoutes);
 app.use("/api/client-dashboard",clientDashboardRoutes);
 app.use("/api/client/worker-search",clientWorkerSearchRoutes);
 app.use("/api/client-worker-details",clientWorkerDetailsRoutes);
+app.use("/api/client-view-ratings",clientViewRatingsRoutes);
 
-/* 7. OTHER WORKER ROUTES */
+/* 7. ADMIN ROUTES */
+
+app.use("/api/admin/auth",adminAuthenticationRoutes);
+app.use("/api/admin-dashboard",adminDashboardRoutes);
+
+/* 8. OTHER WORKER ROUTES */
 
 app.use("/api/worker",workerDashboardRoutes);
 app.use("/api/worker",workerServicesRoutes);
 
-/* 8. 404 ERROR */
+/* 9. 404 ERROR */
 
 app.use((req,res)=>{
 res.status(404).json({
@@ -132,46 +145,47 @@ message:"The requested API endpoint was not found."
 });
 });
 
-/* 9. GLOBAL ERROR HANDLER */
+/* 10. GLOBAL ERROR HANDLER */
 
 app.use((error,req,res,next)=>{
 console.error("Server Error:",error);
 
 if(error.message==="Not allowed by CORS"){
-    return res.status(403).json({
-        success:false,
-        message:"This origin is not allowed to access the SkillConnect API."
-    });
+return res.status(403).json({
+success:false,
+message:"This origin is not allowed to access the SkillConnect API."
+});
 }
 
 return res.status(error.statusCode||500).json({
-    success:false,
-    message:process.env.NODE_ENV==="development"
-        ?error.message
-        :"An internal server error occurred."
+success:false,
+message:process.env.NODE_ENV==="development"
+?error.message
+:"An internal server error occurred."
 });
 
 });
 
-/* 10. START SERVER */
+/* 11. START SERVER */
 
 const startServer=async()=>{
 try{
 await connectDB();
+await createAdmin();
 
-    app.listen(PORT,()=>{
-        console.log(
-            `SkillConnect server running on port ${PORT}`
-        );
-    });
+app.listen(PORT,()=>{
+console.log(
+`SkillConnect server running on port ${PORT}`
+);
+});
 
 }catch(error){
-    console.error(
-        "Failed to start SkillConnect server:",
-        error.message
-    );
+console.error(
+"Failed to start SkillConnect server:",
+error.message
+);
 
-    process.exit(1);
+process.exit(1);
 }
 
 };

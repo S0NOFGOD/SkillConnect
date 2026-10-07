@@ -1,6 +1,7 @@
 const jwt=require("jsonwebtoken");
 const Worker=require("../models/worker");
 const Client=require("../models/client");
+const Admin=require("../models/admin");
 
 const logout=async(req,res)=>{
 try{
@@ -43,6 +44,8 @@ if(decodedToken.userType==="worker"){
 user=await Worker.findById(decodedToken.userId);
 }else if(decodedToken.userType==="client"){
 user=await Client.findById(decodedToken.userId);
+}else if(decodedToken.userType==="admin"){
+user=await Admin.findById(decodedToken.userId);
 }else{
 return res.status(403).json({
 success:false,

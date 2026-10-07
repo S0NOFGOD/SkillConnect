@@ -1,103 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- 1. PAGE CONFIG -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Completing SkillConnect Google authentication.">
-    <title>Google Authentication | SkillConnect</title>
-
-    <!-- 2. GOOGLE FONT -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <!-- 3. PAGE STYLESHEET -->
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="Completing SkillConnect Google authentication.">
+<title>Google Authentication | SkillConnect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <!-- 4. GOOGLE REDIRECT PAGE -->
-    <main class="redirect-page">
-        <section class="redirect-card">
+<main class="redirect-page">
+<section class="redirect-card">
+<div class="google-icon">G</div>
+<h1>Completing Sign In</h1>
+<p id="statusMessage">Please wait while we securely complete your Google authentication.</p>
+<div id="loadingSpinner" class="loading-spinner"></div>
+<button type="button" id="returnButton" class="action-button secondary hidden">Return to Login</button>
+</section>
+</main>
 
-            <!-- GOOGLE ICON -->
-            <div class="google-icon">G</div>
+<div id="notificationModal" class="modal" aria-hidden="true">
+<div class="modal-overlay" id="notificationOverlay"></div>
+<div class="modal-card">
+<button type="button" id="closeNotification" class="modal-close">×</button>
+<div id="notificationIcon" class="modal-icon">!</div>
+<h2 id="notificationTitle">Authentication</h2>
+<p id="notificationMessage"></p>
+<button type="button" id="notificationButton" class="modal-button">Continue</button>
+</div>
+</div>
 
-            <!-- PAGE CONTENT -->
-            <h1>Completing Sign In</h1>
-
-            <p id="statusMessage">
-                Please wait while we securely complete
-                your Google authentication.
-            </p>
-
-            <!-- LOADING INDICATOR -->
-            <div id="loadingSpinner" class="loading-spinner" aria-label="Loading"></div>
-
-            <!-- RETRY BUTTON: Hidden until an error occurs. -->
-            <button
-                type="button"
-                id="retryButton"
-                class="action-button hidden"
-            >
-                Try Again
-            </button>
-
-            <!-- RETURN BUTTON: Hidden until authentication fails. -->
-            <button
-                type="button"
-                id="returnButton"
-                class="action-button secondary hidden"
-            >
-                Return to Login
-            </button>
-
-        </section>
-    </main>
-
-    <!-- 5. AUTHENTICATION NOTIFICATION MODAL -->
-    <div id="notificationModal" class="modal" aria-hidden="true">
-        <div class="modal-overlay" id="notificationOverlay"></div>
-
-        <div class="modal-card">
-
-            <!-- CLOSE BUTTON -->
-            <button
-                type="button"
-                id="closeNotification"
-                class="modal-close"
-                aria-label="Close notification"
-            >
-                ×
-            </button>
-
-            <!-- MODAL ICON -->
-            <div id="notificationIcon" class="modal-icon">✓</div>
-
-            <!-- MODAL CONTENT -->
-            <h2 id="notificationTitle">Authentication</h2>
-
-            <p id="notificationMessage">
-                Authentication completed.
-            </p>
-
-            <!-- MODAL CLOSE BUTTON -->
-            <button
-                type="button"
-                id="notificationButton"
-                class="modal-button"
-            >
-                Continue
-            </button>
-
-        </div>
-    </div>
-
-    <!-- 6. FRONTEND CONFIGURATION -->
-    <script src="../config.js"></script>
-
-    <!-- 7. GOOGLE REDIRECT JAVASCRIPT -->
-    <script src="script.js"></script>
+<script src="../config.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

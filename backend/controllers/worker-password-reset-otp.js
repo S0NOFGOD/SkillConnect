@@ -11,7 +11,6 @@ const OTP_EXPIRY_MINUTES=10;
 const generateOTP=()=>crypto.randomInt(100000,1000000).toString();
 const hashOTP=otp=>crypto.createHash("sha256").update(otp).digest("hex");
 const createOTPExpiry=()=>new Date(Date.now()+OTP_EXPIRY_MINUTES*60*1000);
-const generateOTPData=()=>{const otp=generateOTP();const expiresAt=createOTPExpiry();return{otp,expiresAt};};
 
 const sendEmail=async({to,subject,htmlContent})=>{
 if(!to)throw new Error("Recipient email is required.");
@@ -71,16 +70,12 @@ worker.passwordResetOtpExpires=null;
 await worker.save();
 return res.status(400).json({success:false,message:"Password reset code has expired. Please request a new code."});
 }
-const resetAuthorization=crypto.randomBytes(32).toString("hex");
 const resetAuthorizationExpires=new Date(Date.now()+10*60*1000);
-worker.passwordResetVerified=true;
-worker.passwordResetVerifiedAt=new Date();
-worker.resetAuthorization=resetAuthorization;
-worker.resetAuthorizationExpires=resetAuthorizationExpires;
 worker.passwordResetOtpHash=null;
 worker.passwordResetOtpExpires=null;
+worker.resetAuthorizationExpires=resetAuthorizationExpires;
 await worker.save();
-return res.status(200).json({success:true,message:"Password reset code verified successfully.",resetAuthorization,redirect:"../worker-password-change/index.html"});
+return res.status(200).json({success:true,message:"Password reset code verified successfully.",redirect:"../worker-password-change/index.html"});
 }catch(error){
 console.error("Worker password reset OTP verification error:",error);
 return res.status(500).json({success:false,message:"An error occurred while verifying the password reset code."});
@@ -96,22 +91,20 @@ const normalizedEmail=email.trim().toLowerCase();
 if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail))return res.status(400).json({success:false,message:"Please provide a valid email address."});
 const worker=await Worker.findOne({email:normalizedEmail});
 if(!worker)return res.status(200).json({success:true,message:"If an account exists with this email, a password reset code has been sent."});
-const{otp,expiresAt}=generateOTPData();
-worker.passwordResetOtpHash=hashOTP(otp);
-worker.passwordResetOtpExpires=expiresAt;
-worker.passwordResetVerified=false;
-worker.passwordResetVerifiedAt=null;
-worker.resetAuthorization=null;
-worker.resetAuthorizationExpires=null;
-await worker.save();
+const otp=generateOTP();
+
 try{
 await sendOTPEmail({email:worker.email,otp,type:"password-reset"});
 }catch(emailError){
-worker.passwordResetOtpHash=null;
-worker.passwordResetOtpExpires=null;
-await worker.save();
 throw emailError;
 }
+
+worker.passwordResetOtpHash=hashOTP(otp);
+const expiresAt=createOTPExpiry();
+worker.passwordResetOtpExpires=expiresAt;
+worker.resetAuthorizationExpires=null;
+await worker.save();
+
 return res.status(200).json({success:true,message:"A new password reset code has been sent to your email."});
 }catch(error){
 console.error("Worker resend password reset OTP error:",error);

@@ -36,26 +36,11 @@ const reviewInput=document.getElementById("reviewInput");
 const ratingCancelButton=document.getElementById("ratingCancelButton");
 const ratingSubmitButton=document.getElementById("ratingSubmitButton");
 
-
-/* =========================
-   SESSION STORAGE
-========================= */
-
 const workerId=sessionStorage.getItem("workerId");
 const serviceId=sessionStorage.getItem("serviceId");
 
-
-/* =========================
-   STATE
-========================= */
-
 let workerData=null;
 let authenticationExpired=false;
-
-
-/* =========================
-   LOADING
-========================= */
 
 function showLoading(){
 
@@ -71,11 +56,6 @@ function hideLoading(){
 
 }
 
-
-/* =========================
-   ERROR
-========================= */
-
 function showError(message){
 
     loadingState.hidden=true;
@@ -84,11 +64,6 @@ function showError(message){
     errorMessage.textContent=message;
 
 }
-
-
-/* =========================
-   NOTIFICATION
-========================= */
 
 function showNotification(title,message){
 
@@ -101,6 +76,15 @@ function showNotification(title,message){
 function closeNotification(){
 
     notificationOverlay.hidden=true;
+
+    if(authenticationExpired){
+
+        authenticationExpired=false;
+
+        window.location.href=
+            "../client-authentication/index.html";
+
+    }
 
 }
 
@@ -120,11 +104,6 @@ notificationOverlay.addEventListener(
     }
 );
 
-
-/* =========================
-   AUTH SESSION EXPIRED
-========================= */
-
 window.addEventListener(
     "authSessionExpired",
     ()=>{
@@ -132,31 +111,12 @@ window.addEventListener(
         authenticationExpired=true;
 
         showNotification(
-            "Session Expired",
+            "Authentication Required",
             "Your session has expired. Please log in again."
         );
 
     }
 );
-
-notificationButton.addEventListener(
-    "click",
-    ()=>{
-
-        if(!authenticationExpired)return;
-
-        authenticationExpired=false;
-
-        window.location.href=
-            "../client-authentication/index.html";
-
-    }
-);
-
-
-/* =========================
-   RATING MODAL
-========================= */
 
 function openRatingModal(){
 
@@ -185,11 +145,6 @@ ratingOverlay.addEventListener(
 
     }
 );
-
-
-/* =========================
-   LOAD WORKER DETAILS
-========================= */
 
 async function loadWorkerDetails(){
 
@@ -222,15 +177,6 @@ async function loadWorkerDetails(){
         );
 
         if(response.status===401){
-
-            if(!authenticationExpired){
-
-                showNotification(
-                    "Session Expired",
-                    "Your session has expired. Please log in again."
-                );
-
-            }
 
             return;
 
@@ -267,11 +213,6 @@ async function loadWorkerDetails(){
     }
 
 }
-
-
-/* =========================
-   DISPLAY WORKER
-========================= */
 
 function displayWorker(data){
 
@@ -331,11 +272,6 @@ function displayWorker(data){
 
 }
 
-
-/* =========================
-   PORTFOLIO
-========================= */
-
 function displayPortfolio(photos){
 
     portfolioGrid.innerHTML="";
@@ -362,11 +298,6 @@ function displayPortfolio(photos){
     });
 
 }
-
-
-/* =========================
-   REVIEWS
-========================= */
 
 function displayReviews(reviews){
 
@@ -439,11 +370,6 @@ function displayReviews(reviews){
 
 }
 
-
-/* =========================
-   DATE
-========================= */
-
 function formatDate(date){
 
     if(!date)return "-";
@@ -463,11 +389,6 @@ function formatDate(date){
 
 }
 
-
-/* =========================
-   BACK
-========================= */
-
 backBtn.addEventListener(
     "click",
     ()=>{
@@ -478,54 +399,94 @@ backBtn.addEventListener(
     }
 );
 
-
-/* =========================
-   SEE MORE
-========================= */
-
 seeMoreBtn.addEventListener(
     "click",
     ()=>{
 
         window.location.href=
-            "../client-view-rating/index.html";
+            "../client-view-ratings/index.html";
 
     }
 );
-
-
-/* =========================
-   CONTACT WORKER
-========================= */
 
 contactWorkerBtn.addEventListener(
     "click",
-    ()=>{
+    async()=>{
 
-        const phone=
-            contactWorkerBtn.dataset.phone;
+        if(!workerId)return;
 
-        if(!phone){
+        contactWorkerBtn.disabled=true;
+        contactWorkerBtn.textContent="Connecting...";
 
-            showNotification(
-                "Phone Number Unavailable",
-                "This worker's phone number is not available."
+        try{
+
+            const response=await API_REQUEST(
+                "/api/client-worker-details/contact",
+                {
+                    method:"POST",
+                    headers:{
+                        "Content-Type":"application/json"
+                    },
+                    body:JSON.stringify({
+                        workerId
+                    })
+                }
             );
 
-            return;
+            if(response.status===401)return;
+
+            const data=await response.json();
+
+            if(!response.ok){
+
+                showNotification(
+                    "Unable to Contact Worker",
+                    data.message||
+                    "Unable to contact this worker."
+                );
+
+                return;
+
+            }
+
+            const phone=
+                data.phone||
+                contactWorkerBtn.dataset.phone;
+
+            if(!phone){
+
+                showNotification(
+                    "Phone Number Unavailable",
+                    "This worker's phone number is not available."
+                );
+
+                return;
+
+            }
+
+            window.location.href=`tel:${phone}`;
+
+        }catch(error){
+
+            console.error(
+                "Contact worker request failed:",
+                error
+            );
+
+            showNotification(
+                "Connection Error",
+                "Unable to contact this worker. Please try again."
+            );
+
+        }finally{
+
+            contactWorkerBtn.disabled=false;
+            contactWorkerBtn.textContent="Contact Worker";
 
         }
 
-        window.location.href=
-            `tel:${phone}`;
-
     }
 );
-
-
-/* =========================
-   RATE WORKER
-========================= */
 
 rateWorkerBtn.addEventListener(
     "click",
@@ -534,7 +495,7 @@ rateWorkerBtn.addEventListener(
         if(!workerId||!serviceId)return;
 
         rateWorkerBtn.disabled=true;
-        rateWorkerBtn.textContent="Loading...";
+        rateWorkerBtn.textContent="Connecting...";
 
         try{
 
@@ -599,11 +560,6 @@ rateWorkerBtn.addEventListener(
     }
 );
 
-
-/* =========================
-   SUBMIT RATING
-========================= */
-
 ratingSubmitButton.addEventListener(
     "click",
     async()=>{
@@ -613,9 +569,6 @@ ratingSubmitButton.addEventListener(
 
         const review=
             reviewInput.value.trim();
-
-
-        /* Validation */
 
         if(!rating){
 
@@ -661,14 +614,22 @@ ratingSubmitButton.addEventListener(
 
         }
 
-
-        /* Loading */
-
         ratingSubmitButton.disabled=true;
         ratingCancelButton.disabled=true;
-        ratingSubmitButton.textContent="Submitting...";
+        ratingSubmitButton.textContent="Connecting...";
 
         try{
+
+            if(!workerId||!serviceId){
+
+                showNotification(
+                    "Worker Information Missing",
+                    "Worker information could not be found."
+                );
+
+                return;
+
+            }
 
             const response=await API_REQUEST(
                 "/api/client-worker-details/rating",
@@ -735,20 +696,10 @@ ratingSubmitButton.addEventListener(
     }
 );
 
-
-/* =========================
-   RETRY
-========================= */
-
 retryBtn.addEventListener(
     "click",
     loadWorkerDetails
 );
-
-
-/* =========================
-   START
-========================= */
 
 loadWorkerDetails();
 

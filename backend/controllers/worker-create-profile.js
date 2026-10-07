@@ -6,6 +6,7 @@ const Worker=require("../models/worker");
 const axios=require("axios");
 const crypto=require("crypto");
 const jwt=require("jsonwebtoken");
+const sharp=require("sharp");
 
 const{v2:cloudinary}=require("cloudinary");
 
@@ -78,7 +79,7 @@ const createWorkerProfile=async(req,res)=>{
             });
         }
 
-        if(worker.isEmailVerified!==true){
+        if(worker.emailVerified!==true){
             return res.status(403).json({
                 success:false,
                 code:"EMAIL_NOT_VERIFIED",
@@ -105,16 +106,6 @@ const createWorkerProfile=async(req,res)=>{
                 success:false,
                 code:"INVALID_PROFILE_PHOTO",
                 message:"Profile photo must be a JPG, PNG, or WebP image."
-            });
-        }
-
-        const maximumFileSize=5*1024*1024;
-
-        if(req.file.size>maximumFileSize){
-            return res.status(400).json({
-                success:false,
-                code:"PROFILE_PHOTO_TOO_LARGE",
-                message:"Profile photo must not exceed 5 MB."
             });
         }
 
@@ -145,13 +136,28 @@ const createWorkerProfile=async(req,res)=>{
             });
         }
 
-        if(trimmedFullName.length<2){
+        const nameParts=trimmedFullName.replace(/\s+/g," ").split(" ");
+
+        const namePattern=/^[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*$/;
+
+        if(
+            nameParts.length!==2||
+            !namePattern.test(nameParts[0])||
+            !namePattern.test(nameParts[1])
+        ){
             return res.status(400).json({
                 success:false,
                 code:"INVALID_FULL_NAME",
-                message:"Full name must contain at least 2 characters."
+                message:"Please enter exactly two names with a space between them, for example: Destiny Okpone."
             });
         }
+
+        const normalizeNamePart=name=>name.toLowerCase().split(/([-'])/).map(part=>{
+            if(part==="-"||part==="'")return part;
+            return part.charAt(0).toUpperCase()+part.slice(1);
+        }).join("");
+
+        const normalizedFullName=nameParts.map(normalizeNamePart).join(" ");
 
         if(!trimmedPhone){
             return res.status(400).json({
@@ -161,11 +167,26 @@ const createWorkerProfile=async(req,res)=>{
             });
         }
 
-        if(!/^\+234[789]\d{9}$/.test(trimmedPhone)){
+        const phoneWithoutFormatting=trimmedPhone
+            .replace(/\s+/g,"")
+            .replace(/-/g,"")
+            .replace(/\(/g,"")
+            .replace(/\)/g,"");
+
+        let normalizedPhone=phoneWithoutFormatting;
+
+        if(/^0[789]\d{9}$/.test(phoneWithoutFormatting)){
+            normalizedPhone="+234"+phoneWithoutFormatting.substring(1);
+        }
+        else if(/^234[789]\d{9}$/.test(phoneWithoutFormatting)){
+            normalizedPhone="+"+phoneWithoutFormatting;
+        }
+
+        if(!/^\+234[789]\d{9}$/.test(normalizedPhone)){
             return res.status(400).json({
                 success:false,
                 code:"INVALID_PHONE",
-                message:"Please provide a valid Nigerian phone number in the format +234XXXXXXXXXX."
+                message:"Please provide a valid Nigerian phone number."
             });
         }
 
@@ -202,7 +223,7 @@ const createWorkerProfile=async(req,res)=>{
         }
 
         const existingPhoneWorker=await Worker.findOne({
-            phone:trimmedPhone,
+            phone:normalizedPhone,
             _id:{$ne:worker._id}
         });
 
@@ -214,12 +235,57 @@ const createWorkerProfile=async(req,res)=>{
             });
         }
 
+        /* CONVERT + RESIZE + COMPRESS PROFILE PHOTO */
+
+        const maximumCompressedImageSize=5*1024*1024;
+
+        let compressedImageBuffer=await sharp(req.file.buffer)
+            .rotate()
+            .resize({
+                width:1920,
+                height:1920,
+                fit:"inside",
+                withoutEnlargement:true
+            })
+            .jpeg({
+                quality:80,
+                mozjpeg:true
+            })
+            .toBuffer();
+
+        if(compressedImageBuffer.length>maximumCompressedImageSize){
+
+            compressedImageBuffer=await sharp(req.file.buffer)
+                .rotate()
+                .resize({
+                    width:1920,
+                    height:1920,
+                    fit:"inside",
+                    withoutEnlargement:true
+                })
+                .jpeg({
+                    quality:65,
+                    mozjpeg:true
+                })
+                .toBuffer();
+
+        }
+
+        if(compressedImageBuffer.length>maximumCompressedImageSize){
+            return res.status(400).json({
+                success:false,
+                code:"PROFILE_PHOTO_TOO_LARGE",
+                message:"Unable to compress the profile photo to 5 MB or less. Please select a smaller image."
+            });
+        }
+
         const cloudinaryUpload=()=>{
             return new Promise((resolve,reject)=>{
                 const uploadStream=cloudinary.uploader.upload_stream(
                     {
                         folder:"skillconnect/workers/profile-photos",
-                        resource_type:"image"
+                        resource_type:"image",
+                        format:"jpg"
                     },
                     (error,result)=>{
                         if(error){
@@ -231,7 +297,7 @@ const createWorkerProfile=async(req,res)=>{
                     }
                 );
 
-                uploadStream.end(req.file.buffer);
+                uploadStream.end(compressedImageBuffer);
             });
         };
 
@@ -241,9 +307,9 @@ const createWorkerProfile=async(req,res)=>{
 
         uploadedPublicId=profilePhotoPublicId;
 
-        worker.fullName=trimmedFullName;
+        worker.fullName=normalizedFullName;
         worker.profilePhoto=profilePhotoPublicId;
-        worker.phone=trimmedPhone;
+        worker.phone=normalizedPhone;
         worker.country=trimmedCountry;
         worker.state=trimmedState;
         worker.city=trimmedCity;

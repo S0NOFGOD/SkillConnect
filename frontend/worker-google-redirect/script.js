@@ -43,36 +43,30 @@ const code=params.get("code");
 
 if(error){
 if(error==="password-account"){
-handleExchangeError("This account uses password authentication. Please log in with your password.");
+showExchangeError("This account uses password authentication. Please log in with your password.",true);
 return;
 }
-
-handleExchangeError("Google authentication could not be completed. Please try again.");
+showExchangeError("Google authentication could not be completed. Please try again.",false);
 return;
 }
 
 if(!code){
-handleExchangeError("No authentication code was received.");
+showExchangeError("No authentication code was received.",false);
 return;
 }
 
 try{
-const response=await fetch(
-API_ENDPOINT("/api/worker-authentication/google/exchange"),
-{
+const response=await fetch(API_ENDPOINT("/api/worker-authentication/google/exchange"),{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 credentials:"include",
 body:JSON.stringify({code})
-}
-);
+});
 
 const data=await response.json();
 
 if(!response.ok){
-handleExchangeError(
-data.message||"Google authentication could not be completed."
-);
+showExchangeError(data.message||"Google authentication could not be completed.",true);
 return;
 }
 
@@ -91,50 +85,24 @@ return;
 if(data.nextStep==="authenticated"){
 showModal(
 "Login Successful",
-data.message||"Welcome back. Your account is ready.",
+data.message||`Welcome back, ${data.fullName}.`,
 "success",
 "../worker-dashboard/index.html"
 );
 return;
 }
 
-if(data.nextStep==="login-required"){
-handleExchangeError(
-data.message||"This account uses password authentication. Please log in with your password."
-);
-return;
-}
-
-if(data.nextStep==="suspended"){
-handleExchangeError(
-data.message||"Your account has been suspended."
-);
-return;
-}
-
-handleExchangeError(
-data.message||"Unable to determine the result of Google authentication."
-);
+showExchangeError(data.message||"Unable to determine the result of Google authentication.",false);
 
 }catch(error){
 console.error("Google exchange error:",error);
-handleExchangeError(
-"Unable to connect to the server. Please try again."
-);
+showExchangeError("Unable to connect to the server. Please try again.",false);
 }
 }
 
-function handleExchangeError(message){
+function showExchangeError(message,returnToLogin){
 getElement("loadingSpinner").classList.add("hidden");
 getElement("statusMessage").textContent="Google authentication could not be completed.";
-getElement("retryButton").classList.remove("hidden");
-getElement("returnButton").classList.remove("hidden");
+if(returnToLogin)getElement("returnButton").classList.remove("hidden");
 showModal("Google Authentication Failed",message);
 }
-
-getElement("retryButton")?.addEventListener("click",()=>{
-const button=getElement("retryButton");
-button.disabled=true;
-button.textContent="Connecting...";
-window.location.href=API_ENDPOINT("/api/worker-authentication/google");
-});

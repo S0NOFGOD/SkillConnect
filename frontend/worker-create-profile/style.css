@@ -68,7 +68,7 @@ input[type="file"]::file-selector-button{margin-right:12px;padding:9px 14px;bord
 .continue-btn:disabled{opacity:.7;cursor:not-allowed;transform:none}
 .continue-btn.loading{pointer-events:none;opacity:.75}
 .button-loader{display:none;width:18px;height:18px;margin-left:8px;vertical-align:middle;border-radius:50%;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;animation:spin .8s linear infinite}
-.continue-btn.loading .button-loader{display:inline-block}
+.continue-btn.loading .button-loader{display:none}
 
 .notification-overlay{position:fixed;inset:0;z-index:2000;display:flex;justify-content:center;align-items:center;padding:20px;background:rgba(2,6,23,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);animation:fadeIn .25s ease}
 .notification-overlay[hidden]{display:none}

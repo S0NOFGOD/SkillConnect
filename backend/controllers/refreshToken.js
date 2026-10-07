@@ -2,17 +2,27 @@ const jwt=require("jsonwebtoken");
 const crypto=require("crypto");
 const Worker=require("../models/worker");
 const Client=require("../models/client");
+const Admin=require("../models/admin");
 
-const hashRefreshToken=refreshToken=>crypto.createHash("sha256").update(refreshToken).digest("hex");
+const hashRefreshToken=refreshToken=>crypto
+    .createHash("sha256")
+    .update(refreshToken)
+    .digest("hex");
 
 const generateAccessToken=({userId,userType})=>jwt.sign(
-    {userId,userType},
+    {
+        userId,
+        userType
+    },
     process.env.ACCESS_TOKEN_SECRET,
-    {expiresIn:process.env.ACCESS_TOKEN_EXPIRE||"15m"}
+    {
+        expiresIn:process.env.ACCESS_TOKEN_EXPIRE||"15m"
+    }
 );
 
 const refreshAccessToken=async(req,res)=>{
     try{
+
         const refreshToken=req.cookies?.refreshToken;
 
         if(!refreshToken){
@@ -38,7 +48,7 @@ const refreshAccessToken=async(req,res)=>{
 
         if(
             !decoded.userType||
-            !["worker","client"].includes(decoded.userType)
+            !["worker","client","admin"].includes(decoded.userType)
         ){
             return res.status(401).json({
                 success:false,
@@ -60,8 +70,11 @@ const refreshAccessToken=async(req,res)=>{
         if(decoded.userType==="worker"){
             user=await Worker.findById(decoded.userId)
                 .select("+refreshTokenHash");
-        }else{
+        }else if(decoded.userType==="client"){
             user=await Client.findById(decoded.userId)
+                .select("+refreshTokenHash");
+        }else{
+            user=await Admin.findById(decoded.userId)
                 .select("+refreshTokenHash");
         }
 
@@ -97,13 +110,19 @@ const refreshAccessToken=async(req,res)=>{
             userType:decoded.userType
         });
 
-        res.cookie("accessToken",newAccessToken,{
-            httpOnly:true,
-            secure:true,
-            sameSite:"none",
-            maxAge:15*60*1000,
-            path:"/"
-        });
+        const isProduction=process.env.NODE_ENV==="production";
+
+        res.cookie(
+            "accessToken",
+            newAccessToken,
+            {
+                httpOnly:true,
+                secure:isProduction,
+                sameSite:isProduction?"none":"lax",
+                maxAge:15*60*1000,
+                path:"/"
+            }
+        );
 
         return res.status(200).json({
             success:true,
@@ -111,7 +130,11 @@ const refreshAccessToken=async(req,res)=>{
         });
 
     }catch(error){
-        console.error("Refresh access token error:",error);
+
+        console.error(
+            "Refresh access token error:",
+            error
+        );
 
         return res.status(500).json({
             success:false,
