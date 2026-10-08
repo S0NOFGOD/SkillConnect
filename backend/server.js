@@ -54,7 +54,7 @@ throw new Error(
 const connection=await mongoose.connect(mongoURI);
 
 console.log(
-"MongoDB connected: ${connection.connection.host}"
+`MongoDB connected: ${connection.connection.host}`
 );
 
 }catch(error){
@@ -179,7 +179,7 @@ await createAdmin();
 
 app.listen(PORT,()=>{
 console.log(
-"SkillConnect server running on port ${PORT}"
+`SkillConnect server running on port ${PORT}`
 );
 });
 

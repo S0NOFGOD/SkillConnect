@@ -1,8 +1,8 @@
-const{Readable}=require("stream");
-const jwt=require("jsonwebtoken");
+const sharp=require("sharp");
 const Worker=require("../models/worker");
-
+const{authenticateWorker}=require("./worker-authentication");
 const{v2:cloudinary}=require("cloudinary");
+
 cloudinary.config({
     cloud_name:process.env.CLOUDINARY_CLOUD_NAME,
     api_key:process.env.CLOUDINARY_API_KEY,
@@ -17,172 +17,409 @@ const LOCAL_SKILLS=["Swimming Instructor","Barber","Hairdresser","Makeup Artist"
 
 const EXPERIENCE_OPTIONS=["Less than 1 year","1 year","2 years","3 years","4 years","5 years+"];
 
-function countWords(text){if(!text||!text.trim())return 0;return text.trim().split(/\s+/).length}
-function findWorkerService(worker,serviceId){return worker.services.find(service=>String(service.id)===String(serviceId))}
+const countWords=text=>text.trim()?text.trim().split(/\s+/).length:0;
 
-function authenticateAccessToken(req){
-const accessToken=req.cookies?.accessToken;
-if(!accessToken)return null;
-try{
-const decodedToken=jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET);
-const workerId=decodedToken.userId||decodedToken.id;
-if(decodedToken.userType!=="worker"||!workerId)return null;
-return workerId;
-}catch(error){return null;}
-}
+const findWorkerService=(worker,serviceId)=>
+    worker.services.find(service=>String(service.id)===String(serviceId));
 
-function uploadImageToCloudinary(fileBuffer,workerId){
-return new Promise((resolve,reject)=>{
-const uploadStream=cloudinary.uploader.upload_stream(
-{folder:`skillconnect/workers/${workerId}/services`,resource_type:"image"},
-(error,result)=>{
-if(error)return reject(error);
-if(!result||!result.public_id)return reject(new Error("Cloudinary did not return a public_id."));
-resolve({public_id:result.public_id});
-}
-);
-Readable.from(fileBuffer).pipe(uploadStream);
+const getAuthenticatedWorkerId=req=>{
+    const auth=authenticateWorker(req);
+
+    if(!auth.valid){
+        return{
+            error:{
+                status:auth.status,
+                message:auth.message
+            }
+        };
+    }
+
+    return{workerId:auth.userId};
+};
+
+const uploadImageToCloudinary=buffer=>new Promise((resolve,reject)=>{
+    const uploadStream=cloudinary.uploader.upload_stream(
+        {
+            folder:"skillconnect/workers/services",
+            resource_type:"image"
+        },
+        (error,result)=>{
+            if(error)return reject(error);
+
+            if(!result?.public_id){
+                return reject(new Error("Cloudinary did not return a public ID."));
+            }
+
+            resolve(result.public_id);
+        }
+    );
+
+    uploadStream.end(buffer);
 });
-}
 
-async function deleteCloudinaryImage(publicId){
-if(!publicId)return;
-try{await cloudinary.uploader.destroy(publicId,{resource_type:"image"})}
-catch(error){console.error("Cloudinary image deletion failed:",error)}
-}
+const deleteCloudinaryImage=async publicId=>{
+    if(!publicId)return;
 
-function getCloudinaryImageUrl(publicId){
-if(!publicId)return null;
-return cloudinary.url(publicId,{resource_type:"image",secure:true});
-}
+    const result=await cloudinary.uploader.destroy(
+        publicId,
+        {resource_type:"image"}
+    );
+
+    if(result.result!=="ok"&&result.result!=="not found"){
+        throw new Error(`Cloudinary could not delete image: ${publicId}`);
+    }
+};
+
+const getCloudinaryImageUrl=publicId=>{
+    if(!publicId)return null;
+
+    return cloudinary.url(publicId,{
+        resource_type:"image",
+        secure:true
+    });
+};
+
+/* GET WORKER SERVICE */
 
 async function getWorkerService(req,res){
-try{
-const workerId=authenticateAccessToken(req);
-if(!workerId)return res.status(401).json({success:false,message:"Authentication required. Please log in again."});
+    try{
+        const auth=getAuthenticatedWorkerId(req);
 
-const worker=await Worker.findById(workerId);
-if(!worker)return res.status(404).json({success:false,message:"Worker account could not be found."});
+        if(auth.error){
+            return res.status(auth.error.status).json({
+                success:false,
+                message:auth.error.message
+            });
+        }
 
-const service=findWorkerService(worker,req.params.serviceId);
-if(!service)return res.status(404).json({success:false,message:"Service not found."});
+        const worker=await Worker.findById(auth.workerId);
 
-return res.status(200).json({
-success:true,
-service:{
-id:service.id,
-skill:service.skill,
-experience:service.experience,
-description:service.description,
-portfolios:(service.portfolios||[]).map(getCloudinaryImageUrl),
-date:service.date
+        if(!worker){
+            return res.status(404).json({
+                success:false,
+                message:"Worker account could not be found."
+            });
+        }
+
+        const service=findWorkerService(worker,req.params.serviceId);
+
+        if(!service){
+            return res.status(404).json({
+                success:false,
+                message:"Service not found."
+            });
+        }
+
+        return res.status(200).json({
+            success:true,
+            service:{
+                id:service.id,
+                skill:service.skill,
+                experience:service.experience,
+                description:service.description,
+                portfolios:(service.portfolios||[]).map(getCloudinaryImageUrl),
+                adminApproval:service.adminApproval,
+                adminResponse:service.adminResponse,
+                date:service.date
+            }
+        });
+    }catch(error){
+        console.error("Get worker service error:",error);
+
+        return res.status(500).json({
+            success:false,
+            message:"An error occurred while loading your service."
+        });
+    }
 }
-});
-}catch(error){
-console.error("Get worker service error:",error);
-return res.status(500).json({success:false,message:"An error occurred while loading your service."});
-}
-}
+
+/* UPDATE WORKER SERVICE */
 
 async function updateWorkerService(req,res){
-const uploadedPublicIds=[];
-try{
-const workerId=authenticateAccessToken(req);
-if(!workerId)return res.status(401).json({success:false,message:"Authentication required. Please log in again."});
+    const uploadedPublicIds=[];
 
-const worker=await Worker.findById(workerId);
-if(!worker)return res.status(404).json({success:false,message:"Worker account could not be found."});
+    try{
+        const auth=getAuthenticatedWorkerId(req);
 
-const service=findWorkerService(worker,req.params.serviceId);
-if(!service)return res.status(404).json({success:false,message:"Service not found."});
+        if(auth.error){
+            return res.status(auth.error.status).json({
+                success:false,
+                message:auth.error.message
+            });
+        }
 
-const skill=typeof req.body.skill==="string"?req.body.skill.trim():"";
-const experience=typeof req.body.experience==="string"?req.body.experience.trim():"";
-const description=typeof req.body.description==="string"?req.body.description.trim():"";
+        const worker=await Worker.findById(auth.workerId);
 
-if(!skill)return res.status(400).json({success:false,message:"Please select a skill."});
-if(!LOCAL_SKILLS.includes(skill))return res.status(400).json({success:false,message:"The selected skill is not valid."});
-if(!experience)return res.status(400).json({success:false,message:"Please select your experience."});
-if(!EXPERIENCE_OPTIONS.includes(experience))return res.status(400).json({success:false,message:"The selected experience is not valid."});
-if(!description)return res.status(400).json({success:false,message:"Please enter a service description."});
-if(countWords(description)>MAX_DESCRIPTION_WORDS)return res.status(400).json({success:false,message:"The service description cannot exceed 150 words."});
+        if(!worker){
+            return res.status(404).json({
+                success:false,
+                message:"Worker account could not be found."
+            });
+        }
 
-const files=req.files||{};
-const portfolioFiles=[
-files.portfolioPhoto1?.[0]||null,
-files.portfolioPhoto2?.[0]||null,
-files.portfolioPhoto3?.[0]||null
-];
+        const service=findWorkerService(worker,req.params.serviceId);
 
-for(const file of portfolioFiles){
-if(!file)continue;
-if(!file.mimetype||!file.mimetype.startsWith("image/"))return res.status(400).json({success:false,message:"Only image files can be uploaded."});
-if(file.size>MAX_PORTFOLIO_IMAGE_SIZE)return res.status(400).json({success:false,message:"Each portfolio image must not be larger than 5 MB."});
-if(!file.buffer||!Buffer.isBuffer(file.buffer))return res.status(400).json({success:false,message:"One or more portfolio images could not be processed."});
+        if(!service){
+            return res.status(404).json({
+                success:false,
+                message:"Service not found."
+            });
+        }
+
+        const skill=typeof req.body.skill==="string"?req.body.skill.trim():"";
+        const experience=typeof req.body.experience==="string"?req.body.experience.trim():"";
+        const description=typeof req.body.description==="string"?req.body.description.trim():"";
+
+        if(!skill){
+            return res.status(400).json({success:false,message:"Please select a skill."});
+        }
+
+        if(!LOCAL_SKILLS.includes(skill)){
+            return res.status(400).json({success:false,message:"The selected skill is not valid."});
+        }
+
+        if(worker.services.some(item=>item!==service&&item.skill===skill)){
+            return res.status(400).json({
+                success:false,
+                message:"You have already added a service with this skill."
+            });
+        }
+
+        if(!experience){
+            return res.status(400).json({success:false,message:"Please select your experience."});
+        }
+
+        if(!EXPERIENCE_OPTIONS.includes(experience)){
+            return res.status(400).json({success:false,message:"The selected experience is not valid."});
+        }
+
+        if(!description){
+            return res.status(400).json({success:false,message:"Please enter a service description."});
+        }
+
+        if(countWords(description)>MAX_DESCRIPTION_WORDS){
+            return res.status(400).json({
+                success:false,
+                message:"The service description cannot exceed 150 words."
+            });
+        }
+
+        const files=Array.isArray(req.files)?req.files:[];
+        const currentPortfolios=[...(service.portfolios||[])];
+
+        if(currentPortfolios.length>MAX_PORTFOLIO_IMAGES){
+            currentPortfolios.length=MAX_PORTFOLIO_IMAGES;
+        }
+
+        if(files.length>MAX_PORTFOLIO_IMAGES){
+            return res.status(400).json({
+                success:false,
+                message:"You can upload a maximum of 3 portfolio images."
+            });
+        }
+
+        /*
+        The frontend can send portfolioIndexes alongside portfolioPhotos
+        to identify the selected slots, using zero-based indexes: 0, 1, 2.
+        If indexes are omitted, uploaded files fill slots from the beginning.
+        */
+        let indexes=req.body.portfolioIndexes;
+
+        if(typeof indexes==="string"){
+            indexes=[indexes];
+        }
+
+        if(Array.isArray(indexes)&&indexes.length!==files.length){
+            return res.status(400).json({
+                success:false,
+                message:"Portfolio image information is invalid."
+            });
+        }
+
+        const slots=files.map((file,index)=>{
+            const slot=indexes?.length
+                ?Number(indexes[index])
+                :index;
+
+            if(!Number.isInteger(slot)||slot<0||slot>=MAX_PORTFOLIO_IMAGES){
+                throw new Error("Invalid portfolio image slot.");
+            }
+
+            return{file,slot};
+        });
+
+        if(new Set(slots.map(item=>item.slot)).size!==slots.length){
+            return res.status(400).json({
+                success:false,
+                message:"A portfolio slot cannot be uploaded more than once."
+            });
+        }
+
+        for(const{file}of slots){
+            if(!file.buffer||!Buffer.isBuffer(file.buffer)){
+                return res.status(400).json({
+                    success:false,
+                    message:"One or more portfolio images could not be processed."
+                });
+            }
+
+            if(file.size>MAX_PORTFOLIO_IMAGE_SIZE){
+                return res.status(400).json({
+                    success:false,
+                    message:"Each portfolio image must not be larger than 5 MB."
+                });
+            }
+
+            if(!file.mimetype?.startsWith("image/")){
+                return res.status(400).json({
+                    success:false,
+                    message:"Only image files can be uploaded."
+                });
+            }
+        }
+
+        const previousPublicIds=[];
+
+        for(const{file,slot}of slots){
+            const oldPublicId=currentPortfolios[slot];
+
+            const compressedBuffer=await sharp(file.buffer)
+                .rotate()
+                .jpeg({quality:80})
+                .toBuffer();
+
+            const newPublicId=await uploadImageToCloudinary(compressedBuffer);
+
+            uploadedPublicIds.push(newPublicId);
+
+            currentPortfolios[slot]=newPublicId;
+
+            if(oldPublicId){
+                previousPublicIds.push(oldPublicId);
+            }
+        }
+
+        service.skill=skill;
+        service.experience=experience;
+        service.description=description;
+        service.portfolios=currentPortfolios.filter(Boolean);
+
+        await worker.save();
+
+        uploadedPublicIds.length=0;
+
+        for(const publicId of previousPublicIds){
+            try{
+                await deleteCloudinaryImage(publicId);
+            }catch(error){
+                console.error("Old portfolio image cleanup failed:",error.message);
+            }
+        }
+
+        return res.status(200).json({
+            success:true,
+            message:"Service updated successfully."
+        });
+    }catch(error){
+        await Promise.all(
+            uploadedPublicIds.map(async publicId=>{
+                try{
+                    await deleteCloudinaryImage(publicId);
+                }catch(cleanupError){
+                    console.error("New portfolio image cleanup failed:",cleanupError.message);
+                }
+            })
+        );
+
+        console.error("Update worker service error:",error);
+
+        if(error.message==="Invalid portfolio image slot."){
+            return res.status(400).json({
+                success:false,
+                message:"Portfolio image information is invalid."
+            });
+        }
+
+        return res.status(500).json({
+            success:false,
+            message:"An error occurred while updating your service. Please try again."
+        });
+    }
 }
 
-service.skill=skill;
-service.experience=experience;
-service.description=description;
-
-const currentPortfolios=[...(service.portfolios||[])];
-
-for(let index=0;index<MAX_PORTFOLIO_IMAGES;index++){
-const file=portfolioFiles[index];
-if(!file)continue;
-
-const uploadedImage=await uploadImageToCloudinary(file.buffer,worker._id.toString());
-const newPublicId=uploadedImage.public_id;
-
-uploadedPublicIds.push(newPublicId);
-
-if(currentPortfolios[index])await deleteCloudinaryImage(currentPortfolios[index]);
-
-currentPortfolios[index]=newPublicId;
-}
-
-service.portfolios=currentPortfolios.filter(Boolean);
-await worker.save();
-
-uploadedPublicIds.length=0;
-
-return res.status(200).json({success:true,message:"Service updated successfully."});
-}catch(error){
-await Promise.all(uploadedPublicIds.map(publicId=>deleteCloudinaryImage(publicId)));
-console.error("Update worker service error:",error);
-return res.status(500).json({success:false,message:"An error occurred while updating your service. Please try again."});
-}
-}
+/* DELETE WORKER SERVICE */
 
 async function deleteWorkerService(req,res){
-try{
-const workerId=authenticateAccessToken(req);
-if(!workerId)return res.status(401).json({success:false,message:"Authentication required. Please log in again."});
+    try{
+        const auth=getAuthenticatedWorkerId(req);
 
-const worker=await Worker.findById(workerId);
-if(!worker)return res.status(404).json({success:false,message:"Worker account could not be found."});
+        if(auth.error){
+            return res.status(auth.error.status).json({
+                success:false,
+                message:auth.error.message
+            });
+        }
 
-const service=findWorkerService(worker,req.params.serviceId);
-if(!service)return res.status(404).json({success:false,message:"Service not found."});
+        const worker=await Worker.findById(auth.workerId);
 
-if(Array.isArray(service.portfolios))
-for(const publicId of service.portfolios)
-await deleteCloudinaryImage(publicId);
+        if(!worker){
+            return res.status(404).json({
+                success:false,
+                message:"Worker account could not be found."
+            });
+        }
 
-worker.services=worker.services.filter(existingService=>String(existingService.id)!==String(req.params.serviceId));
+        const service=findWorkerService(worker,req.params.serviceId);
 
-const stillHasSkill=worker.services.some(existingService=>existingService.skill===service.skill);
+        if(!service){
+            return res.status(404).json({
+                success:false,
+                message:"Service not found."
+            });
+        }
 
-if(!stillHasSkill&&Array.isArray(worker.skills))
-worker.skills=worker.skills.filter(existingSkill=>existingSkill!==service.skill);
+        const publicIds=[...(service.portfolios||[])];
 
-await worker.save();
+        worker.services=worker.services.filter(
+            item=>String(item.id)!==String(req.params.serviceId)
+        );
 
-return res.status(200).json({success:true,message:"Service deleted successfully."});
-}catch(error){
-console.error("Delete worker service error:",error);
-return res.status(500).json({success:false,message:"An error occurred while deleting your service."});
+        const stillHasSkill=worker.services.some(
+            item=>item.skill===service.skill
+        );
+
+        if(!stillHasSkill&&Array.isArray(worker.skills)){
+            worker.skills=worker.skills.filter(
+                existingSkill=>existingSkill!==service.skill
+            );
+        }
+
+        await worker.save();
+
+        for(const publicId of publicIds){
+            try{
+                await deleteCloudinaryImage(publicId);
+            }catch(error){
+                console.error("Deleted service image cleanup failed:",error.message);
+            }
+        }
+
+        return res.status(200).json({
+            success:true,
+            message:"Service deleted successfully."
+        });
+    }catch(error){
+        console.error("Delete worker service error:",error);
+
+        return res.status(500).json({
+            success:false,
+            message:"An error occurred while deleting your service."
+        });
+    }
 }
-}
 
-module.exports={getWorkerService,updateWorkerService,deleteWorkerService};
+module.exports={
+    getWorkerService,
+    updateWorkerService,
+    deleteWorkerService
+};

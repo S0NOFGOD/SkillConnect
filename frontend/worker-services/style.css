@@ -462,6 +462,11 @@ a:focus-visible{
     font-size:13px;
 }
 
+
+/* =========================
+   NOTIFICATION MODAL
+========================= */
+
 .notification-modal{
     position:fixed;
     inset:0;
@@ -484,16 +489,24 @@ a:focus-visible{
     padding:32px 28px 26px;
     border:1px solid var(--border);
     border-radius:20px;
-    background:linear-gradient(145deg,#111827,#0b1220);
+    background:
+        linear-gradient(
+            145deg,
+            #111827,
+            #0b1220
+        );
     box-shadow:0 30px 80px rgba(0,0,0,.48);
     text-align:center;
     animation:modalIn .22s ease;
 }
 
 @keyframes modalIn{
+
     from{
         opacity:0;
-        transform:translateY(12px) scale(.98);
+        transform:
+            translateY(12px)
+            scale(.98);
     }
 
     to{
@@ -546,14 +559,21 @@ a:focus-visible{
     white-space:pre-line;
 }
 
+
+/* =========================
+   MODAL ACTIONS
+========================= */
+
 .notification-actions{
     display:flex;
     justify-content:center;
+    align-items:center;
     gap:10px;
     margin-top:24px;
 }
 
 .notification-actions button{
+    flex:1;
     min-width:120px;
     min-height:44px;
     padding:0 18px;
@@ -564,7 +584,8 @@ a:focus-visible{
     font-weight:700;
     transition:
         transform .2s ease,
-        opacity .2s ease;
+        opacity .2s ease,
+        background .2s ease;
 }
 
 .notification-actions button:hover{
@@ -576,6 +597,27 @@ a:focus-visible{
     opacity:.65;
     transform:none;
 }
+
+
+/* =========================
+   NO BUTTON
+========================= */
+
+.notification-no-button{
+    background:rgba(255,255,255,.07)!important;
+    border:1px solid var(--border);
+    color:#cbd5e1!important;
+}
+
+.notification-no-button:hover{
+    background:rgba(255,255,255,.11)!important;
+    color:#fff!important;
+}
+
+
+/* =========================
+   MODAL VARIANTS
+========================= */
 
 .notification-card.success .notification-icon{
     background:rgba(34,197,94,.12);
@@ -594,16 +636,23 @@ a:focus-visible{
 
 .notification-card.confirm .notification-icon{
     background:rgba(245,158,11,.12);
-    color:#fbbf24;
+    color:#16a34a;
 }
 
-.notification-card.error .notification-actions button{
+.notification-card.error
+.notification-actions button:not(.notification-no-button){
     background:var(--red);
 }
 
-.notification-card.confirm .notification-actions button{
-    background:#f59e0b;
+.notification-card.confirm
+.notification-actions button:not(.notification-no-button){
+    background:#16a34a;
 }
+
+
+/* =========================
+   RESPONSIVE
+========================= */
 
 @media (max-width:900px){
 
@@ -672,11 +721,12 @@ a:focus-visible{
     }
 
     .notification-actions{
-        flex-direction:column;
+        flex-direction:row;
     }
 
     .notification-actions button{
-        width:100%;
+        width:auto;
+        min-width:0;
     }
 }
 

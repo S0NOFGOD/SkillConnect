@@ -1,6 +1,5 @@
-document.addEventListener("DOMContentLoaded",()=>{initializePage();initializeBackNavigation();initializePortfolioInputs();initializeDescriptionCounter();initializeForm();initializeModal();});
-
 const getElement=id=>document.getElementById(id);
+
 const VIEW_SERVICE_ENDPOINT="/api/worker/view-service";
 const UPDATE_SERVICE_ENDPOINT="/api/worker/view-service";
 const DELETE_SERVICE_ENDPOINT="/api/worker/view-service";
@@ -14,209 +13,787 @@ const LOCAL_SKILLS=[
 "POP Installer","Tiler","Furniture Maker","Driver","Tutor","Fitness Trainer","Other"
 ];
 
-async function initializePage(){
-const serviceId=sessionStorage.getItem("serviceId");
-if(!serviceId){showNotification("error","Service Not Found","The service ID could not be found. Please return to your services.","Go Back",()=>{window.location.href="../worker-services/index.html";});return;}
-populateSkills();
-setPageLoading(true,"Loading Service","Please wait while we load your service.");
-try{
-const response=await API_REQUEST(`${VIEW_SERVICE_ENDPOINT}/${encodeURIComponent(serviceId)}`,{method:"GET"}),data=await response.json();
-if(!response.ok)throw new Error(data.message||"Unable to load this service.");
-displayService(data.service||data);
-getElement("viewServicePage").style.display="block";
-}catch(error){showNotification("error","Unable To Load Service",error.message||"Something went wrong while loading your service.","Close");}
-finally{setPageLoading(false);}
-}
+let modalCallback=null;
+let modalBusy=false;
+let modalConfirmation=false;
+let sessionExpired=false;
+
+document.addEventListener("DOMContentLoaded",()=>{
+    initializeBackNavigation();
+    initializePortfolioInputs();
+    initializeDescriptionCounter();
+    initializeForm();
+    initializeModal();
+    populateSkills();
+
+    window.addEventListener("authSessionExpired",()=>{
+        sessionExpired=true;
+        modalBusy=false;
+
+        showNotification(
+            "error",
+            "Authentication Required",
+            "Your session has expired. Please log in again.",
+            "Continue",
+            redirectToLogin
+        );
+    });
+
+    initializePage();
+});
 
 function populateSkills(){
-const skill=getElement("skill");
-if(!skill)return;
-LOCAL_SKILLS.forEach(item=>{
-const option=document.createElement("option");
-option.value=item;
-option.textContent=item;
-skill.appendChild(option);
-});
-}
+    const select=getElement("skill");
+    if(!select)return;
 
-function setPageLoading(isLoading,title="Loading Service",message="Please wait..."){
-const page=getElement("viewServicePage");
-if(isLoading){page.style.display="none";showLoadingModal(title,message);}
-else hideLoadingModal();
-}
-
-function showLoadingModal(title="Loading Service",message="Please wait..."){
-const overlay=getElement("notificationOverlay"),card=getElement("notificationCard"),icon=getElement("notificationIcon"),titleElement=getElement("notificationTitle"),text=getElement("notificationText"),button=getElement("notificationButton"),close=getElement("notificationCancelButton");
-overlay.classList.add("active");close.style.display="none";button.style.display="none";
-icon.innerHTML=`<span style="display:block;width:22px;height:22px;border:2px solid rgba(34,197,94,.3);border-top-color:#22c55e;border-radius:50%;animation:viewServiceSpin .7s linear infinite;"></span>`;
-titleElement.textContent=title;text.textContent=message;card.dataset.loading="true";
-if(!document.getElementById("viewServiceSpinnerStyle")){const style=document.createElement("style");style.id="viewServiceSpinnerStyle";style.textContent=`@keyframes viewServiceSpin{to{transform:rotate(360deg);}}`;document.head.appendChild(style);}
-}
-
-function hideLoadingModal(){
-const card=getElement("notificationCard");
-if(card.dataset.loading==="true"){getElement("notificationOverlay").classList.remove("active");card.dataset.loading="false";}
+    LOCAL_SKILLS.forEach(value=>{
+        const option=document.createElement("option");
+        option.value=value;
+        option.textContent=value;
+        select.appendChild(option);
+    });
 }
 
 function initializeBackNavigation(){
-const backButton=getElement("backNavigation");
-if(!backButton)return;
-backButton.addEventListener("click",()=>{sessionStorage.removeItem("serviceId");window.location.href="../worker-services/index.html";});
+    getElement("backNavigation")?.addEventListener("click",()=>{
+        if(modalBusy)return;
+
+        sessionStorage.removeItem("serviceId");
+        window.location.href="../worker-services/index.html";
+    });
+}
+
+async function initializePage(){
+    const serviceId=sessionStorage.getItem("serviceId");
+
+    if(!serviceId){
+        showNotification(
+            "error",
+            "Service Not Found",
+            "The service ID could not be found. Please return to your services.",
+            "Continue",
+            ()=>window.location.href="../worker-services/index.html"
+        );
+        return;
+    }
+
+    showLoadingModal(
+        "Connecting...",
+        "Please wait while we load your service."
+    );
+
+    try{
+        const response=await API_REQUEST(
+            `${VIEW_SERVICE_ENDPOINT}/${encodeURIComponent(serviceId)}`,
+            {method:"GET"}
+        );
+
+        if(response.status===401){
+            if(!sessionExpired)showSessionExpired();
+            return;
+        }
+
+        const data=await readResponse(response);
+
+        if(!response.ok){
+            throw new Error(data.message||"Unable to load this service.");
+        }
+
+        if(sessionExpired)return;
+
+        displayService(data.service||data);
+
+        getElement("viewServicePage").hidden=false;
+        closeNotification();
+
+    }catch(error){
+        if(sessionExpired)return;
+
+        showNotification(
+            "error",
+            "Unable to Load Service",
+            error.message||"Something went wrong while loading your service.",
+            "Continue"
+        );
+    }
 }
 
 function displayService(service){
-const skill=getElement("skill"),experience=getElement("experience"),description=getElement("description");
-if(!service)return;
-if(service.skill){
-const skillExists=[...skill.options].some(option=>option.value===service.skill);
-if(!skillExists){const option=document.createElement("option");option.value=service.skill;option.textContent=service.skill;skill.appendChild(option);}
-skill.value=service.skill;
-}
-if(service.experience)experience.value=service.experience;
-if(service.description)description.value=service.description;else description.value="";
-updateDescriptionWordCount();displayPortfolios(service.portfolios);
+    if(!service)return;
+
+    const skill=getElement("skill");
+    const experience=getElement("experience");
+    const description=getElement("description");
+
+    if(service.skill){
+        const exists=Array.from(skill.options).some(
+            option=>option.value===service.skill
+        );
+
+        if(!exists){
+            const option=document.createElement("option");
+            option.value=service.skill;
+            option.textContent=service.skill;
+            skill.appendChild(option);
+        }
+
+        skill.value=service.skill;
+    }
+
+    if(service.experience){
+        experience.value=service.experience;
+    }
+
+    description.value=service.description||"";
+
+    const adminApproval=getElement("adminApproval");
+    const adminResponse=getElement("adminResponse");
+
+    const approvalStatus=String(service.adminApproval||"in review")
+        .trim()
+        .toLowerCase();
+
+    const statusClass={
+        "in review":"status-in-review",
+        "rejected":"status-rejected",
+        "approved":"status-approved"
+    }[approvalStatus]||"status-in-review";
+
+    adminApproval.textContent=
+        service.adminApproval??"Service Information";
+
+    adminResponse.textContent=
+        service.adminResponse??"Keep your service details accurate and professional";
+
+    adminApproval.classList.remove(
+        "status-in-review",
+        "status-rejected",
+        "status-approved"
+    );
+
+    adminResponse.classList.remove(
+        "status-in-review",
+        "status-rejected",
+        "status-approved"
+    );
+
+    adminApproval.classList.add(statusClass);
+    adminResponse.classList.add(statusClass);
+
+    displayPortfolios(service.portfolios||[]);
+    updateDescriptionWordCount();
 }
 
 function displayPortfolios(portfolios=[]){
-if(!Array.isArray(portfolios))return;
-portfolios.slice(0,3).forEach((portfolio,index)=>{
-const number=index+1,preview=getElement(`portfolioPreview${number}`);
-if(!preview)return;
-const imageUrl=typeof portfolio==="string"?portfolio:(portfolio.url||portfolio.secure_url||portfolio.imageUrl||"");
-if(!imageUrl)return;
-preview.innerHTML=`<img src="${escapeHtml(imageUrl)}" alt="Portfolio ${number}">`;
-});
-}
+    if(!Array.isArray(portfolios))return;
 
-function escapeHtml(value){
-const div=document.createElement("div");div.textContent=value;return div.innerHTML;
+    portfolios.slice(0,3).forEach((portfolio,index)=>{
+        const preview=getElement(`portfolioPreview${index+1}`);
+        if(!preview)return;
+
+        const url=typeof portfolio==="string"
+            ?portfolio
+            :portfolio.url||portfolio.secure_url||portfolio.imageUrl||"";
+
+        if(!url)return;
+
+        preview.replaceChildren();
+
+        const image=document.createElement("img");
+        image.src=url;
+        image.alt=`Portfolio ${index+1}`;
+
+        preview.appendChild(image);
+    });
 }
 
 function initializePortfolioInputs(){
-for(let i=1;i<=3;i++){
-const input=getElement(`portfolioPhoto${i}`),preview=getElement(`portfolioPreview${i}`);
-if(!input||!preview)continue;
-preview.addEventListener("click",()=>{input.click();});
-input.addEventListener("change",()=>{
-const file=input.files[0];
-if(!file)return;
-const typeResult=validateImageType(file);
-if(!typeResult.valid){input.value="";showNotification("error","Invalid Image",typeResult.message,"Close");return;}
-const sizeResult=validateImageSize(file);
-if(!sizeResult.valid){input.value="";showNotification("error","Image Too Large",sizeResult.message,"Close");return;}
-const reader=new FileReader();
-reader.onload=event=>{preview.innerHTML=`<img src="${event.target.result}" alt="Portfolio ${i}">`;};
-reader.readAsDataURL(file);
-});
-}
+    for(let i=1;i<=3;i++){
+        const input=getElement(`portfolioPhoto${i}`);
+        const preview=getElement(`portfolioPreview${i}`);
+
+        if(!input||!preview)continue;
+
+        input.addEventListener("change",()=>{
+            const file=input.files?.[0];
+            if(!file)return;
+
+            const error=validateImage(file);
+
+            if(error){
+                input.value="";
+                showNotification("error","Invalid Image",error,"Continue");
+                return;
+            }
+
+            const reader=new FileReader();
+
+            reader.onload=event=>{
+                preview.replaceChildren();
+
+                const image=document.createElement("img");
+                image.src=event.target.result;
+                image.alt=`Portfolio ${i}`;
+
+                preview.appendChild(image);
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
 }
 
-function validateImageType(file){
-if(!file)return{valid:true};
-if(!file.type||!file.type.startsWith("image/"))return{valid:false,message:`"${file.name}" is not a supported image file.`};
-return{valid:true};
-}
+function validateImage(file){
+    const allowedTypes=["image/jpeg","image/png","image/webp"];
 
-function validateImageSize(file){
-const maxSize=5*1024*1024;
-if(file.size>maxSize)return{valid:false,message:`"${file.name}" is larger than 5MB. Please choose an image that is 5MB or smaller.`};
-return{valid:true};
+    if(!allowedTypes.includes(file.type)){
+        return `"${file.name}" must be a JPEG, PNG, or WebP image.`;
+    }
+
+    if(file.size>5*1024*1024){
+        return `"${file.name}" exceeds 5MB. Choose an image that is 5MB or smaller.`;
+    }
+
+    return "";
 }
 
 function initializeDescriptionCounter(){
-const description=getElement("description");if(!description)return;
-description.addEventListener("input",updateDescriptionWordCount);updateDescriptionWordCount();
+    getElement("description")?.addEventListener(
+        "input",
+        updateDescriptionWordCount
+    );
+
+    updateDescriptionWordCount();
 }
 
 function updateDescriptionWordCount(){
-const description=getElement("description"),counter=getElement("descriptionWordCount");if(!description||!counter)return;
-const words=description.value.trim().split(/\s+/).filter(Boolean),count=description.value.trim()?words.length:0;
-counter.textContent=`${count}/150 words`;
+    const description=getElement("description");
+    const counter=getElement("descriptionWordCount");
+
+    if(!description||!counter)return;
+
+    const words=description.value.trim().split(/\s+/).filter(Boolean);
+
+    counter.textContent=`${description.value.trim()?words.length:0} / 150 words`;
 }
 
 function initializeForm(){
-const form=getElement("serviceForm");if(!form)return;
-form.addEventListener("submit",async event=>{event.preventDefault();await updateService();});
-getElement("deleteServiceBtn")?.addEventListener("click",deleteService);
+    getElement("serviceForm")?.addEventListener("submit",event=>{
+        event.preventDefault();
+        confirmUpdateService();
+    });
+
+    getElement("deleteServiceBtn")?.addEventListener(
+        "click",
+        confirmDeleteService
+    );
 }
 
 function validateService(){
-const skill=getElement("skill").value.trim(),experience=getElement("experience").value.trim(),description=getElement("description").value.trim();
-if(!skill){showNotification("error","Skill Required","Please select your skill.","Close");return false;}
-if(!experience){showNotification("error","Experience Required","Please select your experience level.","Close");return false;}
-if(!description){showNotification("error","Description Required","Please describe the service you provide.","Close");return false;}
-const words=description.split(/\s+/).filter(Boolean);
-if(words.length>150){showNotification("error","Description Too Long","Your service description must not be more than 150 words.","Close");return false;}
-for(let i=1;i<=3;i++){
-const input=getElement(`portfolioPhoto${i}`),file=input?.files[0];
-if(file){
-const typeResult=validateImageType(file);
-if(!typeResult.valid){showNotification("error","Invalid Image",typeResult.message,"Close");return false;}
-const sizeResult=validateImageSize(file);
-if(!sizeResult.valid){showNotification("error","Image Too Large",sizeResult.message,"Close");return false;}
+    const skill=getElement("skill").value.trim();
+    const experience=getElement("experience").value.trim();
+    const description=getElement("description").value.trim();
+
+    if(!skill){
+        showNotification(
+            "error",
+            "Skill Required",
+            "Please select your skill.",
+            "Continue"
+        );
+        return false;
+    }
+
+    if(!experience){
+        showNotification(
+            "error",
+            "Experience Required",
+            "Please select your experience level.",
+            "Continue"
+        );
+        return false;
+    }
+
+    if(!description){
+        showNotification(
+            "error",
+            "Description Required",
+            "Please describe the service you provide.",
+            "Continue"
+        );
+        return false;
+    }
+
+    const words=description.split(/\s+/).filter(Boolean);
+
+    if(words.length>150){
+        showNotification(
+            "error",
+            "Description Too Long",
+            "Your service description must not exceed 150 words.",
+            "Continue"
+        );
+        return false;
+    }
+
+    for(let i=1;i<=3;i++){
+        const file=getElement(`portfolioPhoto${i}`)?.files?.[0];
+
+        if(file){
+            const error=validateImage(file);
+
+            if(error){
+                showNotification(
+                    "error",
+                    "Invalid Portfolio Image",
+                    error,
+                    "Continue"
+                );
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
-}
-return true;
+
+/* =========================
+   UPDATE SERVICE CONFIRMATION
+========================= */
+
+function confirmUpdateService(){
+    if(modalBusy||!validateService())return;
+
+    const serviceId=sessionStorage.getItem("serviceId");
+
+    if(!serviceId){
+        showNotification(
+            "error",
+            "Service Not Found",
+            "The service ID could not be found.",
+            "Continue",
+            ()=>window.location.href="../worker-services/index.html"
+        );
+        return;
+    }
+
+    showConfirmation(
+        "Update Service?",
+        "Are you sure you want to update your service details?",
+        "No",
+        "Yes",
+        updateService
+    );
 }
 
 async function updateService(){
-if(!validateService())return;
-const serviceId=sessionStorage.getItem("serviceId");
-if(!serviceId){showNotification("error","Service Not Found","The service ID could not be found.","Go Back",()=>{window.location.href="../worker-services/index.html";});return;}
+    const serviceId=sessionStorage.getItem("serviceId");
 
-showLoadingModal("Updating Service","Please wait while your service is being updated.");
+    if(!serviceId){
+        throw new Error("The service ID could not be found.");
+    }
 
-try{
-const formData=new FormData();
-formData.append("skill",getElement("skill").value.trim());
-formData.append("experience",getElement("experience").value.trim());
-formData.append("description",getElement("description").value.trim());
-for(let i=1;i<=3;i++){const input=getElement(`portfolioPhoto${i}`),file=input?.files[0];if(file)formData.append(`portfolioPhoto${i}`,file);}
-const response=await API_REQUEST(`${UPDATE_SERVICE_ENDPOINT}/${encodeURIComponent(serviceId)}`,{method:"PUT",body:formData}),data=await response.json();
-if(!response.ok)throw new Error(data.message||"Unable to update the service.");
-hideLoadingModal();
-showNotification("success","Service Updated",data.message||"Your service has been updated successfully.","Close");
-}catch(error){
-hideLoadingModal();
-showNotification("error","Update Failed",error.message||"Something went wrong while updating your service.","Close");
+    const formData=new FormData();
+
+    formData.append("serviceId",serviceId);
+    formData.append("skill",getElement("skill").value.trim());
+    formData.append("experience",getElement("experience").value.trim());
+    formData.append("description",getElement("description").value.trim());
+
+    for(let i=1;i<=3;i++){
+        const file=getElement(`portfolioPhoto${i}`).files?.[0];
+
+        if(file){
+            formData.append("portfolioPhotos",file);
+            formData.append("portfolioIndexes",String(i-1));
+        }
+    }
+
+    const response=await API_REQUEST(
+        `${UPDATE_SERVICE_ENDPOINT}/${encodeURIComponent(serviceId)}`,
+        {
+            method:"PUT",
+            body:formData
+        }
+    );
+
+    if(response.status===401){
+        return{
+            type:"error",
+            title:"Authentication Required",
+            message:"Your session has expired. Please log in again.",
+            callback:redirectToLogin
+        };
+    }
+
+    const data=await readResponse(response);
+
+    if(!response.ok){
+        throw new Error(data.message||"Unable to update the service.");
+    }
+
+    return{
+        type:"success",
+        title:"Service Updated",
+        message:data.message||"Your service has been updated successfully.",
+        callback:()=>window.location.reload()
+    };
 }
+
+/* =========================
+   DELETE SERVICE CONFIRMATION
+========================= */
+
+function confirmDeleteService(){
+    if(modalBusy)return;
+
+    const serviceId=sessionStorage.getItem("serviceId");
+
+    if(!serviceId){
+        showNotification(
+            "error",
+            "Service Not Found",
+            "The service ID could not be found.",
+            "Continue",
+            ()=>window.location.href="../worker-services/index.html"
+        );
+        return;
+    }
+
+    showConfirmation(
+        "Delete Service?",
+        "Are you sure you want to delete this service and its portfolio images?",
+        "No",
+        "Yes",
+        deleteService
+    );
 }
 
 async function deleteService(){
-const serviceId=sessionStorage.getItem("serviceId");
-if(!serviceId){showNotification("error","Service Not Found","The service ID could not be found.","Go Back",()=>{window.location.href="../worker-services/index.html";});return;}
+    const serviceId=sessionStorage.getItem("serviceId");
 
-showNotification("warning","Delete Service?","This service and its portfolio images will be permanently deleted.","Delete",async()=>{
-showLoadingModal("Deleting Service","Please wait while your service is being deleted.");
-try{
-const response=await API_REQUEST(`${DELETE_SERVICE_ENDPOINT}/${encodeURIComponent(serviceId)}`,{method:"DELETE"}),data=await response.json();
-if(!response.ok)throw new Error(data.message||"Unable to delete the service.");
-hideLoadingModal();
-showNotification("success","Service Deleted",data.message||"Your service has been deleted successfully.","Continue",()=>{sessionStorage.removeItem("serviceId");window.location.href="../worker-services/index.html";});
-}catch(error){
-hideLoadingModal();
-showNotification("error","Delete Failed",error.message||"Something went wrong while deleting your service.","Close");
+    if(!serviceId){
+        throw new Error("The service ID could not be found.");
+    }
+
+    const response=await API_REQUEST(
+        `${DELETE_SERVICE_ENDPOINT}/${encodeURIComponent(serviceId)}`,
+        {method:"DELETE"}
+    );
+
+    if(response.status===401){
+        return{
+            type:"error",
+            title:"Authentication Required",
+            message:"Your session has expired. Please log in again.",
+            callback:redirectToLogin
+        };
+    }
+
+    const data=await readResponse(response);
+
+    if(!response.ok){
+        throw new Error(data.message||"Unable to delete the service.");
+    }
+
+    sessionStorage.removeItem("serviceId");
+
+    return{
+        type:"success",
+        title:"Service Deleted",
+        message:data.message||"Your service has been deleted successfully.",
+        callback:()=>window.location.href="../worker-services/index.html"
+    };
 }
-});
-}
+
+/* =========================
+   MODAL INITIALIZATION
+========================= */
 
 function initializeModal(){
-const overlay=getElement("notificationOverlay"),closeButton=getElement("notificationCancelButton");
-if(!overlay||!closeButton)return;
-closeButton.addEventListener("click",()=>{if(getElement("notificationCard").dataset.loading==="true")return;closeNotification();});
+    const actions=getElement("notificationActions");
+
+    actions?.addEventListener("click",async event=>{
+        const button=event.target.closest("button");
+
+        if(!button||modalBusy)return;
+
+        if(button.id==="confirmNoButton"){
+            closeNotification();
+            return;
+        }
+
+        if(button.id!=="notificationButton")return;
+
+        if(modalConfirmation){
+            await executeConfirmation();
+            return;
+        }
+
+        const callback=modalCallback;
+
+        modalCallback=null;
+        closeNotification();
+
+        if(typeof callback==="function"){
+            callback();
+        }
+    });
+
+    getElement("notificationCancelButton")?.addEventListener("click",()=>{
+        if(modalBusy)return;
+        closeNotification();
+    });
+
+    getElement("notificationOverlay")?.addEventListener("click",event=>{
+        if(
+            event.target===getElement("notificationOverlay")&&
+            !modalBusy
+        ){
+            closeNotification();
+        }
+    });
 }
 
-function showNotification(type,title,message,buttonText="Close",callback=null){
-const overlay=getElement("notificationOverlay"),card=getElement("notificationCard"),icon=getElement("notificationIcon"),titleElement=getElement("notificationTitle"),textElement=getElement("notificationText"),button=getElement("notificationButton"),closeButton=getElement("notificationCancelButton");
-button.onclick=null;overlay.classList.add("active");card.dataset.loading="false";closeButton.style.display="flex";button.style.display="block";titleElement.textContent=title;textElement.textContent=message;button.textContent=buttonText;
-if(type==="success"){icon.textContent="✓";icon.style.color="#22c55e";icon.style.background="rgba(34,197,94,.1)";}
-else if(type==="warning"){icon.textContent="!";icon.style.color="#f59e0b";icon.style.background="rgba(245,158,11,.1)";}
-else{icon.textContent="!";icon.style.color="#ef4444";icon.style.background="rgba(239,68,68,.1)";}
-button.onclick=()=>{closeNotification();if(typeof callback==="function")callback();};
+/* =========================
+   RUN CONFIRMED REQUEST
+========================= */
+
+async function executeConfirmation(){
+    if(modalBusy||typeof modalCallback!=="function")return;
+
+    const action=modalCallback;
+    const yesButton=getElement("notificationButton");
+    const noButton=getElement("confirmNoButton");
+
+    modalBusy=true;
+    modalCallback=null;
+
+    yesButton.dataset.originalText="Yes";
+    yesButton.textContent="Connecting...";
+    yesButton.disabled=true;
+
+    if(noButton)noButton.disabled=true;
+
+    try{
+        const result=await action();
+
+        // Restore Yes before displaying the result.
+        yesButton.textContent="Yes";
+        yesButton.disabled=false;
+        delete yesButton.dataset.originalText;
+
+        modalBusy=false;
+        modalConfirmation=false;
+
+        closeNotification();
+
+        if(result){
+            showNotification(
+                result.type||"success",
+                result.title||"Success",
+                result.message||"Your request was completed successfully.",
+                "Continue",
+                result.callback||null
+            );
+        }
+
+    }catch(error){
+        yesButton.textContent="Yes";
+        yesButton.disabled=false;
+        delete yesButton.dataset.originalText;
+
+        modalBusy=false;
+        modalConfirmation=false;
+
+        closeNotification();
+
+        showNotification(
+            "error",
+            "Request Failed",
+            error.message||"Something went wrong. Please try again.",
+            "Continue"
+        );
+
+    }finally{
+        modalBusy=false;
+    }
 }
+
+/* =========================
+   SHOW NOTIFICATION
+========================= */
+
+function showNotification(
+    type,
+    title,
+    message,
+    buttonText="Continue",
+    callback=null
+){
+    const overlay=getElement("notificationOverlay");
+    const card=getElement("notificationCard");
+    const icon=getElement("notificationIcon");
+    const actions=getElement("notificationActions");
+    const close=getElement("notificationCancelButton");
+
+    modalCallback=callback;
+    modalConfirmation=false;
+
+    card.className=`notification-card ${type}`;
+    card.dataset.loading="false";
+
+    getElement("notificationTitle").textContent=title;
+    getElement("notificationText").textContent=message;
+
+    icon.textContent=type==="success"?"✓":type==="warning"?"!":"!";
+    icon.style.color=type==="success"?"#22c55e":type==="warning"?"#f59e0b":"#ef4444";
+    icon.style.background=type==="success"
+        ?"rgba(34,197,94,.1)"
+        :type==="warning"
+            ?"rgba(245,158,11,.1)"
+            :"rgba(239,68,68,.1)";
+
+    actions.replaceChildren();
+
+    const button=document.createElement("button");
+    button.type="button";
+    button.id="notificationButton";
+    button.textContent=buttonText;
+
+    actions.appendChild(button);
+
+    close.style.display=callback?"none":"flex";
+
+    overlay.hidden=false;
+    overlay.classList.add("active");
+}
+
+/* =========================
+   SHOW NO | YES CONFIRMATION
+========================= */
+
+function showConfirmation(title,message,noText,yesText,onYes){
+    if(modalBusy)return;
+
+    const overlay=getElement("notificationOverlay");
+    const card=getElement("notificationCard");
+    const icon=getElement("notificationIcon");
+    const actions=getElement("notificationActions");
+    const close=getElement("notificationCancelButton");
+
+    modalCallback=onYes;
+    modalConfirmation=true;
+
+    card.className="notification-card confirm";
+    card.dataset.loading="false";
+
+    getElement("notificationTitle").textContent=title;
+    getElement("notificationText").textContent=message;
+
+    icon.textContent="!";
+    icon.style.color="#16a34a";
+    icon.style.background="rgba(245,158,11,.12)";
+
+    actions.replaceChildren();
+
+    const noButton=document.createElement("button");
+    noButton.type="button";
+    noButton.id="confirmNoButton";
+    noButton.className="cancel-button";
+    noButton.textContent=noText;
+
+    const yesButton=document.createElement("button");
+    yesButton.type="button";
+    yesButton.id="notificationButton";
+    yesButton.className="confirm-yes-button";
+    yesButton.textContent=yesText;
+
+    actions.append(noButton,yesButton);
+
+    close.style.display="none";
+
+    overlay.hidden=false;
+    overlay.classList.add("active");
+}
+
+/* =========================
+   LOADING MODAL
+========================= */
+
+function showLoadingModal(title,message){
+    const overlay=getElement("notificationOverlay");
+    const card=getElement("notificationCard");
+    const actions=getElement("notificationActions");
+
+    modalCallback=null;
+    modalConfirmation=false;
+
+    card.className="notification-card info";
+    card.dataset.loading="true";
+
+    getElement("notificationTitle").textContent=title;
+    getElement("notificationText").textContent=message;
+
+    const icon=getElement("notificationIcon");
+    icon.textContent="…";
+    icon.style.color="#22c55e";
+    icon.style.background="rgba(34,197,94,.1)";
+
+    actions.replaceChildren();
+    getElement("notificationCancelButton").style.display="none";
+
+    overlay.hidden=false;
+    overlay.classList.add("active");
+}
+
+/* =========================
+   CLOSE MODAL
+========================= */
 
 function closeNotification(){
-const overlay=getElement("notificationOverlay"),card=getElement("notificationCard");
-if(card.dataset.loading==="true")return;
-overlay.classList.remove("active");card.dataset.loading="false";
+    if(modalBusy)return;
+
+    const overlay=getElement("notificationOverlay");
+    const card=getElement("notificationCard");
+
+    overlay.classList.remove("active");
+    overlay.hidden=true;
+    card.dataset.loading="false";
+
+    getElement("notificationCancelButton").style.display="flex";
+
+    modalCallback=null;
+    modalConfirmation=false;
+}
+
+function showSessionExpired(){
+    sessionExpired=true;
+    modalBusy=false;
+
+    showNotification(
+        "error",
+        "Authentication Required",
+        "Your session has expired. Please log in again.",
+        "Continue",
+        redirectToLogin
+    );
+}
+
+function redirectToLogin(){
+    window.location.href="../worker-authentication/index.html";
+}
+
+async function readResponse(response){
+    const text=await response.text();
+
+    if(!text)return{};
+
+    try{
+        return JSON.parse(text);
+    }catch{
+        throw new Error(
+            "The server returned an invalid response. Please try again."
+        );
+    }
 }

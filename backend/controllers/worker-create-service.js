@@ -10,7 +10,7 @@ api_key:process.env.CLOUDINARY_API_KEY,
 api_secret:process.env.CLOUDINARY_API_SECRET
 });
 
-const MAX_PORTFOLIO_IMAGE_SIZE=5*1024*1024;
+const MAX_PORTFOLIO_IMAGE_SIZE=510241024;
 const MAX_PORTFOLIO_IMAGES=3;
 const MAX_DESCRIPTION_WORDS=150;
 
@@ -61,7 +61,7 @@ function uploadImageToCloudinary(fileBuffer,workerId){
 return new Promise((resolve,reject)=>{
 const uploadStream=cloudinary.uploader.upload_stream(
 {
-folder:`skillconnect/workers/${workerId}/services`,
+folder:"skillconnect/workers/${workerId}/services",
 resource_type:"image",
 format:"jpg"
 },
@@ -189,7 +189,7 @@ skill.toLowerCase()
 if(skillAlreadyExists)
 return res.status(400).json({
 success:false,
-message:`You already have a service for ${skill}.`
+message:"You already have a service for ${skill}."
 });
 
 const portfolioFiles=
@@ -285,7 +285,8 @@ experience,
 description,
 portfolios:portfolioPublicIds,
 date:new Date(),
-adminApproval:"in review"
+adminApproval:"in review",
+adminResponse:"It may take up to 24 hours for admin update"
 };
 
 worker.services.push(
@@ -309,16 +310,7 @@ await worker.save();
 
 return res.status(201).json({
 success:true,
-message:"Service added successfully.",
-service:{
-id:newService.id,
-skill:newService.skill,
-experience:newService.experience,
-description:newService.description,
-portfolios:newService.portfolios,
-date:newService.date,
-adminApproval:newService.adminApproval
-}
+message:"Service added successfully."
 });
 
 }catch(error){
