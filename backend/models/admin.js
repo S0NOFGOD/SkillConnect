@@ -1,24 +1,32 @@
 const mongoose=require("mongoose");
 
 const adminSchema=new mongoose.Schema({
-    email:{
-        type:String,
-        required:true,
-        unique:true,
-        lowercase:true,
-        trim:true
-    },
 
-    passwordHash:{
-        type:String,
-        required:true
-    },
+fullName:{
+    type:String,
+    required:true,
+    trim:true
+},
 
-    refreshTokenHash:{
-        type:String,
-        default:null
-    }
+passwordHash:{
+    type:String,
+    required:true
+},
+
+accountType:{
+    type:String,
+    enum:["admin",null],
+    default:null
+},
+
+refreshTokenHash:{
+    type:String,
+    default:null
+}
 
 },{timestamps:true});
 
-module.exports=mongoose.model("Admin",adminSchema);
+module.exports=mongoose.model(
+"Admin",
+adminSchema
+);

@@ -1,12 +1,12 @@
 /* =========================================================
    WORKER DASHBOARD STYLES
-   Modern UI — functionality and JS classes preserved.
 ========================================================= */
 
-/* =========================
-   1. RESET & GLOBAL
-========================= */
-*{box-sizing:border-box;margin:0;padding:0}
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
 
 :root{
     --bg:#020617;
@@ -22,25 +22,44 @@
     --shadow:0 20px 50px rgba(0,0,0,.28);
 }
 
-html{scroll-behavior:smooth}
+html{
+    scroll-behavior:smooth;
+}
 
 body{
     min-height:100vh;
     font-family:"Inter",sans-serif;
     background:
-        radial-gradient(circle at 15% 10%,rgba(34,197,94,.08),transparent 30%),
-        radial-gradient(circle at 85% 20%,rgba(59,130,246,.08),transparent 30%),
+        radial-gradient(
+            circle at 15% 10%,
+            rgba(34,197,94,.08),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 85% 20%,
+            rgba(59,130,246,.08),
+            transparent 30%
+        ),
         var(--bg);
     color:var(--text);
     line-height:1.6;
     overflow-x:hidden;
 }
 
-button,a{font:inherit}
+button,
+a{
+    font:inherit;
+}
 
-button{border:0;cursor:pointer}
+button{
+    border:0;
+    cursor:pointer;
+}
 
-a{text-decoration:none;color:inherit}
+a{
+    text-decoration:none;
+    color:inherit;
+}
 
 button:focus-visible,
 a:focus-visible{
@@ -48,9 +67,11 @@ a:focus-visible{
     outline-offset:3px;
 }
 
+
 /* =========================
-   2. BACKGROUND GLOWS
+   BACKGROUND GLOWS
 ========================= */
+
 .green-glow,
 .blue-glow{
     position:fixed;
@@ -75,9 +96,11 @@ a:focus-visible{
     background:var(--blue);
 }
 
+
 /* =========================
-   3. TOPBAR
+   TOPBAR
 ========================= */
+
 .topbar{
     position:fixed;
     top:0;
@@ -106,9 +129,11 @@ a:focus-visible{
     color:#16a34a;
 }
 
+
 /* =========================
-   4. MENU BUTTON
+   MENU BUTTON
 ========================= */
+
 .menu-btn{
     display:none;
     width:42px;
@@ -127,9 +152,11 @@ a:focus-visible{
     background:#fff;
 }
 
+
 /* =========================
-   5. SIDEBAR
+   SIDEBAR
 ========================= */
+
 .sidebar{
     position:fixed;
     top:70px;
@@ -166,7 +193,11 @@ a:focus-visible{
     width:38px;
     height:38px;
     border-radius:11px;
-    background:linear-gradient(135deg,var(--green),var(--green-dark));
+    background:linear-gradient(
+        135deg,
+        var(--green),
+        var(--green-dark)
+    );
     color:#fff;
     font-size:.72rem;
     font-weight:800;
@@ -181,7 +212,7 @@ a:focus-visible{
 
 .sidebar-brand-text strong{
     font-size:.9rem;
-    color: #16a34a;
+    color:#16a34a;
 }
 
 .sidebar-brand-text small{
@@ -258,9 +289,11 @@ a:focus-visible{
     background:rgba(239,68,68,.08);
 }
 
+
 /* =========================
-   6. MOBILE OVERLAY
+   MOBILE OVERLAY
 ========================= */
+
 .overlay{
     position:fixed;
     inset:70px 0 0;
@@ -276,9 +309,11 @@ a:focus-visible{
     visibility:visible;
 }
 
+
 /* =========================
-   7. MAIN DASHBOARD
+   MAIN DASHBOARD
 ========================= */
+
 .dashboard{
     width:calc(100% - 270px);
     min-height:100vh;
@@ -294,16 +329,8 @@ a:focus-visible{
     margin-bottom:38px;
 }
 
-.welcome-content{min-width:0}
-
-.dashboard-eyebrow,
-.section-eyebrow{
-    display:block;
-    margin-bottom:7px;
-    color:var(--green);
-    font-size:.68rem;
-    font-weight:800;
-    letter-spacing:.16em;
+.welcome-content{
+    min-width:0;
 }
 
 .dashboard-header h1{
@@ -316,20 +343,29 @@ a:focus-visible{
     color:var(--green);
 }
 
+
 /* =========================
-   8. VERIFICATION BUTTON
+   VERIFICATION BUTTON
 ========================= */
+
 .verification-action-btn{
     flex-shrink:0;
     min-height:46px;
     padding:0 20px;
     border-radius:11px;
-    background:linear-gradient(135deg,#ef4444,#dc2626);
+    background:linear-gradient(
+        135deg,
+        #ef4444,
+        #dc2626
+    );
     color:#fff;
     font-size:.84rem;
     font-weight:700;
     box-shadow:0 10px 25px rgba(239,68,68,.16);
-    transition:transform .2s ease,box-shadow .2s ease,opacity .2s ease;
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease,
+        opacity .2s ease;
 }
 
 .verification-action-btn:hover{
@@ -344,17 +380,19 @@ a:focus-visible{
 }
 
 .verification-action-btn.verified{
-    background:linear-gradient(135deg,var(--green),var(--green-dark));
+    background:linear-gradient(
+        135deg,
+        var(--green),
+        var(--green-dark)
+    );
     box-shadow:0 10px 25px rgba(34,197,94,.16);
 }
 
-.verification-action-btn.verified:hover{
-    box-shadow:0 14px 28px rgba(34,197,94,.22);
-}
 
 /* =========================
-   9. DASHBOARD SECTIONS
+   DASHBOARD SECTIONS
 ========================= */
+
 .dashboard-section{
     position:relative;
     margin-bottom:26px;
@@ -380,13 +418,11 @@ a:focus-visible{
     letter-spacing:-.02em;
 }
 
-.section-heading .section-eyebrow{
-    margin-bottom:4px;
-}
 
 /* =========================
-   10. PROFILE PHOTO
+   PROFILE PHOTO
 ========================= */
+
 .profile-photo-card{
     display:flex;
     margin-bottom:24px;
@@ -426,12 +462,17 @@ a:focus-visible{
     );
 }
 
+
 /* =========================
-   11. INFORMATION GRID
+   INFORMATION GRID
 ========================= */
+
 .information-grid{
     display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-template-columns:repeat(
+        2,
+        minmax(0,1fr)
+    );
     gap:14px;
 }
 
@@ -444,16 +485,6 @@ a:focus-visible{
     border:1px solid rgba(148,163,184,.11);
     border-radius:14px;
     background:rgba(255,255,255,.025);
-    transition:
-        border-color .2s ease,
-        background .2s ease,
-        transform .2s ease;
-}
-
-.information-card:hover{
-    border-color:rgba(34,197,94,.2);
-    background:rgba(255,255,255,.04);
-    transform:translateY(-1px);
 }
 
 .information-label{
@@ -472,50 +503,11 @@ a:focus-visible{
     word-break:break-word;
 }
 
-/* =========================
-   12. EDITABLE FIELDS
-========================= */
-.editable-field{
-    width:100%;
-    padding:10px 12px;
-    border:1px solid var(--border);
-    border-radius:9px;
-    outline:none;
-    background:rgba(255,255,255,.04);
-    color:#fff;
-}
-
-.editable-field:focus{
-    border-color:var(--green);
-}
-
-.edit-actions{
-    display:flex;
-    gap:8px;
-    margin-top:10px;
-}
-
-.update-profile-button,
-.cancel-edit-button{
-    padding:9px 14px;
-    border-radius:8px;
-    font-size:.8rem;
-    font-weight:600;
-}
-
-.update-profile-button{
-    background:var(--green);
-    color:#fff;
-}
-
-.cancel-edit-button{
-    background:rgba(255,255,255,.07);
-    color:#fff;
-}
 
 /* =========================
-   13. LOADING STATE
+   LOADING STATE
 ========================= */
+
 .is-loading{
     position:relative;
     pointer-events:none;
@@ -536,12 +528,16 @@ a:focus-visible{
 }
 
 @keyframes spin{
-    to{transform:rotate(360deg)}
+    to{
+        transform:rotate(360deg);
+    }
 }
 
+
 /* =========================
-   14. NOTIFICATION MODAL
+   NOTIFICATION MODAL
 ========================= */
+
 .notification-modal{
     position:fixed;
     inset:0;
@@ -554,7 +550,9 @@ a:focus-visible{
     z-index:2000;
 }
 
-.notification-modal[hidden]{display:none}
+.notification-modal[hidden]{
+    display:none;
+}
 
 .notification-card{
     position:relative;
@@ -574,10 +572,14 @@ a:focus-visible{
 }
 
 @keyframes modalIn{
+
     from{
         opacity:0;
-        transform:translateY(12px) scale(.98);
+        transform:
+            translateY(12px)
+            scale(.98);
     }
+
     to{
         opacity:1;
         transform:none;
@@ -627,14 +629,21 @@ a:focus-visible{
     line-height:1.7;
 }
 
+
+/* =========================
+   MODAL ACTIONS
+========================= */
+
 .notification-actions{
     display:flex;
     justify-content:center;
+    align-items:center;
     gap:10px;
     margin-top:24px;
 }
 
 .notification-actions button{
+    flex:1;
     min-width:120px;
     min-height:44px;
     padding:0 18px;
@@ -643,7 +652,10 @@ a:focus-visible{
     color:#fff;
     font-size:.84rem;
     font-weight:700;
-    transition:transform .2s ease,opacity .2s ease;
+    transition:
+        transform .2s ease,
+        opacity .2s ease,
+        background .2s ease;
 }
 
 .notification-actions button:hover{
@@ -656,7 +668,27 @@ a:focus-visible{
     transform:none;
 }
 
-/* Modal variants */
+
+/* =========================
+   NO BUTTON
+========================= */
+
+.notification-no-button{
+    background:rgba(255,255,255,.07)!important;
+    border:1px solid var(--border);
+    color:#cbd5e1!important;
+}
+
+.notification-no-button:hover{
+    background:rgba(255,255,255,.11)!important;
+    color:#fff!important;
+}
+
+
+/* =========================
+   MODAL VARIANTS
+========================= */
+
 .notification-card.success .notification-icon{
     background:rgba(34,197,94,.12);
     color:var(--green);
@@ -674,23 +706,29 @@ a:focus-visible{
 
 .notification-card.confirm .notification-icon{
     background:rgba(245,158,11,.12);
-    color:#fbbf24;
+    color:#16a34a;
 }
 
-.notification-card.error .notification-actions button{
+.notification-card.error
+.notification-actions button:not(.notification-no-button){
     background:var(--red);
 }
 
-.notification-card.confirm .notification-actions button{
-    background:#f59e0b;
+.notification-card.confirm
+.notification-actions button:not(.notification-no-button){
+    background:#16a34a;
 }
 
+
 /* =========================
-   15. RESPONSIVE
+   RESPONSIVE
 ========================= */
+
 @media(max-width:900px){
 
-    .menu-btn{display:block}
+    .menu-btn{
+        display:block;
+    }
 
     .sidebar{
         top:70px;
@@ -703,14 +741,18 @@ a:focus-visible{
         transform:translateX(0);
     }
 
-    .close-menu-btn{display:block}
+    .close-menu-btn{
+        display:block;
+    }
 
     .dashboard{
         width:100%;
         margin-right:0;
         padding:100px 28px 50px;
     }
+
 }
+
 
 @media(max-width:600px){
 
@@ -759,17 +801,21 @@ a:focus-visible{
     }
 
     .notification-actions{
-        flex-direction:column;
+        flex-direction:row;
     }
 
     .notification-actions button{
-        width:100%;
+        width:auto;
+        min-width:0;
     }
+
 }
 
+
 /* =========================
-   16. REDUCED MOTION
+   REDUCED MOTION
 ========================= */
+
 @media(prefers-reduced-motion:reduce){
 
     *,
@@ -780,4 +826,5 @@ a:focus-visible{
         animation-iteration-count:1!important;
         transition-duration:.01ms!important;
     }
+
 }

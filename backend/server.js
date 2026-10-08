@@ -33,6 +33,7 @@ const clientViewRatingsRoutes=require("./routes/client-view-ratings");
 const adminAuthenticationRoutes=require("./routes/admin-authentication");
 const adminDashboardRoutes=require("./routes/admin-dashboard");
 const adminWorkerServicesRoutes=require("./routes/admin-worker-services");
+const adminManagementRoutes=require("./routes/admin-management");
 const createAdmin=require("./controllers/create-admin");
 
 const app=express();
@@ -53,7 +54,7 @@ throw new Error(
 const connection=await mongoose.connect(mongoURI);
 
 console.log(
-`MongoDB connected: ${connection.connection.host}`
+"MongoDB connected: ${connection.connection.host}"
 );
 
 }catch(error){
@@ -132,6 +133,7 @@ app.use("/api/client-view-ratings",clientViewRatingsRoutes);
 app.use("/api/admin/auth",adminAuthenticationRoutes);
 app.use("/api/admin-dashboard",adminDashboardRoutes);
 app.use("/api/admin-worker-services",adminWorkerServicesRoutes);
+app.use("/api/admin-management",adminManagementRoutes);
 
 /* 8. OTHER WORKER ROUTES */
 
@@ -177,7 +179,7 @@ await createAdmin();
 
 app.listen(PORT,()=>{
 console.log(
-`SkillConnect server running on port ${PORT}`
+"SkillConnect server running on port ${PORT}"
 );
 });
 

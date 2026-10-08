@@ -1,39 +1,59 @@
 const crypto=require("crypto");
 const jwt=require("jsonwebtoken");
 const bcrypt=require("bcrypt");
+
 const Admin=require("../models/admin");
 
+
 const generateAccessToken=admin=>{
+
     return jwt.sign(
+
         {
             userId:admin._id,
             userType:"admin"
         },
+
         process.env.ACCESS_TOKEN_SECRET,
+
         {
-            expiresIn:process.env.ACCESS_TOKEN_EXPIRE
+            expiresIn:
+                process.env.ACCESS_TOKEN_EXPIRE
         }
+
     );
+
 };
+
 
 const generateRefreshToken=admin=>{
+
     return jwt.sign(
+
         {
             userId:admin._id,
             userType:"admin"
         },
+
         process.env.REFRESH_TOKEN_SECRET,
+
         {
-            expiresIn:process.env.REFRESH_TOKEN_EXPIRE
+            expiresIn:
+                process.env.REFRESH_TOKEN_EXPIRE
         }
+
     );
+
 };
 
+
 const hashToken=token=>{
+
     return crypto
         .createHash("sha256")
         .update(token)
         .digest("hex");
+
 };
 
 
@@ -42,44 +62,78 @@ const hashToken=token=>{
 ========================================================= */
 
 const authenticateAdmin=async(req,res,next)=>{
+
     try{
 
-        const accessToken=req.cookies?.accessToken;
+        const accessToken=
+            req.cookies?.accessToken;
+
 
         if(!accessToken){
+
             return res.status(401).json({
+
                 success:false,
-                message:"Authentication required."
+
+                message:
+                    "Authentication required."
+
             });
+
         }
 
+
         const decoded=jwt.verify(
+
             accessToken,
+
             process.env.ACCESS_TOKEN_SECRET
+
         );
+
 
         if(
             decoded.userType!=="admin"||
             !decoded.userId
         ){
+
             return res.status(401).json({
+
                 success:false,
-                message:"Invalid authentication token."
+
+                message:
+                    "Invalid authentication token."
+
             });
+
         }
 
-        const admin=await Admin.findById(decoded.userId);
+
+        const admin=
+            await Admin.findById(
+                decoded.userId
+            );
+
 
         if(!admin){
+
             return res.status(401).json({
+
                 success:false,
-                message:"Admin account not found."
+
+                message:
+                    "Admin account not found."
+
             });
+
         }
+
 
         req.admin=admin;
 
+
         next();
+
 
     }catch(error){
 
@@ -88,11 +142,18 @@ const authenticateAdmin=async(req,res,next)=>{
             error
         );
 
+
         return res.status(401).json({
+
             success:false,
-            message:"Authentication required."
+
+            message:
+                "Authentication required."
+
         });
+
     }
+
 };
 
 
@@ -101,79 +162,200 @@ const authenticateAdmin=async(req,res,next)=>{
 ========================================================= */
 
 const loginAdmin=async(req,res)=>{
+
     try{
 
-        const {email,password}=req.body;
+        const {
+            fullName,
+            password
+        }=req.body;
 
-        if(!email||!password){
+
+        /* =========================
+           VALIDATE LOGIN DATA
+        ========================== */
+
+        if(!fullName||!password){
+
             return res.status(400).json({
+
                 success:false,
-                message:"Email and password are required."
+
+                message:
+                    "Full name and password are required."
+
             });
+
         }
 
-        const normalizedEmail=email.trim().toLowerCase();
 
-        const admin=await Admin.findOne({
-            email:normalizedEmail
-        });
+        /* =========================
+           FIND ADMIN BY FULL NAME
+        ========================== */
+
+        const admin=
+            await Admin.findOne({
+
+                fullName:
+                    fullName.trim()
+
+            });
+
 
         if(!admin){
+
             return res.status(401).json({
+
                 success:false,
-                message:"Invalid email or password."
+
+                message:
+                    "Admin account not found."
+
             });
+
         }
 
-        const passwordMatch=await bcrypt.compare(
-            password,
-            admin.passwordHash
-        );
+
+        /* =========================
+           COMPARE PASSWORD
+        ========================== */
+
+        const passwordMatch=
+            await bcrypt.compare(
+
+                password,
+
+                admin.passwordHash
+
+            );
+
 
         if(!passwordMatch){
+
             return res.status(401).json({
+
                 success:false,
-                message:"Invalid email or password."
+
+                message:
+                    "Incorrect password."
+
             });
+
         }
 
-        const accessToken=generateAccessToken(admin);
-        const refreshToken=generateRefreshToken(admin);
 
-        admin.refreshTokenHash=hashToken(refreshToken);
+        /* =========================
+           GENERATE TOKENS
+        ========================== */
+
+        const accessToken=
+            generateAccessToken(admin);
+
+
+        const refreshToken=
+            generateRefreshToken(admin);
+
+
+        /* =========================
+           HASH REFRESH TOKEN
+        ========================== */
+
+        admin.refreshTokenHash=
+            hashToken(refreshToken);
+
+
+        /* =========================
+           SAVE REFRESH TOKEN HASH
+        ========================== */
 
         await admin.save();
 
-        const isProduction=process.env.NODE_ENV==="production";
+
+        /* =========================
+           COOKIE SETTINGS
+        ========================== */
+
+        const isProduction=
+            process.env.NODE_ENV==="production";
+
+
+        /* =========================
+           ACCESS TOKEN COOKIE
+        ========================== */
 
         res.cookie(
+
             "accessToken",
+
             accessToken,
+
             {
+
                 httpOnly:true,
+
                 secure:isProduction,
-                sameSite:isProduction?"none":"lax",
-                maxAge:15*60*1000,
+
+                sameSite:
+                    isProduction
+                        ?"none"
+                        :"lax",
+
+                maxAge:
+                    15*60*1000,
+
                 path:"/"
+
             }
+
         );
 
+
+        /* =========================
+           REFRESH TOKEN COOKIE
+        ========================== */
+
         res.cookie(
+
             "refreshToken",
+
             refreshToken,
+
             {
+
                 httpOnly:true,
+
                 secure:isProduction,
-                sameSite:isProduction?"none":"lax",
-                maxAge:7*24*60*60*1000,
+
+                sameSite:
+                    isProduction
+                        ?"none"
+                        :"lax",
+
+                maxAge:
+                    7*24*60*60*1000,
+
                 path:"/"
+
             }
+
         );
+
+
+        /* =========================
+           SUCCESS RESPONSE
+        ========================== */
 
         return res.status(200).json({
+
             success:true,
-            message:"Welcome back, Admin."
+
+            fullName:admin.fullName,
+
+            message:
+                `Welcome back, ${admin.fullName}.`
+
         });
+
 
     }catch(error){
 
@@ -182,14 +364,25 @@ const loginAdmin=async(req,res)=>{
             error
         );
 
+
         return res.status(500).json({
+
             success:false,
-            message:"Unable to log in. Please try again."
+
+            message:
+                "Unable to log in. Please try again."
+
         });
+
     }
+
 };
 
+
 module.exports={
+
     loginAdmin,
+
     authenticateAdmin
+
 };

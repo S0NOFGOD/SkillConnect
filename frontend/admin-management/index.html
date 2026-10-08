@@ -1,0 +1,548 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+    Admin Management | SkillConnect
+</title>
+
+<link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+>
+
+<link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+>
+
+<link
+    rel="stylesheet"
+    href="style.css"
+>
+
+</head><body><div
+    class="purple-glow"
+    aria-hidden="true"
+></div>
+
+<div
+    class="blue-glow"
+    aria-hidden="true"
+></div>
+
+
+<!-- =========================
+     TOPBAR
+========================== -->
+
+<header class="topbar">
+
+    <div class="topbar-inner">
+
+        <a
+            href="../admin-dashboard/index.html"
+            class="logo"
+        >
+            SkillConnect
+        </a>
+
+
+        <button
+            type="button"
+            id="menuBtn"
+            class="menu-btn"
+            aria-label="Open navigation menu"
+            aria-controls="sidebar"
+            aria-expanded="false"
+        >
+
+            <span></span>
+            <span></span>
+            <span></span>
+
+        </button>
+
+    </div>
+
+</header>
+
+
+<!-- =========================
+     SIDEBAR
+========================== -->
+
+<aside
+    id="sidebar"
+    class="sidebar"
+    aria-label="Admin management navigation"
+>
+
+    <div class="sidebar-header">
+
+        <div class="sidebar-brand">
+
+            <span class="sidebar-brand-icon">
+                SC
+            </span>
+
+            <div class="sidebar-brand-text">
+
+                <strong>
+                    SkillConnect
+                </strong>
+
+                <small>
+                    Admin Portal
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <button
+            type="button"
+            id="closeMenuBtn"
+            class="close-menu-btn"
+            aria-label="Close navigation menu"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <nav class="sidebar-nav">
+
+        <a
+            href="../admin-dashboard/index.html"
+            class="nav-link"
+        >
+
+            <span
+                class="nav-icon"
+                aria-hidden="true"
+            >
+                🏠
+            </span>
+
+            <span>
+                Dashboard
+            </span>
+
+        </a>
+
+
+        <button
+            type="button"
+            id="servicesBtn"
+            class="nav-link"
+        >
+
+            <span
+                class="nav-icon"
+                aria-hidden="true"
+            >
+                🛠️
+            </span>
+
+            <span>
+                Services
+            </span>
+
+        </button>
+
+
+        <button
+            type="button"
+            id="adminBtn"
+            class="nav-link active"
+        >
+
+            <span
+                class="nav-icon"
+                aria-hidden="true"
+            >
+                👥
+            </span>
+
+            <span>
+                Admin
+            </span>
+
+        </button>
+
+    </nav>
+
+
+    <div class="sidebar-footer">
+
+        <button
+            type="button"
+            id="logoutBtn"
+            class="nav-link logout-link"
+        >
+
+            <span
+                class="nav-icon"
+                aria-hidden="true"
+            >
+                ↪
+            </span>
+
+            <span>
+                Logout
+            </span>
+
+        </button>
+
+    </div>
+
+</aside>
+
+
+<div
+    id="overlay"
+    class="overlay"
+    aria-hidden="true"
+></div>
+
+
+<!-- =========================
+     MAIN CONTENT
+========================== -->
+
+<main
+    class="management"
+    id="managementContent"
+>
+
+    <section class="management-header">
+
+        <div class="header-content">
+
+            <div class="welcome-content">
+
+                <h1>
+                    Admin Management
+                </h1>
+
+                <p class="page-description">
+                    Manage SkillConnect administrator accounts.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="addAdminBtn"
+                class="add-admin-btn"
+            >
+
+                <span>
+                    +
+                </span>
+
+                Add Admin
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         ADMIN SECTION
+    ========================== -->
+
+    <section class="management-section">
+
+        <div class="section-heading">
+
+            <h2>
+                Administrators
+            </h2>
+
+            <span id="adminCount">
+                0 Admins
+            </span>
+
+        </div>
+
+
+        <div
+            id="adminContainer"
+            class="admin-container"
+        ></div>
+
+    </section>
+
+</main>
+
+
+<!-- =========================
+     ADD ADMIN MODAL
+========================== -->
+
+<div
+    id="addAdminOverlay"
+    class="form-modal"
+    hidden
+>
+
+    <div class="form-card">
+
+        <button
+            type="button"
+            id="closeAddAdminBtn"
+            class="form-close-button"
+            aria-label="Close Add Admin"
+        >
+            ×
+        </button>
+
+
+        <div class="form-icon">
+            +
+        </div>
+
+
+        <h2>
+            Add Admin
+        </h2>
+
+
+        <p class="form-description">
+            Create a new administrator account.
+        </p>
+
+
+        <form
+            id="addAdminForm"
+            novalidate
+        >
+
+            <div class="form-group">
+
+                <label for="fullName">
+                    Full Name
+                </label>
+
+                <input
+                    type="text"
+                    id="fullName"
+                    placeholder="Enter full name"
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter password"
+                    autocomplete="new-password"
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                id="createAdminBtn"
+                class="create-admin-btn"
+            >
+                Create Admin
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     CONFIRMATION MODAL
+========================== -->
+
+<div
+    id="confirmationOverlay"
+    class="notification-modal"
+    hidden
+>
+
+    <div
+        id="confirmationCard"
+        class="notification-card"
+    >
+
+        <button
+            type="button"
+            id="confirmationCloseButton"
+            class="notification-close-button"
+            aria-label="Close confirmation"
+        >
+            ×
+        </button>
+
+
+        <div
+            class="notification-icon warning"
+            aria-hidden="true"
+        >
+            !
+        </div>
+
+
+        <h2 id="confirmationTitle">
+            Confirm Action
+        </h2>
+
+
+        <p id="confirmationText">
+            Are you sure?
+        </p>
+
+
+        <div class="confirmation-actions">
+
+            <button
+                type="button"
+                id="confirmationNoButton"
+                class="secondary-button"
+            >
+                No
+            </button>
+
+
+            <button
+                type="button"
+                id="confirmationYesButton"
+                class="danger-button"
+            >
+                Yes
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     NOTIFICATION MODAL
+========================== -->
+
+<div
+    id="notificationOverlay"
+    class="notification-modal"
+    hidden
+>
+
+    <div
+        id="notificationCard"
+        class="notification-card"
+    >
+
+        <button
+            type="button"
+            id="notificationCancelButton"
+            class="notification-close-button"
+            aria-label="Close notification"
+        >
+            ×
+        </button>
+
+
+        <div
+            id="notificationIcon"
+            class="notification-icon"
+        >
+            ✓
+        </div>
+
+
+        <h2 id="notificationTitle">
+            Notification
+        </h2>
+
+
+        <p id="notificationText"></p>
+
+
+        <div class="notification-actions">
+
+            <button
+                type="button"
+                id="notificationButton"
+            >
+                Continue
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     CONNECTING MODAL
+========================== -->
+
+<div
+    id="loadingOverlay"
+    class="loading-modal"
+    hidden
+>
+
+    <div class="loading-card">
+
+        <div class="loading-spinner"></div>
+
+
+        <h2>
+            Connecting...
+        </h2>
+
+
+        <p>
+            Please wait.
+        </p>
+
+    </div>
+
+</div>
+
+
+<script
+    src="../config.js"
+    defer
+></script>
+
+<script
+    src="script.js"
+    defer
+></script>
+
+</body></html>
