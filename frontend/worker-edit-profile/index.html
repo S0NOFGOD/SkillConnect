@@ -1,82 +1,197 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Edit Profile | SkillConnect</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head><body><div class="green-glow" aria-hidden="true"></div>
-<div class="blue-glow" aria-hidden="true"></div><header class="topbar">
-<div class="topbar-inner">
-<a href="../worker-dashboard/index.html" class="logo">SkillConnect</a>
-<button type="button" id="menuBtn" class="menu-btn" aria-label="Open navigation menu" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Edit Profile | SkillConnect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="blue-glow" aria-hidden="true"></div>
+<div class="green-glow" aria-hidden="true"></div>
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a href="../worker-dashboard/index.html" class="logo">SkillConnect</a>
+        <button type="button" id="menuBtn" class="menu-btn" aria-label="Open navigation menu" aria-controls="sidebar" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</header>
+
+<aside id="sidebar" class="sidebar" aria-label="Worker dashboard navigation">
+    <div class="sidebar-header">
+        <div class="sidebar-brand">
+            <span class="sidebar-brand-icon">SC</span>
+            <div class="sidebar-brand-text">
+                <strong>SkillConnect</strong>
+                <small>Worker Portal</small>
+            </div>
+        </div>
+        <button type="button" id="closeMenuBtn" class="close-menu-btn" aria-label="Close navigation menu">×</button>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a href="../worker-dashboard/index.html" class="nav-link">
+            <span class="nav-icon" aria-hidden="true">🏠</span>
+            <span>Dashboard</span>
+        </a>
+
+        <button type="button" id="viewServicesBtn" class="nav-link">
+            <span class="nav-icon" aria-hidden="true">🛠️</span>
+            <span>View Services</span>
+        </button>
+
+        <button type="button" id="editProfileBtn" class="nav-link active">
+            <span class="nav-icon" aria-hidden="true">✏️</span>
+            <span>Edit Profile</span>
+        </button>
+    </nav>
+
+    <div class="sidebar-footer">
+        <button type="button" id="logoutBtn" class="nav-link logout-link">
+            <span class="nav-icon" aria-hidden="true">↪</span>
+            <span>Logout</span>
+        </button>
+    </div>
+</aside>
+
+<div id="overlay" class="overlay" aria-hidden="true"></div>
+
+<main class="edit-profile" id="editProfilePage">
+    <section class="page-header">
+        <div>
+            <h1>Edit Profile</h1>
+            <p>Update your personal information.</p>
+        </div>
+    </section>
+
+    <form id="profileForm" class="profile-form" novalidate>
+
+        <section class="profile-section">
+            <div class="section-heading">
+                <h2>Profile Photo</h2>
+            </div>
+
+            <div class="photo-editor">
+                <div class="profile-photo-wrapper">
+                    <img id="profilePhoto" class="profile-photo" src="" alt="Worker profile photo" hidden>
+                    <div id="profilePhotoPlaceholder" class="profile-photo-placeholder" aria-hidden="true">👤</div>
+                </div>
+
+                <div class="photo-actions">
+                    <label for="profilePhotoInput" class="photo-upload-button">Change Photo</label>
+                    <input type="file" id="profilePhotoInput" name="profilePhoto" accept="image/*" hidden>
+                </div>
+            </div>
+        </section>
+
+        <section class="profile-section">
+            <div class="section-heading">
+                <h2>Personal Information</h2>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" name="fullName" autocomplete="name" maxlength="100" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" autocomplete="tel" maxlength="20" required>
+                </div>
+            </div>
+        </section>
+
+        <section class="profile-section">
+            <div class="section-heading">
+                <h2>Location</h2>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <select id="country" name="country" required>
+                        <option value="">Select Country</option>
+                        <option value="Nigeria">Nigeria</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="state">State</label>
+                    <select id="state" name="state" required disabled>
+                        <option value="">Select State</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <select id="city" name="city" required disabled>
+                        <option value="">Select City</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="lga">LGA</label>
+                    <select id="lga" name="lga" required disabled>
+                        <option value="">Select LGA</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <section class="form-actions">
+            <button type="button" id="cancelBtn" class="cancel-button">Cancel</button>
+            <button type="submit" id="updateProfileBtn" class="update-profile-button">
+                <span class="button-text">Update Profile</span>
+            </button>
+        </section>
+    </form>
+</main>
+
+<!-- Notification and confirmation modal -->
+<div
+    id="notificationOverlay"
+    class="notification-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="notificationTitle"
+    aria-describedby="notificationText"
+    hidden
+>
+    <div id="notificationCard" class="notification-card">
+
+        <button
+            type="button"
+            id="notificationCancelButton"
+            class="notification-close-button"
+            aria-label="Close notification"
+        >×</button>
+
+        <div id="notificationIcon" class="notification-icon" aria-hidden="true">✓</div>
+
+        <h2 id="notificationTitle">Notification</h2>
+
+        <p id="notificationText"></p>
+
+        <div class="notification-actions">
+            <button type="button" id="notificationNoButton" class="notification-no-button" hidden>No</button>
+            <button type="button" id="notificationButton">Continue</button>
+        </div>
+
+    </div>
 </div>
-</header><aside id="sidebar" class="sidebar" aria-label="Worker dashboard navigation">
-<div class="sidebar-header">
-<div class="sidebar-brand">
-<span class="sidebar-brand-icon">SC</span>
-<div class="sidebar-brand-text"><strong>SkillConnect</strong><small>Worker Portal</small></div>
-</div>
-<button type="button" id="closeMenuBtn" class="close-menu-btn" aria-label="Close navigation menu">×</button>
-</div><nav class="sidebar-nav">
-<a href="../worker-dashboard/index.html" class="nav-link"><span class="nav-icon" aria-hidden="true">🏠</span><span>Dashboard</span></a>
-<button type="button" id="viewServicesBtn" class="nav-link"><span class="nav-icon" aria-hidden="true">🛠️</span><span>View Services</span></button>
-<button type="button" id="editProfileBtn" class="nav-link active"><span class="nav-icon" aria-hidden="true">✏️</span><span>Edit Profile</span></button>
-</nav><div class="sidebar-footer">
-<button type="button" id="logoutBtn" class="nav-link logout-link"><span class="nav-icon" aria-hidden="true">↪</span><span>Logout</span></button>
-</div>
-</aside><div id="overlay" class="overlay" aria-hidden="true"></div><main class="edit-profile" id="editProfilePage">
-<section class="page-header">
-<div><h1>Edit Profile</h1><p>Update your personal information.</p></div>
-</section><form id="profileForm" class="profile-form" novalidate><section class="profile-section">
-<div class="section-heading"><h2>Profile Photo</h2><p>Maximum file size: 5 MB.</p></div><div class="photo-editor">
-<div class="profile-photo-wrapper">
-<img id="profilePhoto" class="profile-photo" src="" alt="Worker profile photo" hidden>
-<div id="profilePhotoPlaceholder" class="profile-photo-placeholder" aria-hidden="true">👤</div>
-</div><div class="photo-actions">
-<label for="profilePhotoInput" class="photo-upload-button">Change Photo</label>
-<input type="file" id="profilePhotoInput" name="profilePhoto" accept="image/*" hidden>
-<span id="photoFileName" class="photo-file-name">No new photo selected</span>
-</div>
-</div>
-</section><section class="profile-section">
-<div class="section-heading"><h2>Personal Information</h2></div><div class="form-grid"><div class="form-group">
-<label for="fullName">Full Name</label>
-<input type="text" id="fullName" name="fullName" autocomplete="name" maxlength="100" required>
-</div><div class="form-group">
-<label for="phone">Phone Number</label>
-<input type="tel" id="phone" name="phone" autocomplete="tel" maxlength="20" required>
-</div></div>
-</section><section class="profile-section">
-<div class="section-heading"><h2>Location</h2></div><div class="form-grid">
-<div class="form-group">
-<label for="country">Country</label>
-<select id="country" name="country" required>
-<option value="">Select Country</option>
-<option value="Nigeria">Nigeria</option>
-</select>
-</div>
-<div class="form-group">
-<label for="state">State</label>
-<select id="state" name="state" required disabled>
-<option value="">Select State</option>
-</select>
-</div>
-<div class="form-group">
-<label for="city">City</label>
-<select id="city" name="city" required disabled>
-<option value="">Select City</option>
-</select>
-</div>
-<div class="form-group">
-<label for="lga">LGA</label>
-<select id="lga" name="lga" required disabled>
-<option value="">Select LGA</option>
-</select>
-</div>
-</div>
-</section><section class="form-actions">
-<button type="button" id="cancelBtn" class="cancel-button">Cancel</button><button type="submit" id="updateProfileBtn" class="update-profile-button">
-<span class="button-text">Update Profile</span>
-<span class="button-loader" aria-hidden="true" hidden></span>
-</button>
-</section></form>
-</main><div id="notificationOverlay" class="notification-modal" role="dialog" aria-modal="true" aria-labelledby="notificationTitle" aria-describedby="notificationText" hidden>
-<div id="notificationCard" class="notification-card"><button type="button" id="notificationCancelButton" class="notification-close-button" aria-label="Close notification">×</button>
-<div id="notificationIcon" class="notification-icon" aria-hidden="true">✓</div><h2 id="notificationTitle">Notification</h2><p id="notificationText"></p><div class="notification-actions">
-<button type="button" id="notificationButton">Continue</button>
-</div></div>
-</div><script src="../config.js"></script><script src="../worker-create-profile/nigeria-location.js"></script><script src="script.js" defer></script></body></html>
+
+<script src="../config.js"></script>
+<script src="../worker-create-profile/nigeria-location.js"></script>
+<script src="script.js" defer></script>
+
+</body>
+</html>

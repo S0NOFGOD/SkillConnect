@@ -1,8 +1,3 @@
-/* =========================================================
-   WORKER EDIT PROFILE SCRIPT
-   config.js loads before this file.
-========================================================= */
-
 /* 1. PAGE ELEMENTS */
 const editProfilePage=document.getElementById("editProfilePage"),
 profileForm=document.getElementById("profileForm"),
@@ -18,7 +13,6 @@ cityInput=document.getElementById("city"),
 lgaInput=document.getElementById("lga"),
 updateProfileBtn=document.getElementById("updateProfileBtn"),
 buttonText=updateProfileBtn.querySelector(".button-text"),
-buttonLoader=updateProfileBtn.querySelector(".button-loader"),
 cancelBtn=document.getElementById("cancelBtn"),
 viewServicesBtn=document.getElementById("viewServicesBtn"),
 editProfileBtn=document.getElementById("editProfileBtn"),
@@ -35,21 +29,24 @@ notificationIcon=document.getElementById("notificationIcon"),
 notificationTitle=document.getElementById("notificationTitle"),
 notificationText=document.getElementById("notificationText"),
 notificationButton=document.getElementById("notificationButton"),
-notificationCancelButton=document.getElementById("notificationCancelButton");
+notificationCancelButton=document.getElementById("notificationCancelButton"),
+notificationNoButton=document.getElementById("notificationNoButton");
 
 /* 3. API ENDPOINTS */
 const PROFILE_ENDPOINT="/api/worker/edit-profile",
 LOGOUT_ENDPOINT="/api/auth/worker/logout";
 
 /* 4. PAGE STATE */
-let currentWorker=null,modalCloseAction=null,isUpdatingProfile=false,isLoggingOut=false;
+let currentWorker=null,
+modalCloseAction=null,
+isUpdatingProfile=false,
+isLoggingOut=false;
 
 /* 5. UPDATE LOADING */
 function setUpdateLoading(loading){
     updateProfileBtn.disabled=loading;
     cancelBtn.disabled=loading;
-    buttonLoader.hidden=!loading;
-    buttonText.textContent=loading?"Updating...":"Update Profile";
+    buttonText.textContent=loading?"Connecting...":"Update Profile";
 }
 
 /* 6. PAGE LOADING */
@@ -64,7 +61,6 @@ function resetLocationFields(){
     stateInput.innerHTML='<option value="">Select State</option>';
     cityInput.innerHTML='<option value="">Select City</option>';
     lgaInput.innerHTML='<option value="">Select LGA</option>';
-
     stateInput.disabled=true;
     cityInput.disabled=true;
     lgaInput.disabled=true;
@@ -74,7 +70,6 @@ function populateStates(selectedState=""){
     stateInput.innerHTML='<option value="">Select State</option>';
     cityInput.innerHTML='<option value="">Select City</option>';
     lgaInput.innerHTML='<option value="">Select LGA</option>';
-
     cityInput.disabled=true;
     lgaInput.disabled=true;
 
@@ -101,7 +96,6 @@ function populateStates(selectedState=""){
 function populateStateLocations(selectedCity="",selectedLga=""){
     cityInput.innerHTML='<option value="">Select City</option>';
     lgaInput.innerHTML='<option value="">Select LGA</option>';
-
     cityInput.disabled=true;
     lgaInput.disabled=true;
 
@@ -128,43 +122,125 @@ function populateStateLocations(selectedCity="",selectedLga=""){
     if(selectedLga)lgaInput.value=selectedLga;
 }
 
-countryInput.addEventListener("change",()=>{
-    populateStates();
-});
-
-stateInput.addEventListener("change",()=>{
-    populateStateLocations();
-});
+countryInput.addEventListener("change",()=>populateStates());
+stateInput.addEventListener("change",()=>populateStateLocations());
 
 /* 8. MODAL */
-function showModal({type="success",title="Notification",message="",icon="✓",onClose=null}={}){
+function showModal({
+    type="success",
+    title="Notification",
+    message="",
+    icon="✓",
+    onClose=null,
+    buttonText="Continue"
+}={}){
     notificationCard.className=`notification-card ${type}`;
     notificationIcon.textContent=icon;
     notificationTitle.textContent=title;
     notificationText.textContent=message;
+
     modalCloseAction=onClose;
-    notificationButton.onclick=null;
-    notificationCancelButton.onclick=null;
-    notificationButton.textContent="Continue";
+
+    notificationButton.textContent=buttonText;
     notificationButton.disabled=false;
-    notificationCancelButton.hidden=true;
+    notificationButton.hidden=false;
+
+    notificationNoButton.textContent="No";
+    notificationNoButton.hidden=true;
+    notificationNoButton.disabled=false;
+
+    notificationCancelButton.hidden=false;
     notificationCancelButton.disabled=false;
-    notificationButton.onclick=()=>{if(!notificationButton.disabled)closeModal()};
-    notificationCancelButton.onclick=()=>{if(!notificationCancelButton.disabled)closeModal()};
+
+    notificationButton.onclick=()=>{
+        if(!notificationButton.disabled)closeModal();
+    };
+
+    notificationNoButton.onclick=()=>{
+        if(!notificationNoButton.disabled)hideModal();
+    };
+
+    notificationCancelButton.onclick=()=>{
+        if(!notificationCancelButton.disabled)closeModal();
+    };
+
     notificationOverlay.hidden=false;
+
     notificationButton.focus();
 }
 
-function closeModal(){
-    notificationOverlay.hidden=true;
-    const action=modalCloseAction;
+function showConfirmationModal({
+    title,
+    message,
+    icon="?",
+    onConfirm
+}){
+    notificationCard.className="notification-card confirm";
+    notificationIcon.textContent=icon;
+    notificationTitle.textContent=title;
+    notificationText.textContent=message;
+
     modalCloseAction=null;
-    notificationButton.onclick=null;
-    notificationCancelButton.onclick=null;
-    notificationButton.textContent="Continue";
+
+    notificationButton.textContent="Yes";
     notificationButton.disabled=false;
+    notificationButton.hidden=false;
+
+    notificationNoButton.textContent="No";
+    notificationNoButton.hidden=false;
+    notificationNoButton.disabled=false;
+
     notificationCancelButton.hidden=true;
     notificationCancelButton.disabled=false;
+
+    notificationButton.onclick=async()=>{
+        if(notificationButton.disabled)return;
+
+        notificationButton.disabled=true;
+        notificationNoButton.disabled=true;
+        notificationButton.textContent="Connecting...";
+
+        modalCloseAction=null;
+
+        await onConfirm();
+    };
+
+    notificationNoButton.onclick=()=>{
+        if(isUpdatingProfile||isLoggingOut)return;
+        hideModal();
+    };
+
+    notificationOverlay.hidden=false;
+
+    notificationButton.focus();
+}
+
+function hideModal(){
+    notificationOverlay.hidden=true;
+
+    modalCloseAction=null;
+
+    notificationButton.onclick=null;
+    notificationNoButton.onclick=null;
+    notificationCancelButton.onclick=null;
+
+    notificationButton.textContent="Continue";
+    notificationButton.disabled=false;
+    notificationButton.hidden=false;
+
+    notificationNoButton.textContent="No";
+    notificationNoButton.disabled=false;
+    notificationNoButton.hidden=true;
+
+    notificationCancelButton.disabled=false;
+    notificationCancelButton.hidden=false;
+}
+
+function closeModal(){
+    const action=modalCloseAction;
+
+    hideModal();
+
     if(typeof action==="function")action();
 }
 
@@ -176,7 +252,7 @@ function redirectToAuthentication(){
 function showAuthenticationError(message){
     showModal({
         type:"error",
-        title:"Session Expired",
+        title:"Authentication Required",
         message:message||"Your session has expired. Please log in again.",
         icon:"!",
         onClose:redirectToAuthentication
@@ -185,7 +261,11 @@ function showAuthenticationError(message){
 
 /* 10. BACKEND RESPONSE */
 async function getResponseData(response){
-    try{return await response.json()}catch(error){return {}}
+    try{
+        return await response.json();
+    }catch(error){
+        return {};
+    }
 }
 
 function getBackendMessage(data,fallback){
@@ -195,9 +275,11 @@ function getBackendMessage(data,fallback){
 /* 11. PHONE */
 function normalizePhone(phone){
     let value=String(phone||"").trim().replace(/[\s()-]/g,"");
+
     if(value.startsWith("+234"))value="234"+value.slice(4);
     else if(value.startsWith("234"))value="234"+value.slice(3);
     else if(value.startsWith("0"))value="234"+value.slice(1);
+
     return value;
 }
 
@@ -231,7 +313,6 @@ function displayWorkerData(worker){
 
     fullNameInput.value=worker.fullName||"";
     phoneInput.value=worker.phone||"";
-
     countryInput.value=worker.country||"";
 
     populateStates(worker.state||"");
@@ -294,6 +375,7 @@ async function loadProfile(){
             message:"Unable to connect to the server. Please try again.",
             icon:"!"
         });
+
     }finally{
         setPageLoading(false);
     }
@@ -308,8 +390,8 @@ function normalizeNamePart(name){
 }
 
 function normalizeFullName(value){
-    const fullName=String(value||"").trim().replace(/\s+/g," ");
-    const nameParts=fullName.split(" ");
+    const fullName=String(value||"").trim().replace(/\s+/g," "),
+    nameParts=fullName.split(" ");
 
     if(nameParts.length!==2)return null;
 
@@ -328,12 +410,7 @@ function validateProfile(){
     photoError=validatePhoto(photo);
 
     if(photoError){
-        showModal({
-            type:"error",
-            title:"Invalid Photo",
-            message:photoError,
-            icon:"!"
-        });
+        showModal({type:"error",title:"Invalid Photo",message:photoError,icon:"!"});
         return null;
     }
 
@@ -350,75 +427,64 @@ function validateProfile(){
     fullNameInput.value=normalizedFullName;
 
     if(!phone){
-        showModal({
-            type:"error",
-            title:"Phone Number Required",
-            message:"Please enter your phone number.",
-            icon:"!"
-        });
+        showModal({type:"error",title:"Phone Number Required",message:"Please enter your phone number.",icon:"!"});
         return null;
     }
 
     if(!isValidPhone(phone)){
-        showModal({
-            type:"error",
-            title:"Invalid Phone Number",
-            message:"Please enter a valid Nigerian phone number.",
-            icon:"!"
-        });
+        showModal({type:"error",title:"Invalid Phone Number",message:"Please enter a valid Nigerian phone number.",icon:"!"});
         return null;
     }
 
     if(!countryInput.value){
-        showModal({
-            type:"error",
-            title:"Country Required",
-            message:"Please select your country.",
-            icon:"!"
-        });
+        showModal({type:"error",title:"Country Required",message:"Please select your country.",icon:"!"});
         return null;
     }
 
     if(!stateInput.value){
-        showModal({
-            type:"error",
-            title:"State Required",
-            message:"Please select your state.",
-            icon:"!"
-        });
+        showModal({type:"error",title:"State Required",message:"Please select your state.",icon:"!"});
         return null;
     }
 
     if(!cityInput.value){
-        showModal({
-            type:"error",
-            title:"City Required",
-            message:"Please select your city.",
-            icon:"!"
-        });
+        showModal({type:"error",title:"City Required",message:"Please select your city.",icon:"!"});
         return null;
     }
 
     if(!lgaInput.value){
-        showModal({
-            type:"error",
-            title:"LGA Required",
-            message:"Please select your LGA.",
-            icon:"!"
-        });
+        showModal({type:"error",title:"LGA Required",message:"Please select your LGA.",icon:"!"});
         return null;
     }
 
     return{fullName:normalizedFullName,phone};
 }
 
-/* 17. UPDATE PROFILE */
-async function updateProfile(){
+/* 17. UPDATE PROFILE CONFIRMATION */
+function confirmProfileUpdate(){
     if(isUpdatingProfile)return;
 
     const validated=validateProfile();
 
     if(!validated)return;
+
+    showConfirmationModal({
+        title:"Confirm Profile Update",
+        message:"Are you sure you want to update your profile?",
+        icon:"?",
+        onConfirm:updateProfile
+    });
+}
+
+/* 18. UPDATE PROFILE */
+async function updateProfile(){
+    if(isUpdatingProfile)return;
+
+    const validated=validateProfile();
+
+    if(!validated){
+        hideModal();
+        return;
+    }
 
     const formData=new FormData(profileForm);
 
@@ -433,12 +499,10 @@ async function updateProfile(){
     setUpdateLoading(true);
 
     try{
-        const response=await API_REQUEST(PROFILE_ENDPOINT,{
-            method:"PUT",
-            body:formData
-        });
+        const response=await API_REQUEST(PROFILE_ENDPOINT,{method:"PUT",body:formData});
 
         if(response.status===401){
+            hideModal();
             showAuthenticationError("Your login session has expired. Please log in again.");
             return;
         }
@@ -446,6 +510,8 @@ async function updateProfile(){
         const data=await getResponseData(response);
 
         if(!response.ok){
+            hideModal();
+
             showModal({
                 type:"error",
                 title:"Update Failed",
@@ -455,11 +521,19 @@ async function updateProfile(){
             return;
         }
 
-        if(data.worker)displayWorkerData(data.worker);
-        else await loadProfile();
+        if(data.worker){
+            displayWorkerData(data.worker);
+        }else{
+            await loadProfile();
+        }
 
         profilePhotoInput.value="";
-        photoFileName.textContent="No new photo selected";
+
+        if(photoFileName){
+            photoFileName.textContent="No new photo selected";
+        }
+
+        hideModal();
 
         showModal({
             type:"success",
@@ -471,24 +545,27 @@ async function updateProfile(){
     }catch(error){
         console.error("Update profile error:",error);
 
+        hideModal();
+
         showModal({
             type:"error",
             title:"Connection Error",
             message:"Unable to update your profile. Please try again.",
             icon:"!"
         });
+
     }finally{
         isUpdatingProfile=false;
         setUpdateLoading(false);
     }
 }
 
-/* 18. PHOTO PREVIEW */
+/* 19. PHOTO PREVIEW */
 profilePhotoInput.addEventListener("change",()=>{
     const file=profilePhotoInput.files[0];
 
     if(!file){
-        photoFileName.textContent="No new photo selected";
+        if(photoFileName)photoFileName.textContent="No new photo selected";
         return;
     }
 
@@ -496,7 +573,8 @@ profilePhotoInput.addEventListener("change",()=>{
 
     if(error){
         profilePhotoInput.value="";
-        photoFileName.textContent="No new photo selected";
+
+        if(photoFileName)photoFileName.textContent="No new photo selected";
 
         showModal({
             type:"error",
@@ -504,22 +582,24 @@ profilePhotoInput.addEventListener("change",()=>{
             message:error,
             icon:"!"
         });
+
         return;
     }
 
-    photoFileName.textContent=file.name;
+    if(photoFileName)photoFileName.textContent=file.name;
+
     profilePhoto.src=URL.createObjectURL(file);
     profilePhoto.hidden=false;
     profilePhotoPlaceholder.hidden=true;
 });
 
-/* 19. FORM SUBMISSION */
+/* 20. FORM SUBMISSION */
 profileForm.addEventListener("submit",event=>{
     event.preventDefault();
-    updateProfile();
+    confirmProfileUpdate();
 });
 
-/* 20. NAVIGATION */
+/* 21. NAVIGATION */
 editProfileBtn.addEventListener("click",closeMobileMenu);
 
 cancelBtn.addEventListener("click",()=>{
@@ -530,7 +610,7 @@ viewServicesBtn.addEventListener("click",()=>{
     window.location.href="../worker-services/index.html";
 });
 
-/* 21. MOBILE SIDEBAR */
+/* 22. MOBILE SIDEBAR */
 function openMobileMenu(){
     sidebar.classList.add("active");
     overlay.classList.add("active");
@@ -547,65 +627,40 @@ menuBtn.addEventListener("click",openMobileMenu);
 closeMenuBtn.addEventListener("click",closeMobileMenu);
 overlay.addEventListener("click",closeMobileMenu);
 
-/* 22. LOGOUT */
+/* 23. LOGOUT */
 logoutBtn.addEventListener("click",()=>{
     if(isLoggingOut)return;
 
-    showModal({
-        type:"warning",
-        title:"Confirm Logout",
+    showConfirmationModal({
+        title:"Logout",
         message:"Are you sure you want to log out?",
-        icon:"!"
+        icon:"?",
+        onConfirm:logoutUser
     });
-
-    notificationButton.textContent="Continue";
-    notificationButton.disabled=false;
-    notificationCancelButton.hidden=false;
-    notificationCancelButton.disabled=false;
-
-    notificationButton.onclick=()=>{
-        if(isLoggingOut)return;
-
-        isLoggingOut=true;
-        notificationButton.disabled=true;
-        notificationCancelButton.disabled=true;
-        notificationButton.innerHTML='<span class="button-loader"></span> Logging out...';
-
-        logoutUser();
-    };
-
-    notificationCancelButton.onclick=()=>{
-        if(isLoggingOut)return;
-
-        notificationButton.textContent="Continue";
-        notificationButton.disabled=false;
-        notificationCancelButton.disabled=false;
-
-        closeModal();
-    };
 });
 
-/* Perform logout after confirmation. */
 async function logoutUser(){
+    if(isLoggingOut)return;
+
+    isLoggingOut=true;
     logoutBtn.disabled=true;
     logoutBtn.classList.add("is-loading");
 
     try{
         const response=await API_REQUEST(LOGOUT_ENDPOINT,{method:"POST"});
+
         const data=await getResponseData(response);
 
         if(response.status===401){
-            isLoggingOut=false;
-            notificationButton.disabled=false;
-            notificationCancelButton.disabled=false;
-            notificationButton.textContent="Continue";
-            closeModal();
+            hideModal();
 
             showAuthenticationError("Your login session has expired. Please log in again.");
             return;
         }
 
         if(!response.ok){
+            hideModal();
+
             showModal({
                 type:"error",
                 title:"Logout Failed",
@@ -620,9 +675,11 @@ async function logoutUser(){
     }catch(error){
         console.error("Logout error:",error);
 
+        hideModal();
+
         showModal({
             type:"error",
-            title:"Logout Failed",
+            title:"Connection Error",
             message:"Unable to connect to the server. Please try again.",
             icon:"!"
         });
@@ -631,11 +688,15 @@ async function logoutUser(){
         isLoggingOut=false;
         logoutBtn.disabled=false;
         logoutBtn.classList.remove("is-loading");
-        notificationButton.disabled=false;
-        notificationCancelButton.disabled=false;
-        notificationButton.textContent="Continue";
     }
 }
 
-/* 23. INITIALIZE PAGE */
+/* 24. SESSION EXPIRATION */
+window.addEventListener("authSessionExpired",()=>{
+    hideModal();
+
+    showAuthenticationError("Your login session has expired. Please log in again.");
+});
+
+/* 25. INITIALIZE PAGE */
 document.addEventListener("DOMContentLoaded",loadProfile);
