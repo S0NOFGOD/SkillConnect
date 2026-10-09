@@ -343,6 +343,12 @@ a:focus-visible{
     color:var(--green);
 }
 
+.page-description{
+    margin-top:8px;
+    color:#afbcce;
+    font-size:14px;
+}
+
 
 /* =========================
    VERIFICATION BUTTON
