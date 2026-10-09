@@ -148,6 +148,7 @@ function displayService(service){
 
     const adminApproval=getElement("adminApproval");
     const adminResponse=getElement("adminResponse");
+    const adminStatusContainer=getElement("adminStatusContainer");
 
     const approvalStatus=String(service.adminApproval||"in review")
         .trim()
@@ -160,25 +161,18 @@ function displayService(service){
     }[approvalStatus]||"status-in-review";
 
     adminApproval.textContent=
-        service.adminApproval??"Service Information";
+        service.adminApproval??"In Review";
 
     adminResponse.textContent=
-        service.adminResponse??"Keep your service details accurate and professional";
+        service.adminResponse??"Your service is awaiting admin review.";
 
-    adminApproval.classList.remove(
+    adminStatusContainer.classList.remove(
         "status-in-review",
         "status-rejected",
         "status-approved"
     );
 
-    adminResponse.classList.remove(
-        "status-in-review",
-        "status-rejected",
-        "status-approved"
-    );
-
-    adminApproval.classList.add(statusClass);
-    adminResponse.classList.add(statusClass);
+    adminStatusContainer.classList.add(statusClass);
 
     displayPortfolios(service.portfolios||[]);
     updateDescriptionWordCount();

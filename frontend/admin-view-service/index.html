@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="View and manage SkillConnect worker services.">
+<title>View Service | SkillConnect Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="purple-glow" aria-hidden="true"></div>
+<div class="blue-glow" aria-hidden="true"></div>
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <button type="button" class="back-navigation" id="backNavigation" aria-label="Go back to Admin Services">
+            <span class="back-icon">←</span>
+            <span class="back-text">Back</span>
+        </button>
+    </div>
+</header>
+
+<main class="view-service-page" id="viewServicePage" hidden>
+
+    <section class="page-header">
+        <h1>View Service</h1>
+        <p>Review the worker's service details and manage service approval.</p>
+    </section>
+
+    <section class="service-form-section">
+        <form id="serviceForm" class="service-form" novalidate>
+
+            <div class="form-group">
+                <label for="skill">Skill</label>
+                <input type="text" id="skill" name="skill" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="experience">Experience</label>
+                <input type="text" id="experience" name="experience" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="7" readonly></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Portfolio</label>
+
+                <div class="portfolio-grid">
+
+                    <div class="portfolio-upload-card">
+                        <div id="portfolioPreview1" class="portfolio-preview">
+                            <span class="portfolio-placeholder">1</span>
+                            <span class="portfolio-add-text">No Image</span>
+                        </div>
+                    </div>
+
+                    <div class="portfolio-upload-card">
+                        <div id="portfolioPreview2" class="portfolio-preview">
+                            <span class="portfolio-placeholder">2</span>
+                            <span class="portfolio-add-text">No Image</span>
+                        </div>
+                    </div>
+
+                    <div class="portfolio-upload-card">
+                        <div id="portfolioPreview3" class="portfolio-preview">
+                            <span class="portfolio-placeholder">3</span>
+                            <span class="portfolio-add-text">No Image</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="serviceDate">Date</label>
+                <input type="text" id="serviceDate" name="serviceDate" readonly>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" id="rejectServiceBtn" class="reject-service-button">
+                    <span class="reject-button-text">Reject</span>
+                </button>
+
+                <button type="button" id="approveServiceBtn" class="approve-service-button">
+                    <span class="approve-button-text">Approve</span>
+                </button>
+            </div>
+
+        </form>
+    </section>
+</main>
+
+<div id="notificationOverlay" class="notification-modal" role="dialog" aria-modal="true" aria-labelledby="notificationTitle" aria-describedby="notificationText" hidden>
+    <div id="notificationCard" class="notification-card">
+
+        <button type="button" id="notificationCancelButton" class="notification-close-button" aria-label="Close notification">×</button>
+
+        <div id="notificationIcon" class="notification-icon">!</div>
+
+        <h2 id="notificationTitle">Notification</h2>
+        <p id="notificationText">Something happened.</p>
+
+        <div class="notification-actions" id="notificationActions">
+            <button type="button" id="notificationButton">Continue</button>
+        </div>
+
+    </div>
+</div>
+
+<script src="../config.js"></script>
+<script src="script.js" defer></script>
+
+</body>
+</html>

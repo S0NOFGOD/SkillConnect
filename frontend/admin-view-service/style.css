@@ -1,0 +1,107 @@
+:root{--bg:#020617;--card:rgba(15,23,42,.82);--card2:#111c31;--border:rgba(148,163,184,.14);--text:#f8fafc;--muted:#94a3b8;--soft:#cbd5e1;--purple:#a855f7;--purple2:#7e22ce;--red:#ef4444}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{min-height:100vh;overflow-x:hidden;background:var(--bg);color:var(--text);font-family:"Inter",sans-serif}
+button,input,select,textarea{font:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--purple);outline-offset:3px}
+.purple-glow,.blue-glow{position:fixed;width:420px;height:420px;border-radius:50%;pointer-events:none;z-index:0}
+.purple-glow{top:-220px;left:-180px;background:radial-gradient(circle,rgba(168,85,247,.17),transparent 70%)}
+.blue-glow{right:-230px;bottom:-230px;background:radial-gradient(circle,rgba(59,130,246,.12),transparent 70%)}
+
+/* Top Navigation */
+.topbar{position:fixed;inset:0 0 auto;height:68px;background:rgba(2,6,23,.78);border-bottom:1px solid var(--border);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);z-index:100}
+.topbar-inner{max-width:980px;height:100%;margin:auto;padding:0 20px;display:flex;align-items:center}
+.back-navigation{display:flex;align-items:center;gap:9px;border:0;background:none;color:var(--soft);cursor:pointer;font-size:14px;font-weight:600;transition:.2s}
+.back-navigation:hover{color:#fff;transform:translateX(-2px)}
+.back-icon{font-size:23px}
+
+/* Main Page */
+#viewServicePage{position:relative;z-index:1;max-width:900px;margin:auto;padding:110px 20px 60px}
+.page-header{margin-bottom:25px}
+.page-header h1{margin-top:6px;font-size:32px;font-weight:800;letter-spacing:-.8px}
+.page-header p{max-width:600px;margin-top:8px;color:var(--muted);font-size:14px;line-height:1.6}
+
+/* Service Form */
+.service-form{padding:30px;border:1px solid var(--border);border-radius:22px;background:var(--card);box-shadow:0 25px 60px rgba(0,0,0,.28);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.section-heading{display:flex;align-items:center;gap:13px;margin-bottom:24px}
+.section-heading h2{font-size:16px;font-weight:700}
+.section-heading p{margin-top:3px;color:var(--muted);font-size:12px;line-height:1.5;white-space:pre-line}
+
+/* Service Status */
+#adminApproval.status-in-review,#adminResponse.status-in-review{color:#facc15}
+#adminApproval.status-rejected,#adminResponse.status-rejected{color:#ef4444}
+#adminApproval.status-approved,#adminResponse.status-approved{color:#22c55e}
+.form-group{margin-bottom:23px}
+.form-group label{display:block;margin-bottom:8px;color:var(--soft);font-size:13px;font-weight:600}
+.form-group input,.form-group textarea{width:100%;border:1px solid var(--border);outline:none;border-radius:12px;background:var(--card2);color:var(--text);transition:.2s}
+.form-group input{height:50px;padding:0 14px}
+.form-group textarea{min-height:110px;padding:14px;resize:vertical;line-height:1.6}
+.form-group input[readonly],.form-group textarea[readonly]{color:var(--soft);cursor:default;background:rgba(17,28,49,.75)}
+.form-group input:focus,.form-group textarea:focus{border-color:rgba(168,85,247,.55);box-shadow:0 0 0 3px rgba(168,85,247,.08)}
+.form-group small{display:block;margin-top:7px;color:var(--muted);font-size:11px}
+
+/* Portfolio */
+.portfolio-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.portfolio-upload-card{position:relative;min-width:0}
+.portfolio-preview{position:relative;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;border:1px dashed rgba(148,163,184,.28);border-radius:16px;background:rgba(17,28,49,.72);color:var(--muted);transition:.2s}
+.portfolio-placeholder{display:grid;place-items:center;width:40px;height:40px;margin-bottom:8px;border-radius:50%;background:rgba(168,85,247,.12);color:var(--purple);font-size:22px}
+.portfolio-add-text{font-size:11px}
+.portfolio-preview img{display:block;width:100%;height:100%;object-fit:cover}
+.portfolio-preview:has(img){border-style:solid;border-color:rgba(168,85,247,.3)}
+
+/* Action Buttons */
+.form-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:30px;padding-top:24px;border-top:1px solid var(--border)}
+.reject-service-button,.approve-service-button{min-height:50px;border-radius:12px;cursor:pointer;font-size:13px;font-weight:700;transition:.2s}
+.reject-service-button{border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.08);color:#f87171}
+.reject-service-button:hover{background:rgba(239,68,68,.15)}
+.approve-service-button{border:0;background:linear-gradient(135deg,var(--purple),var(--purple2));color:white;box-shadow:0 8px 25px rgba(168,85,247,.12)}
+.approve-service-button:hover{transform:translateY(-1px);box-shadow:0 12px 30px rgba(168,85,247,.22)}
+.reject-service-button:disabled,.approve-service-button:disabled{cursor:not-allowed;opacity:.65}
+
+/* Notification and Response Modal */
+#notificationOverlay{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(2,6,23,.78);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+#notificationOverlay.active{display:flex}
+#notificationCard{position:relative;width:min(100%,420px);max-height:90vh;overflow-y:auto;padding:30px 25px;border:1px solid var(--border);border-radius:20px;background:rgba(15,23,42,.97);text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.45);animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+#notificationCancelButton{position:absolute;top:12px;right:13px;width:34px;height:34px;border:0;border-radius:50%;background:rgba(148,163,184,.08);color:var(--soft);cursor:pointer;font-size:22px}
+#notificationIcon{width:56px;height:56px;display:grid;place-items:center;margin:0 auto 15px;border-radius:50%;background:rgba(168,85,247,.12);color:var(--purple);font-size:24px}
+#notificationTitle{font-size:19px;font-weight:750}
+#notificationText{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.6;white-space:pre-line}
+#notificationActions{display:flex;gap:10px;margin-top:21px}
+#notificationActions button{flex:1;min-width:0;min-height:46px;border:0;border-radius:11px;background:linear-gradient(135deg,var(--purple),var(--purple2));color:#fff;cursor:pointer;font-size:13px;font-weight:700}
+#notificationActions button:disabled{cursor:not-allowed;opacity:.65}
+#notificationActions .cancel-button{border:1px solid var(--border);background:var(--card2);color:var(--soft)}
+#notificationActions .confirm-yes-button{background:linear-gradient(135deg,var(--purple),var(--purple2));color:#fff}
+#notificationActions .confirm-reject-button{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff}
+#notificationCard.success #notificationIcon{background:rgba(34,197,94,.1);color:#22c55e}
+#notificationCard.error #notificationIcon{background:rgba(239,68,68,.1);color:#ef4444}
+#notificationCard.warning #notificationIcon{background:rgba(245,158,11,.1);color:#f59e0b}
+#notificationCard.info #notificationIcon{background:rgba(168,85,247,.12);color:var(--purple)}
+.modal-response-input{display:block;width:100%;min-height:120px;padding:12px;margin-top:18px;border:1px solid rgba(168,85,247,.35);border-radius:12px;background:#111c31;color:#f8fafc;resize:vertical;outline:none;font:inherit;font-size:13px;line-height:1.6}
+.modal-response-input:focus{border-color:rgba(168,85,247,.8);box-shadow:0 0 0 3px rgba(168,85,247,.1)}
+.modal-response-input::placeholder{color:var(--muted)}
+
+/* Responsive */
+@media(max-width:700px){
+#viewServicePage{padding:96px 15px 45px}
+.page-header h1{font-size:28px}
+.service-form{padding:22px;border-radius:18px}
+.form-actions{grid-template-columns:1fr}
+}
+@media(max-width:500px){
+.topbar{height:62px}
+.topbar-inner{padding:0 15px}
+.back-text{display:none}
+#viewServicePage{padding:88px 12px 40px}
+.page-header h1{font-size:25px}
+.service-form{padding:18px}
+.portfolio-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#notificationCard{padding:28px 18px}
+}
+@media(max-width:360px){
+.portfolio-grid{gap:6px}
+#notificationActions{gap:7px}
+}
+@media(prefers-reduced-motion:reduce){
+*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
