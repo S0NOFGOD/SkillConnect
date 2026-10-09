@@ -420,21 +420,6 @@ color:var(--red);
     cursor:not-allowed;
 }
 
-.button-loader{
-    width:17px;
-    height:17px;
-    border:2px solid rgba(255,255,255,0.35);
-    border-top-color:#fff;
-    border-radius:50%;
-    animation:buttonSpin 0.7s linear infinite;
-}
-
-@keyframes buttonSpin{
-    to{
-        transform:rotate(360deg);
-    }
-}
-
 .notification-modal{
     position:fixed;
     inset:0;

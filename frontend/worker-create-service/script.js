@@ -69,6 +69,7 @@ function populateSkillDropdown(){
 }
 
 function setButtonLoading(button,isLoading,loadingText="Connecting..."){
+
     if(!button)return;
 
     if(
@@ -76,24 +77,24 @@ function setButtonLoading(button,isLoading,loadingText="Connecting..."){
         button.querySelector(".button-text")
     ){
         button.dataset.originalText=
-            button.querySelector(".button-text").textContent;
+            button.querySelector(".button-text").textContent.trim();
     }
 
-    const textElement=button.querySelector(".button-text");
-    const loaderElement=button.querySelector(".button-loader");
+    const textElement=
+        button.querySelector(".button-text");
 
     button.disabled=isLoading;
-    button.classList.toggle("is-loading",isLoading);
+
+    button.classList.toggle(
+        "is-loading",
+        isLoading
+    );
 
     if(textElement){
         textElement.textContent=
             isLoading
                 ?loadingText
                 :(button.dataset.originalText||"Add A Service");
-    }
-
-    if(loaderElement){
-        loaderElement.hidden=!isLoading;
     }
 }
 
