@@ -34,7 +34,7 @@ notificationNoButton=document.getElementById("notificationNoButton");
 
 /* 3. API ENDPOINTS */
 const PROFILE_ENDPOINT="/api/worker/edit-profile",
-LOGOUT_ENDPOINT="/api/auth/worker/logout";
+LOGOUT_ENDPOINT="/api/auth/logout";
 
 /* 4. PAGE STATE */
 let currentWorker=null,
