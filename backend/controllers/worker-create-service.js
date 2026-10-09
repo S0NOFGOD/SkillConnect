@@ -10,7 +10,7 @@ api_key:process.env.CLOUDINARY_API_KEY,
 api_secret:process.env.CLOUDINARY_API_SECRET
 });
 
-const MAX_PORTFOLIO_IMAGE_SIZE=510241024;
+const MAX_PORTFOLIO_IMAGE_SIZE=5*1024*1024;
 const MAX_PORTFOLIO_IMAGES=3;
 const MAX_DESCRIPTION_WORDS=150;
 
@@ -34,34 +34,54 @@ return text.trim().split(/\s+/).length;
 }
 
 async function convertAndCompressImage(fileBuffer){
-let quality=80;
-let outputBuffer;
 
-while(quality>=20){
+    let quality=80;
+    let width;
+    let outputBuffer;
 
-outputBuffer=await sharp(fileBuffer)
-.jpeg({
-quality,
-mozjpeg:true
-})
-.toBuffer();
+    const metadata=await sharp(fileBuffer).metadata();
 
-if(outputBuffer.length<=MAX_PORTFOLIO_IMAGE_SIZE)
-return outputBuffer;
+    width=metadata.width;
 
-quality-=10;
-}
+    if(!width){
+        throw new Error("Invalid portfolio image dimensions.");
+    }
 
-throw new Error(
-"Portfolio image could not be compressed to 5 MB or less."
-);
+    while(true){
+
+        outputBuffer=await sharp(fileBuffer)
+            .resize({
+                width,
+                withoutEnlargement:true
+            })
+            .jpeg({
+                quality,
+                mozjpeg:true
+            })
+            .toBuffer();
+
+        if(outputBuffer.length<=MAX_PORTFOLIO_IMAGE_SIZE){
+            return outputBuffer;
+        }
+
+        if(quality>20){
+            quality-=10;
+        }else{
+            width=Math.floor(width*0.8);
+            quality=80;
+        }
+
+        if(width<1){
+            throw new Error("Unable to process portfolio image.");
+        }
+    }
 }
 
 function uploadImageToCloudinary(fileBuffer,workerId){
 return new Promise((resolve,reject)=>{
 const uploadStream=cloudinary.uploader.upload_stream(
 {
-folder:"skillconnect/workers/${workerId}/services",
+folder:`skillconnect/workers/${workerId}/services`,
 resource_type:"image",
 format:"jpg"
 },
