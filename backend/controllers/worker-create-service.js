@@ -349,8 +349,8 @@ experience,
 description,
 portfolios:portfolioPublicIds,
 date:new Date(),
-adminApproval:"in review",
-adminResponse:"It may take up to 24 hours for admin update"
+adminApproval:"in review:",
+adminResponse:"Your service is currently under review. It may take up to 24 hours for an admin update."
 };
 
 worker.services.push(
