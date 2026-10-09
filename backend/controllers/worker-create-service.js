@@ -13,6 +13,8 @@ api_secret:process.env.CLOUDINARY_API_SECRET
 const MAX_PORTFOLIO_IMAGE_SIZE=5*1024*1024;
 const MAX_PORTFOLIO_IMAGES=3;
 const MAX_DESCRIPTION_WORDS=150;
+const MAX_IMAGE_DIMENSION=1600;
+const MAX_COMPRESSION_ATTEMPTS=20;
 
 const LOCAL_SKILLS=[
 "Swimming Instructor","Barber","Hairdresser","Makeup Artist","Tailor",
@@ -35,23 +37,57 @@ return text.trim().split(/\s+/).length;
 
 async function convertAndCompressImage(fileBuffer){
 
-    let quality=80;
-    let width;
-    let outputBuffer;
+    const metadata=await sharp(fileBuffer,{
+        limitInputPixels:40000000
+    }).metadata();
 
-    const metadata=await sharp(fileBuffer).metadata();
-
-    width=metadata.width;
-
-    if(!width){
+    if(!metadata.width||!metadata.height){
         throw new Error("Invalid portfolio image dimensions.");
     }
 
-    while(true){
+    let width=Math.min(
+        metadata.width,
+        MAX_IMAGE_DIMENSION
+    );
 
-        outputBuffer=await sharp(fileBuffer)
+    let height=Math.min(
+        metadata.height,
+        MAX_IMAGE_DIMENSION
+    );
+
+    const resizeScale=Math.min(
+        MAX_IMAGE_DIMENSION/metadata.width,
+        MAX_IMAGE_DIMENSION/metadata.height,
+        1
+    );
+
+    width=Math.max(
+        1,
+        Math.floor(metadata.width*resizeScale)
+    );
+
+    height=Math.max(
+        1,
+        Math.floor(metadata.height*resizeScale)
+    );
+
+    let quality=80;
+
+    for(
+        let attempt=0;
+        attempt<MAX_COMPRESSION_ATTEMPTS;
+        attempt++
+    ){
+
+        const outputBuffer=await sharp(fileBuffer,{
+            limitInputPixels:40000000,
+            sequentialRead:true
+        })
+            .rotate()
             .resize({
                 width,
+                height,
+                fit:"inside",
                 withoutEnlargement:true
             })
             .jpeg({
@@ -60,21 +96,29 @@ async function convertAndCompressImage(fileBuffer){
             })
             .toBuffer();
 
-        if(outputBuffer.length<=MAX_PORTFOLIO_IMAGE_SIZE){
+        if(
+            outputBuffer.length<=
+            MAX_PORTFOLIO_IMAGE_SIZE
+        ){
             return outputBuffer;
         }
 
-        if(quality>20){
+        if(quality>30){
             quality-=10;
         }else{
-            width=Math.floor(width*0.8);
+            width=Math.floor(width*0.75);
+            height=Math.floor(height*0.75);
             quality=80;
         }
 
-        if(width<1){
-            throw new Error("Unable to process portfolio image.");
+        if(width<1||height<1){
+            break;
         }
     }
+
+    throw new Error(
+        "Unable to compress portfolio image to 5 MB or less."
+    );
 }
 
 function uploadImageToCloudinary(fileBuffer,workerId){
@@ -209,7 +253,7 @@ skill.toLowerCase()
 if(skillAlreadyExists)
 return res.status(400).json({
 success:false,
-message:"You already have a service for ${skill}."
+message:`You already have a service for ${skill}.`
 });
 
 const portfolioFiles=

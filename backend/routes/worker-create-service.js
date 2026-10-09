@@ -28,7 +28,18 @@ const router=express.Router();
 
 
 /* =========================
-   3. MULTER STORAGE
+   3. UPLOAD LIMITS
+========================= */
+
+/* Allow each original portfolio image to be up to 15 MiB. */
+const MAX_PORTFOLIO_IMAGE_SIZE=15*1024*1024;
+
+/* Allow a maximum of 3 portfolio images. */
+const MAX_PORTFOLIO_IMAGES=3;
+
+
+/* =========================
+   4. MULTER STORAGE
 ========================= */
 
 /* Store uploaded images temporarily in memory. */
@@ -36,21 +47,22 @@ const storage=multer.memoryStorage();
 
 
 /* =========================
-   4. MULTER CONFIGURATION
+   5. MULTER CONFIGURATION
 ========================= */
 
-/* Limit the upload to a maximum of 3 portfolio images. */
+/* Configure Multer's file count and individual file-size limits. */
 const upload=multer({
     storage,
 
     limits:{
-        files:3
+        fileSize:MAX_PORTFOLIO_IMAGE_SIZE,
+        files:MAX_PORTFOLIO_IMAGES
     }
 });
 
 
 /* =========================
-   5. CREATE SERVICE
+   6. CREATE SERVICE
 ========================= */
 
 router.post(
@@ -75,35 +87,43 @@ router.post(
         next();
     },
 
-    /* Process the portfolio images after authentication succeeds. */
+    /* Process portfolio images after authentication succeeds. */
     (req,res,next)=>{
         upload.array(
             "portfolioPhotos",
-            3
+            MAX_PORTFOLIO_IMAGES
         )(req,res,error=>{
 
+            /* Handle Multer-specific upload errors. */
             if(error instanceof multer.MulterError){
 
-                if(error.code==="LIMIT_FILE_COUNT"){
+                /* An individual original image exceeds 15 MiB. */
+                if(error.code==="LIMIT_FILE_SIZE"){
+                    return res.status(400).json({
+                        success:false,
+                        message:"Each portfolio image must be 15 MB or smaller."
+                    });
+                }
+
+                /* More than 3 portfolio images were submitted. */
+                if(
+                    error.code==="LIMIT_FILE_COUNT"||
+                    error.code==="LIMIT_UNEXPECTED_FILE"
+                ){
                     return res.status(400).json({
                         success:false,
                         message:"You can upload a maximum of 3 portfolio images."
                     });
                 }
 
-                if(error.code==="LIMIT_UNEXPECTED_FILE"){
-                    return res.status(400).json({
-                        success:false,
-                        message:"You can upload a maximum of 3 portfolio images."
-                    });
-                }
-
+                /* Handle other Multer errors. */
                 return res.status(400).json({
                     success:false,
                     message:"There was a problem processing your portfolio images."
                 });
             }
 
+            /* Handle other upload errors. */
             if(error){
                 console.error(
                     "Multer upload error:",
@@ -116,16 +136,18 @@ router.post(
                 });
             }
 
+            /* Continue to the controller if uploading succeeds. */
             next();
         });
     },
 
+    /* Validate service details, compress images, and save the service. */
     createWorkerService
 );
 
 
 /* =========================
-   6. EXPORT ROUTER
+   7. EXPORT ROUTER
 ========================= */
 
 /* Export this router so server.js can mount it. */
