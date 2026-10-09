@@ -349,7 +349,7 @@ experience,
 description,
 portfolios:portfolioPublicIds,
 date:new Date(),
-adminApproval:"in review:",
+adminApproval:"in review",
 adminResponse:"Your service is currently under review. It may take up to 24 hours for an admin update."
 };
 

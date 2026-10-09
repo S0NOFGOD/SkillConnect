@@ -174,7 +174,7 @@ services:[{
     adminResponse:{
         type:String,
         trim:true,
-        default:"It may take up to 24 hours for admin update"
+        default:"Your service is currently under review. It may take up to 24 hours for an admin update."
     }
 }],
 
