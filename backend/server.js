@@ -26,7 +26,7 @@ const clientCreateProfileRoutes=require("./routes/client-create-profile");
 const clientEditProfileRoutes=require("./routes/client-edit-profile");
 const clientPasswordChangeRoutes=require("./routes/client-password-change");
 const clientDashboardRoutes=require("./routes/client-dashboard");
-const clientWorkerSearchRoutes=require("./routes/client-worker-search");
+const clientWorkerSearchRoutes=require("./routes/client-workers-search");
 const clientWorkerDetailsRoutes=require("./routes/client-worker-details");
 const clientViewRatingsRoutes=require("./routes/client-view-ratings");
 

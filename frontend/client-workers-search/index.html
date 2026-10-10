@@ -1,39 +1,285 @@
-<!DOCTYPE html><html lang="en"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Find Workers | SkillConnect</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css">
-</head><body>
-<div class="blue-glow" aria-hidden="true"></div><div class="green-glow" aria-hidden="true"></div>
-<header class="topbar"><div class="topbar-inner"><a href="../client-dashboard/index.html" class="logo">SkillConnect</a>
-<button type="button" id="menuBtn" class="menu-btn" aria-label="Open navigation menu" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button></div></header>
-<aside id="sidebar" class="sidebar" aria-label="Client dashboard navigation"><div class="sidebar-header"><div class="sidebar-brand"><span class="sidebar-brand-icon">SC</span><div class="sidebar-brand-text"><strong class="logo">SkillConnect</strong><small>Client Portal</small></div></div>
-<button type="button" id="closeMenuBtn" class="close-menu-btn" aria-label="Close navigation menu">×</button></div>
-<nav class="sidebar-nav"><button type="button" id="dashboardBtn" class="nav-link"><span class="nav-icon" aria-hidden="true">🏠</span><span>Dashboard</span></button>
-<button type="button" id="findWorkersBtn" class="nav-link active"><span class="nav-icon" aria-hidden="true">🔎</span><span>Find Workers</span></button>
-<button type="button" id="editProfileBtn" class="nav-link"><span class="nav-icon" aria-hidden="true">✏️</span><span>Edit Profile</span></button></nav>
-<div class="sidebar-footer"><button type="button" id="logoutBtn" class="nav-link logout-link"><span class="nav-icon" aria-hidden="true">↪</span><span>Logout</span></button></div></aside>
-<div id="overlay" class="overlay" aria-hidden="true"></div>
-<main class="dashboard" id="findWorkersPage"><section class="dashboard-header"><div class="welcome-content">
-<h1>Available <span>Workers</span></h1><p class="page-description">Find skilled workers near your location.</p></div></section>
-<section class="dashboard-section"><div class="filter-bar"><div class="filter-group"><select id="skillFilter"><option value="">All Skills</option></select></div>
-<button type="button" id="changeLocationBtn" class="change-location-btn">Change Location</button></div>
-<div id="workersLoading" class="workers-loading" hidden><div class="loading-spinner" aria-hidden="true"></div><p>Finding workers...</p></div>
-<div id="workersContainer" class="workers-container">
-</div>
-<div id="workersEmpty" class="workers-empty" hidden><div class="empty-icon" aria-hidden="true">🔎</div><h3>No Workers Found</h3><p>No workers matching your location are currently available.</p></div></section></main>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<div id="notificationOverlay" class="notification-modal" role="dialog" aria-modal="true" aria-labelledby="notificationTitle" aria-describedby="notificationText" hidden>
-<div id="notificationCard" class="notification-card">
-<div id="notificationIcon" class="notification-icon" aria-hidden="true">✓</div>
-<h2 id="notificationTitle">Notification</h2>
-<p id="notificationText"></p>
-<div class="notification-actions">
-<button type="button" id="notificationCancelButtonMobile">No</button>
-<button type="button" id="notificationButton">Continue</button>
-</div>
-</div>
-</div>
+    <title>Find Workers | SkillConnect</title>
 
-<script src="../config.js"></script><script src="script.js" defer></script>
-</body></html>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="blue-glow" aria-hidden="true"></div>
+    <div class="green-glow" aria-hidden="true"></div>
+
+    <!-- Top Navigation -->
+    <header class="topbar">
+        <div class="topbar-inner">
+
+            <a href="../client-dashboard/index.html" class="logo">
+                SkillConnect
+            </a>
+
+            <button
+                type="button"
+                id="menuBtn"
+                class="menu-btn"
+                aria-label="Open navigation menu"
+                aria-controls="sidebar"
+                aria-expanded="false"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside
+        id="sidebar"
+        class="sidebar"
+        aria-label="Client dashboard navigation"
+    >
+
+        <div class="sidebar-header">
+
+            <div class="sidebar-brand">
+
+                <span class="sidebar-brand-icon">SC</span>
+
+                <div class="sidebar-brand-text">
+                    <strong class="logo">SkillConnect</strong>
+                    <small>Client Portal</small>
+                </div>
+
+            </div>
+
+            <button
+                type="button"
+                id="closeMenuBtn"
+                class="close-menu-btn"
+                aria-label="Close navigation menu"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <button
+                type="button"
+                id="dashboardBtn"
+                class="nav-link"
+            >
+                <span class="nav-icon" aria-hidden="true">🏠</span>
+                <span>Dashboard</span>
+            </button>
+
+            <button
+                type="button"
+                id="findWorkersBtn"
+                class="nav-link active"
+                aria-current="page"
+            >
+                <span class="nav-icon" aria-hidden="true">🔎</span>
+                <span>Find Workers</span>
+            </button>
+
+            <button
+                type="button"
+                id="editProfileBtn"
+                class="nav-link"
+            >
+                <span class="nav-icon" aria-hidden="true">✏️</span>
+                <span>Edit Profile</span>
+            </button>
+
+        </nav>
+
+        <div class="sidebar-footer">
+
+            <button
+                type="button"
+                id="logoutBtn"
+                class="nav-link logout-link"
+            >
+                <span class="nav-icon" aria-hidden="true">↪</span>
+                <span>Logout</span>
+            </button>
+
+        </div>
+
+    </aside>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div
+        id="overlay"
+        class="overlay"
+        aria-hidden="true"
+    ></div>
+
+    <!-- Find Workers Page -->
+    <main class="dashboard" id="findWorkersPage">
+
+        <section class="dashboard-header">
+
+            <div class="welcome-content">
+
+                <h1>
+                    Available <span>Workers</span>
+                </h1>
+
+                <p class="page-description">
+                    Find skilled workers near your location.
+                </p>
+
+            </div>
+
+        </section>
+
+        <section class="dashboard-section">
+
+            <!-- Skill Filter -->
+            <div class="filter-bar">
+
+                <div class="filter-group">
+
+                    <select
+                        id="skillFilter"
+                        aria-label="Filter workers by skill"
+                    >
+                        <option value="">All Skills</option>
+                    </select>
+
+                </div>
+
+                <button
+                    type="button"
+                    id="changeLocationBtn"
+                    class="change-location-btn"
+                >
+                    Change Location
+                </button>
+
+            </div>
+
+            <!-- Loading State -->
+            <div
+                id="workersLoading"
+                class="workers-loading"
+                role="status"
+                aria-live="polite"
+                hidden
+            >
+
+                <div
+                    class="loading-spinner"
+                    aria-hidden="true"
+                ></div>
+
+                <p>Connecting…</p>
+
+            </div>
+
+            <!-- Workers Container -->
+            <div
+                id="workersContainer"
+                class="workers-container"
+            ></div>
+
+            <!-- Empty State -->
+            <div
+                id="workersEmpty"
+                class="workers-empty"
+                hidden
+            >
+
+                <div class="empty-icon" aria-hidden="true">
+                    🔎
+                </div>
+
+                <h3>No Workers Found</h3>
+
+                <p>
+                    No workers matching your location are currently available.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Notification and Confirmation Modal -->
+    <div
+        id="notificationOverlay"
+        class="notification-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="notificationTitle"
+        aria-describedby="notificationText"
+        hidden
+    >
+
+        <div
+            id="notificationCard"
+            class="notification-card"
+        >
+
+            <div
+                id="notificationIcon"
+                class="notification-icon"
+                aria-hidden="true"
+            >
+                ✓
+            </div>
+
+            <h2 id="notificationTitle">
+                Notification
+            </h2>
+
+            <p id="notificationText"></p>
+
+            <div class="notification-actions">
+
+                <button
+                    type="button"
+                    id="notificationCancelButtonMobile"
+                >
+                    No
+                </button>
+
+                <button
+                    type="button"
+                    id="notificationButton"
+                >
+                    Continue
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Application Configuration -->
+    <script src="../config.js"></script>
+
+    <!-- Page Logic -->
+    <script src="script.js" defer></script>
+
+</body>
+</html>
