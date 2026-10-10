@@ -197,20 +197,23 @@ color:var(--worker-green);
 background:rgba(34,197,94,0.1);
 }
 
-.hero{
-width:90%;
-max-width:1200px;
-min-height:calc(100vh - 70px);
-margin:auto;
-padding-top:20px;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-text-align:center;
-gap:25px;
-position:relative;
-margin-bottom: 10px;
+.hero {
+    width: 90%;
+    max-width: 1200px;
+
+    /* Reduce the space below the fixed navbar */
+    min-height: auto;
+    margin: 70px auto 10px;
+    padding: 25px 0 35px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: center;
+    gap: 25px;
+
+    position: relative;
 }
 
 .hero::before{
@@ -484,9 +487,10 @@ display:flex;
 width:85%;
 }
 
-.hero{
-min-height:calc(100vh - 70px);
-padding-top:10px;
+.hero {
+    min-height: auto;
+    margin-top: 70px;
+    padding: 25px 0 35px;
 }
 
 .hero h1{
@@ -511,11 +515,12 @@ grid-template-columns:repeat(2,1fr);
 
 @media (min-width:1024px){
 
-.hero{
-flex-direction:row;
-text-align:left;
-min-height:calc(100vh - 70px);
-padding-top:0;
+.hero {
+    flex-direction: row;
+    justify-content: center;
+    min-height: auto;
+    margin-top: 120px;
+    padding: 25px 0 35px;
 }
 
 .hero h1{
