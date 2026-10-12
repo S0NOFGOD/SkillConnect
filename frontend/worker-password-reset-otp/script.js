@@ -1,422 +1,518 @@
-const VERIFY_OTP_URL=API_ENDPOINT("/api/auth/worker/password-reset-otp/verify");
-const RESEND_OTP_URL=API_ENDPOINT("/api/auth/worker/password-reset-otp/resend");
+"use strict";
 
-const WORKER_AUTH_URL="../worker-authentication/index.html";
-const PASSWORD_CHANGE_URL="../worker-password-change/index.html";
+const VERIFY_OTP_URL = API_ENDPOINT("/api/auth/worker/password-reset-otp/verify");
+const RESEND_OTP_URL = API_ENDPOINT("/api/auth/worker/password-reset-otp/resend");
 
-const otpForm=document.getElementById("otpForm");
-const otpInputs=document.querySelectorAll(".otp-input");
-const verifyButton=document.getElementById("verifyButton");
-const verifyButtonText=verifyButton?verifyButton.querySelector(".btn-text"):null;
-const workerEmailDisplay=document.getElementById("workerEmailDisplay");
-const resendOTP=document.getElementById("resendOTP");
-const countdown=document.getElementById("countdown");
+const WORKER_AUTH_URL = "../worker-authentication/index.html";
+const PASSWORD_CHANGE_URL = "../worker-password-change/index.html";
 
-const messageModal=document.getElementById("messageModal");
-const messageModalOverlay=document.getElementById("messageModalOverlay");
-const closeMessageModal=document.getElementById("closeMessageModal");
-const messageModalButton=document.getElementById("messageModalButton");
-const modalIcon=document.getElementById("modalIcon");
-const messageModalTitle=document.getElementById("messageModalTitle");
-const messageModalText=document.getElementById("messageModalText");
+const otpForm = document.getElementById("otpForm");
+const otpInputs = document.querySelectorAll(".otp-input");
+const verifyButton = document.getElementById("verifyButton");
+const verifyButtonText = verifyButton?.querySelector(".btn-text");
+const workerEmailDisplay = document.getElementById("workerEmailDisplay");
+const resendOTP = document.getElementById("resendOTP");
+const countdown = document.getElementById("countdown");
 
-let workerEmail="";
-let countdownTimer=null;
-let requestInProgress=false;
+const messageModal = document.getElementById("messageModal");
+const messageModalOverlay = document.getElementById("messageModalOverlay");
+const closeMessageModal = document.getElementById("closeMessageModal");
+const messageModalButton = document.getElementById("messageModalButton");
+const modalIcon = document.getElementById("modalIcon");
+const messageModalTitle = document.getElementById("messageModalTitle");
+const messageModalText = document.getElementById("messageModalText");
 
-document.addEventListener("DOMContentLoaded",initializePage);
+let workerEmail = "";
+let countdownTimer = null;
+let requestInProgress = false;
 
-function initializePage(){
-workerEmail=sessionStorage.getItem("workerEmail");
+document.addEventListener("DOMContentLoaded", initializePage);
 
-if(!workerEmail){
-    showModal("error","Session Expired","Your password reset session has expired. Please start the password reset process again.",function(){
-        window.location.href=WORKER_AUTH_URL;
-    });
-    return;
+function initializePage() {
+    workerEmail = sessionStorage.getItem("workerEmail");
+
+    if (!workerEmail) {
+        showModal(
+            "error",
+            "Session Expired",
+            "Your password reset session has expired. Please start the password reset process again.",
+            () => {
+                window.location.href = WORKER_AUTH_URL;
+            }
+        );
+        return;
+    }
+
+    if (workerEmailDisplay) {
+        workerEmailDisplay.textContent = workerEmail;
+    }
+
+    setupOTPInputs();
+    startCountdown();
 }
 
-if(workerEmailDisplay)workerEmailDisplay.textContent=workerEmail;
-setupOTPInputs();
-startCountdown();
+function setupOTPInputs() {
+    otpInputs.forEach((input, index) => {
+        input.addEventListener("input", function () {
+            this.value = this.value.replace(/\D/g, "").slice(0, 1);
 
-}
-
-function setupOTPInputs(){
-otpInputs.forEach(function(input,index){
-
-    input.addEventListener("input",function(){
-        this.value=this.value.replace(/\D/g,"");
-
-        if(this.value&&index<otpInputs.length-1){
-            otpInputs[index+1].focus();
-        }
-    });
-
-    input.addEventListener("keydown",function(event){
-        if(event.key==="Backspace"&&!this.value&&index>0){
-            otpInputs[index-1].focus();
-        }
-    });
-
-    input.addEventListener("keypress",function(event){
-        if(!/[0-9]/.test(event.key)){
-            event.preventDefault();
-        }
-    });
-
-    input.addEventListener("paste",function(event){
-        event.preventDefault();
-
-        const pastedText=(event.clipboardData||window.clipboardData)
-            .getData("text")
-            .replace(/\D/g,"")
-            .slice(0,6);
-
-        if(!pastedText)return;
-
-        pastedText.split("").forEach(function(digit,digitIndex){
-            if(otpInputs[digitIndex]){
-                otpInputs[digitIndex].value=digit;
+            if (this.value && index < otpInputs.length - 1) {
+                otpInputs[index + 1].focus();
             }
         });
 
-        const nextEmptyIndex=Array.from(otpInputs).findIndex(function(item){
-            return !item.value;
+        input.addEventListener("keydown", function (event) {
+            if (event.key === "Backspace" && !this.value && index > 0) {
+                otpInputs[index - 1].focus();
+            }
         });
 
-        if(nextEmptyIndex!==-1){
-            otpInputs[nextEmptyIndex].focus();
-        }else{
-            otpInputs[otpInputs.length-1].focus();
-        }
+        input.addEventListener("keypress", function (event) {
+            if (!/[0-9]/.test(event.key) && event.key.length === 1) {
+                event.preventDefault();
+            }
+        });
+
+        input.addEventListener("paste", function (event) {
+            event.preventDefault();
+
+            const pastedText = (event.clipboardData || window.clipboardData)
+                .getData("text")
+                .replace(/\D/g, "")
+                .slice(0, 6);
+
+            if (!pastedText) return;
+
+            otpInputs.forEach((item, i) => {
+                item.value = pastedText[i] || "";
+            });
+
+            const nextEmptyIndex = Array.from(otpInputs)
+                .findIndex(item => !item.value);
+
+            if (nextEmptyIndex !== -1) {
+                otpInputs[nextEmptyIndex].focus();
+            } else {
+                otpInputs[otpInputs.length - 1].focus();
+            }
+        });
     });
-});
-
 }
 
-function getOTPValue(){
-return Array.from(otpInputs).map(function(input){
-return input.value;
-}).join("");
+function getOTPValue() {
+    return Array.from(otpInputs)
+        .map(input => input.value)
+        .join("");
 }
 
-if(otpForm){
-otpForm.addEventListener("submit",handleOTPVerification);
+if (otpForm) {
+    otpForm.addEventListener("submit", handleOTPVerification);
 }
 
-async function handleOTPVerification(event){
-event.preventDefault();
-
-if(requestInProgress)return;
-
-workerEmail=sessionStorage.getItem("workerEmail");
-
-if(!workerEmail){
-    showModal("error","Session Expired","Your password reset session has expired. Please start again.",function(){
-        window.location.href=WORKER_AUTH_URL;
-    });
-    return;
+if (resendOTP) {
+    resendOTP.addEventListener("click", handleResendOTP);
 }
 
-const otp=getOTPValue();
+async function handleOTPVerification(event) {
+    event.preventDefault();
 
-if(!otp){
-    showModal("error","OTP Required","Please enter the 6-digit password reset code.");
-    return;
-}
+    if (requestInProgress) return;
 
-if(!/^\d{6}$/.test(otp)){
-    showModal("error","Invalid OTP","Please enter the complete 6-digit password reset code.");
-    return;
-}
+    const otp = getOTPValue();
 
-setVerifyLoading(true);
-
-try{
-    const response=await fetch(VERIFY_OTP_URL,{
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json"
-        },
-        body:JSON.stringify({
-            email:workerEmail,
-            otp:otp
-        })
-    });
-
-    const data=await response.json();
-
-    if(!response.ok||!data.success){
+    if (!otp || !/^\d{6}$/.test(otp)) {
         showModal(
             "error",
-            data.title||"Verification Failed",
-            data.message||"The password reset code could not be verified."
+            otp ? "Invalid OTP" : "OTP Required",
+            otp
+                ? "Please enter the complete 6-digit password reset code."
+                : "Please enter the 6-digit password reset code."
         );
         return;
     }
 
-    clearOTPInputs();
+    workerEmail = sessionStorage.getItem("workerEmail");
 
-    showModal(
-        "success",
-        "OTP Verified",
-        data.message||"Your password reset code has been verified successfully.",
-        function(){
-            window.location.href=PASSWORD_CHANGE_URL;
-        }
-    );
-
-}catch(error){
-
-    console.error(
-        "Password reset OTP verification error:",
-        error
-    );
-
-    showModal(
-        "error",
-        "Connection Error",
-        "Unable to connect to the server. Please check your internet connection and try again."
-    );
-
-}finally{
-    setVerifyLoading(false);
-}
-
-}
-
-if(resendOTP){
-resendOTP.addEventListener("click",handleResendOTP);
-}
-
-async function handleResendOTP(event){
-event.preventDefault();
-
-if(requestInProgress)return;
-
-if(resendOTP.classList.contains("disabled"))return;
-
-workerEmail=sessionStorage.getItem("workerEmail");
-
-if(!workerEmail){
-    showModal("error","Session Expired","Your password reset session has expired. Please start again.",function(){
-        window.location.href=WORKER_AUTH_URL;
-    });
-    return;
-}
-
-setResendLoading(true);
-
-try{
-    const response=await fetch(RESEND_OTP_URL,{
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json"
-        },
-        body:JSON.stringify({
-            email:workerEmail
-        })
-    });
-
-    const data=await response.json();
-
-    if(!response.ok||!data.success){
+    if (!workerEmail) {
         showModal(
             "error",
-            data.title||"Unable To Resend OTP",
-            data.message||"We could not send a new password reset code."
+            "Session Expired",
+            "Your password reset session has expired. Please start again.",
+            () => {
+                window.location.href = WORKER_AUTH_URL;
+            }
         );
         return;
     }
 
-    clearOTPInputs();
-    startCountdown();
+    setVerifyLoading(true);
 
-    showModal(
-        "success",
-        "OTP Sent",
-        data.message||"A new password reset code has been sent to your email."
-    );
+    try {
+        const response = await fetch(VERIFY_OTP_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: workerEmail,
+                otp
+            })
+        });
 
-}catch(error){
+        const data = await readResponse(response);
 
-    console.error(
-        "Password reset OTP resend error:",
-        error
-    );
+        if (!response.ok || !data.success) {
+            showModal(
+                "error",
+                data.title || "Verification Failed",
+                data.message ||
+                    "The password reset code could not be verified."
+            );
+            return;
+        }
 
-    showModal(
-        "error",
-        "Connection Error",
-        "Unable to connect to the server. Please try again."
-    );
+        clearOTPInputs();
 
-}finally{
-    setResendLoading(false);
+        showModal(
+            "success",
+            "OTP Verified",
+            data.message ||
+                "Your password reset code has been verified successfully.",
+            () => {
+                window.location.href = PASSWORD_CHANGE_URL;
+            }
+        );
+
+    } catch (error) {
+        console.error("Password reset OTP verification error:", error);
+
+        showModal(
+            "error",
+            "Connection Error",
+            "Unable to connect to the server. Please check your internet connection and try again."
+        );
+    } finally {
+        setVerifyLoading(false);
+    }
 }
 
-}
+async function handleResendOTP(event) {
+    event.preventDefault();
 
-function setVerifyLoading(isLoading){
-if(!verifyButton)return;
-
-if(isLoading){
-    requestInProgress=true;
-    verifyButton.disabled=true;
-
-    if(verifyButtonText){
-        verifyButtonText.innerHTML=`
-            <span class="loading-spinner"></span>
-            Connecting...
-        `;
+    if (
+        requestInProgress ||
+        resendOTP.classList.contains("disabled")
+    ) {
+        return;
     }
 
-}else{
-    requestInProgress=false;
-    verifyButton.disabled=false;
+    workerEmail = sessionStorage.getItem("workerEmail");
 
-    if(verifyButtonText){
-        verifyButtonText.textContent="Verify OTP";
+    if (!workerEmail) {
+        showModal(
+            "error",
+            "Session Expired",
+            "Your password reset session has expired. Please start again.",
+            () => {
+                window.location.href = WORKER_AUTH_URL;
+            }
+        );
+        return;
+    }
+
+    setResendLoading(true);
+
+    try {
+        const response = await fetch(RESEND_OTP_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: workerEmail
+            })
+        });
+
+        const data = await readResponse(response);
+
+        if (!response.ok || !data.success) {
+            if (data.cooldownUntil) {
+                const cooldownDate = new Date(data.cooldownUntil);
+
+                if (!Number.isNaN(cooldownDate.getTime())) {
+                    startCooldownCountdown(cooldownDate);
+                }
+
+                showModal(
+                    "error",
+                    "Resend Cooldown Active",
+                    getCooldownMessage(
+                        data.cooldownUntil,
+                        data.message
+                    )
+                );
+                return;
+            }
+
+            showModal(
+                "error",
+                data.title || "Unable To Resend OTP",
+                data.message ||
+                    "We could not send a new password reset code."
+            );
+            return;
+        }
+
+        clearOTPInputs();
+
+        showModal(
+            "success",
+            "OTP Sent",
+            data.message ||
+                "A new password reset code has been sent to your email.",
+            startCountdown
+        );
+
+    } catch (error) {
+        console.error("Password reset OTP resend error:", error);
+
+        showModal(
+            "error",
+            "Connection Error",
+            "Unable to connect to the server. Please try again."
+        );
+    } finally {
+        setResendLoading(false);
     }
 }
 
+function getCooldownMessage(cooldownUntil, fallbackMessage) {
+    const cooldownDate = new Date(cooldownUntil);
+
+    if (Number.isNaN(cooldownDate.getTime())) {
+        return fallbackMessage ||
+            "You have reached the password reset code resend limit. Please try again later.";
+    }
+
+    const formattedDate = cooldownDate.toLocaleString(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short"
+    });
+
+    return `You have reached the password reset code resend limit. You can request another code after ${formattedDate}.`;
 }
 
-function setResendLoading(isLoading){
-if(!resendOTP)return;
-
-if(isLoading){
-    requestInProgress=true;
-    resendOTP.classList.add("disabled");
-    resendOTP.textContent="Connecting...";
-
-}else{
-    requestInProgress=false;
-    resendOTP.textContent="Resend OTP";
+async function readResponse(response) {
+    try {
+        return await response.json();
+    } catch {
+        return {
+            success: false,
+            message: response.ok
+                ? "The server returned an invalid response."
+                : "The server could not process your request."
+        };
+    }
 }
 
+function setVerifyLoading(isLoading) {
+    if (!verifyButton) return;
+
+    requestInProgress = isLoading;
+    verifyButton.disabled = isLoading;
+
+    if (verifyButtonText) {
+        if (isLoading) {
+            verifyButtonText.innerHTML =
+                '<span class="loading-spinner"></span> Connecting...';
+        } else {
+            verifyButtonText.textContent = "Verify OTP";
+        }
+    }
 }
 
-function clearOTPInputs(){
-otpInputs.forEach(function(input){
-input.value="";
-});
+function setResendLoading(isLoading) {
+    if (!resendOTP) return;
 
-if(otpInputs[0]){
-    otpInputs[0].focus();
+    requestInProgress = isLoading;
+
+    if (isLoading) {
+        resendOTP.classList.add("disabled");
+        resendOTP.textContent = "Connecting...";
+        return;
+    }
+
+    resendOTP.textContent = "Resend OTP";
+
+    if (
+        countdownTimer ||
+        countdown?.textContent.includes("Resend available in") ||
+        countdown?.textContent.includes("Resend unavailable for")
+    ) {
+        resendOTP.classList.add("disabled");
+    } else {
+        resendOTP.classList.remove("disabled");
+    }
 }
 
+function clearOTPInputs() {
+    otpInputs.forEach(input => {
+        input.value = "";
+    });
+
+    if (otpInputs[0]) {
+        otpInputs[0].focus();
+    }
 }
 
-function startCountdown(){
-if(countdownTimer){
-clearInterval(countdownTimer);
-countdownTimer=null;
-}
+function startCountdown() {
+    if (countdownTimer) {
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+    }
 
-let secondsRemaining=60;
+    let secondsRemaining = 60;
 
-if(resendOTP){
-    resendOTP.classList.add("disabled");
-    resendOTP.textContent="Resend OTP";
-}
-
-updateCountdown(secondsRemaining);
-
-countdownTimer=setInterval(function(){
-    secondsRemaining--;
+    if (resendOTP) {
+        resendOTP.classList.add("disabled");
+        resendOTP.textContent = "Resend OTP";
+    }
 
     updateCountdown(secondsRemaining);
 
-    if(secondsRemaining<=0){
-        clearInterval(countdownTimer);
-        countdownTimer=null;
+    countdownTimer = setInterval(() => {
+        secondsRemaining--;
+        updateCountdown(secondsRemaining);
 
-        if(resendOTP){
-            resendOTP.classList.remove("disabled");
-            resendOTP.textContent="Resend OTP";
+        if (secondsRemaining <= 0) {
+            clearInterval(countdownTimer);
+            countdownTimer = null;
+
+            if (resendOTP) {
+                resendOTP.classList.remove("disabled");
+                resendOTP.textContent = "Resend OTP";
+            }
+
+            if (countdown) {
+                countdown.textContent = "You can resend the OTP now.";
+            }
+        }
+    }, 1000);
+}
+
+function startCooldownCountdown(cooldownDate) {
+    if (countdownTimer) {
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+    }
+
+    if (resendOTP) {
+        resendOTP.classList.add("disabled");
+        resendOTP.textContent = "Resend OTP";
+    }
+
+    function updateCooldown() {
+        const remainingMilliseconds = cooldownDate.getTime() - Date.now();
+
+        if (remainingMilliseconds <= 0) {
+            clearInterval(countdownTimer);
+            countdownTimer = null;
+
+            if (resendOTP) {
+                resendOTP.classList.remove("disabled");
+                resendOTP.textContent = "Resend OTP";
+            }
+
+            if (countdown) {
+                countdown.textContent =
+                    "The cooldown has ended. You can request another OTP.";
+            }
+
+            return;
         }
 
-        if(countdown){
-            countdown.textContent="You can resend the OTP now.";
+        const totalSeconds = Math.ceil(remainingMilliseconds / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        if (countdown) {
+            countdown.textContent =
+                `Resend unavailable for ${hours}h ${minutes}m ${seconds}s`;
         }
     }
-},1000);
 
+    updateCooldown();
+
+    if (cooldownDate.getTime() > Date.now()) {
+        countdownTimer = setInterval(updateCooldown, 1000);
+    }
 }
 
-function updateCountdown(seconds){
-if(!countdown)return;
-
-if(seconds>0){
-    countdown.textContent=`Resend available in ${seconds}s`;
+function updateCountdown(seconds) {
+    if (countdown && seconds > 0) {
+        countdown.textContent = `Resend available in ${seconds}s`;
+    }
 }
 
+function showModal(type, title, message, onContinue = null) {
+    if (!messageModal) return;
+
+    messageModal.classList.remove("success", "error");
+    messageModal.classList.add(type);
+
+    if (modalIcon) {
+        modalIcon.textContent = type === "success" ? "✓" : "!";
+    }
+
+    if (messageModalTitle) {
+        messageModalTitle.textContent = title;
+    }
+
+    if (messageModalText) {
+        messageModalText.textContent = message;
+    }
+
+    if (messageModalButton) {
+        messageModalButton.textContent = "Continue";
+    }
+
+    messageModal.classList.add("show");
+    messageModal.setAttribute("aria-hidden", "false");
+    messageModal._onContinue = onContinue;
 }
 
-function showModal(type,title,message,onClose=null){
-if(!messageModal)return;
+function closeModal() {
+    if (!messageModal) return;
 
-messageModal.classList.remove("success","error");
-messageModal.classList.add(type);
+    messageModal.classList.remove("show");
+    messageModal.setAttribute("aria-hidden", "true");
 
-if(modalIcon){
-    modalIcon.textContent=type==="success"?"✓":"!";
+    const onContinue = messageModal._onContinue;
+    messageModal._onContinue = null;
+
+    if (typeof onContinue === "function") {
+        onContinue();
+    }
 }
 
-if(messageModalTitle){
-    messageModalTitle.textContent=title;
+if (closeMessageModal) {
+    closeMessageModal.addEventListener("click", closeModal);
 }
 
-if(messageModalText){
-    messageModalText.textContent=message;
+if (messageModalButton) {
+    messageModalButton.addEventListener("click", closeModal);
 }
 
-if(messageModalButton){
-    messageModalButton.textContent="Continue";
+if (messageModalOverlay) {
+    messageModalOverlay.addEventListener("click", closeModal);
 }
 
-messageModal.classList.add("show");
-messageModal.setAttribute("aria-hidden","false");
-messageModal._onClose=onClose;
-
-}
-
-function closeModal(){
-if(!messageModal)return;
-
-messageModal.classList.remove("show");
-messageModal.setAttribute("aria-hidden","true");
-
-const onClose=messageModal._onClose;
-
-messageModal._onClose=null;
-
-if(typeof onClose==="function"){
-    onClose();
-}
-
-}
-
-if(closeMessageModal){
-closeMessageModal.addEventListener("click",closeModal);
-}
-
-if(messageModalButton){
-messageModalButton.addEventListener("click",closeModal);
-}
-
-if(messageModalOverlay){
-messageModalOverlay.addEventListener("click",closeModal);
-}
-
-document.addEventListener("keydown",function(event){
-if(
-event.key==="Escape"&&
-messageModal&&
-messageModal.classList.contains("show")
-){
-closeModal();
-}
+document.addEventListener("keydown", event => {
+    if (
+        event.key === "Escape" &&
+        messageModal?.classList.contains("show")
+    ) {
+        closeModal();
+    }
 });

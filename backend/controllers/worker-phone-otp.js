@@ -1,120 +1,60 @@
-const jwt=require("jsonwebtoken");
+"use strict";
+
 const crypto=require("crypto");
 const {Robase}=require("@robasedev/sdk");
-
 const Worker=require("../models/worker");
 
 const robase=new Robase({
     apiKey:process.env.ROBASE_API_KEY
 });
 
+const OTP_EXPIRY_MS=10*60*1000;
+const COOLDOWN_MS=24*60*60*1000;
+const MAX_RESENDS=5;
+const VERIFICATION_VALIDITY_MS=30*24*60*60*1000;
 
-/* =========================================================
-   HELPERS
-========================================================= */
+const hashOTP=otp=>
+    crypto.createHash("sha256").update(otp).digest("hex");
 
-function hashOTP(otp){
-    return crypto
-        .createHash("sha256")
-        .update(otp)
-        .digest("hex");
-}
+const generateOTP=()=>
+    crypto.randomInt(100000,1000000).toString();
 
-
-function generateOTP(){
-    return crypto
-        .randomInt(100000,1000000)
-        .toString();
-}
-
-
-function getAuthenticatedWorker(req){
-
-    const accessToken=req.cookies.accessToken;
-
-    if(!accessToken){
-        const error=new Error(
-            "Authentication required."
-        );
-
-        error.statusCode=401;
-
-        throw error;
-    }
-
-    let decoded;
-
-    try{
-        decoded=jwt.verify(
-            accessToken,
-            process.env.ACCESS_TOKEN_SECRET
-        );
-    }catch(error){
-        const authError=new Error(
-            "Authentication session is invalid or expired."
-        );
-
-        authError.statusCode=401;
-
-        throw authError;
-    }
-
-    if(
-        !decoded.userId||
-        decoded.userType!=="worker"
-    ){
-        const error=new Error(
-            "Invalid worker authentication."
-        );
-
-        error.statusCode=401;
-
-        throw error;
-    }
-
-    return decoded.userId;
-}
-
-
-function maskPhone(phone){
-
+const maskPhone=phone=>{
     if(!phone)return "";
+    if(phone.length<=7)return phone;
+    return `${phone.slice(0,3)}****${phone.slice(-4)}`;
+};
 
-    const visibleStart=3;
-    const visibleEnd=4;
-
-    if(phone.length<=visibleStart+visibleEnd){
-        return phone;
+const sendSMS=async(phone,otp)=>{
+    if(!process.env.ROBASE_API_KEY){
+        throw new Error("Robase SMS configuration is missing.");
     }
 
-    return `${phone.slice(0,visibleStart)}****${phone.slice(-visibleEnd)}`;
-}
+    await robase.sms.send({
+        phone_number:phone,
+        message:`Your SkillConnect phone verification code is ${otp}. It expires in 10 minutes.`
+    });
+};
 
+const getWorker=async(req)=>{
+    if(!req.workerId){
+        const error=new Error("Worker authentication required.");
+        error.statusCode=401;
+        throw error;
+    }
 
-function formatRetryTime(date){
-
-    return date.toLocaleString(
-        "en-NG",
-        {
-            dateStyle:"medium",
-            timeStyle:"short"
-        }
+    const worker=await Worker.findById(req.workerId).select(
+        "+phoneOtpHash +phoneOtpExpires phone phoneVerificationExpires phoneOtpResendCount coolDownUntil"
     );
-}
 
+    return worker;
+};
 
-/* =========================================================
-   GET WORKER PHONE
-========================================================= */
+/* GET WORKER PHONE */
 
 const getWorkerPhone=async(req,res,next)=>{
-
     try{
-
-        const workerId=getAuthenticatedWorker(req);
-
-        const worker=await Worker.findById(workerId)
-            .select("phone");
+        const worker=await getWorker(req);
 
         if(!worker){
             return res.status(404).json({
@@ -130,43 +70,41 @@ const getWorkerPhone=async(req,res,next)=>{
             });
         }
 
+        if(
+            worker.phoneVerificationExpires &&
+            worker.phoneVerificationExpires>new Date()
+        ){
+            return res.status(200).json({
+                success:true,
+                verified:true,
+                phone:maskPhone(worker.phone)
+            });
+        }
+
         return res.status(200).json({
             success:true,
+            verified:false,
             phone:maskPhone(worker.phone)
         });
-
     }catch(error){
         next(error);
     }
 };
 
-
-/* =========================================================
-   VERIFY WORKER PHONE
-========================================================= */
+/* VERIFY WORKER PHONE */
 
 const verifyWorkerPhone=async(req,res,next)=>{
-
     try{
-
-        const workerId=getAuthenticatedWorker(req);
-
         const {otp}=req.body;
 
-        if(
-            typeof otp!=="string"||
-            !/^\d{6}$/.test(otp)
-        ){
+        if(typeof otp!=="string"||!/^\d{6}$/.test(otp)){
             return res.status(400).json({
                 success:false,
                 message:"Please enter a valid 6-digit verification code."
             });
         }
 
-        const worker=await Worker.findById(workerId)
-            .select(
-                "+phoneOtpHash +phoneOtpExpires phone phoneVerificationExpires"
-            );
+        const worker=await getWorker(req);
 
         if(!worker){
             return res.status(404).json({
@@ -182,9 +120,11 @@ const verifyWorkerPhone=async(req,res,next)=>{
             });
         }
 
+        const now=new Date();
+
         if(
-            worker.phoneVerificationExpires&&
-            worker.phoneVerificationExpires>new Date()
+            worker.phoneVerificationExpires &&
+            worker.phoneVerificationExpires>now
         ){
             return res.status(400).json({
                 success:false,
@@ -192,45 +132,41 @@ const verifyWorkerPhone=async(req,res,next)=>{
             });
         }
 
-        if(
-            !worker.phoneOtpHash||
-            !worker.phoneOtpExpires
-        ){
+        if(!worker.phoneOtpHash||!worker.phoneOtpExpires){
             return res.status(400).json({
                 success:false,
                 message:"No active verification code was found. Please request a new OTP."
             });
         }
 
-        if(worker.phoneOtpExpires<=new Date()){
-
+        if(worker.phoneOtpExpires<=now){
             return res.status(400).json({
                 success:false,
                 message:"Your verification code has expired. Please request a new OTP."
             });
         }
 
-        const submittedOTPHash=hashOTP(otp);
+        const submittedHash=Buffer.from(hashOTP(otp),"hex");
+        const storedHash=Buffer.from(worker.phoneOtpHash,"hex");
 
-        if(submittedOTPHash!==worker.phoneOtpHash){
-
+        if(
+            submittedHash.length!==storedHash.length||
+            !crypto.timingSafeEqual(submittedHash,storedHash)
+        ){
             return res.status(400).json({
                 success:false,
                 message:"The verification code is incorrect."
             });
         }
 
-        const now=new Date();
+        worker.phoneVerificationExpires=new Date(
+            now.getTime()+VERIFICATION_VALIDITY_MS
+        );
 
-        worker.phoneVerificationExpires=
-            new Date(
-                now.getTime()+
-                30*24*60*60*1000
-            );
-
-        // Invalidate the OTP after successful verification.
         worker.phoneOtpHash=null;
         worker.phoneOtpExpires=null;
+        worker.phoneOtpResendCount=0;
+        worker.coolDownUntil=null;
 
         await worker.save();
 
@@ -238,27 +174,16 @@ const verifyWorkerPhone=async(req,res,next)=>{
             success:true,
             message:"Your phone number has been successfully verified."
         });
-
     }catch(error){
         next(error);
     }
 };
 
-
-/* =========================================================
-   RESEND WORKER PHONE OTP
-========================================================= */
+/* RESEND WORKER PHONE OTP */
 
 const resendWorkerPhoneOTP=async(req,res,next)=>{
-
     try{
-
-        const workerId=getAuthenticatedWorker(req);
-
-        const worker=await Worker.findById(workerId)
-            .select(
-                "+phoneOtpHash +phoneOtpExpires phone phoneOtpResendLimit phoneOtpResendLimitExpires"
-            );
+        const worker=await getWorker(req);
 
         if(!worker){
             return res.status(404).json({
@@ -276,107 +201,78 @@ const resendWorkerPhoneOTP=async(req,res,next)=>{
 
         const now=new Date();
 
-        /* Check active 24-hour resend restriction. */
-
         if(
-            worker.phoneOtpResendLimitExpires&&
-            worker.phoneOtpResendLimitExpires>now
+            worker.phoneVerificationExpires &&
+            worker.phoneVerificationExpires>now
         ){
-
-            return res.status(429).json({
+            return res.status(400).json({
                 success:false,
-                message:
-                    `You have reached the OTP resend limit. Please try again later at ${formatRetryTime(worker.phoneOtpResendLimitExpires)}.`
+                message:"Your phone number is already verified."
             });
         }
 
+        /* Enforce an active 24-hour cooldown. */
 
-        /* Reset expired resend restriction. */
-
-        if(
-            worker.phoneOtpResendLimitExpires&&
-            worker.phoneOtpResendLimitExpires<=now
-        ){
-
-            worker.phoneOtpResendLimit=0;
-            worker.phoneOtpResendLimitExpires=null;
+        if(worker.coolDownUntil&&worker.coolDownUntil>now){
+            return res.status(429).json({
+                success:false,
+                message:"You have reached the OTP resend limit. Please try again after the cooldown.",
+                cooldownUntil:worker.coolDownUntil.toISOString()
+            });
         }
 
+        /* Clear an expired cooldown. */
 
-        /* Maximum of 3 successful resends. */
+        if(worker.coolDownUntil&&worker.coolDownUntil<=now){
+            worker.coolDownUntil=null;
+            worker.phoneOtpResendCount=0;
+        }
 
-        if(worker.phoneOtpResendLimit>=3){
+        /* Five successful resends are allowed per cooldown period. */
 
-            worker.phoneOtpResendLimitExpires=
-                new Date(
-                    now.getTime()+
-                    24*60*60*1000
-                );
+        if((worker.phoneOtpResendCount||0)>=MAX_RESENDS){
+            worker.phoneOtpResendCount=0;
+            worker.coolDownUntil=new Date(now.getTime()+COOLDOWN_MS);
 
             await worker.save();
 
             return res.status(429).json({
                 success:false,
-                message:
-                    `You have reached the OTP resend limit. Please try again later at ${formatRetryTime(worker.phoneOtpResendLimitExpires)}.`
+                message:"You have reached the OTP resend limit. Please try again after 24 hours.",
+                cooldownUntil:worker.coolDownUntil.toISOString()
             });
         }
 
-
-        /* Generate and hash new OTP. */
-
         const otp=generateOTP();
+        const previousHash=worker.phoneOtpHash;
+        const previousExpiry=worker.phoneOtpExpires;
+        const previousCount=worker.phoneOtpResendCount||0;
 
         worker.phoneOtpHash=hashOTP(otp);
-
-        worker.phoneOtpExpires=
-            new Date(
-                now.getTime()+
-                10*60*1000
-            );
-
-        worker.phoneOtpResendLimit+=1;
+        worker.phoneOtpExpires=new Date(now.getTime()+OTP_EXPIRY_MS);
+        worker.phoneOtpResendCount=previousCount+1;
 
         await worker.save();
 
-
-        /* Send OTP through Robase. */
-
         try{
-
-            await robase.sms.send({
-                phone_number:worker.phone,
-                message:
-                    `Your SkillConnect phone verification code is ${otp}. It expires in 10 minutes.`
-            });
-
-        }catch(error){
-
-            // Do not consume the resend attempt if SMS sending fails.
-            worker.phoneOtpHash=null;
-            worker.phoneOtpExpires=null;
-            worker.phoneOtpResendLimit=
-                Math.max(
-                    0,
-                    worker.phoneOtpResendLimit-1
-                );
+            await sendSMS(worker.phone,otp);
+        }catch(smsError){
+            worker.phoneOtpHash=previousHash;
+            worker.phoneOtpExpires=previousExpiry;
+            worker.phoneOtpResendCount=previousCount;
 
             await worker.save();
-
-            throw error;
+            throw smsError;
         }
-
 
         return res.status(200).json({
             success:true,
             message:"A new verification code has been sent to your phone."
         });
-
     }catch(error){
         next(error);
     }
 };
-
 
 module.exports={
     getWorkerPhone,

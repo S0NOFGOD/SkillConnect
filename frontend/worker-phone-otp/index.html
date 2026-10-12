@@ -1,37 +1,221 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Worker Phone Verification | SkillConnect</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-</head><body><header>
-<nav class="navbar">
-<a href="../worker-dashboard/index.html" class="navbar-brand" aria-label="Back to Worker Dashboard">
-<span class="back-arrow" aria-hidden="true">←</span>
-<span class="back">Back</span>
-</a>
-</nav>
-</header><main class="otp-page">
-<section class="otp-section">
-<div class="otp-card"><div class="otp-header">
-<span class="otp-badge">Phone Verification</span>
-<h1>Verify Your Phone</h1>
-<p>Enter the 6-digit verification code sent to:</p>
-<p id="workerPhone" class="worker-phone">Loading phone number...</p>
-</div><form id="otpForm" novalidate><div class="otp-box"><input type="text" maxlength="1" class="otp-input" inputmode="numeric" autocomplete="one-time-code" aria-label="OTP digit 1" required><input type="text" maxlength="1" class="otp-input" inputmode="numeric" aria-label="OTP digit 2" required><input type="text" maxlength="1" class="otp-input" inputmode="numeric" aria-label="OTP digit 3" required><input type="text" maxlength="1" class="otp-input" inputmode="numeric" aria-label="OTP digit 4" required><input type="text" maxlength="1" class="otp-input" inputmode="numeric" aria-label="OTP digit 5" required><input type="text" maxlength="1" class="otp-input" inputmode="numeric" aria-label="OTP digit 6" required></div><button id="verifyButton" type="submit" class="submit-btn">
-<span class="btn-text">Verify Phone</span>
-</button></form><p class="resend">
-Didn't receive the code?
-<a href="#" id="resendOTP">Resend OTP</a>
-</p><p id="countdown" class="countdown">Resend available in 60s</p></div>
-</section>
-</main><div id="notificationModal" class="notification-modal" role="dialog" aria-modal="true" aria-labelledby="notificationTitle" hidden><div class="notification-card"><div id="notificationIcon" class="notification-icon">✓</div><h2 id="notificationTitle">Phone Verified</h2><p id="notificationMessage">Your phone number has been successfully verified.</p><button id="notificationCloseButton" type="button" class="notification-close-button">
-Continue
-</button></div>
-</div><footer>
-<p>© 2026 SkillConnect. All rights reserved.</p>
-</footer><script src="../config.js"></script><script src="script.js"></script></body>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="description"
+        content="Verify your phone number to secure your SkillConnect worker account."
+    >
+
+    <title>Worker Phone Verification | SkillConnect</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <header>
+        <nav class="navbar">
+            <a
+                href="../worker-dashboard/index.html"
+                class="navbar-brand"
+                aria-label="Back to Worker Dashboard"
+            >
+                <span class="back-arrow" aria-hidden="true">←</span>
+                <span class="back">Back</span>
+            </a>
+        </nav>
+    </header>
+
+    <!-- Phone verification page -->
+    <main class="otp-page">
+        <section class="otp-section" aria-labelledby="otpHeading">
+
+            <div class="otp-card">
+
+                <!-- Verification heading -->
+                <div class="otp-header">
+                    <span class="otp-badge">Phone Verification</span>
+
+                    <h1 id="otpHeading">Verify Your Phone</h1>
+
+                    <p>
+                        Enter the 6-digit verification code sent to:
+                    </p>
+
+                    <p
+                        id="workerPhone"
+                        class="worker-phone"
+                        aria-live="polite"
+                    >
+                        Connecting...
+                    </p>
+                </div>
+
+                <!-- OTP form -->
+                <form id="otpForm" novalidate>
+
+                    <div
+                        class="otp-box"
+                        role="group"
+                        aria-label="Six-digit verification code"
+                    >
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                            autocomplete="one-time-code"
+                            aria-label="OTP digit 1"
+                            required
+                        >
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                            aria-label="OTP digit 2"
+                            required
+                        >
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                            aria-label="OTP digit 3"
+                            required
+                        >
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                            aria-label="OTP digit 4"
+                            required
+                        >
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                            aria-label="OTP digit 5"
+                            required
+                        >
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                            aria-label="OTP digit 6"
+                            required
+                        >
+                    </div>
+
+                    <button
+                        id="verifyButton"
+                        type="submit"
+                        class="submit-btn"
+                    >
+                        <span class="btn-text">Verify Phone</span>
+                    </button>
+
+                </form>
+
+                <!-- Resend OTP -->
+                <p class="resend">
+                    Didn't receive the code?
+                    <a
+                        href="#"
+                        id="resendOTP"
+                        aria-disabled="true"
+                        class="disabled"
+                    >
+                        Resend OTP
+                    </a>
+                </p>
+
+                <p
+                    id="countdown"
+                    class="countdown"
+                    aria-live="polite"
+                >
+                    Connecting...
+                </p>
+
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Notification modal -->
+    <div
+        id="notificationModal"
+        class="notification-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="notificationTitle"
+        aria-describedby="notificationMessage"
+        hidden
+    >
+        <div class="notification-card">
+
+            <div
+                id="notificationIcon"
+                class="notification-icon"
+                aria-hidden="true"
+            >
+                ✓
+            </div>
+
+            <h2 id="notificationTitle">Phone Verification</h2>
+
+            <p id="notificationMessage">
+                Please wait while we process your request.
+            </p>
+
+            <button
+                id="notificationCloseButton"
+                type="button"
+                class="notification-close-button"
+            >
+                Continue
+            </button>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2026 SkillConnect. All rights reserved.</p>
+    </footer>
+
+    <!-- Shared API and authentication helper -->
+    <script src="../config.js"></script>
+
+    <!-- Phone OTP functionality -->
+    <script src="script.js"></script>
+
+</body>
 </html>

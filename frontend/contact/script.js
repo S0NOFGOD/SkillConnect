@@ -1,775 +1,201 @@
-/* =========================================================
-   SKILLCONNECT CONTACT PAGE JAVASCRIPT
-   Handles the contact form and communicates with the backend.
-========================================================= */
-
-
-/* =========================================================
-   BACKEND API URL
-========================================================= */
-
-/*
-    This is the address where our Express backend
-    will run during local development.
-
-    Example:
-
-    http://localhost:5000
-*/
-
-const API_URL = "http://localhost:5000";
-
-
-/* =========================================================
-   WAIT FOR THE HTML DOCUMENT TO LOAD
-========================================================= */
+"use strict";
 
 document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("contactForm");
+    const nameInput = document.getElementById("fullName");
+    const emailInput = document.getElementById("email");
+    const messageInput = document.getElementById("message");
+    const submitButton = document.getElementById("submitButton");
+    const formMessage = document.getElementById("formMessage");
 
+    const modal = document.getElementById("contactModal");
+    const modalIcon = document.getElementById("modalIcon");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalText = document.getElementById("modalText");
+    const modalContinue = document.getElementById("modalContinue");
 
-    /* =====================================================
-       GET CONTACT FORM ELEMENTS
-    ===================================================== */
+    // Mobile navigation
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.getElementById("mobileSidebar");
+    const sidebarOverlay = document.getElementById("sidebarOverlay");
+    const sidebarClose = document.getElementById("sidebarClose");
 
-    /*
-        Find the contact form using its ID.
-    */
+    // Get the full API URL from config.js
+    const CONTACT_ENDPOINT = API_ENDPOINT("/api/contact");
 
-    const contactForm =
-        document.getElementById("contactForm");
+    let isSending = false;
+    let lastFocusedElement = null;
 
-
-    /*
-        Find the form message element.
-
-        JavaScript will use this element to display
-        success and error messages.
-    */
-
-    const formMessage =
-        document.getElementById("formMessage");
-
-
-    /*
-        Find the submit button.
-    */
-
-    const submitButton =
-        document.getElementById("submitButton");
-
-
-    /* =====================================================
-       CHECK THAT REQUIRED ELEMENTS EXIST
-    ===================================================== */
-
-    /*
-        If the form, message area, or button cannot
-        be found, stop the script.
-
-        This prevents JavaScript errors.
-    */
-
-    if (
-        !contactForm ||
-        !formMessage ||
-        !submitButton
-    ) {
-
-        console.error(
-            "Contact form elements could not be found."
-        );
-
-        return;
-
+    function openMenu() {
+        sidebar.classList.add("open");
+        sidebarOverlay.classList.add("show");
+        menuToggle.setAttribute("aria-expanded", "true");
+        document.body.style.overflow = "hidden";
+        sidebarClose.focus();
     }
 
-
-    /* =====================================================
-       MOBILE SIDEBAR
-    ===================================================== */
-
-    /*
-        Get the hamburger button.
-    */
-
-    const menuToggle =
-        document.getElementById(
-            "menuToggle"
-        );
-
-
-    /*
-        Get the mobile sidebar.
-    */
-
-    const mobileSidebar =
-        document.getElementById(
-            "mobileSidebar"
-        );
-
-
-    /*
-        Get the sidebar overlay.
-    */
-
-    const sidebarOverlay =
-        document.getElementById(
-            "sidebarOverlay"
-        );
-
-
-    /*
-        Get the sidebar close button.
-    */
-
-    const sidebarClose =
-        document.getElementById(
-            "sidebarClose"
-        );
-
-
-    /*
-        Get the mobile sidebar links.
-    */
-
-    const sidebarLinks =
-        document.querySelectorAll(
-            ".sidebar-links a"
-        );
-
-
-    /* =====================================================
-       OPEN MOBILE SIDEBAR
-    ===================================================== */
-
-    function openSidebar() {
-
-        /*
-            Add the open class to the sidebar.
-        */
-
-        mobileSidebar.classList.add(
-            "open"
-        );
-
-
-        /*
-            Show the dark overlay.
-        */
-
-        sidebarOverlay.classList.add(
-            "show"
-        );
-
-
-        /*
-            Update accessibility state.
-        */
-
-        menuToggle.setAttribute(
-            "aria-expanded",
-            "true"
-        );
-
-
-        menuToggle.setAttribute(
-            "aria-label",
-            "Close navigation menu"
-        );
-
-
-        /*
-            Prevent the page behind the sidebar
-            from scrolling.
-        */
-
-        document.body.style.overflow =
-            "hidden";
-
+    function closeMenu() {
+        sidebar.classList.remove("open");
+        sidebarOverlay.classList.remove("show");
+        menuToggle.setAttribute("aria-expanded", "false");
+        document.body.style.overflow = "";
+        menuToggle.focus();
     }
 
+    menuToggle?.addEventListener("click", openMenu);
+    sidebarClose?.addEventListener("click", closeMenu);
+    sidebarOverlay?.addEventListener("click", closeMenu);
 
-    /* =====================================================
-       CLOSE MOBILE SIDEBAR
-    ===================================================== */
+    sidebar?.querySelectorAll("a").forEach(link => {
+        link.addEventListener("click", () => {
+            sidebar.classList.remove("open");
+            sidebarOverlay.classList.remove("show");
+            menuToggle.setAttribute("aria-expanded", "false");
+            document.body.style.overflow = "";
+        });
+    });
 
-    function closeSidebar() {
+    // Modal
+    function showModal(title, message, type = "error") {
+        lastFocusedElement = document.activeElement;
 
-        /*
-            Remove the open class.
-        */
+        modalTitle.textContent = title;
+        modalText.textContent = message;
+        modalIcon.textContent = type === "success" ? "✓" : "!";
+        modal.classList.toggle("success", type === "success");
+        modal.hidden = false;
 
-        mobileSidebar.classList.remove(
-            "open"
-        );
-
-
-        /*
-            Hide the overlay.
-        */
-
-        sidebarOverlay.classList.remove(
-            "show"
-        );
-
-
-        /*
-            Update accessibility state.
-        */
-
-        menuToggle.setAttribute(
-            "aria-expanded",
-            "false"
-        );
-
-
-        menuToggle.setAttribute(
-            "aria-label",
-            "Open navigation menu"
-        );
-
-
-        /*
-            Restore page scrolling.
-        */
-
-        document.body.style.overflow =
-            "";
-
+        document.body.classList.add("modal-open");
+        modalContinue.focus();
     }
 
+    function closeModal() {
+        modal.hidden = true;
+        document.body.classList.remove("modal-open");
 
-    /* =====================================================
-       HAMBURGER BUTTON
-    ===================================================== */
-
-    if (menuToggle) {
-
-        menuToggle.addEventListener(
-            "click",
-            () => {
-
-                /*
-                    Check whether the sidebar
-                    is currently open.
-                */
-
-                const isOpen =
-                    mobileSidebar.classList.contains(
-                        "open"
-                    );
-
-
-                /*
-                    Toggle the sidebar state.
-                */
-
-                if (isOpen) {
-
-                    closeSidebar();
-
-                } else {
-
-                    openSidebar();
-
-                }
-
-            }
-        );
-
+        if (lastFocusedElement?.isConnected) {
+            lastFocusedElement.focus();
+        }
     }
 
+    modalContinue.addEventListener("click", closeModal);
 
-    /* =====================================================
-       SIDEBAR CLOSE BUTTON
-    ===================================================== */
+    modal.addEventListener("click", event => {
+        if (event.target === modal) closeModal();
+    });
 
-    if (sidebarClose) {
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !modal.hidden) {
+            closeModal();
+        }
 
-        sidebarClose.addEventListener(
-            "click",
-            closeSidebar
-        );
+        if (event.key === "Escape" && sidebar.classList.contains("open")) {
+            closeMenu();
+        }
+    });
 
-    }
+    // Frontend validation
+    function validateForm() {
+        const fullName = nameInput.value.trim();
+        const email = emailInput.value.trim();
+        const message = messageInput.value.trim();
 
-
-    /* =====================================================
-       SIDEBAR OVERLAY
-    ===================================================== */
-
-    if (sidebarOverlay) {
-
-        sidebarOverlay.addEventListener(
-            "click",
-            closeSidebar
-        );
-
-    }
-
-
-    /* =====================================================
-       MOBILE SIDEBAR LINKS
-    ===================================================== */
-
-    if (sidebarLinks.length > 0) {
-
-        sidebarLinks.forEach((link) => {
-
-            link.addEventListener(
-                "click",
-                () => {
-
-                    /*
-                        Close the sidebar before
-                        following the selected link.
-                    */
-
-                    closeSidebar();
-
-
-                    /*
-                        Update the active state.
-                    */
-
-                    sidebarLinks.forEach((item) => {
-
-                        item.classList.remove(
-                            "active"
-                        );
-
-                    });
-
-
-                    link.classList.add(
-                        "active"
-                    );
-
-                }
-            );
-
+        [nameInput, emailInput, messageInput].forEach(input => {
+            input.classList.remove("invalid");
+            input.removeAttribute("aria-invalid");
         });
 
+        let error = "";
+        let invalidInput = null;
+
+        if (fullName.length < 2 || fullName.length > 100) {
+            error = "Please enter your name (2–100 characters).";
+            invalidInput = nameInput;
+        } else if (
+            email.length > 254 ||
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+        ) {
+            error = "Please enter a valid email address.";
+            invalidInput = emailInput;
+        } else if (!message || message.length > 5000) {
+            error = "Please enter a message of 1–5,000 characters.";
+            invalidInput = messageInput;
+        }
+
+        if (invalidInput) {
+            invalidInput.classList.add("invalid");
+            invalidInput.setAttribute("aria-invalid", "true");
+            showModal("Please check your details", error);
+            return null;
+        }
+
+        return { fullName, email, message };
     }
 
+    [nameInput, emailInput, messageInput].forEach(input => {
+        input.addEventListener("input", () => {
+            input.classList.remove("invalid");
+            input.removeAttribute("aria-invalid");
+        });
+    });
 
-    /* =====================================================
-       ESCAPE KEY
-    ===================================================== */
+    // Submit contact form
+    form.addEventListener("submit", async event => {
+        event.preventDefault();
 
-    document.addEventListener(
-        "keydown",
-        (event) => {
+        if (isSending) return;
 
-            /*
-                Allow the user to close the
-                mobile sidebar with Escape.
-            */
+        const data = validateForm();
+        if (!data) return;
 
-            if (
-                event.key === "Escape" &&
-                mobileSidebar.classList.contains("open")
-            ) {
+        isSending = true;
+        submitButton.disabled = true;
+        submitButton.textContent = "Sending…";
+        formMessage.textContent = "";
+        formMessage.className = "form-message";
 
-                closeSidebar();
+        try {
+            // Send directly to the URL generated by config.js
+            const response = await fetch(CONTACT_ENDPOINT, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
 
+            const result = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(
+                    result.message ||
+                    "Unable to send your message. Please try again."
+                );
             }
 
+            form.reset();
+
+            formMessage.textContent =
+                result.message || "Your message was sent successfully.";
+            formMessage.classList.add("success");
+
+            showModal(
+                "Message Sent Successfully!",
+                result.message ||
+                "Thank you for contacting SkillConnect. We'll get back to you soon.",
+                "success"
+            );
+
+        } catch (error) {
+            showModal(
+                "Message Not Sent",
+                error.message ||
+                "Something went wrong. Please check your connection and try again."
+            );
+        } finally {
+            isSending = false;
+            submitButton.disabled = false;
+            submitButton.textContent = "Send Message";
         }
-    );
-
-
-    /* =====================================================
-       FORM SUBMISSION
-    ===================================================== */
-
-    /*
-        Listen for the form's submit event.
-
-        This happens when the user clicks:
-
-        "Send Message"
-    */
-
-    contactForm.addEventListener(
-        "submit",
-        async (event) => {
-
-
-            /* =================================================
-               PREVENT NORMAL FORM SUBMISSION
-            ================================================= */
-
-            /*
-                Normally, submitting an HTML form causes
-                the browser to reload or navigate to another
-                page.
-
-                preventDefault() stops that behaviour.
-
-                We will send the data ourselves using fetch().
-            */
-
-            event.preventDefault();
-
-
-            /* =================================================
-               CLEAR PREVIOUS MESSAGE
-            ================================================= */
-
-            /*
-                Remove any previous success/error message.
-            */
-
-            formMessage.textContent = "";
-
-            formMessage.className = "form-message";
-
-
-            /* =================================================
-               GET FORM VALUES
-            ================================================= */
-
-            /*
-                FormData collects the values from the form.
-
-                The names come from our HTML:
-
-                name
-                email
-                message
-            */
-
-            const formData =
-                new FormData(contactForm);
-
-
-            /*
-                Get the name entered by the user.
-
-                trim() removes unnecessary spaces
-                from the beginning and end.
-            */
-
-            const name =
-                formData.get("name").trim();
-
-
-            /*
-                Get the email entered by the user.
-            */
-
-            const email =
-                formData.get("email").trim();
-
-
-            /*
-                Get the message entered by the user.
-            */
-
-            const message =
-                formData.get("message").trim();
-
-
-            /* =================================================
-               FRONTEND VALIDATION
-            ================================================= */
-
-            /*
-                Check whether any required field is empty.
-            */
-
-            if (
-                !name ||
-                !email ||
-                !message
-            ) {
-
-                formMessage.textContent =
-                    "Please fill in all fields.";
-
-                formMessage.classList.add(
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            /* =================================================
-               MESSAGE LENGTH VALIDATION
-            ================================================= */
-
-            /*
-                Prevent extremely short messages.
-
-                This gives the backend cleaner data.
-            */
-
-            if (message.length < 10) {
-
-                formMessage.textContent =
-                    "Please enter a message of at least 10 characters.";
-
-                formMessage.classList.add(
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            /* =================================================
-               DISABLE SUBMIT BUTTON
-            ================================================= */
-
-            /*
-                Prevent the user from accidentally sending
-                the same message multiple times while the
-                request is processing.
-            */
-
-            submitButton.disabled = true;
-
-
-            /*
-                Change the button text while waiting
-                for the backend.
-            */
-
-            submitButton.textContent =
-                "Sending...";
-
-
-            /* =================================================
-               SEND DATA TO BACKEND
-            ================================================= */
-
-            try {
-
-
-                /*
-                    Send a POST request to:
-
-                    /api/contact
-
-                    The complete URL becomes:
-
-                    http://localhost:5000/api/contact
-                */
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/contact`,
-                        {
-
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            /*
-                                Convert our JavaScript object
-                                into JSON before sending it.
-                            */
-
-                            body: JSON.stringify({
-                                name: name,
-                                email: email,
-                                message: message
-                            })
-
-                        }
-                    );
-
-
-                /* =================================================
-                   CONVERT SERVER RESPONSE TO JAVASCRIPT
-                ================================================= */
-
-                /*
-                    The backend will return JSON.
-
-                    Example:
-
-                    {
-                        success: true,
-                        message: "Message sent successfully."
-                    }
-                */
-
-                const data =
-                    await response.json();
-
-
-                /* =================================================
-                   CHECK SERVER RESPONSE
-                ================================================= */
-
-                /*
-                    response.ok is true for successful
-                    HTTP responses such as 200.
-
-                    We also check data.success because our
-                    backend will explicitly tell us whether
-                    the operation succeeded.
-                */
-
-                if (
-                    response.ok &&
-                    data.success
-                ) {
-
-
-                    /* =============================================
-                       SUCCESS MESSAGE
-                    ============================================= */
-
-                    formMessage.textContent =
-                        data.message ||
-                        "Your message has been sent successfully.";
-
-
-                    formMessage.classList.add(
-                        "success"
-                    );
-
-
-                    /* =============================================
-                       CLEAR FORM
-                    ============================================= */
-
-                    /*
-                        Empty the form after a successful
-                        submission.
-                    */
-
-                    contactForm.reset();
-
-                } else {
-
-
-                    /* =============================================
-                       SERVER ERROR MESSAGE
-                    ============================================= */
-
-                    formMessage.textContent =
-                        data.message ||
-                        "Unable to send your message. Please try again.";
-
-
-                    formMessage.classList.add(
-                        "error"
-                    );
-
-                }
-
-
-            } catch (error) {
-
-
-                /* =================================================
-                   NETWORK / SERVER ERROR
-                ================================================= */
-
-                /*
-                    This happens when the browser cannot
-                    communicate with the backend.
-
-                    For example:
-
-                    - Backend is not running
-                    - Wrong API URL
-                    - Network problem
-                    - CORS problem
-                */
-
-                console.error(
-                    "Contact form error:",
-                    error
-                );
-
-
-                formMessage.textContent =
-                    "Unable to connect to the server. Please try again later.";
-
-
-                formMessage.classList.add(
-                    "error"
-                );
-
-
-            } finally {
-
-
-                /* =================================================
-                   ENABLE BUTTON AGAIN
-                ================================================= */
-
-                /*
-                    Whether the request succeeds or fails,
-                    allow the user to submit again.
-                */
-
-                submitButton.disabled = false;
-
-
-                /*
-                    Restore the original button text.
-                */
-
-                submitButton.textContent =
-                    "Send Message";
-
-            }
-
-        }
-    );
-
-
-    /* =====================================================
-       FOOTER YEAR
-    ===================================================== */
-
-    /*
-        Find the footer paragraph.
-    */
-
-    const footer =
-        document.querySelector("footer p");
-
-
-    /*
-        Automatically update the copyright year.
-    */
-
-    if (footer) {
-
-        const currentYear =
-            new Date().getFullYear();
-
-
-        footer.textContent =
-            `© ${currentYear} SkillConnect. All rights reserved.`;
-
-    }
-
-
-    /* =====================================================
-       PAGE LOADED MESSAGE
-    ===================================================== */
-
-    /*
-        This helps us confirm in the browser console that
-        the Contact page JavaScript loaded successfully.
-    */
-
-    console.log(
-        "SkillConnect Contact page JavaScript loaded successfully."
-    );
-
+    });
 });
