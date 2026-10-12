@@ -1,3 +1,5 @@
+"use strict";
+
 const NIGERIAN_LOCATION_SCRIPT="../worker-create-profile/nigeria-location.js";
 
 const editProfilePage=document.getElementById("editProfilePage"),
@@ -30,13 +32,15 @@ notificationIcon=document.getElementById("notificationIcon"),
 notificationTitle=document.getElementById("notificationTitle"),
 notificationText=document.getElementById("notificationText"),
 notificationButton=document.getElementById("notificationButton"),
-notificationCancelButton=document.getElementById("notificationCancelButton");
+notificationCancelButtonMobile=document.getElementById(
+"notificationCancelButtonMobile"
+);
 
 const PROFILE_ENDPOINT="/api/client/edit-profile",
 LOGOUT_ENDPOINT="/api/auth/logout";
 
 let currentClient=null,
-modalCloseAction=null,
+notificationAction=null,
 isUpdatingProfile=false,
 isLoggingOut=false;
 
@@ -167,44 +171,41 @@ stateInput.addEventListener(
 ()=>populateStateLocations()
 );
 
+// ==========================================
+// NOTIFICATION MODAL
+// Consistent with client-workers-search.
+// ==========================================
+
+const resetNotificationButtons=()=>{
+
+notificationButton.disabled=false;
+notificationCancelButtonMobile.disabled=false;
+
+notificationButton.textContent="Continue";
+notificationCancelButtonMobile.textContent="No";
+
+notificationButton.onclick=null;
+notificationCancelButtonMobile.onclick=null;
+
+};
+
 function showModal({
-type="success",
+type="info",
 title="Notification",
 message="",
-icon="✓",
-onClose=null
+icon="i",
+action=null
 }={}){
 
-notificationCard.className=`notification-card ${type}`;
+notificationCard.className="notification-card";
 
 notificationIcon.textContent=icon;
 notificationTitle.textContent=title;
 notificationText.textContent=message;
 
-modalCloseAction=onClose;
+notificationAction=action;
 
-notificationButton.onclick=null;
-notificationCancelButton.onclick=null;
-
-notificationButton.textContent="Continue";
-notificationButton.disabled=false;
-
-notificationCancelButton.hidden=true;
-notificationCancelButton.disabled=false;
-
-notificationButton.onclick=()=>{
-
-if(!notificationButton.disabled)
-closeModal();
-
-};
-
-notificationCancelButton.onclick=()=>{
-
-if(!notificationCancelButton.disabled)
-closeModal();
-
-};
+resetNotificationButtons();
 
 notificationOverlay.hidden=false;
 
@@ -216,23 +217,36 @@ function closeModal(){
 
 notificationOverlay.hidden=true;
 
-const action=modalCloseAction;
+const action=notificationAction;
 
-modalCloseAction=null;
+notificationAction=null;
 
-notificationButton.onclick=null;
-notificationCancelButton.onclick=null;
+resetNotificationButtons();
 
-notificationButton.textContent="Continue";
-notificationButton.disabled=false;
-
-notificationCancelButton.hidden=true;
-notificationCancelButton.disabled=false;
-
-if(typeof action==="function")
+if(typeof action==="function"){
 action();
+}
 
 }
+
+notificationButton.addEventListener("click",()=>{
+
+if(typeof notificationButton.onclick==="function"){
+return;
+}
+
+closeModal();
+
+});
+
+notificationCancelButtonMobile.addEventListener("click",()=>{
+
+notificationOverlay.hidden=true;
+notificationAction=null;
+
+resetNotificationButtons();
+
+});
 
 function redirectToAuthentication(){
 
@@ -244,13 +258,17 @@ function showAuthenticationError(message){
 
 showModal({
 type:"error",
-title:"Session Expired",
+title:"Authentication Required",
 message:message||"Your session has expired. Please log in again.",
 icon:"!",
-onClose:redirectToAuthentication
+action:redirectToAuthentication
 });
 
 }
+
+// ==========================================
+// RESPONSE HELPERS
+// ==========================================
 
 async function getResponseData(response){
 
@@ -271,6 +289,10 @@ function getBackendMessage(data,fallback){
 return data.message||data.error||fallback;
 
 }
+
+// ==========================================
+// PHONE HELPERS
+// ==========================================
 
 function normalizePhone(phone){
 
@@ -297,11 +319,15 @@ return /^234[789]\d{9}$/.test(phone);
 
 }
 
+// ==========================================
+// PROFILE PHOTO HELPERS
+// ==========================================
+
 function validatePhoto(file){
 
 if(!file)return null;
 
-if(file.size>510241024)
+if(file.size>5*1024*1024)
 return"Profile photo must not be more than 5 MB.";
 
 if(!file.type.startsWith("image/"))
@@ -357,6 +383,10 @@ function extractClientData(data){
 return data.client||data.data||data;
 
 }
+
+// ==========================================
+// LOAD PROFILE
+// ==========================================
 
 async function loadProfile(){
 
@@ -435,6 +465,10 @@ setPageLoading(false);
 
 }
 
+// ==========================================
+// FULL NAME HELPERS
+// ==========================================
+
 function normalizeNamePart(name){
 
 return name
@@ -474,6 +508,10 @@ return null;
 return nameParts.map(normalizeNamePart).join(" ");
 
 }
+
+// ==========================================
+// PROFILE VALIDATION
+// ==========================================
 
 function validateProfile(){
 
@@ -600,6 +638,10 @@ phone
 
 }
 
+// ==========================================
+// UPDATE PROFILE
+// ==========================================
+
 async function updateProfile(){
 
 if(isUpdatingProfile)
@@ -690,7 +732,7 @@ title:"Profile Updated",
 message:data.message||
 "Your profile has been updated successfully.",
 icon:"✓",
-onClose:()=>{
+action:()=>{
 
 window.location.reload();
 
@@ -719,6 +761,10 @@ setUpdateLoading(false);
 
 }
 
+// ==========================================
+// PROFILE PHOTO CHANGE
+// ==========================================
+
 profilePhotoInput.addEventListener(
 "change",
 ()=>{
@@ -727,8 +773,9 @@ const file=profilePhotoInput.files[0];
 
 if(!file){
 
-photoFileName.textContent=
-"No new photo selected";
+if(photoFileName){
+photoFileName.textContent="No new photo selected";
+}
 
 return;
 
@@ -740,8 +787,9 @@ if(error){
 
 profilePhotoInput.value="";
 
-photoFileName.textContent=
-"No new photo selected";
+if(photoFileName){
+photoFileName.textContent="No new photo selected";
+}
 
 showModal({
 type:"error",
@@ -754,16 +802,21 @@ return;
 
 }
 
+if(photoFileName){
 photoFileName.textContent=file.name;
+}
 
-profilePhoto.src=
-URL.createObjectURL(file);
+profilePhoto.src=URL.createObjectURL(file);
 
 profilePhoto.hidden=false;
 profilePhotoPlaceholder.hidden=true;
 
 }
 );
+
+// ==========================================
+// PROFILE FORM SUBMISSION
+// ==========================================
 
 profileForm.addEventListener(
 "submit",
@@ -775,6 +828,10 @@ updateProfile();
 
 }
 );
+
+// ==========================================
+// NAVIGATION
+// ==========================================
 
 findWorkersBtn.addEventListener(
 "click",
@@ -829,7 +886,15 @@ menuBtn.setAttribute(
 
 menuBtn.addEventListener(
 "click",
-openMobileMenu
+()=>{
+
+if(sidebar.classList.contains("active")){
+closeMobileMenu();
+}else{
+openMobileMenu();
+}
+
+}
 );
 
 closeMenuBtn.addEventListener(
@@ -842,56 +907,41 @@ overlay.addEventListener(
 closeMobileMenu
 );
 
-logoutBtn.addEventListener(
-"click",
-()=>{
+// ==========================================
+// LOGOUT FLOW
+// Consistent with client-workers-search.
+// ==========================================
 
-if(isLoggingOut)
+logoutBtn.addEventListener("click",()=>{
+
+closeMobileMenu();
+
+if(isLoggingOut){
 return;
+}
 
 showModal({
-type:"confirm",
-title:"Confirm Logout",
-message:"Are you sure you want to log out?",
-icon:"!"
+type:"info",
+title:"Logout",
+message:"Are you sure you want to logout?",
+icon:"i"
 });
 
 notificationButton.textContent="Yes";
+notificationCancelButtonMobile.textContent="No";
 
-notificationCancelButton.hidden=false;
+notificationButton.onclick=async()=>{
 
-notificationButton.onclick=()=>{
-
-if(isLoggingOut)
+if(isLoggingOut){
 return;
+}
 
 isLoggingOut=true;
 
 notificationButton.disabled=true;
-notificationCancelButton.disabled=true;
+notificationCancelButtonMobile.disabled=true;
 
-notificationButton.innerHTML=
-'<span class="button-loader"></span> Logging out...';
-
-logoutUser();
-
-};
-
-notificationCancelButton.onclick=()=>{
-
-if(isLoggingOut)
-return;
-
-closeModal();
-
-};
-
-}
-);
-
-async function logoutUser(){
-
-logoutBtn.disabled=true;
+notificationButton.textContent="Connecting…";
 
 try{
 
@@ -902,31 +952,30 @@ method:"POST"
 }
 );
 
-const data=await getResponseData(response);
+if(!response.ok){
 
-if(response.status===401){
+let message="Logout failed. Please try again.";
 
-isLoggingOut=false;
+try{
 
-closeModal();
+const data=await response.json();
 
-showAuthenticationError(
-"Your login session has expired. Please log in again."
-);
+if(data.message){
+message=data.message;
+}
 
-return;
+}catch(error){
+
+// Keep the default error message.
 
 }
 
-if(!response.ok){
+isLoggingOut=false;
 
 showModal({
 type:"error",
-title:"Logout Failed",
-message:getBackendMessage(
-data,
-"Unable to log out. Please try again."
-),
+title:"Logout Error",
+message,
 icon:"!"
 });
 
@@ -941,47 +990,57 @@ window.location.href=
 
 console.error("Logout error:",error);
 
+isLoggingOut=false;
+
 showModal({
 type:"error",
-title:"Logout Failed",
+title:"Connection Error",
 message:"Unable to connect to the server. Please try again.",
 icon:"!"
 });
 
-}finally{
+}
+
+};
+
+notificationCancelButtonMobile.onclick=()=>{
+
+notificationOverlay.hidden=true;
+notificationAction=null;
 
 isLoggingOut=false;
 
-logoutBtn.disabled=false;
+resetNotificationButtons();
 
-notificationButton.disabled=false;
-notificationCancelButton.disabled=false;
+};
 
-notificationButton.textContent="Continue";
+});
 
-}
-
-}
+// ==========================================
+// AUTHENTICATION SESSION EXPIRED
+// ==========================================
 
 window.addEventListener(
 "authSessionExpired",
 ()=>{
 
-if(
-!isUpdatingProfile&&
-!isLoggingOut
-){
+if(isLoggingOut){
+return;
+}
+
+if(isUpdatingProfile){
+return;
+}
 
 showAuthenticationError(
-"Your login session has expired. Please log in again."
+"Your session has expired. Please log in again."
 );
 
 }
-
-}
 );
 
-document.addEventListener(
-"DOMContentLoaded",
-loadProfile
-);
+// ==========================================
+// INITIAL PAGE LOAD
+// ==========================================
+
+loadProfile();
