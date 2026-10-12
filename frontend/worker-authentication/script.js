@@ -1,248 +1,480 @@
-document.addEventListener("DOMContentLoaded",()=>{initializeTabs();initializePasswordToggles();initializeLogin();initializeSignup();initializeForgotPassword();initializeGoogleButtons();initializeNotificationModal();initializeForgotModal();});
-const getElement=id=>document.getElementById(id);
-let pendingRedirect=null;
+"use strict";
 
-function validateEmail(email){
-if(!email){showModal("Email Required","Please enter your email address.");return false;}
-if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showModal("Invalid Email","Please enter a valid email address.");return false;}
-return true;
-}
-
-function initializeTabs(){
-document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>{
-document.querySelectorAll(".tab").forEach(item=>item.classList.remove("active"));
-document.querySelectorAll(".auth-form").forEach(form=>form.classList.remove("active"));
-tab.classList.add("active");
-getElement(tab.dataset.tab==="login"?"loginForm":"signupForm").classList.add("active");
-}));
-}
-
-function initializePasswordToggles(){
-[["toggleLoginPassword","loginPassword"],["toggleSignupPassword","signupPassword"],["toggleConfirmPassword","confirmPassword"]].forEach(([buttonId,inputId])=>{
-const button=getElement(buttonId),input=getElement(inputId);
-button.addEventListener("click",()=>{
-const hidden=input.type==="password";
-input.type=hidden?"text":"password";
-button.textContent=hidden?"Hide":"Show";
+document.addEventListener("DOMContentLoaded", () => {
+    initializeTabs();
+    initializePasswordToggles();
+    initializeLogin();
+    initializeSignup();
+    initializeForgotPassword();
+    initializeGoogleButtons();
+    initializeNotificationModal();
+    initializeForgotModal();
 });
-});
+
+const getElement = id => document.getElementById(id);
+
+let pendingRedirect = null;
+let passwordResetCooldownTimer = null;
+
+function validateEmail(email) {
+    if (!email) {
+        showModal("Email Required", "Please enter your email address.");
+        return false;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showModal("Invalid Email", "Please enter a valid email address.");
+        return false;
+    }
+
+    return true;
 }
 
-function setLoading(button,loading,text){
-if(loading){
-button.disabled=true;
-button.dataset.text=button.textContent;
-button.textContent=text;
-button.classList.add("loading");
-}else{
-button.disabled=false;
-button.textContent=button.dataset.text||text;
-button.classList.remove("loading");
-}
+function initializeTabs() {
+    document.querySelectorAll(".tab").forEach(tab =>
+        tab.addEventListener("click", () => {
+            document.querySelectorAll(".tab").forEach(item =>
+                item.classList.remove("active")
+            );
+
+            document.querySelectorAll(".auth-form").forEach(form =>
+                form.classList.remove("active")
+            );
+
+            tab.classList.add("active");
+
+            getElement(
+                tab.dataset.tab === "login" ? "loginForm" : "signupForm"
+            ).classList.add("active");
+        })
+    );
 }
 
-async function postRequest(endpoint,body){
-const response=await fetch(API_ENDPOINT(endpoint),{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-credentials:"include",
-body:JSON.stringify(body)
-});
-const data=await response.json();
-return{response,data};
+function initializePasswordToggles() {
+    [
+        ["toggleLoginPassword", "loginPassword"],
+        ["toggleSignupPassword", "signupPassword"],
+        ["toggleConfirmPassword", "confirmPassword"]
+    ].forEach(([buttonId, inputId]) => {
+        const button = getElement(buttonId);
+        const input = getElement(inputId);
+
+        button.addEventListener("click", () => {
+            const hidden = input.type === "password";
+
+            input.type = hidden ? "text" : "password";
+            button.textContent = hidden ? "Hide" : "Show";
+        });
+    });
 }
 
-function handleConnectionError(error,button){
-console.error(error);
-setLoading(button,false);
-showModal("Connection Error","Unable to connect to the server. Please try again.");
+function setLoading(button, loading, text) {
+    if (loading) {
+        button.disabled = true;
+        button.dataset.text = button.textContent;
+        button.textContent = text;
+        button.classList.add("loading");
+    } else {
+        button.disabled = false;
+        button.textContent = button.dataset.text || text;
+        button.classList.remove("loading");
+    }
 }
 
-function saveWorkerEmail(email){
-sessionStorage.setItem("workerEmail",email);
+async function postRequest(endpoint, body) {
+    const response = await fetch(API_ENDPOINT(endpoint), {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        credentials: "include",
+        body: JSON.stringify(body)
+    });
+
+    const data = await response.json();
+
+    return { response, data };
 }
 
-function showModal(title,message,type="error",redirect=null){
-getElement("notificationTitle").textContent=title;
-getElement("notificationMessage").textContent=message;
-getElement("notificationIcon").textContent=type==="success"?"✓":"!";
-pendingRedirect=redirect;
-const modal=getElement("notificationModal");
-modal.classList.add("show");
-modal.setAttribute("aria-hidden","false");
+function handleConnectionError(error, button) {
+    console.error(error);
+
+    setLoading(button, false);
+
+    showModal(
+        "Connection Error",
+        "Unable to connect to the server. Please try again."
+    );
 }
 
-function closeNotificationModal(){
-const modal=getElement("notificationModal");
-modal.classList.remove("show");
-modal.setAttribute("aria-hidden","true");
-const redirect=pendingRedirect;
-pendingRedirect=null;
-if(redirect)window.location.href=redirect;
+function saveWorkerEmail(email) {
+    sessionStorage.setItem("workerEmail", email);
 }
 
-function initializeNotificationModal(){
-getElement("closeNotification").addEventListener("click",closeNotificationModal);
-getElement("notificationButton").addEventListener("click",closeNotificationModal);
+function showModal(title, message, type = "error", redirect = null) {
+    getElement("notificationTitle").textContent = title;
+    getElement("notificationMessage").textContent = message;
+    getElement("notificationIcon").textContent =
+        type === "success" ? "✓" : "!";
+
+    pendingRedirect = redirect;
+
+    const modal = getElement("notificationModal");
+
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
+}
+
+function closeNotificationModal() {
+    const modal = getElement("notificationModal");
+
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden", "true");
+
+    const redirect = pendingRedirect;
+    pendingRedirect = null;
+
+    if (redirect) {
+        window.location.href = redirect;
+    }
+}
+
+function initializeNotificationModal() {
+    getElement("closeNotification").addEventListener(
+        "click",
+        closeNotificationModal
+    );
+
+    getElement("notificationButton").addEventListener(
+        "click",
+        closeNotificationModal
+    );
 }
 
 /* LOGIN */
 
-function initializeLogin(){
-getElement("loginForm").addEventListener("submit",async event=>{
-event.preventDefault();
+function initializeLogin() {
+    getElement("loginForm").addEventListener("submit", async event => {
+        event.preventDefault();
 
-const button=getElement("loginButton");
-const email=getElement("loginEmail").value.trim().toLowerCase();
-const password=getElement("loginPassword").value;
+        const button = getElement("loginButton");
+        const email = getElement("loginEmail").value.trim().toLowerCase();
+        const password = getElement("loginPassword").value;
 
-if(!validateEmail(email))return;
-if(!password){showModal("Password Required","Please enter your password.");return;}
+        if (!validateEmail(email)) return;
 
-setLoading(button,true,"Connecting...");
+        if (!password) {
+            showModal("Password Required", "Please enter your password.");
+            return;
+        }
 
-try{
-const{response,data}=await postRequest("/api/worker-authentication/login",{email,password});
+        setLoading(button, true, "Connecting...");
 
-if(!response.ok){
-setLoading(button,false);
-showModal("Login Failed",data.message||"Unable to authenticate your account.");
-return;
-}
+        try {
+            const { response, data } = await postRequest(
+                "/api/worker-authentication/login",
+                { email, password }
+            );
 
-if(data.nextStep==="email-verification"){
-saveWorkerEmail(data.email||email);
-setLoading(button,false);
-showModal("Verify Your Email",data.message||"A new verification code has been sent to your email.","success","../worker-email-otp/index.html");
-return;
-}
+            if (!response.ok) {
+                setLoading(button, false);
 
-if(data.nextStep==="profile"){
-saveWorkerEmail(data.email||email);
-setLoading(button,false);
-showModal("Complete Your Profile",data.message||"Please complete your worker profile.","success","../worker-create-profile/index.html");
-return;
-}
+                showModal(
+                    "Login Failed",
+                    data.message || "Unable to authenticate your account."
+                );
 
-if(data.nextStep==="authenticated"){
-setLoading(button,false);
-showModal("Login Successful",data.message||`Welcome back, ${data.fullName}.`,"success","../worker-dashboard/index.html");
-return;
-}
+                return;
+            }
 
-setLoading(button,false);
-showModal("Authentication Error",data.message||"Unable to determine your account status.");
-}catch(error){
-handleConnectionError(error,button);
-}
-});
+            if (data.nextStep === "email-verification") {
+                saveWorkerEmail(data.email || email);
+                setLoading(button, false);
+
+                showModal(
+                    "Verify Your Email",
+                    data.message || "A new verification code has been sent to your email.",
+                    "success",
+                    "../worker-email-otp/index.html"
+                );
+
+                return;
+            }
+
+            if (data.nextStep === "profile") {
+                saveWorkerEmail(data.email || email);
+                setLoading(button, false);
+
+                showModal(
+                    "Complete Your Profile",
+                    data.message || "Please complete your worker profile.",
+                    "success",
+                    "../worker-create-profile/index.html"
+                );
+
+                return;
+            }
+
+            if (data.nextStep === "authenticated") {
+                setLoading(button, false);
+
+                showModal(
+                    "Login Successful",
+                    data.message || `Welcome back, ${data.fullName}.`,
+                    "success",
+                    "../worker-dashboard/index.html"
+                );
+
+                return;
+            }
+
+            setLoading(button, false);
+
+            showModal(
+                "Authentication Error",
+                data.message || "Unable to determine your account status."
+            );
+
+        } catch (error) {
+            handleConnectionError(error, button);
+        }
+    });
 }
 
 /* SIGN UP */
 
-function initializeSignup(){
-getElement("signupForm").addEventListener("submit",async event=>{
-event.preventDefault();
+function initializeSignup() {
+    getElement("signupForm").addEventListener("submit", async event => {
+        event.preventDefault();
 
-const button=getElement("signupButton");
-const email=getElement("signupEmail").value.trim().toLowerCase();
-const password=getElement("signupPassword").value;
-const confirmPassword=getElement("confirmPassword").value;
-const termsAccepted=getElement("termsCheckbox").checked;
+        const button = getElement("signupButton");
+        const email = getElement("signupEmail").value.trim().toLowerCase();
+        const password = getElement("signupPassword").value;
+        const confirmPassword = getElement("confirmPassword").value;
+        const termsAccepted = getElement("termsCheckbox").checked;
 
-if(!validateEmail(email))return;
-if(!password){showModal("Password Required","Please enter your password.");return;}
-if(password.length<8){showModal("Password Too Short","Password must be at least 8 characters.");return;}
-if(!confirmPassword){showModal("Confirm Password Required","Please confirm your password.");return;}
-if(password!==confirmPassword){showModal("Passwords Do Not Match","Please make sure both passwords match.");return;}
-if(!termsAccepted){showModal("Agreement Required","You must agree to the Terms and Privacy Policy.");return;}
+        if (!validateEmail(email)) return;
 
-setLoading(button,true,"Connecting...");
+        if (!password) {
+            showModal("Password Required", "Please enter your password.");
+            return;
+        }
 
-try{
-const{response,data}=await postRequest("/api/worker-authentication/signup",{email,password,confirmPassword,termsAccepted});
+        if (password.length < 8) {
+            showModal("Password Too Short", "Password must be at least 8 characters.");
+            return;
+        }
 
-if(!response.ok){
-setLoading(button,false);
-showModal("Account Creation Failed",data.message||"Unable to create your account.");
-return;
-}
+        if (!confirmPassword) {
+            showModal("Confirm Password Required", "Please confirm your password.");
+            return;
+        }
 
-saveWorkerEmail(data.email||email);
-setLoading(button,false);
-showModal("Account Created",data.message||"Your verification code has been sent to your email.","success","../worker-email-otp/index.html");
-}catch(error){
-handleConnectionError(error,button);
-}
-});
+        if (password !== confirmPassword) {
+            showModal("Passwords Do Not Match", "Please make sure both passwords match.");
+            return;
+        }
+
+        if (!termsAccepted) {
+            showModal("Agreement Required", "You must agree to the Terms and Privacy Policy.");
+            return;
+        }
+
+        setLoading(button, true, "Connecting...");
+
+        try {
+            const { response, data } = await postRequest(
+                "/api/worker-authentication/signup",
+                { email, password, confirmPassword, termsAccepted }
+            );
+
+            if (!response.ok) {
+                setLoading(button, false);
+
+                showModal(
+                    "Account Creation Failed",
+                    data.message || "Unable to create your account."
+                );
+
+                return;
+            }
+
+            saveWorkerEmail(data.email || email);
+            setLoading(button, false);
+
+            showModal(
+                "Account Created",
+                data.message || "Your verification code has been sent to your email.",
+                "success",
+                "../worker-email-otp/index.html"
+            );
+
+        } catch (error) {
+            handleConnectionError(error, button);
+        }
+    });
 }
 
 /* FORGOT PASSWORD */
 
-function initializeForgotPassword(){
-getElement("forgotForm").addEventListener("submit",async event=>{
-event.preventDefault();
+function initializeForgotPassword() {
+    getElement("forgotForm").addEventListener("submit", async event => {
+        event.preventDefault();
 
-const button=getElement("forgotButton");
-const email=getElement("resetEmail").value.trim().toLowerCase();
+        const button = getElement("forgotButton");
+        const email = getElement("resetEmail").value.trim().toLowerCase();
 
-if(!validateEmail(email))return;
+        if (!validateEmail(email)) return;
 
-setLoading(button,true,"Connecting...");
+        setLoading(button, true, "Connecting...");
 
-try{
-const{response,data}=await postRequest("/api/worker-authentication/forgot-password",{email});
+        try {
+            const { response, data } = await postRequest(
+                "/api/worker-authentication/forgot-password",
+                { email }
+            );
 
-if(!response.ok){
-setLoading(button,false);
-closeForgotModal();
-showModal("Request Failed",data.message||"Unable to process your request.");
-return;
+            if (!response.ok) {
+                setLoading(button, false);
+                closeForgotModal();
+
+                const cooldownValue =
+                    data.cooldownUntil || data.coolDownUntil;
+
+                if (cooldownValue) {
+                    const cooldownDate = new Date(cooldownValue);
+
+                    if (
+                        !Number.isNaN(cooldownDate.getTime()) &&
+                        cooldownDate.getTime() > Date.now()
+                    ) {
+                        showModal(
+                            "Resend Cooldown Active",
+                            data.message ||
+                                "You have reached the password reset OTP resend limit. Please try again after the cooldown period."
+                        );
+
+                        startPasswordResetCooldownCountdown(cooldownDate);
+                        return;
+                    }
+                }
+
+                showModal(
+                    "Request Failed",
+                    data.message || "Unable to process your request."
+                );
+
+                return;
+            }
+
+            saveWorkerEmail(data.email || email);
+            setLoading(button, false);
+            closeForgotModal();
+
+            showModal(
+                "Verification Code Sent",
+                data.message || "A password reset code has been sent to your email.",
+                "success",
+                "../worker-password-reset-otp/index.html"
+            );
+
+        } catch (error) {
+            handleConnectionError(error, button);
+        }
+    });
 }
 
-saveWorkerEmail(data.email||email);
-setLoading(button,false);
-closeForgotModal();
-showModal("Verification Code Sent",data.message||"A password reset code has been sent to your email.","success","../worker-password-reset-otp/index.html");
-}catch(error){
-handleConnectionError(error,button);
+function startPasswordResetCooldownCountdown(cooldownDate) {
+    if (passwordResetCooldownTimer) {
+        clearInterval(passwordResetCooldownTimer);
+        passwordResetCooldownTimer = null;
+    }
+
+    const messageElement = getElement("notificationMessage");
+    const countdownElement = document.createElement("span");
+
+    countdownElement.style.display = "block";
+    countdownElement.style.marginTop = "12px";
+    countdownElement.style.fontWeight = "600";
+
+    messageElement.appendChild(countdownElement);
+
+    function updateCountdown() {
+        const remainingMilliseconds =
+            cooldownDate.getTime() - Date.now();
+
+        if (remainingMilliseconds <= 0) {
+            if (passwordResetCooldownTimer) {
+                clearInterval(passwordResetCooldownTimer);
+                passwordResetCooldownTimer = null;
+            }
+
+            countdownElement.textContent =
+                "The cooldown has ended. You can request another password reset code.";
+
+            return;
+        }
+
+        const totalSeconds = Math.ceil(remainingMilliseconds / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        countdownElement.textContent =
+            `Time remaining: ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    updateCountdown();
+
+    if (cooldownDate.getTime() > Date.now()) {
+        passwordResetCooldownTimer = setInterval(updateCountdown, 1000);
+    }
 }
-});
+
+function initializeForgotModal() {
+    const modal = getElement("forgotModal");
+
+    getElement("forgotPassword").addEventListener("click", () => {
+        modal.classList.add("show");
+        modal.setAttribute("aria-hidden", "false");
+    });
+
+    getElement("closeModal").addEventListener("click", closeForgotModal);
+    getElement("forgotOverlay").addEventListener("click", closeForgotModal);
 }
 
-function initializeForgotModal(){
-const modal=getElement("forgotModal");
+function closeForgotModal() {
+    const modal = getElement("forgotModal");
 
-getElement("forgotPassword").addEventListener("click",()=>{
-modal.classList.add("show");
-modal.setAttribute("aria-hidden","false");
-});
-
-getElement("closeModal").addEventListener("click",closeForgotModal);
-getElement("forgotOverlay").addEventListener("click",closeForgotModal);
-}
-
-function closeForgotModal(){
-const modal=getElement("forgotModal");
-modal.classList.remove("show");
-modal.setAttribute("aria-hidden","true");
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden", "true");
 }
 
 /* CONTINUE WITH GOOGLE */
 
-function initializeGoogleButtons(){
-[getElement("googleLoginButton"),getElement("googleSignupButton")].forEach(button=>{
-button.addEventListener("click",()=>{
-button.disabled=true;
-button.textContent="Connecting...";
-button.classList.add("loading");
-window.location.href=API_ENDPOINT("/api/worker-authentication/google");
-});
-});
+function initializeGoogleButtons() {
+    [
+        getElement("googleLoginButton"),
+        getElement("googleSignupButton")
+    ].forEach(button => {
+        button.addEventListener("click", () => {
+            button.disabled = true;
+            button.textContent = "Connecting...";
+            button.classList.add("loading");
+
+            window.location.href = API_ENDPOINT(
+                "/api/worker-authentication/google"
+            );
+        });
+    });
 }
 
-document.addEventListener("keydown",event=>{
-if(event.key!=="Escape")return;
-const modal=getElement("forgotModal");
-if(modal.classList.contains("show"))closeForgotModal();
+document.addEventListener("keydown", event => {
+    if (event.key !== "Escape") return;
+
+    const modal = getElement("forgotModal");
+
+    if (modal.classList.contains("show")) {
+        closeForgotModal();
+    }
 });

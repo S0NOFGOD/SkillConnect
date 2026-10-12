@@ -272,58 +272,111 @@ return res.status(500).json({success:false,message:"An error occurred while logg
 
 /* FORGOT PASSWORD */
 
-const forgotPassword=async(req,res)=>{
-try{
-const{email}=req.body;
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
 
-if(!email)
-return res.status(400).json({success:false,message:"Email is required."});
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: "Email is required."
+            });
+        }
 
-const normalizedEmail=email.trim().toLowerCase();
+        const normalizedEmail = email.trim().toLowerCase();
 
-const worker=await Worker.findOne({email:normalizedEmail});
+        const worker = await Worker.findOne({
+            email: normalizedEmail
+        });
 
-if(!worker)
-return res.status(404).json({
-success:false,
-message:"No worker account was found with this email address."
-});
+        if (!worker) {
+            return res.status(404).json({
+                success: false,
+                message: "No worker account was found with this email address."
+            });
+        }
 
-if(worker.accountType==="googleId")
-return res.status(400).json({
-success:false,
-message:"This account uses Google authentication. Please continue with Google."
-});
+        if (worker.accountType === "googleId") {
+            return res.status(400).json({
+                success: false,
+                message: "This account uses Google authentication. Please continue with Google."
+            });
+        }
 
-const{otp,expiresAt}=generateOTPData();
+        const now = new Date();
 
-await sendOTPEmail({
-email:worker.email,
-otp,
-type:"password-reset"
-});
+        const attempts = worker.otpResendAttempts;
+        const cooldownUntil = attempts?.coolDownUntil;
+        let resendCount = attempts?.passwordResetOtpResendCount || 0;
 
-worker.passwordResetOtpHash=hashOTP(otp);
-worker.passwordResetOtpExpires=expiresAt;
-worker.passwordResetVerified=false;
-worker.passwordResetVerifiedAt=null;
-worker.resetAuthorizationExpires=null;
+        // 1. Check whether the 24-hour cooldown is still active.
+        if (cooldownUntil && new Date(cooldownUntil).getTime() > now.getTime()) {
+            return res.status(429).json({
+                success: false,
+                message: "You have reached the password reset OTP resend limit. Please try again after the cooldown period.",
+                cooldownUntil: new Date(cooldownUntil).toISOString()
+            });
+        }
 
-await worker.save();
+        // 2. If the previous cooldown has expired, reset the counter.
+        if (cooldownUntil && new Date(cooldownUntil).getTime() <= now.getTime()) {
+            attempts.coolDownUntil = null;
+            attempts.passwordResetOtpResendCount = 0;
+            resendCount = 0;
+        }
 
-return res.status(200).json({
-success:true,
-email:worker.email,
-message:"Verification code has been sent to your email."
-});
+        // 3. Four OTP sends are allowed. The next request starts a 24-hour cooldown.
+        if (resendCount >= 4) {
+            const newCooldownUntil = new Date(
+                now.getTime() + 24 * 60 * 60 * 1000
+            );
 
-}catch(error){
-console.error("Worker forgot password error:",error);
-return res.status(500).json({
-success:false,
-message:"An error occurred while processing your password reset request."
-});
-}
+            attempts.coolDownUntil = newCooldownUntil;
+
+            await worker.save();
+
+            return res.status(429).json({
+                success: false,
+                message: "You have reached the password reset OTP resend limit. Please try again after the cooldown period.",
+                cooldownUntil: newCooldownUntil.toISOString()
+            });
+        }
+
+        // 4. Generate the OTP.
+        const { otp, expiresAt } = generateOTPData();
+
+        // 5. Send the OTP before incrementing the counter.
+        await sendOTPEmail({
+            email: worker.email,
+            otp,
+            type: "password-reset"
+        });
+
+        // 6. Save the OTP and increment the resend counter.
+        worker.passwordResetOtpHash = hashOTP(otp);
+        worker.passwordResetOtpExpires = expiresAt;
+        worker.passwordResetVerified = false;
+        worker.passwordResetVerifiedAt = null;
+        worker.resetAuthorizationExpires = null;
+
+        attempts.passwordResetOtpResendCount = resendCount + 1;
+
+        await worker.save();
+
+        return res.status(200).json({
+            success: true,
+            email: worker.email,
+            message: "Verification code has been sent to your email."
+        });
+
+    } catch (error) {
+        console.error("Worker forgot password error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while processing your password reset request."
+        });
+    }
 };
 
 /* GOOGLE START */

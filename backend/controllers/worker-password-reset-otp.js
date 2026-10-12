@@ -277,7 +277,6 @@ const resendPasswordResetOTP = async (req, res) => {
     try {
         const { email } = req.body || {};
 
-        // Validate email before querying MongoDB.
         if (!isValidEmail(email)) {
             return res.status(400).json({
                 success: false,
@@ -287,7 +286,6 @@ const resendPasswordResetOTP = async (req, res) => {
 
         const normalizedEmail = normalizeEmail(email);
 
-        // Find worker by email.
         const worker = await Worker.findOne({
             email: normalizedEmail
         });
@@ -299,19 +297,24 @@ const resendPasswordResetOTP = async (req, res) => {
             });
         }
 
+        if (worker.accountType === "googleId") {
+            return res.status(400).json({
+                success: false,
+                message: "This account uses Google authentication. Please continue with Google."
+            });
+        }
+
         const now = new Date();
 
+        const attempts = worker.otpResendAttempts;
+
         let resendCount = Number(
-            worker.get(
-                "otpResendAttempts.passwordResetOtpResendCount"
-            ) ?? 0
+            attempts?.passwordResetOtpResendCount ?? 0
         );
 
-        let cooldownUntil = worker.get(
-            "otpResendAttempts.coolDownUntil"
-        );
+        const cooldownUntil = attempts?.coolDownUntil;
 
-        // Check whether the 24-hour cooldown is active.
+        // 1. Block the request if the cooldown is active.
         if (
             cooldownUntil &&
             new Date(cooldownUntil).getTime() > now.getTime()
@@ -325,82 +328,64 @@ const resendPasswordResetOTP = async (req, res) => {
             });
         }
 
-        // A completed cooldown starts a new resend window.
-        if (cooldownUntil) {
-            worker.set(
-                "otpResendAttempts.passwordResetOtpResendCount",
-                0
-            );
-
-            worker.set(
-                "otpResendAttempts.coolDownUntil",
-                null
-            );
+        // 2. Reset the counter after the cooldown expires.
+        if (
+            cooldownUntil &&
+            new Date(cooldownUntil).getTime() <= now.getTime()
+        ) {
+            attempts.coolDownUntil = null;
+            attempts.passwordResetOtpResendCount = 0;
 
             resendCount = 0;
-            cooldownUntil = null;
-
-            await worker.save();
         }
 
-        // If three resends have already been used,
-        // start the 24-hour cooldown and block this request.
-        if (resendCount >= MAX_RESEND_ATTEMPTS) {
+        // 3. If four OTP sends have already been used,
+        // start a 24-hour cooldown and block this request.
+        if (resendCount >= 4) {
             const newCooldownUntil = new Date(
-                Date.now() +
-                RESEND_COOLDOWN_HOURS * 60 * 60 * 1000
+                now.getTime() + 24 * 60 * 60 * 1000
             );
 
-            worker.set(
-                "otpResendAttempts.coolDownUntil",
-                newCooldownUntil
-            );
+            attempts.coolDownUntil = newCooldownUntil;
 
             await worker.save();
 
             return res.status(429).json({
                 success: false,
-                message: "You have reached the password reset OTP resend limit. Please try again after 24 hours.",
+                message: "You have reached the password reset OTP resend limit. Please try again after the cooldown period.",
                 cooldownUntil: newCooldownUntil.toISOString()
             });
         }
 
-        // Generate a fresh OTP and prepare its expiry.
+        // 4. Generate the OTP.
         const otp = generateOTP();
         const otpHash = hashOTP(otp);
         const otpExpires = createExpiry(OTP_EXPIRY_MINUTES);
 
-        // Reserve this resend attempt before sending the email.
-        // The database count is kept separate from phone OTPs.
-        worker.set(
-            "otpResendAttempts.passwordResetOtpResendCount",
-            resendCount + 1
-        );
-
-        worker.set(
-            "otpResendAttempts.coolDownUntil",
-            null
-        );
-
+        // 5. Save the OTP and increment the resend counter.
         worker.passwordResetOtpHash = otpHash;
         worker.passwordResetOtpExpires = otpExpires;
 
-        // Invalidate any previous reset authorization.
         worker.resetAuthorizationExpires = null;
         worker.passwordResetVerified = false;
         worker.passwordResetVerifiedAt = null;
 
+        attempts.passwordResetOtpResendCount = resendCount + 1;
+        attempts.coolDownUntil = null;
+
         await worker.save();
 
+        // 6. Send the OTP email.
         try {
             await sendOTPEmail({
                 email: worker.email,
                 otp
             });
         } catch (emailError) {
-            // Do not leave an unsent OTP valid.
+            // Invalidate the OTP if email delivery fails.
             worker.passwordResetOtpHash = null;
             worker.passwordResetOtpExpires = null;
+
             await worker.save();
 
             throw emailError;
@@ -410,6 +395,7 @@ const resendPasswordResetOTP = async (req, res) => {
             success: true,
             message: "A new password reset code has been sent to your email."
         });
+
     } catch (error) {
         console.error(
             "Worker resend password reset OTP error:",
@@ -422,7 +408,6 @@ const resendPasswordResetOTP = async (req, res) => {
         });
     }
 };
-
 // ==========================================
 // EXPORT CONTROLLERS
 // ==========================================

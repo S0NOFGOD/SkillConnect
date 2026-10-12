@@ -239,19 +239,20 @@ async function handleResendOTP(event) {
             if (data.cooldownUntil) {
                 const cooldownDate = new Date(data.cooldownUntil);
 
-                if (!Number.isNaN(cooldownDate.getTime())) {
-                    startCooldownCountdown(cooldownDate);
-                }
+                if (
+                    !Number.isNaN(cooldownDate.getTime()) &&
+                    cooldownDate.getTime() > Date.now()
+                ) {
+                    showModal("error","Resend Cooldown Active",
+                        
+                    "You have reached the password reset OTP resend limit. You must wait until the cooldown expires.",
+                    () => {
+                        window.location.href = WORKER_AUTH_URL;
+                    });
 
-                showModal(
-                    "error",
-                    "Resend Cooldown Active",
-                    getCooldownMessage(
-                        data.cooldownUntil,
-                        data.message
-                    )
-                );
-                return;
+startCooldownCountdown(cooldownDate, true);
+return;
+                }
             }
 
             showModal(
@@ -400,7 +401,7 @@ function startCountdown() {
     }, 1000);
 }
 
-function startCooldownCountdown(cooldownDate) {
+function startCooldownCountdown(cooldownDate, displayInModal = false) {
     if (countdownTimer) {
         clearInterval(countdownTimer);
         countdownTimer = null;
@@ -411,21 +412,47 @@ function startCooldownCountdown(cooldownDate) {
         resendOTP.textContent = "Resend OTP";
     }
 
+    let modalCountdown = null;
+
+    if (displayInModal && messageModalText) {
+        modalCountdown = document.createElement("span");
+
+        modalCountdown.className = "modal-cooldown-countdown";
+
+        modalCountdown.style.display = "block";
+        modalCountdown.style.marginTop = "12px";
+        modalCountdown.style.fontWeight = "600";
+        modalCountdown.style.lineHeight = "1.6";
+
+        modalCountdown.setAttribute("role", "timer");
+        modalCountdown.setAttribute("aria-live", "off");
+
+        messageModalText.appendChild(modalCountdown);
+    }
+
     function updateCooldown() {
         const remainingMilliseconds = cooldownDate.getTime() - Date.now();
 
         if (remainingMilliseconds <= 0) {
-            clearInterval(countdownTimer);
-            countdownTimer = null;
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+                countdownTimer = null;
+            }
 
             if (resendOTP) {
                 resendOTP.classList.remove("disabled");
                 resendOTP.textContent = "Resend OTP";
             }
 
+            const expiredMessage =
+                "The cooldown has ended. You can request another OTP.";
+
             if (countdown) {
-                countdown.textContent =
-                    "The cooldown has ended. You can request another OTP.";
+                countdown.textContent = expiredMessage;
+            }
+
+            if (modalCountdown) {
+                modalCountdown.textContent = expiredMessage;
             }
 
             return;
@@ -436,9 +463,17 @@ function startCooldownCountdown(cooldownDate) {
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
 
+        const remainingTime =
+            `${hours}h ${minutes}m ${seconds}s`;
+
         if (countdown) {
             countdown.textContent =
-                `Resend unavailable for ${hours}h ${minutes}m ${seconds}s`;
+                `Resend unavailable for ${remainingTime}`;
+        }
+
+        if (modalCountdown) {
+            modalCountdown.textContent =
+                `Time remaining: ${remainingTime}`;
         }
     }
 
