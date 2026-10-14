@@ -65,14 +65,16 @@ function redirectToLogin(){
     window.location.href="../worker-authentication/index.html";
 }
 
-window.addEventListener("authSessionExpired",()=>{
+function handleAuthenticationExpiry(){
     sessionExpired=true;
     stopCountdown();
 
     setButtonLoading(verifyButton,false,"Verify Phone");
     verifyButton.disabled=true;
+
     resendOTP.classList.add("disabled");
     resendOTP.setAttribute("aria-disabled","true");
+    resendOTP.textContent="Resend OTP";
 
     if(!notificationModal.hidden)return;
 
@@ -82,6 +84,10 @@ window.addEventListener("authSessionExpired",()=>{
         "error",
         redirectToLogin
     );
+}
+
+window.addEventListener("authSessionExpired",()=>{
+    handleAuthenticationExpiry();
 });
 
 /* LOAD MASKED PHONE */
@@ -96,12 +102,7 @@ async function loadWorkerPhone(){
         const data=await response.json().catch(()=>({}));
 
         if(response.status===401){
-            showNotification(
-                "Authentication Required",
-                "Your authentication session has expired. Please log in again.",
-                "error",
-                redirectToLogin
-            );
+            handleAuthenticationExpiry();
             return;
         }
 
@@ -134,6 +135,7 @@ async function loadWorkerPhone(){
     }catch(error){
         console.error("Load phone request failed:",error);
         countdown.textContent="Unable to connect.";
+
         showNotification(
             "Connection Failed",
             "Unable to connect to the server. Please try again.",
@@ -146,6 +148,7 @@ async function loadWorkerPhone(){
 function setControlsDisabled(disabled){
     otpInputs.forEach(input=>input.disabled=disabled);
     verifyButton.disabled=disabled||sessionExpired;
+
     if(disabled){
         resendOTP.classList.add("disabled");
         resendOTP.setAttribute("aria-disabled","true");
@@ -159,22 +162,29 @@ function initializeOTPInputs(){
         input.addEventListener("input",()=>{
             input.value=input.value.replace(/\D/g,"").slice(0,1);
             input.classList.remove("invalid");
+
             if(input.value&&index<otpInputs.length-1){
                 otpInputs[index+1].focus();
             }
         });
 
         input.addEventListener("keydown",event=>{
-            if(event.key==="Backspace"&&!input.value&&index>0)
+            if(event.key==="Backspace"&&!input.value&&index>0){
                 otpInputs[index-1].focus();
-            if(event.key==="ArrowLeft"&&index>0)
+            }
+
+            if(event.key==="ArrowLeft"&&index>0){
                 otpInputs[index-1].focus();
-            if(event.key==="ArrowRight"&&index<otpInputs.length-1)
+            }
+
+            if(event.key==="ArrowRight"&&index<otpInputs.length-1){
                 otpInputs[index+1].focus();
+            }
         });
 
         input.addEventListener("paste",event=>{
             event.preventDefault();
+
             const pasted=(event.clipboardData||window.clipboardData)
                 .getData("text").replace(/\D/g,"").slice(0,6);
 
@@ -182,8 +192,9 @@ function initializeOTPInputs(){
                 if(otpInputs[i])otpInputs[i].value=digit;
             });
 
-            if(pasted.length)
+            if(pasted.length){
                 otpInputs[Math.min(pasted.length,6)-1].focus();
+            }
         });
     });
 }
@@ -206,6 +217,7 @@ function initializeVerification(){
             otpInputs.forEach(input=>{
                 input.classList.toggle("invalid",!input.value);
             });
+
             showNotification(
                 "Invalid OTP",
                 "Please enter the complete 6-digit verification code.",
@@ -215,6 +227,7 @@ function initializeVerification(){
         }
 
         otpInputs.forEach(input=>input.classList.remove("invalid"));
+
         verificationInProgress=true;
         setButtonLoading(verifyButton,true,"Connecting...");
 
@@ -230,12 +243,7 @@ function initializeVerification(){
             if(sessionExpired)return;
 
             if(response.status===401){
-                showNotification(
-                    "Authentication Required",
-                    "Your authentication session has expired. Please log in again.",
-                    "error",
-                    redirectToLogin
-                );
+                handleAuthenticationExpiry();
                 return;
             }
 
@@ -252,11 +260,12 @@ function initializeVerification(){
                 "Phone Verified",
                 data.message||"Your phone number has been successfully verified.",
                 "success",
-                ()=>{window.location.href="../worker-dashboard/index.html";}
+                ()=>{window.location.href="../worker-payment-page/index.html";}
             );
 
         }catch(error){
             console.error("Phone verification failed:",error);
+
             showNotification(
                 "Connection Failed",
                 "Unable to connect to the server. Please try again.",
@@ -264,7 +273,10 @@ function initializeVerification(){
             );
         }finally{
             verificationInProgress=false;
-            if(!sessionExpired)setButtonLoading(verifyButton,false,"Verify Phone");
+
+            if(!sessionExpired){
+                setButtonLoading(verifyButton,false,"Verify Phone");
+            }
         }
     });
 }
@@ -275,7 +287,14 @@ function initializeResend(){
     resendOTP.addEventListener("click",async event=>{
         event.preventDefault();
 
-        if(resendInProgress||sessionExpired||!phoneLoaded||resendSeconds>0)return;
+        if(
+            resendInProgress||
+            sessionExpired||
+            !phoneLoaded||
+            resendSeconds>0
+        ){
+            return;
+        }
 
         resendInProgress=true;
         resendOTP.dataset.loading="true";
@@ -284,29 +303,34 @@ function initializeResend(){
         resendOTP.textContent="Connecting...";
 
         try{
-            const response=await API_REQUEST(RESEND_ENDPOINT,{method:"POST"});
+            const response=await API_REQUEST(RESEND_ENDPOINT,{
+                method:"POST"
+            });
+
             const data=await response.json().catch(()=>({}));
 
             if(sessionExpired)return;
 
             if(response.status===401){
-                showNotification(
-                    "Authentication Required",
-                    "Your authentication session has expired. Please log in again.",
-                    "error",
-                    redirectToLogin
-                );
+                handleAuthenticationExpiry();
                 return;
             }
 
             if(!response.ok){
-                const cooldownUntil=data.cooldownUntil||data.coolDownUntil;
-                let message=data.message||"Unable to resend the verification code.";
+                const cooldownUntil=
+                    data.coolDownUntil||data.cooldownUntil;
+
+                let message=data.message||
+                    "Unable to resend the verification code.";
 
                 if(cooldownUntil){
-                    const remaining=Math.max(0,Math.ceil(
-                        (new Date(cooldownUntil).getTime()-Date.now())/1000
-                    ));
+                    const remaining=Math.max(
+                        0,
+                        Math.ceil(
+                            (new Date(cooldownUntil).getTime()-Date.now())/1000
+                        )
+                    );
+
                     if(remaining>0){
                         startCountdown(remaining);
                         message+=" You can try again after the cooldown expires.";
@@ -326,12 +350,14 @@ function initializeResend(){
 
             showNotification(
                 "OTP Sent",
-                data.message||"A new verification code has been sent to your phone.",
+                data.message||
+                    "A new verification code has been sent to your phone.",
                 "success"
             );
 
         }catch(error){
             console.error("Resend OTP failed:",error);
+
             showNotification(
                 "Connection Failed",
                 "Unable to connect to the server. Please try again.",
@@ -341,10 +367,15 @@ function initializeResend(){
             resendInProgress=false;
             resendOTP.dataset.loading="false";
 
-            if(!sessionExpired&&resendSeconds<=0){
+            if(!sessionExpired){
                 resendOTP.textContent="Resend OTP";
-                resendOTP.classList.remove("disabled");
-                resendOTP.setAttribute("aria-disabled","false");
+
+                if(resendSeconds<=0){
+                    enableResend();
+                }else{
+                    resendOTP.classList.add("disabled");
+                    resendOTP.setAttribute("aria-disabled","true");
+                }
             }
         }
     });
@@ -354,9 +385,12 @@ function initializeResend(){
 
 function startCountdown(seconds=60){
     stopCountdown();
+
     resendSeconds=Math.max(0,Math.ceil(seconds));
+
     resendOTP.classList.add("disabled");
     resendOTP.setAttribute("aria-disabled","true");
+
     updateCountdown();
 
     if(resendSeconds===0){
@@ -389,8 +423,7 @@ function updateCountdown(){
 }
 
 function enableResend(){
-    if(sessionExpired||!phoneLoaded)return;
-    if(resendInProgress)return;
+    if(sessionExpired||!phoneLoaded||resendInProgress)return;
 
     resendOTP.classList.remove("disabled");
     resendOTP.setAttribute("aria-disabled","false");

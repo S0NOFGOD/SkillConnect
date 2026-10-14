@@ -112,9 +112,14 @@ function saveWorkerEmail(email) {
 }
 
 function showModal(title, message, type = "error", redirect = null) {
+    const notificationIcon = getElement("notificationIcon");
+
+    // Remove the cooldown styling from all regular notifications.
+    notificationIcon.classList.remove("cooldown-icon");
+
     getElement("notificationTitle").textContent = title;
     getElement("notificationMessage").textContent = message;
-    getElement("notificationIcon").textContent =
+    notificationIcon.textContent =
         type === "success" ? "✓" : "!";
 
     pendingRedirect = redirect;
@@ -353,6 +358,9 @@ function initializeForgotPassword() {
                             data.message ||
                                 "You have reached the password reset OTP resend limit. Please try again after the cooldown period."
                         );
+
+                        // Apply red styling only to this cooldown notification.
+                        getElement("notificationIcon").classList.add("cooldown-icon");
 
                         startPasswordResetCooldownCountdown(cooldownDate);
                         return;

@@ -1,0 +1,402 @@
+"use strict";
+
+const crypto = require("crypto");
+const axios = require("axios");
+const Worker = require("../models/worker");
+
+const PAYSTACK_URL = "https://api.paystack.co";
+const AMOUNT = 100000; // ₦1,000 in kobo
+const CURRENCY = "NGN";
+const ACCESS_DURATION = 30 * 24 * 60 * 60 * 1000;
+
+function paystackHeaders() {
+    const key = process.env.PAYSTACK_SECRET_KEY;
+    if (!key) throw new Error("Paystack secret key is not configured.");
+
+    return {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json"
+    };
+}
+
+async function verifyWithPaystack(reference) {
+    const response = await axios.get(
+        `${PAYSTACK_URL}/transaction/verify/${encodeURIComponent(reference)}`,
+        { headers: paystackHeaders(), timeout: 15000 }
+    );
+
+    const transaction = response.data?.data;
+
+    if (
+        response.data?.status !== true ||
+        !transaction ||
+        transaction.reference !== reference ||
+        transaction.amount !== AMOUNT ||
+        transaction.currency !== CURRENCY
+    ) {
+        throw new Error("Paystack transaction verification failed.");
+    }
+
+    return transaction;
+}
+
+function verifyOwner(transaction, workerId) {
+    const metadata = transaction.metadata;
+
+    if (
+        !metadata ||
+        String(metadata.workerId) !== String(workerId) ||
+        metadata.purpose !== "phone-verification"
+    ) {
+        throw new Error("Payment ownership could not be verified.");
+    }
+}
+
+async function recordSuccess(workerId, reference) {
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + ACCESS_DURATION);
+
+    const result = await Worker.updateOne(
+        {
+            _id: workerId,
+            phoneVerificationPayments: {
+                $elemMatch: { reference, status: { $ne: "success" } }
+            }
+        },
+        {
+            $set: {
+                "phoneVerificationPayments.$.status": "success",
+                "phoneVerificationPayments.$.paidAt": now,
+                phoneVerificationExpires: expiresAt
+            }
+        }
+    );
+
+    if (result.modifiedCount > 0) {
+        return { alreadyProcessed: false, expiresAt };
+    }
+
+    const worker = await Worker.findOne({
+        _id: workerId,
+        phoneVerificationPayments: {
+            $elemMatch: { reference, status: "success" }
+        }
+    }).select("phoneVerificationExpires");
+
+    if (!worker) {
+        throw new Error("No matching payment record exists.");
+    }
+
+    return {
+        alreadyProcessed: true,
+        expiresAt: worker.phoneVerificationExpires
+    };
+}
+
+async function recordFailure(workerId, reference) {
+    await Worker.updateOne(
+        {
+            _id: workerId,
+            phoneVerificationPayments: {
+                $elemMatch: { reference, status: "pending" }
+            }
+        },
+        {
+            $set: {
+                "phoneVerificationPayments.$.status": "failed"
+            }
+        }
+    );
+}
+
+async function initializePaystackPayment(req, res) {
+    let worker;
+    let reference;
+
+    try {
+        if (!process.env.PAYSTACK_CALLBACK_URL) {
+            return res.status(500).json({
+                success: false,
+                message: "Payment callback URL is not configured."
+            });
+        }
+
+        worker = await Worker.findById(req.workerId)
+            .select("email phoneVerificationExpires");
+
+        if (!worker) {
+            return res.status(404).json({
+                success: false,
+                message: "Worker account not found."
+            });
+        }
+
+        // Do not charge again while the existing access is still valid.
+        if (
+            worker.phoneVerificationExpires &&
+            new Date(worker.phoneVerificationExpires) > new Date()
+        ) {
+            return res.status(409).json({
+                success: false,
+                code: "PHONE_VERIFICATION_ACTIVE",
+                message:
+                    `Your phone-verification access is already active until ${new Date(worker.phoneVerificationExpires).toISOString()}.`
+            });
+        }
+
+        reference =
+            `SC-PHONE-${worker._id}-` +
+            crypto.randomBytes(16).toString("hex");
+
+        // Save the reference before contacting Paystack so a fast webhook can match it.
+        await Worker.updateOne(
+            { _id: worker._id },
+            {
+                $push: {
+                    phoneVerificationPayments: {
+                        reference,
+                        amount: AMOUNT,
+                        currency: CURRENCY,
+                        status: "pending",
+                        paidAt: null
+                    }
+                }
+            }
+        );
+
+        const response = await axios.post(
+            `${PAYSTACK_URL}/transaction/initialize`,
+            {
+                email: worker.email,
+                amount: AMOUNT,
+                currency: CURRENCY,
+                reference,
+                callback_url: process.env.PAYSTACK_CALLBACK_URL,
+                metadata: {
+                    workerId: String(worker._id),
+                    purpose: "phone-verification"
+                }
+            },
+            { headers: paystackHeaders(), timeout: 15000 }
+        );
+
+        const payment = response.data?.data;
+
+        if (
+            response.data?.status !== true ||
+            !payment?.authorization_url ||
+            payment.reference !== reference
+        ) {
+            // Keep the record pending: the remote outcome may be uncertain.
+            return res.status(502).json({
+                success: false,
+                message:
+                    "Paystack did not return checkout information. Check payment status before trying again."
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            authorizationUrl: payment.authorization_url,
+            reference: payment.reference
+        });
+    } catch (error) {
+        console.error(
+            "Paystack initialization error:",
+            error.response?.data || error.message
+        );
+
+        // Do not mark the payment failed on timeout/network errors.
+        // Paystack may have received the request despite the error.
+        return res.status(502).json({
+            success: false,
+            message:
+                "Unable to confirm checkout initialization. Check your payment status before trying again."
+        });
+    }
+}
+
+async function verifyPaystackPaymentStatus(req, res) {
+    try {
+        const { reference } = req.params;
+
+        if (
+            !reference ||
+            reference.length > 200 ||
+            !/^[a-zA-Z0-9_-]+$/.test(reference)
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid payment reference."
+            });
+        }
+
+        const worker = await Worker.findOne({
+            _id: req.workerId,
+            "phoneVerificationPayments.reference": reference
+        }).select("phoneVerificationPayments");
+
+        if (!worker) {
+            return res.status(404).json({
+                success: false,
+                message: "Payment reference not found."
+            });
+        }
+
+        const payment = worker.phoneVerificationPayments.find(
+            item => item.reference === reference
+        );
+
+        if (!payment) {
+            return res.status(404).json({
+                success: false,
+                message: "Payment reference not found."
+            });
+        }
+
+        const transaction = await verifyWithPaystack(reference);
+        verifyOwner(transaction, req.workerId);
+
+        if (transaction.status === "success") {
+            const result = await recordSuccess(req.workerId, reference);
+
+            return res.status(200).json({
+                success: true,
+                paymentStatus: "success",
+                reference,
+                amount: AMOUNT,
+                currency: CURRENCY,
+                phoneVerificationExpires:
+                    result.expiresAt?.toISOString() || null
+            });
+        }
+
+        if (
+            transaction.status === "failed" ||
+            transaction.status === "abandoned"
+        ) {
+            await recordFailure(req.workerId, reference);
+
+            return res.status(200).json({
+                success: true,
+                paymentStatus: "failed",
+                reference,
+                amount: AMOUNT,
+                currency: CURRENCY
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            paymentStatus: "pending",
+            reference,
+            amount: AMOUNT,
+            currency: CURRENCY
+        });
+    } catch (error) {
+        console.error(
+            "Paystack status error:",
+            error.response?.data || error.message
+        );
+
+        return res.status(502).json({
+            success: false,
+            message: "Unable to verify payment right now. Please try again."
+        });
+    }
+}
+
+function validWebhookSignature(req) {
+    const key = process.env.PAYSTACK_SECRET_KEY;
+    const signature = req.headers["x-paystack-signature"];
+
+    if (
+        !key ||
+        typeof signature !== "string" ||
+        !/^[a-f0-9]{128}$/i.test(signature) ||
+        !Buffer.isBuffer(req.rawBody)
+    ) {
+        return false;
+    }
+
+    const expected = crypto
+        .createHmac("sha512", key)
+        .update(req.rawBody)
+        .digest("hex");
+
+    const receivedBuffer = Buffer.from(signature, "hex");
+    const expectedBuffer = Buffer.from(expected, "hex");
+
+    return receivedBuffer.length === expectedBuffer.length &&
+        crypto.timingSafeEqual(receivedBuffer, expectedBuffer);
+}
+
+async function handlePaystackWebhook(req, res) {
+    try {
+        if (!validWebhookSignature(req)) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid Paystack webhook signature."
+            });
+        }
+
+        if (req.body?.event !== "charge.success") {
+            return res.status(200).json({ success: true });
+        }
+
+        const reference = req.body.data?.reference;
+
+        if (!reference || typeof reference !== "string") {
+            return res.status(400).json({
+                success: false,
+                message: "Payment reference is missing."
+            });
+        }
+
+        const transaction = await verifyWithPaystack(reference);
+
+        if (transaction.status !== "success") {
+            return res.status(200).json({
+                success: true,
+                message: "Payment is not confirmed as successful."
+            });
+        }
+
+        const workerId = transaction.metadata?.workerId;
+
+        if (!workerId) {
+            return res.status(400).json({
+                success: false,
+                message: "Worker information is missing."
+            });
+        }
+
+        verifyOwner(transaction, workerId);
+
+        const result = await recordSuccess(workerId, reference);
+
+        return res.status(200).json({
+            success: true,
+            message: result.alreadyProcessed
+                ? "Payment already processed."
+                : "Payment verified and recorded."
+        });
+    } catch (error) {
+        console.error(
+            "Paystack webhook error:",
+            error.response?.data || error.message
+        );
+
+        // A 5xx response allows Paystack to retry temporary failures.
+        return res.status(500).json({
+            success: false,
+            message: "Unable to process payment notification."
+        });
+    }
+}
+
+module.exports = {
+    initializePaystackPayment,
+    verifyPaystackPaymentStatus,
+    handlePaystackWebhook
+};

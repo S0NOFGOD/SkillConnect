@@ -1,47 +1,50 @@
-const express=require("express");
+"use strict";
+
+const express = require("express");
 
 const {
-    authenticateWorker
-}=require("../controllers/worker-authentication");
+authenticateWorker
+} = require("../controllers/worker-authentication");
 
 const {
-    getWorkerPhone,
-    verifyWorkerPhone,
-    resendWorkerPhoneOTP
-}=require("../controllers/worker-phone-otp");
+getWorkerPhone,
+verifyWorkerPhone,
+resendWorkerPhoneOTP
+} = require("../controllers/worker-phone-otp");
 
-const router=express.Router();
+const router = express.Router();
 
-const requireWorker=(req,res,next)=>{
-    const auth=authenticateWorker(req);
+const requireWorker = (req, res, next) => {
+const auth = authenticateWorker(req);
 
-    if(!auth.valid){
-        return res.status(auth.status).json({
-            success:false,
-            message:auth.message
-        });
-    }
+if (!auth.valid) {
+    return res.status(auth.status).json({
+        success: false,
+        message: auth.message
+    });
+}
 
-    req.workerId=auth.userId;
-    next();
+req.workerId = auth.userId;
+next();
+
 };
 
 router.get(
-    "/phone-otp",
-    requireWorker,
-    getWorkerPhone
+"/phone-otp",
+requireWorker,
+getWorkerPhone
 );
 
 router.post(
-    "/verify-phone",
-    requireWorker,
-    verifyWorkerPhone
+"/verify-phone",
+requireWorker,
+verifyWorkerPhone
 );
 
 router.post(
-    "/resend-phone-otp",
-    requireWorker,
-    resendWorkerPhoneOTP
+"/resend-phone-otp",
+requireWorker,
+resendWorkerPhoneOTP
 );
 
-module.exports=router;
+module.exports = router;

@@ -56,17 +56,16 @@ const workerSchema = new mongoose.Schema({
         default: null,
         select: false
     },
-    phoneOtpResendCount: {
-        type: Number,
-        default: 0
-    },
-    coolDownUntil: {
-        type: Date,
-        default: null
-    },
-    phoneVerificationExpires: {
-        type: Date,
-        default: null
+    phoneOtpResendAttempts: {
+        phoneOtpResendCount: {
+            type: Number,
+            default: 0,
+            min: 0
+        },
+        coolDownUntil: {
+            type: Date,
+            default: null
+        }
     },
 
     fullName: {
@@ -84,6 +83,35 @@ const workerSchema = new mongoose.Schema({
         trim: true,
         default: null
     },
+    phoneVerificationExpires: {
+        type: Date,
+        default: null
+    },
+    phoneVerificationPayments: [{
+        reference: {
+            type: String,
+            required: true
+        },
+        amount: {
+            type: Number,
+            required: true
+        },
+        currency: {
+            type: String,
+            enum: ["NGN"],
+            required: true
+        },
+        status: {
+            type: String,
+            enum: ["pending", "success", "failed"],
+            default: "pending",
+            required: true
+        },
+        paidAt: {
+            type: Date,
+            default: null
+        }
+    }],
     country: {
         type: String,
         trim: true,
@@ -225,7 +253,7 @@ const workerSchema = new mongoose.Schema({
         default: null,
         select: false
     },
-    
+
     resetAuthorizationExpires: {
         type: Date,
         default: null,

@@ -19,6 +19,9 @@ const LogoutRoutes = require("./routes/logout");
 const workerPhoneOTPRoutes = require("./routes/worker-phone-otp");
 const refreshTokenRoutes = require("./routes/refreshToken");
 
+// PAYSTACK PAYMENT ROUTE
+const workerPaymentPageRoutes = require("./routes/worker-payment-page");
+
 const clientAuthenticationRoutes = require("./routes/client-authentication");
 const clientEmailOTPRoutes = require("./routes/client-email-otp");
 const clientPasswordResetOTPRoutes = require("./routes/client-password-reset-otp");
@@ -50,14 +53,22 @@ const connectDB = async () => {
         const mongoURI = process.env.MONGODB_URI;
 
         if (!mongoURI) {
-            throw new Error("MONGODB_URI is not defined in the .env file.");
+            throw new Error(
+                "MONGODB_URI is not defined in the .env file."
+            );
         }
 
         const connection = await mongoose.connect(mongoURI);
 
-        console.log(`MongoDB connected: ${connection.connection.host}`);
+        console.log(
+            `MongoDB connected: ${connection.connection.host}`
+        );
     } catch (error) {
-        console.error("MongoDB connection failed:", error.message);
+        console.error(
+            "MongoDB connection failed:",
+            error.message
+        );
+
         process.exit(1);
     }
 };
@@ -84,7 +95,22 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(express.json());
+// PAYSTACK WEBHOOK SUPPORT:
+// Preserve the original JSON body for signature verification.
+// The webhook route must use this exact endpoint path.
+app.use(express.json({
+    verify(req, res, buffer) {
+        const requestPath = req.originalUrl.split("?")[0];
+
+        if (
+            requestPath ===
+            "/api/worker-payment-page/paystack/webhook"
+        ) {
+            req.rawBody = Buffer.from(buffer);
+        }
+    }
+}));
+
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
@@ -103,26 +129,44 @@ app.use("/api/contact", contactRoutes);
 
 /* 5. WORKER ROUTES */
 
-app.use("/api/worker-authentication", workerAuthenticationRoutes);
+app.use(
+    "/api/worker-authentication",
+    workerAuthenticationRoutes
+);
+
 app.use("/api/auth/refresh", refreshTokenRoutes);
 app.use("/api/auth/worker", workerEmailOTPRoutes);
 app.use("/api/auth/worker", workerPasswordResetOTPRoutes);
 app.use("/api/auth/", LogoutRoutes);
+
 app.use("/api/worker", workerPhoneOTPRoutes);
 app.use("/api/worker", workerCreateProfileRoutes);
 app.use("/api/worker", workerEditProfileRoutes);
-app.use("/api/worker-password-change", workerPasswordChangeRoutes);
+app.use(
+    "/api/worker-password-change",
+    workerPasswordChangeRoutes
+);
 app.use("/api/worker", workerCreateServiceRoutes);
 app.use("/api/worker", workerViewServiceRoutes);
 
 /* 6. CLIENT ROUTES */
 
-app.use("/api/client-authentication", clientAuthenticationRoutes);
+app.use(
+    "/api/client-authentication",
+    clientAuthenticationRoutes
+);
+
 app.use("/api/client-email-otp", clientEmailOTPRoutes);
-app.use("/api/client-password-reset-otp", clientPasswordResetOTPRoutes);
+app.use(
+    "/api/client-password-reset-otp",
+    clientPasswordResetOTPRoutes
+);
 app.use("/api/client-create-profile", clientCreateProfileRoutes);
 app.use("/api/client", clientEditProfileRoutes);
-app.use("/api/client-password-change", clientPasswordChangeRoutes);
+app.use(
+    "/api/client-password-change",
+    clientPasswordChangeRoutes
+);
 app.use("/api/client-dashboard", clientDashboardRoutes);
 app.use("/api/client/worker-search", clientWorkerSearchRoutes);
 app.use("/api/client-worker-details", clientWorkerDetailsRoutes);
@@ -141,6 +185,12 @@ app.use("/api/admin-management", adminManagementRoutes);
 app.use("/api/worker", workerDashboardRoutes);
 app.use("/api/worker", workerServicesRoutes);
 
+// PAYSTACK PAYMENT PAGE ROUTES
+app.use(
+    "/api/worker-payment-page",
+    workerPaymentPageRoutes
+);
+
 /* 9. 404 ERROR */
 
 app.use((req, res) => {
@@ -158,15 +208,17 @@ app.use((error, req, res, next) => {
     if (error.message === "Not allowed by CORS") {
         return res.status(403).json({
             success: false,
-            message: "This origin is not allowed to access the SkillConnect API."
+            message:
+                "This origin is not allowed to access the SkillConnect API."
         });
     }
 
     return res.status(error.statusCode || 500).json({
         success: false,
-        message: process.env.NODE_ENV === "development"
-            ? error.message
-            : "An internal server error occurred."
+        message:
+            process.env.NODE_ENV === "development"
+                ? error.message
+                : "An internal server error occurred."
     });
 });
 
@@ -178,10 +230,16 @@ const startServer = async () => {
         await createAdmin();
 
         app.listen(PORT, () => {
-            console.log(`SkillConnect server running on port ${PORT}`);
+            console.log(
+                `SkillConnect server running on port ${PORT}`
+            );
         });
     } catch (error) {
-        console.error("Failed to start SkillConnect server:", error.message);
+        console.error(
+            "Failed to start SkillConnect server:",
+            error.message
+        );
+
         process.exit(1);
     }
 };

@@ -10,8 +10,7 @@ const robase=new Robase({
 
 const OTP_EXPIRY_MS=10*60*1000;
 const COOLDOWN_MS=24*60*60*1000;
-const MAX_RESENDS=5;
-const VERIFICATION_VALIDITY_MS=30*24*60*60*1000;
+const MAX_RESENDS=4;
 
 const hashOTP=otp=>
     crypto.createHash("sha256").update(otp).digest("hex");
@@ -44,7 +43,7 @@ const getWorker=async(req)=>{
     }
 
     const worker=await Worker.findById(req.workerId).select(
-        "+phoneOtpHash +phoneOtpExpires phone phoneVerificationExpires phoneOtpResendCount coolDownUntil"
+        "+phoneOtpHash +phoneOtpExpires phone phoneOtpResendAttempts"
     );
 
     return worker;
@@ -67,17 +66,6 @@ const getWorkerPhone=async(req,res,next)=>{
             return res.status(400).json({
                 success:false,
                 message:"No phone number is associated with your account."
-            });
-        }
-
-        if(
-            worker.phoneVerificationExpires &&
-            worker.phoneVerificationExpires>new Date()
-        ){
-            return res.status(200).json({
-                success:true,
-                verified:true,
-                phone:maskPhone(worker.phone)
             });
         }
 
@@ -122,16 +110,6 @@ const verifyWorkerPhone=async(req,res,next)=>{
 
         const now=new Date();
 
-        if(
-            worker.phoneVerificationExpires &&
-            worker.phoneVerificationExpires>now
-        ){
-            return res.status(400).json({
-                success:false,
-                message:"Your phone number is already verified."
-            });
-        }
-
         if(!worker.phoneOtpHash||!worker.phoneOtpExpires){
             return res.status(400).json({
                 success:false,
@@ -159,14 +137,8 @@ const verifyWorkerPhone=async(req,res,next)=>{
             });
         }
 
-        worker.phoneVerificationExpires=new Date(
-            now.getTime()+VERIFICATION_VALIDITY_MS
-        );
-
         worker.phoneOtpHash=null;
         worker.phoneOtpExpires=null;
-        worker.phoneOtpResendCount=0;
-        worker.coolDownUntil=null;
 
         await worker.save();
 
@@ -199,58 +171,56 @@ const resendWorkerPhoneOTP=async(req,res,next)=>{
             });
         }
 
-        const now=new Date();
-
-        if(
-            worker.phoneVerificationExpires &&
-            worker.phoneVerificationExpires>now
-        ){
-            return res.status(400).json({
-                success:false,
-                message:"Your phone number is already verified."
-            });
+        if(!worker.phoneOtpResendAttempts){
+            worker.phoneOtpResendAttempts={
+                phoneOtpResendCount:0,
+                coolDownUntil:null
+            };
         }
+
+        const attempts=worker.phoneOtpResendAttempts;
+        const now=new Date();
 
         /* Enforce an active 24-hour cooldown. */
 
-        if(worker.coolDownUntil&&worker.coolDownUntil>now){
+        if(attempts.coolDownUntil&&attempts.coolDownUntil>now){
             return res.status(429).json({
                 success:false,
                 message:"You have reached the OTP resend limit. Please try again after the cooldown.",
-                cooldownUntil:worker.coolDownUntil.toISOString()
+                coolDownUntil:attempts.coolDownUntil.toISOString()
             });
         }
 
         /* Clear an expired cooldown. */
 
-        if(worker.coolDownUntil&&worker.coolDownUntil<=now){
-            worker.coolDownUntil=null;
-            worker.phoneOtpResendCount=0;
+        if(attempts.coolDownUntil&&attempts.coolDownUntil<=now){
+            attempts.coolDownUntil=null;
+            attempts.phoneOtpResendCount=0;
         }
 
-        /* Five successful resends are allowed per cooldown period. */
+        /* Four successful resends are allowed per cooldown period. */
 
-        if((worker.phoneOtpResendCount||0)>=MAX_RESENDS){
-            worker.phoneOtpResendCount=0;
-            worker.coolDownUntil=new Date(now.getTime()+COOLDOWN_MS);
+        if((attempts.phoneOtpResendCount||0)>=MAX_RESENDS){
+            attempts.phoneOtpResendCount=0;
+            attempts.coolDownUntil=new Date(now.getTime()+COOLDOWN_MS);
 
             await worker.save();
 
             return res.status(429).json({
                 success:false,
                 message:"You have reached the OTP resend limit. Please try again after 24 hours.",
-                cooldownUntil:worker.coolDownUntil.toISOString()
+                coolDownUntil:attempts.coolDownUntil.toISOString()
             });
         }
 
         const otp=generateOTP();
         const previousHash=worker.phoneOtpHash;
         const previousExpiry=worker.phoneOtpExpires;
-        const previousCount=worker.phoneOtpResendCount||0;
+        const previousCount=attempts.phoneOtpResendCount||0;
 
         worker.phoneOtpHash=hashOTP(otp);
         worker.phoneOtpExpires=new Date(now.getTime()+OTP_EXPIRY_MS);
-        worker.phoneOtpResendCount=previousCount+1;
+        attempts.phoneOtpResendCount=previousCount+1;
 
         await worker.save();
 
@@ -259,7 +229,7 @@ const resendWorkerPhoneOTP=async(req,res,next)=>{
         }catch(smsError){
             worker.phoneOtpHash=previousHash;
             worker.phoneOtpExpires=previousExpiry;
-            worker.phoneOtpResendCount=previousCount;
+            attempts.phoneOtpResendCount=previousCount;
 
             await worker.save();
             throw smsError;

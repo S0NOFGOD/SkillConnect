@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Worker Payment | SkillConnect</title>
+
+    <meta
+        name="description"
+        content="Complete your SkillConnect worker registration payment."
+    >
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="../config.js"></script>
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+
+    <div class="green-glow"></div>
+
+    <nav>
+        <button id="backBtn" class="nav-btn" type="button">
+            ← Back
+        </button>
+    </nav>
+
+    <main class="payment-page">
+
+        <section class="payment-intro">
+
+            <div class="success-icon" aria-hidden="true">
+                <svg
+                    width="30"
+                    height="30"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="m5 12 4 4L19 6"></path>
+                </svg>
+            </div>
+
+            <h1>You're almost there!</h1>
+
+            <p class="intro-description">
+                Your phone verification is complete.
+                Complete your registration payment to complete
+                your SkillConnect worker account verification.
+            </p>
+
+        </section>
+
+        <section class="payment-card">
+
+            <div class="payment-card-header">
+
+                <div>
+                    <p class="muted-label">Registration fee</p>
+
+                    <h2 class="payment-amount">₦1,000</h2>
+                </div>
+
+                <span class="fee-badge">
+                    One-month fee
+                </span>
+
+            </div>
+
+            <div class="payment-divider"></div>
+
+            <div class="payment-method-heading">
+                <h3>Choose payment method</h3>
+
+                <p>
+                    Select your preferred payment provider.
+                </p>
+            </div>
+
+            <button
+                id="paystackPaymentButton"
+                class="payment-method"
+                type="button"
+            >
+                <span class="provider-icon paystack-icon" aria-hidden="true">
+                    P
+                </span>
+
+                <span class="method-details">
+                    <strong id="paystackButtonText">
+                        Pay with Paystack
+                    </strong>
+
+                    <small>
+                        Cards and bank transfers, where available
+                    </small>
+                </span>
+
+                <span class="method-arrow" aria-hidden="true">→</span>
+            </button>
+
+            <div
+                id="paymentMessage"
+                class="payment-message"
+                role="status"
+                aria-live="polite"
+                hidden
+            ></div>
+
+            <div class="payment-security">
+
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                >
+                    <rect x="3" y="11" width="18" height="11" rx="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+
+                <p>
+                    Payments are processed through Paystack's
+                    secure checkout. SkillConnect verifies
+                    payment on its server before updating your account.
+                </p>
+
+            </div>
+
+        </section>
+
+        <p class="payment-help">
+            Having trouble?
+            <a href="mailto:support@skillconnect.cc">
+                Contact support
+            </a>
+        </p>
+
+        <footer class="page-footer">
+            <p>
+                © <span id="currentYear">2026</span> SkillConnect
+            </p>
+
+            <p>
+                Connecting people with trusted skilled workers.
+            </p>
+        </footer>
+
+    </main>
+
+    <!-- Payment result modal -->
+
+    <div
+        id="paymentResultModal"
+        class="payment-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="paymentModalTitle"
+        aria-describedby="paymentModalDescription"
+        hidden
+    >
+        <div class="payment-modal-backdrop"></div>
+
+        <div class="payment-modal-card">
+
+            <div
+                id="paymentModalIcon"
+                class="payment-modal-icon"
+                aria-hidden="true"
+            >
+                !
+            </div>
+
+            <h2 id="paymentModalTitle">
+                Payment status
+            </h2>
+
+            <p id="paymentModalDescription">
+                Your payment status will appear here.
+            </p>
+
+            <button
+                id="paymentModalContinue"
+                class="payment-modal-continue"
+                type="button"
+            >
+                Continue
+            </button>
+
+        </div>
+    </div>
+
+</body>
+</html>
