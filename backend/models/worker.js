@@ -83,35 +83,44 @@ const workerSchema = new mongoose.Schema({
         trim: true,
         default: null
     },
-    phoneVerificationExpires: {
+   phoneVerificationExpires: {
+    type: Date,
+    default: null
+},
+
+phoneVerificationPayments: [{
+    reference: {
+        type: String,
+        required: true
+    },
+    amount: {
+        type: Number,
+        required: true
+    },
+    currency: {
+        type: String,
+        enum: ["NGN"],
+        required: true
+    },
+    status: {
+        type: String,
+        enum: ["pending", "success", "failed"],
+        default: "pending",
+        required: true
+    },
+    paidAt: {
         type: Date,
         default: null
     },
-    phoneVerificationPayments: [{
-        reference: {
-            type: String,
-            required: true
-        },
-        amount: {
-            type: Number,
-            required: true
-        },
-        currency: {
-            type: String,
-            enum: ["NGN"],
-            required: true
-        },
-        status: {
-            type: String,
-            enum: ["pending", "success", "failed"],
-            default: "pending",
-            required: true
-        },
-        paidAt: {
-            type: Date,
-            default: null
-        }
-    }],
+    authorizationUrl: {
+        type: String,
+        default: null
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+}],
     country: {
         type: String,
         trim: true,

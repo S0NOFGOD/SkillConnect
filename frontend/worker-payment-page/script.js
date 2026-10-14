@@ -124,8 +124,10 @@ function validCheckoutURL(value) {
         const url = new URL(value);
 
         return url.protocol === "https:" &&
-            (url.hostname === "checkout.paystack.com" ||
-             url.hostname.endsWith(".paystack.com"));
+            (
+                url.hostname === "checkout.paystack.com" ||
+                url.hostname.endsWith(".paystack.com")
+            );
     } catch {
         return false;
     }
@@ -141,40 +143,54 @@ async function startPayment() {
     try {
         const response = await API_REQUEST(INITIALIZE_URL, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify({})
         });
 
         const data = await readJSON(response);
 
         if (!response.ok) {
-            throw new Error(responseMessage(
-                data,
-                response.status === 401
-                    ? "Your session has expired. Please log in again."
-                    : "Unable to initialize payment. Please try again."
-            ));
+            throw new Error(
+                responseMessage(
+                    data,
+                    response.status === 401
+                        ? "Your session has expired. Please log in again."
+                        : "Unable to initialize payment. Please try again."
+                )
+            );
         }
 
         const checkoutURL =
             data.authorizationUrl || data.data?.authorization_url;
-        const reference = data.reference || data.data?.reference;
 
-        if (data.success !== true || !reference ||
-            !validCheckoutURL(checkoutURL)) {
-            throw new Error("Paystack returned invalid checkout information.");
+        const reference =
+            data.reference || data.data?.reference;
+
+        if (
+            data.success !== true ||
+            !reference ||
+            !validCheckoutURL(checkoutURL)
+        ) {
+            throw new Error(
+                "Paystack returned invalid checkout information."
+            );
         }
 
         hideMessage();
         setButton(false);
         busy = false;
+
         window.location.assign(checkoutURL);
     } catch (error) {
         console.error("Payment initialization error:", error);
+
         showResult(
             false,
             "Unable to start payment",
-            error.message || "Please try again. If you may have been charged, contact support before retrying."
+            error.message ||
+                "Please try again. If you may have been charged, contact support before retrying."
         );
     } finally {
         busy = false;
@@ -184,6 +200,7 @@ async function startPayment() {
 
 function handlePaystackReturn() {
     const url = new URL(window.location.href);
+
     const reference =
         url.searchParams.get("reference") ||
         url.searchParams.get("trxref");
@@ -227,18 +244,25 @@ async function verifyPayment(reference) {
     try {
         const response = await API_REQUEST(
             `${STATUS_URL}/${encodeURIComponent(reference)}`,
-            { method: "GET", headers: { Accept: "application/json" } }
+            {
+                method: "GET",
+                headers: {
+                    Accept: "application/json"
+                }
+            }
         );
 
         const data = await readJSON(response);
 
         if (!response.ok) {
-            throw new Error(responseMessage(
-                data,
-                response.status === 401
-                    ? "Your session has expired. Please log in again."
-                    : "We could not confirm your payment. Contact support if you have been charged."
-            ));
+            throw new Error(
+                responseMessage(
+                    data,
+                    response.status === 401
+                        ? "Your session has expired. Please log in again."
+                        : "We could not confirm your payment. Contact support if you have been charged."
+                )
+            );
         }
 
         if (
@@ -271,6 +295,7 @@ async function verifyPayment(reference) {
         }
     } catch (error) {
         console.error("Payment status error:", error);
+
         showResult(
             false,
             "Unable to confirm payment",
