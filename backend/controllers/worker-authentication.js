@@ -1,273 +1,334 @@
-const bcrypt=require("bcrypt");
-const crypto=require("crypto");
-const https=require("https");
-const jwt=require("jsonwebtoken");
-const Worker=require("../models/worker");
+"use strict";
 
-const BREVO_API_KEY=process.env.BREVO_API_KEY;
-const BREVO_SENDER_EMAIL=process.env.BREVO_SENDER_EMAIL;
-const BREVO_SENDER_NAME=process.env.BREVO_SENDER_NAME||"SkillConnect";
-const OTP_EXPIRY_MINUTES=10;
+const bcrypt = require("bcrypt");
+const crypto = require("crypto");
+const https = require("https");
+const jwt = require("jsonwebtoken");
+const Worker = require("../models/worker");
 
-const generateOTP=()=>crypto.randomInt(100000,1000000).toString();
-const hashOTP=otp=>crypto.createHash("sha256").update(otp).digest("hex");
-const createOTPExpiry=()=>new Date(Date.now()+OTP_EXPIRY_MINUTES*60*1000);
-const generateOTPData=()=>{const otp=generateOTP();return{otp,expiresAt:createOTPExpiry()};};
-const generateGoogleExchangeCode=()=>crypto.randomBytes(32).toString("hex");
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const BREVO_SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL;
+const BREVO_SENDER_NAME = process.env.BREVO_SENDER_NAME || "SkillConnect";
+const OTP_MS = 10 * 60 * 1000;
+const COOLDOWN_MS = 24 * 60 * 60 * 1000;
+const MAX_OTP_SENDS = 4;
 
-const sendEmail=async({to,subject,htmlContent})=>{
-if(!to||!subject||!htmlContent)throw new Error("Email data is required.");
-if(!BREVO_API_KEY||!BREVO_SENDER_EMAIL)throw new Error("Brevo configuration is missing.");
+const hash = value =>
+    crypto.createHash("sha256").update(value).digest("hex");
 
-const data=JSON.stringify({
-sender:{name:BREVO_SENDER_NAME,email:BREVO_SENDER_EMAIL},
-to:[{email:to}],
-subject,
-htmlContent
+const generateOTP = () =>
+    crypto.randomInt(100000, 1000000).toString();
+
+const newOTP = () => ({
+    otp: generateOTP(),
+    expiresAt: new Date(Date.now() + OTP_MS)
 });
 
-return new Promise((resolve,reject)=>{
-const request=https.request({
-hostname:"api.brevo.com",
-path:"/v3/smtp/email",
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"Content-Length":Buffer.byteLength(data),
-"api-key":BREVO_API_KEY
-}},response=>{
-let responseData="";
-response.on("data",chunk=>responseData+=chunk);
-response.on("end",()=>{
-if(response.statusCode>=200&&response.statusCode<300)return resolve({success:true,data:responseData});
-reject(new Error(`Brevo email error (${response.statusCode}): ${responseData}`));
-});
-});
-request.on("error",reject);
-request.write(data);
-request.end();
-});
+const generateGoogleExchangeCode = () =>
+    crypto.randomBytes(32).toString("hex");
+
+const validEmail = email =>
+    typeof email === "string" &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+const sendEmail = async ({ to, subject, htmlContent }) => {
+    if (!BREVO_API_KEY || !BREVO_SENDER_EMAIL)
+        throw new Error("Brevo configuration is missing.");
+
+    const body = JSON.stringify({
+        sender: { name: BREVO_SENDER_NAME, email: BREVO_SENDER_EMAIL },
+        to: [{ email: to }],
+        subject,
+        htmlContent
+    });
+
+    return new Promise((resolve, reject) => {
+        const request = https.request({
+            hostname: "api.brevo.com",
+            path: "/v3/smtp/email",
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Content-Length": Buffer.byteLength(body),
+                "api-key": BREVO_API_KEY
+            }
+        }, response => {
+            let result = "";
+            response.on("data", chunk => result += chunk);
+            response.on("end", () => {
+                if (response.statusCode >= 200 && response.statusCode < 300)
+                    return resolve();
+
+                reject(new Error(
+                    `Brevo email error (${response.statusCode}): ${result}`
+                ));
+            });
+        });
+
+        request.on("error", reject);
+        request.write(body);
+        request.end();
+    });
 };
 
-const sendOTPEmail=async({email,otp,type})=>{
-let subject,title,message;
+const sendOTPEmail = ({ email, otp, type }) => {
+    const verification = type === "email-verification";
+    const subject = verification
+        ? "Verify Your SkillConnect Account"
+        : "SkillConnect Password Reset";
+    const title = verification ? "Verify Your Email" : "Reset Your Password";
+    const message = verification
+        ? "Use this code to verify your SkillConnect account."
+        : "Use this code to verify your password reset request.";
 
-if(type==="email-verification"){
-subject="Verify Your SkillConnect Account";
-title="Verify Your Email";
-message="Use the verification code below to verify your SkillConnect account.";
-}else if(type==="password-reset"){
-subject="SkillConnect Password Reset";
-title="Reset Your Password";
-message="Use the code below to verify your password reset request.";
-}else throw new Error("Invalid OTP email type.");
-
-const htmlContent=`<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333;"><h2>${title}</h2><p>${message}</p><div style="font-size:32px;font-weight:bold;letter-spacing:8px;text-align:center;padding:20px;margin:20px 0;background:#f5f5f5;border-radius:8px;">${otp}</div><p>This code expires in 10 minutes.</p><p>If you did not request this code, you can safely ignore this email.</p><p>— SkillConnect</p></div>`;
-
-return sendEmail({to:email,subject,htmlContent});
+    return sendEmail({
+        to: email,
+        subject,
+        htmlContent: `
+            <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:20px;color:#333">
+                <h2>${title}</h2><p>${message}</p>
+                <div style="font-size:32px;font-weight:bold;letter-spacing:8px;text-align:center;padding:20px;background:#f5f5f5">${otp}</div>
+                <p>This code expires in 10 minutes.</p>
+                <p>If you did not request this code, ignore this email.</p>
+                <p>— SkillConnect</p>
+            </div>`
+    });
 };
 
-const generateAccessToken=({userId,userType})=>jwt.sign(
-{userId,userType},
-process.env.ACCESS_TOKEN_SECRET,
-{expiresIn:process.env.ACCESS_TOKEN_EXPIRE||"15m"}
-);
+const generateAccessToken = ({ userId, userType }) =>
+    jwt.sign({ userId, userType }, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: process.env.ACCESS_TOKEN_EXPIRE || "15m"
+    });
 
-const generateRefreshToken=({userId,userType})=>jwt.sign(
-{userId,userType},
-process.env.REFRESH_TOKEN_SECRET,
-{expiresIn:process.env.REFRESH_TOKEN_EXPIRE||"7d"}
-);
+const generateRefreshToken = ({ userId, userType }) =>
+    jwt.sign({ userId, userType }, process.env.REFRESH_TOKEN_SECRET, {
+        expiresIn: process.env.REFRESH_TOKEN_EXPIRE || "7d"
+    });
 
-const hashRefreshToken=token=>crypto.createHash("sha256").update(token).digest("hex");
+const setAuthCookies = (res, accessToken, refreshToken) => {
+    const production = process.env.NODE_ENV === "production";
 
-const generateTokens=async({userId,userType})=>{
-const accessToken=generateAccessToken({userId,userType});
-const refreshToken=generateRefreshToken({userId,userType});
-const refreshTokenHash=hashRefreshToken(refreshToken);
+    res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: production,
+        sameSite: production ? "none" : "lax",
+        maxAge: 15 * 60 * 1000,
+        path: "/"
+    });
 
-await Worker.findByIdAndUpdate(userId,{refreshTokenHash});
-
-return{accessToken,refreshToken};
+    res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: production,
+        sameSite: production ? "none" : "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: "/"
+    });
 };
 
-const setAuthCookies=(res,accessToken,refreshToken)=>{
-const production=process.env.NODE_ENV==="production";
+const createSession = async (worker, res) => {
+    const accessToken = generateAccessToken({
+        userId: worker._id,
+        userType: "worker"
+    });
+    const refreshToken = generateRefreshToken({
+        userId: worker._id,
+        userType: "worker"
+    });
 
-res.cookie("accessToken",accessToken,{
-httpOnly:true,
-secure:production,
-sameSite:production?"none":"lax",
-maxAge:15*60*1000,
-path:"/"
-});
-
-res.cookie("refreshToken",refreshToken,{
-httpOnly:true,
-secure:production,
-sameSite:production?"none":"lax",
-maxAge:7*24*60*60*1000,
-path:"/"
-});
+    worker.refreshTokenHash = hash(refreshToken);
+    await worker.save();
+    setAuthCookies(res, accessToken, refreshToken);
 };
 
-const authenticateWorker=req=>{
-const accessToken=req.cookies?.accessToken;
+const authenticateWorker = req => {
+    const token = req.cookies?.accessToken;
+    if (!token)
+        return { valid: false, status: 401, message: "Authentication required." };
 
-if(!accessToken)return{valid:false,status:401,message:"Authentication required."};
+    try {
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        if (decoded.userType !== "worker")
+            return { valid: false, status: 403, message: "Worker authentication required." };
 
-try{
-const decoded=jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET);
-
-if(decoded.userType!=="worker")
-return{valid:false,status:403,message:"Worker authentication required."};
-
-return{valid:true,userId:decoded.userId};
-}catch(error){
-return{valid:false,status:401,message:"Authentication required."};
-}
+        return { valid: true, userId: decoded.userId };
+    } catch {
+        return { valid: false, status: 401, message: "Authentication required." };
+    }
 };
 
-/* SIGN UP */
+/* Shared cooldown response. */
+const cooldownResponse = (res, message, date) =>
+    res.status(429).json({
+        success: false,
+        message,
+        cooldownUntil: date.toISOString()
+    });
 
-const signupWorker=async(req,res)=>{
-try{
-const{email,password,confirmPassword,termsAccepted}=req.body;
+/* SIGNUP */
 
-if(!email||!password||!confirmPassword||termsAccepted===undefined)
-return res.status(400).json({success:false,message:"Email, password, confirm password, and terms and privacy agreement are required."});
+const signupWorker = async (req, res) => {
+    try {
+        const { email, password, confirmPassword, termsAccepted } = req.body;
 
-const normalizedEmail=email.trim().toLowerCase();
+        if (!validEmail(email))
+            return res.status(400).json({ success: false, message: "Please enter a valid email address." });
 
-if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail))
-return res.status(400).json({success:false,message:"Please enter a valid email address."});
+        if (typeof password !== "string" || password.length < 8)
+            return res.status(400).json({ success: false, message: "Password must be at least 8 characters." });
 
-if(password.length<8)
-return res.status(400).json({success:false,message:"Password must be at least 8 characters."});
+        if (typeof confirmPassword !== "string" || !confirmPassword)
+            return res.status(400).json({ success: false, message: "Please confirm your password." });
 
-if(password!==confirmPassword)
-return res.status(400).json({success:false,message:"Passwords do not match."});
+        if (password !== confirmPassword)
+            return res.status(400).json({ success: false, message: "Passwords do not match." });
 
-if(termsAccepted!==true)
-return res.status(400).json({success:false,message:"You must agree to the Terms and Privacy Policy."});
+        if (termsAccepted !== true)
+            return res.status(400).json({ success: false, message: "You must agree to the Terms and Privacy Policy." });
 
-const existingWorker=await Worker.findOne({email:normalizedEmail});
+        const normalizedEmail = email.trim().toLowerCase();
+        if (await Worker.exists({ email: normalizedEmail }))
+            return res.status(409).json({ success: false, message: "An account with this email already exists." });
 
-if(existingWorker)
-return res.status(400).json({success:false,message:"An account with this email already exists."});
+        const passwordHash = await bcrypt.hash(password, 10);
+        const worker = await Worker.create({
+            email: normalizedEmail,
+            passwordHash,
+            accountType: "password",
+            emailVerified: false,
+            profileCompleted: false
+        });
 
-const passwordHash=await bcrypt.hash(password,10);
+        const { otp, expiresAt } = newOTP();
 
-const worker=await Worker.create({
-email:normalizedEmail,
-passwordHash,
-accountType:"password",
-emailVerified:false,
-profileCompleted:false
-});
+        try {
+            await sendOTPEmail({
+                email: worker.email, otp, type: "email-verification"
+            });
+        } catch (error) {
+            // Do not leave an unusable account if the initial email cannot be sent.
+            await Worker.deleteOne({ _id: worker._id, emailVerified: false });
+            throw error;
+        }
 
-const{otp,expiresAt}=generateOTPData();
+        worker.emailOtpHash = hash(otp);
+        worker.emailOtpExpires = expiresAt;
+        await worker.save();
 
-await sendOTPEmail({
-email:worker.email,
-otp,
-type:"email-verification"
-});
-
-worker.emailOtpHash=hashOTP(otp);
-worker.emailOtpExpires=expiresAt;
-
-await worker.save();
-
-return res.status(201).json({
-success:true,
-message:"Worker account created successfully. A verification code has been sent to your email.",
-email:worker.email,
-nextStep:"email-verification"
-});
-
-}catch(error){
-console.error("Worker signup error:",error);
-return res.status(500).json({success:false,message:"An error occurred while creating your worker account."});
-}
+        return res.status(201).json({
+            success: true,
+            message: "A verification code has been sent to your email.",
+            email: worker.email,
+            nextStep: "email-verification"
+        });
+    } catch (error) {
+        console.error("Worker signup error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while creating your worker account."
+        });
+    }
 };
 
 /* LOGIN */
 
-const loginWorker=async(req,res)=>{
-try{
-const{email,password}=req.body;
+const loginWorker = async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
-if(!email||!password)
-return res.status(400).json({success:false,message:"Email and password are required."});
+        if (!validEmail(email))
+            return res.status(400).json({ success: false, message: "Please enter a valid email address." });
 
-const normalizedEmail=email.trim().toLowerCase();
+        if (typeof password !== "string" || !password)
+            return res.status(400).json({ success: false, message: "Password is required." });
 
-const worker=await Worker.findOne({email:normalizedEmail}).select("+passwordHash");
+        const worker = await Worker.findOne({
+            email: email.trim().toLowerCase()
+        }).select("+passwordHash");
 
-if(!worker)
-return res.status(401).json({success:false,message:"Invalid email or password."});
+        if (!worker)
+            return res.status(401).json({ success: false, message: "Invalid email or password." });
 
-if(worker.accountType==="googleId")
-return res.status(400).json({
-success:false,
-message:"This account uses Google authentication. Please continue with Google."
-});
+        if (worker.accountType === "googleId")
+            return res.status(400).json({
+                success: false,
+                message: "This account uses Google authentication. Please continue with Google."
+            });
 
-const passwordMatch=await bcrypt.compare(password,worker.passwordHash);
+        if (!worker.passwordHash || !await bcrypt.compare(password, worker.passwordHash))
+            return res.status(401).json({ success: false, message: "Invalid email or password." });
 
-if(!passwordMatch)
-return res.status(401).json({success:false,message:"Invalid email or password."});
+        if (!worker.emailVerified) {
+            const attempts = worker.emailOtpResendAttempts;
+            const now = Date.now();
+            const cooldownUntil = attempts.coolDownUntil;
 
-if(!worker.emailVerified){
-const{otp,expiresAt}=generateOTPData();
+            if (cooldownUntil && cooldownUntil.getTime() > now)
+                return cooldownResponse(
+                    res,
+                    "Email verification resend cooldown is active. Please try again later.",
+                    cooldownUntil
+                );
 
-await sendOTPEmail({
-email:worker.email,
-otp,
-type:"email-verification"
-});
+            if (cooldownUntil && cooldownUntil.getTime() <= now) {
+                attempts.coolDownUntil = null;
+                attempts.emailOtpResendCount = 0;
+            }
 
-worker.emailOtpHash=hashOTP(otp);
-worker.emailOtpExpires=expiresAt;
+            if (attempts.emailOtpResendCount >= MAX_OTP_SENDS) {
+                attempts.emailOtpResendCount = 0;
+                attempts.coolDownUntil = new Date(now + COOLDOWN_MS);
+                await worker.save();
 
-await worker.save();
+                return cooldownResponse(
+                    res,
+                    "You have reached the email verification OTP resend limit. Please try again after 24 hours.",
+                    attempts.coolDownUntil
+                );
+            }
 
-return res.status(200).json({
-success:true,
-message:"A new verification code has been sent to your email.",
-email:worker.email,
-nextStep:"email-verification"
-});
-}
+            const { otp, expiresAt } = newOTP();
 
-if(!worker.profileCompleted)
-return res.status(200).json({
-success:true,
-message:"Please complete your worker profile.",
-email:worker.email,
-nextStep:"profile"
-});
+            await sendOTPEmail({
+                email: worker.email, otp, type: "email-verification"
+            });
 
-const{accessToken,refreshToken}=await generateTokens({
-userId:worker._id,
-userType:"worker"
-});
+            worker.emailOtpHash = hash(otp);
+            worker.emailOtpExpires = expiresAt;
+            attempts.emailOtpResendCount += 1;
+            await worker.save();
 
-setAuthCookies(res,accessToken,refreshToken);
+            return res.status(200).json({
+                success: true,
+                message: "Verification code has been sent to your email.",
+                email: worker.email,
+                nextStep: "email-verification"
+            });
+        }
 
-return res.status(200).json({
-success:true,
-message:`Welcome back, ${worker.fullName}.`,
-email:worker.email,
-fullName:worker.fullName,
-nextStep:"authenticated"
-});
+        if (!worker.profileCompleted)
+            return res.status(200).json({
+                success: true,
+                message: "Please complete your worker profile.",
+                email: worker.email,
+                nextStep: "profile"
+            });
 
-}catch(error){
-console.error("Worker login error:",error);
-return res.status(500).json({success:false,message:"An error occurred while logging in."});
-}
+        await createSession(worker, res);
+
+        return res.status(200).json({
+            success: true,
+            message: `Welcome back, ${worker.fullName || "worker"}.`,
+            email: worker.email,
+            fullName: worker.fullName,
+            nextStep: "authenticated"
+        });
+    } catch (error) {
+        console.error("Worker login error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while logging in."
+        });
+    }
 };
 
 /* FORGOT PASSWORD */
@@ -276,102 +337,75 @@ const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
 
-        if (!email) {
-            return res.status(400).json({
-                success: false,
-                message: "Email is required."
-            });
-        }
-
-        const normalizedEmail = email.trim().toLowerCase();
+        if (!validEmail(email))
+            return res.status(400).json({ success: false, message: "Please enter a valid email address." });
 
         const worker = await Worker.findOne({
-            email: normalizedEmail
+            email: email.trim().toLowerCase()
         });
 
-        if (!worker) {
+        if (!worker)
             return res.status(404).json({
                 success: false,
                 message: "No worker account was found with this email address."
             });
-        }
 
-        if (worker.accountType === "googleId") {
+        if (worker.accountType === "googleId")
             return res.status(400).json({
                 success: false,
                 message: "This account uses Google authentication. Please continue with Google."
             });
-        }
 
-        const now = new Date();
+        const attempts = worker.passwordResetOtpResendAttempts;
+        const now = Date.now();
+        const cooldownUntil = attempts.coolDownUntil;
 
-        const attempts = worker.otpResendAttempts;
-        const cooldownUntil = attempts?.coolDownUntil;
-        let resendCount = attempts?.passwordResetOtpResendCount || 0;
-
-        // 1. Check whether the 24-hour cooldown is still active.
-        if (cooldownUntil && new Date(cooldownUntil).getTime() > now.getTime()) {
-            return res.status(429).json({
-                success: false,
-                message: "You have reached the password reset OTP resend limit. Please try again after the cooldown period.",
-                cooldownUntil: new Date(cooldownUntil).toISOString()
-            });
-        }
-
-        // 2. If the previous cooldown has expired, reset the counter.
-        if (cooldownUntil && new Date(cooldownUntil).getTime() <= now.getTime()) {
-            attempts.coolDownUntil = null;
-            attempts.passwordResetOtpResendCount = 0;
-            resendCount = 0;
-        }
-
-        // 3. Four OTP sends are allowed. The next request starts a 24-hour cooldown.
-        if (resendCount >= 4) {
-            const newCooldownUntil = new Date(
-                now.getTime() + 24 * 60 * 60 * 1000
+        if (cooldownUntil && cooldownUntil.getTime() > now)
+            return cooldownResponse(
+                res,
+                "You have reached the password reset OTP resend limit. Please try again after the cooldown period.",
+                cooldownUntil
             );
 
-            attempts.coolDownUntil = newCooldownUntil;
-
-            await worker.save();
-
-            return res.status(429).json({
-                success: false,
-                message: "You have reached the password reset OTP resend limit. Please try again after the cooldown period.",
-                cooldownUntil: newCooldownUntil.toISOString()
-            });
+        if (cooldownUntil && cooldownUntil.getTime() <= now) {
+            attempts.coolDownUntil = null;
+            attempts.passwordResetOtpResendCount = 0;
         }
 
-        // 4. Generate the OTP.
-        const { otp, expiresAt } = generateOTPData();
+        if (attempts.passwordResetOtpResendCount >= MAX_OTP_SENDS) {
+            attempts.passwordResetOtpResendCount = 0;
+            attempts.coolDownUntil = new Date(now + COOLDOWN_MS);
+            await worker.save();
 
-        // 5. Send the OTP before incrementing the counter.
+            return cooldownResponse(
+                res,
+                "You have reached the password reset OTP resend limit. Please try again after the cooldown period.",
+                attempts.coolDownUntil
+            );
+        }
+
+        const { otp, expiresAt } = newOTP();
+
         await sendOTPEmail({
-            email: worker.email,
-            otp,
-            type: "password-reset"
+            email: worker.email, otp, type: "password-reset"
         });
 
-        // 6. Save the OTP and increment the resend counter.
-        worker.passwordResetOtpHash = hashOTP(otp);
+        worker.passwordResetOtpHash = hash(otp);
         worker.passwordResetOtpExpires = expiresAt;
         worker.passwordResetVerified = false;
         worker.passwordResetVerifiedAt = null;
         worker.resetAuthorizationExpires = null;
-
-        attempts.passwordResetOtpResendCount = resendCount + 1;
+        attempts.passwordResetOtpResendCount += 1;
 
         await worker.save();
 
         return res.status(200).json({
             success: true,
-            email: worker.email,
-            message: "Verification code has been sent to your email."
+            message: "Verification code has been sent to your email.",
+            email: worker.email
         });
-
     } catch (error) {
         console.error("Worker forgot password error:", error);
-
         return res.status(500).json({
             success: false,
             message: "An error occurred while processing your password reset request."
@@ -381,176 +415,166 @@ const forgotPassword = async (req, res) => {
 
 /* GOOGLE START */
 
-const googleAuthentication=async(req,res)=>{
-try{
-const googleUrl=new URL("https://accounts.google.com/o/oauth2/v2/auth");
+const googleAuthentication = (req, res) => {
+    try {
+        const googleUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
 
-googleUrl.searchParams.set("client_id",process.env.GOOGLE_CLIENT_ID);
-googleUrl.searchParams.set("redirect_uri",process.env.GOOGLE_CALLBACK_URL);
-googleUrl.searchParams.set("response_type","code");
-googleUrl.searchParams.set("scope","openid email profile");
-googleUrl.searchParams.set("access_type","offline");
-googleUrl.searchParams.set("prompt","select_account");
+        googleUrl.searchParams.set("client_id", process.env.GOOGLE_CLIENT_ID);
+        googleUrl.searchParams.set("redirect_uri", process.env.GOOGLE_CALLBACK_URL);
+        googleUrl.searchParams.set("response_type", "code");
+        googleUrl.searchParams.set("scope", "openid email profile");
+        googleUrl.searchParams.set("prompt", "select_account");
 
-return res.redirect(googleUrl.toString());
-
-}catch(error){
-console.error("Worker Google authentication error:",error);
-return res.redirect(`${process.env.FRONTEND_URL}/worker-google-redirect/index.html?error=${encodeURIComponent("Unable to start Google authentication.")}`);
-}
+        return res.redirect(googleUrl.toString());
+    } catch (error) {
+        console.error("Worker Google start error:", error);
+        return res.redirect(
+            `${process.env.FRONTEND_URL}/worker-google-redirect/index.html?error=google-authentication-failed`
+        );
+    }
 };
 
 /* GOOGLE CALLBACK */
 
-const googleCallback=async(req,res)=>{
-try{
-const code=req.query.code;
+const googleCallback = async (req, res) => {
+    const redirect = (key, value) =>
+        res.redirect(
+            `${process.env.FRONTEND_URL}/worker-google-redirect/index.html?${key}=${encodeURIComponent(value)}`
+        );
 
-const errorRedirect=message=>res.redirect(
-`${process.env.FRONTEND_URL}/worker-google-redirect/index.html?error=${encodeURIComponent(message)}`
-);
+    try {
+        if (req.query.error)
+            return redirect("error", "google-authentication-failed");
 
-const codeRedirect=code=>res.redirect(
-`${process.env.FRONTEND_URL}/worker-google-redirect/index.html?code=${encodeURIComponent(code)}`
-);
+        const code = req.query.code;
+        if (!code)
+            return redirect("error", "google-authentication-failed");
 
-if(req.query.error)
-return errorRedirect("Google authentication was cancelled or failed.");
+        const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+                code,
+                client_id: process.env.GOOGLE_CLIENT_ID,
+                client_secret: process.env.GOOGLE_CLIENT_SECRET,
+                redirect_uri: process.env.GOOGLE_CALLBACK_URL,
+                grant_type: "authorization_code"
+            })
+        });
 
-if(!code)
-return errorRedirect("Google authentication code was not received.");
+        const tokenData = await tokenResponse.json();
 
-const tokenResponse=await fetch("https://oauth2.googleapis.com/token",{
-method:"POST",
-headers:{"Content-Type":"application/x-www-form-urlencoded"},
-body:new URLSearchParams({
-code,
-client_id:process.env.GOOGLE_CLIENT_ID,
-client_secret:process.env.GOOGLE_CLIENT_SECRET,
-redirect_uri:process.env.GOOGLE_CALLBACK_URL,
-grant_type:"authorization_code"
-})
-});
+        if (!tokenResponse.ok || !tokenData.access_token)
+            return redirect("error", "google-authentication-failed");
 
-const tokenData=await tokenResponse.json();
+        const userResponse = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+            headers: { Authorization: `Bearer ${tokenData.access_token}` }
+        });
 
-if(!tokenResponse.ok||!tokenData.access_token)
-return errorRedirect("Unable to complete Google authentication.");
+        const googleUser = await userResponse.json();
 
-const userResponse=await fetch("https://www.googleapis.com/oauth2/v2/userinfo",{
-headers:{Authorization:`Bearer ${tokenData.access_token}`}
-});
+        if (!userResponse.ok || !googleUser.email || !googleUser.id)
+            return redirect("error", "google-authentication-failed");
 
-const googleUser=await userResponse.json();
+        if (googleUser.verified_email === false)
+            return redirect("error", "google-authentication-failed");
 
-if(!userResponse.ok||!googleUser.email||!googleUser.id)
-return errorRedirect("Unable to retrieve your Google account information.");
+        const email = googleUser.email.trim().toLowerCase();
+        const googleId = String(googleUser.id);
 
-const googleEmail=googleUser.email.trim().toLowerCase();
-const googleId=String(googleUser.id);
+        let worker = await Worker.findOne({ email }).select("+googleExchangeCode");
 
-let worker=await Worker.findOne({email:googleEmail}).select("+googleExchangeCode");
+        if (worker && worker.accountType === "password")
+            return redirect("error", "password-account");
 
-if(worker&&worker.accountType==="password")
-return errorRedirect("password-account");
+        if (!worker) {
+            worker = await Worker.create({
+                email,
+                googleId,
+                accountType: "googleId",
+                emailVerified: true,
+                profileCompleted: false
+            });
+        } else {
+            worker.googleId = googleId;
+            worker.emailVerified = true;
+        }
 
-if(!worker){
-worker=await Worker.create({
-email:googleEmail,
-googleId,
-accountType:"googleId",
-emailVerified:true,
-profileCompleted:false
-});
-}else{
-worker.googleId=googleId;
-}
+        worker.googleExchangeCode = generateGoogleExchangeCode();
+        await worker.save();
 
-const exchangeCode=generateGoogleExchangeCode();
-
-worker.googleExchangeCode=exchangeCode;
-
-await worker.save();
-
-return codeRedirect(exchangeCode);
-
-}catch(error){
-console.error("Worker Google callback error:",error);
-return res.redirect(`${process.env.FRONTEND_URL}/worker-google-redirect/index.html?error=google-authentication-failed`);
-}
+        return redirect("code", worker.googleExchangeCode);
+    } catch (error) {
+        console.error("Worker Google callback error:", error);
+        return redirect("error", "google-authentication-failed");
+    }
 };
 
 /* GOOGLE EXCHANGE */
 
-const exchangeGoogleCode=async(req,res)=>{
-try{
-const{code}=req.body;
+const exchangeGoogleCode = async (req, res) => {
+    try {
+        const { code } = req.body;
 
-if(!code)
-return res.status(400).json({success:false,message:"Google exchange code is required."});
+        if (typeof code !== "string" || !code)
+            return res.status(400).json({
+                success: false,
+                message: "Google exchange code is required."
+            });
 
-const worker=await Worker.findOne({
-googleExchangeCode:code
-}).select("+googleExchangeCode +refreshTokenHash");
+        const worker = await Worker.findOne({
+            googleExchangeCode: code
+        }).select("+googleExchangeCode");
 
-if(!worker)
-return res.status(401).json({success:false,message:"Invalid Google exchange code."});
+        if (!worker)
+            return res.status(401).json({
+                success: false,
+                message: "Invalid or expired Google exchange code."
+            });
 
-worker.googleExchangeCode=null;
+        // Consume the code before completing the login.
+        worker.googleExchangeCode = null;
+        await worker.save();
 
-if(worker.accountType==="password"){
-await worker.save();
+        if (worker.accountType !== "googleId")
+            return res.status(400).json({
+                success: false,
+                message: "This account uses password authentication. Please log in with your password.",
+                nextStep: "login-required"
+            });
 
-return res.status(400).json({
-success:false,
-message:"This account uses password authentication. Please log in with your password.",
-nextStep:"login-required"
-});
-}
+        if (!worker.profileCompleted)
+            return res.status(200).json({
+                success: true,
+                message: "Google authentication successful. Please complete your worker profile.",
+                email: worker.email,
+                nextStep: "profile"
+            });
 
-if(!worker.profileCompleted){
-await worker.save();
+        await createSession(worker, res);
 
-return res.status(200).json({
-success:true,
-message:"Google authentication successful. Please complete your worker profile.",
-email:worker.email,
-nextStep:"profile"
-});
-}
-
-const{accessToken,refreshToken}=await generateTokens({
-userId:worker._id,
-userType:"worker"
-});
-
-await worker.save();
-
-setAuthCookies(res,accessToken,refreshToken);
-
-return res.status(200).json({
-success:true,
-message:`Welcome back, ${worker.fullName}.`,
-email:worker.email,
-fullName:worker.fullName,
-nextStep:"authenticated"
-});
-
-}catch(error){
-console.error("Worker Google exchange error:",error);
-return res.status(500).json({
-success:false,
-message:"An error occurred while completing Google authentication."
-});
-}
+        return res.status(200).json({
+            success: true,
+            message: `Welcome back, ${worker.fullName || "worker"}.`,
+            email: worker.email,
+            fullName: worker.fullName,
+            nextStep: "authenticated"
+        });
+    } catch (error) {
+        console.error("Worker Google exchange error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while completing Google authentication."
+        });
+    }
 };
 
-module.exports={
-signupWorker,
-loginWorker,
-forgotPassword,
-googleAuthentication,
-googleCallback,
-exchangeGoogleCode,
-authenticateWorker
+module.exports = {
+    signupWorker,
+    loginWorker,
+    forgotPassword,
+    googleAuthentication,
+    googleCallback,
+    exchangeGoogleCode,
+    authenticateWorker
 };

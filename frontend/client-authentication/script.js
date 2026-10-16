@@ -17,7 +17,7 @@ const CLIENT_FORGOT_PASSWORD_ENDPOINT="/api/client-authentication/forgot-passwor
 function setLoading(button,loading,text=""){
     if(!button)return;
     if(loading){
-        button.dataset.originalText=button.textContent;
+        if(!button.dataset.originalText)button.dataset.originalText=button.textContent;
         if(text)button.textContent=text;
         button.disabled=true;
         button.classList.add("loading");
@@ -25,11 +25,72 @@ function setLoading(button,loading,text=""){
         button.textContent=button.dataset.originalText||button.textContent;
         button.disabled=false;
         button.classList.remove("loading");
+        delete button.dataset.originalText;
     }
 }
 
 function isValidEmail(email){
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+let cooldownInterval=null;
+
+function clearCooldownCountdown(){
+    if(cooldownInterval){
+        clearInterval(cooldownInterval);
+        cooldownInterval=null;
+    }
+}
+
+function cooldownMessage(data){
+    if(!data.coolDownUntil)return data.message||"Please try again later.";
+    return `${data.message||"Please try again later."}\nCooldown ends: ${new Date(data.coolDownUntil).toLocaleString()}`;
+}
+
+function showCooldownNotification(title,data){
+    clearCooldownCountdown();
+
+    const message=data.message||"Please try again later.";
+
+    showNotification(title,message,"error");
+
+    const notificationMessage=getElement("notificationMessage");
+    const cooldownUntil=Date.parse(data.coolDownUntil);
+
+    if(!data.coolDownUntil||!Number.isFinite(cooldownUntil)){
+        notificationMessage.textContent=cooldownMessage(data);
+        return;
+    }
+
+    function updateCountdown(){
+        const remaining=Math.max(0,cooldownUntil-Date.now());
+
+        if(remaining===0){
+            notificationMessage.textContent=
+                `${message}\nCooldown has expired. You can try again.`;
+
+            clearCooldownCountdown();
+            return;
+        }
+
+        const totalSeconds=Math.ceil(remaining/1000);
+        const days=Math.floor(totalSeconds/86400);
+        const hours=Math.floor((totalSeconds%86400)/3600);
+        const minutes=Math.floor((totalSeconds%3600)/60);
+        const seconds=totalSeconds%60;
+
+        const countdown=[
+            ...(days?[`${days}d`]:[]),
+            ...(hours?[`${hours}h`]:[]),
+            `${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`
+        ].join(" ");
+
+        notificationMessage.textContent=
+            `${message}\nTime remaining: ${countdown}`;
+    }
+
+    updateCountdown();
+    cooldownInterval=setInterval(updateCountdown,1000);
 }
 
 let notificationCallback=null;
@@ -45,13 +106,13 @@ function showNotification(title,message,type="success",callback=null){
 }
 
 function closeNotification(){
+    clearCooldownCountdown();
+
     const modal=getElement("notificationModal");
     modal.classList.remove("show");
     modal.setAttribute("aria-hidden","true");
-
     const callback=notificationCallback;
     notificationCallback=null;
-
     if(typeof callback==="function")callback();
 }
 
@@ -101,7 +162,6 @@ function initializePasswordToggles(){
             const input=getElement(inputId);
             const button=getElement(buttonId);
             const visible=input.type==="text";
-
             input.type=visible?"password":"text";
             button.textContent=visible?"Show":"Hide";
             button.setAttribute("aria-label",visible?"Show password":"Hide password");
@@ -121,7 +181,7 @@ function initializeLogin(){
         if(!isValidEmail(email))return showNotification("Invalid Email","Please enter a valid email address.","error");
         if(!password)return showNotification("Password Required","Please enter your password.","error");
 
-        setLoading(button,true,"Connecting...");
+        setLoading(button,true,"Logging in…");
 
         try{
             const response=await API_REQUEST(`${CLIENT_AUTH_ENDPOINT}/login`,{
@@ -134,16 +194,15 @@ function initializeLogin(){
             setLoading(button,false);
 
             if(!response.ok){
-                return showNotification(
-                    "Login Failed",
-                    data.message||"Unable to login. Please try again.",
-                    "error"
-                );
+                if(data.coolDownUntil){
+                    return showCooldownNotification("Login Failed",data);
+                }
+
+                return showNotification("Login Failed",cooldownMessage(data),"error");
             }
 
             if(data.requiresEmailVerification){
                 sessionStorage.setItem("clientEmail",data.email||email);
-
                 return showNotification(
                     "Verify Your Email",
                     data.message||"A verification code has been sent to your email.",
@@ -154,7 +213,6 @@ function initializeLogin(){
 
             if(data.profileCompleted===false){
                 sessionStorage.setItem("clientEmail",data.email||email);
-
                 return showNotification(
                     "Complete Your Profile",
                     data.message||"Please complete your client profile.",
@@ -163,22 +221,20 @@ function initializeLogin(){
                 );
             }
 
-            return showNotification(
-                "Login Successful",
-                data.message||`Welcome back, ${data.fullName||"Client"}!`,
-                "success",
-                ()=>{location.href="../client-dashboard/index.html";}
-            );
+            if(data.profileCompleted===true||data.fullName){
+                return showNotification(
+                    "Login Successful",
+                    data.message||`Welcome back, ${data.fullName||"Client"}!`,
+                    "success",
+                    ()=>{location.href="../client-dashboard/index.html";}
+                );
+            }
 
+            return showNotification("Login Failed","The server returned an incomplete response.","error");
         }catch(error){
             console.error("Client login failed:",error);
             setLoading(button,false);
-
-            showNotification(
-                "Connection Error",
-                "Unable to connect to the server. Please try again.",
-                "error"
-            );
+            showNotification("Connection Error","Unable to connect to the server. Please try again.","error");
         }
     });
 }
@@ -201,29 +257,20 @@ function initializeSignup(){
         if(password!==confirmPassword)return showNotification("Passwords Do Not Match","Please make sure both passwords match.","error");
         if(!termsAccepted)return showNotification("Agreement Required","You must agree to the Terms and Privacy Policy.","error");
 
-        setLoading(button,true,"Connecting...");
+        setLoading(button,true,"Creating…");
 
         try{
             const response=await API_REQUEST(`${CLIENT_AUTH_ENDPOINT}/signup`,{
                 method:"POST",
                 headers:{"Content-Type":"application/json"},
-                body:JSON.stringify({
-                    email,
-                    password,
-                    confirmPassword,
-                    termsAccepted
-                })
+                body:JSON.stringify({email,password,confirmPassword,termsAccepted})
             });
 
             const data=await response.json().catch(()=>({}));
             setLoading(button,false);
 
             if(!response.ok){
-                return showNotification(
-                    "Account Creation Failed",
-                    data.message||"Unable to create your account. Please try again.",
-                    "error"
-                );
+                return showNotification("Account Creation Failed",data.message||"Unable to create your account. Please try again.","error");
             }
 
             sessionStorage.setItem("clientEmail",data.email||email);
@@ -234,16 +281,10 @@ function initializeSignup(){
                 "success",
                 ()=>{location.href="../client-email-otp/index.html";}
             );
-
         }catch(error){
             console.error("Client signup failed:",error);
             setLoading(button,false);
-
-            showNotification(
-                "Connection Error",
-                "Unable to connect to the server. Please try again.",
-                "error"
-            );
+            showNotification("Connection Error","Unable to connect to the server. Please try again.","error");
         }
     });
 }
@@ -258,7 +299,7 @@ function initializeForgotPassword(){
         if(!email)return showNotification("Email Required","Please enter your email address.","error");
         if(!isValidEmail(email))return showNotification("Invalid Email","Please enter a valid email address.","error");
 
-        setLoading(button,true,"Connecting...");
+        setLoading(button,true,"Connecting…");
 
         try{
             const response=await API_REQUEST(CLIENT_FORGOT_PASSWORD_ENDPOINT,{
@@ -269,16 +310,17 @@ function initializeForgotPassword(){
 
             const data=await response.json().catch(()=>({}));
             setLoading(button,false);
-            closeForgotModal();
 
             if(!response.ok){
-                return showNotification(
-                    "Request Failed",
-                    data.message||"Unable to process your request.",
-                    "error"
-                );
+                if(data.coolDownUntil){
+                    closeForgotModal();
+                    return showCooldownNotification("Request Failed",data);
+                }
+
+                return showNotification("Request Failed",cooldownMessage(data),"error");
             }
 
+            closeForgotModal();
             sessionStorage.setItem("clientEmail",data.email||email);
 
             return showNotification(
@@ -287,40 +329,29 @@ function initializeForgotPassword(){
                 "success",
                 ()=>{location.href="../client-password-reset-otp/index.html";}
             );
-
         }catch(error){
             console.error("Client password reset request failed:",error);
             setLoading(button,false);
             closeForgotModal();
-
-            showNotification(
-                "Connection Error",
-                "Unable to connect to the server. Please try again.",
-                "error"
-            );
+            showNotification("Connection Error","Unable to connect to the server. Please try again.","error");
         }
     });
 }
 
 function initializeGoogleButtons(){
-    const loginButton=getElement("googleLoginButton");
-    const signupButton=getElement("googleSignupButton");
-
-    loginButton.addEventListener("click",()=>startGoogleAuthentication(loginButton));
-    signupButton.addEventListener("click",()=>startGoogleAuthentication(signupButton));
+    ["googleLoginButton","googleSignupButton"].forEach(id=>{
+        const button=getElement(id);
+        if(button)button.addEventListener("click",()=>startGoogleAuthentication(button));
+    });
 }
 
 function startGoogleAuthentication(button){
-    setLoading(button,true,"Connecting...");
+    setLoading(button,true,"Connecting…");
     window.location.href=API_ENDPOINT(CLIENT_GOOGLE_ENDPOINT);
 }
 
 document.addEventListener("keydown",event=>{
     if(event.key!=="Escape")return;
-
     const forgotModal=getElement("forgotModal");
-
-    if(forgotModal.classList.contains("show")){
-        closeForgotModal();
-    }
+    if(forgotModal.classList.contains("show"))closeForgotModal();
 });

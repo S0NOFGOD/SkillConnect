@@ -325,7 +325,7 @@ function setVerifyLoading(isLoading) {
     if (verifyButtonText) {
         if (isLoading) {
             verifyButtonText.innerHTML =
-                '<span class="loading-spinner"></span> Connecting...';
+                '<span class="loading-spinner"></span> Verifying...';
         } else {
             verifyButtonText.textContent = "Verify OTP";
         }
@@ -339,7 +339,7 @@ function setResendLoading(isLoading) {
 
     if (isLoading) {
         resendOTP.classList.add("disabled");
-        resendOTP.textContent = "Connecting...";
+        resendOTP.textContent = "Resending...";
         return;
     }
 

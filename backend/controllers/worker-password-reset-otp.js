@@ -306,7 +306,7 @@ const resendPasswordResetOTP = async (req, res) => {
 
         const now = new Date();
 
-        const attempts = worker.otpResendAttempts;
+        const attempts = worker.passwordResetOtpResendAttempts;
 
         let resendCount = Number(
             attempts?.passwordResetOtpResendCount ?? 0
@@ -393,7 +393,7 @@ const resendPasswordResetOTP = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: "A new password reset code has been sent to your email."
+            message: "password reset code has been sent to your email."
         });
 
     } catch (error) {

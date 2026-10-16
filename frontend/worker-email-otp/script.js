@@ -14,292 +14,224 @@ const notificationCloseButton=document.getElementById("notificationCloseButton")
 const workerEmail=sessionStorage.getItem("workerEmail");
 const authenticationPage="../worker-authentication/index.html";
 
-let countdownSeconds=60;
-let countdownTimer=null;
-let isVerifying=false;
-let isResending=false;
-let notificationCallback=null;
+let countdownSeconds=60,countdownTimer=null,isVerifying=false,isResending=false,notificationCallback=null,cooldownTimer=null;
 
 const showNotification=(type,title,message,callback=null)=>{
-    notificationTitle.textContent=title;
-    notificationMessage.textContent=message;
-    notificationCallback=callback;
-    notificationIcon.classList.remove("success","error");
-    notificationIcon.classList.add(type);
-    notificationIcon.textContent=type==="success"?"✓":"!";
-    notificationCloseButton.textContent="Continue";
-    notificationModal.hidden=false;
+notificationTitle.textContent=title;
+notificationMessage.textContent=message;
+notificationCallback=callback;
+notificationIcon.classList.remove("success","error");
+notificationIcon.classList.add(type);
+notificationIcon.textContent=type==="success"?"✓":"!";
+notificationCloseButton.textContent="Continue";
+notificationModal.hidden=false;
 };
 
 const closeNotification=()=>{
-    const callback=notificationCallback;
-    notificationCallback=null;
-    notificationModal.hidden=true;
-    if(callback)callback();
+const callback=notificationCallback;
+notificationCallback=null;
+notificationModal.hidden=true;
+if(callback)callback();
 };
 
-notificationCloseButton.addEventListener("click",()=>{closeNotification();});
+notificationCloseButton.addEventListener("click",closeNotification);
 
 if(!workerEmail){
-    showNotification("error","Session Expired","Your verification session has expired. Please return to the login or signup page.",()=>{
-        window.location.href=authenticationPage;
-    });
+showNotification("error","Session Expired","Your verification session has expired. Please return to the authentication page.",()=>window.location.href=authenticationPage);
 }else{
-    workerEmailElement.textContent=workerEmail;
+workerEmailElement.textContent=workerEmail;
 }
 
 otpInputs.forEach((input,index)=>{
-    input.addEventListener("input",()=>{
-        input.value=input.value.replace(/\D/g,"");
-        input.classList.remove("invalid");
-        if(input.value&&index<otpInputs.length-1)otpInputs[index+1].focus();
-    });
+input.addEventListener("input",()=>{
+input.value=input.value.replace(/\D/g,"").slice(0,1);
+input.classList.remove("invalid");
+if(input.value&&index<otpInputs.length-1)otpInputs[index+1].focus();
+});
 
-    input.addEventListener("keydown",event=>{
-        if(event.key==="Backspace"&&!input.value&&index>0)otpInputs[index-1].focus();
-    });
+input.addEventListener("keydown",event=>{
+    if(event.key==="Backspace"&&!input.value&&index>0)otpInputs[index-1].focus();
+});
 
-    input.addEventListener("paste",event=>{
-        event.preventDefault();
+input.addEventListener("paste",event=>{
+    event.preventDefault();
+    const pasted=(event.clipboardData||window.clipboardData).getData("text").replace(/\D/g,"").slice(0,6);
+    otpInputs.forEach((field,i)=>field.value=pasted[i]||"");
+    const last=Math.min(pasted.length,otpInputs.length)-1;
+    if(last>=0)otpInputs[last].focus();
+});
 
-        const pastedText=(event.clipboardData||window.clipboardData).getData("text").replace(/\D/g,"").slice(0,6);
-
-        pastedText.split("").forEach((digit,digitIndex)=>{
-            if(otpInputs[digitIndex])otpInputs[digitIndex].value=digit;
-        });
-
-        const lastIndex=Math.min(pastedText.length,otpInputs.length)-1;
-        if(lastIndex>=0)otpInputs[lastIndex].focus();
-    });
 });
 
 const getOTP=()=>Array.from(otpInputs).map(input=>input.value.trim()).join("");
-
 const validateOTP=otp=>/^\d{6}$/.test(otp);
-
-const markOTPInvalid=()=>{
-    otpInputs.forEach(input=>input.classList.add("invalid"));
-};
+const markOTPInvalid=()=>otpInputs.forEach(input=>input.classList.add("invalid"));
 
 const clearOTPInputs=()=>{
-    otpInputs.forEach(input=>{
-        input.value="";
-        input.classList.remove("invalid");
-    });
-
-    if(otpInputs[0])otpInputs[0].focus();
+otpInputs.forEach(input=>{input.value="";input.classList.remove("invalid");});
+if(otpInputs[0])otpInputs[0].focus();
 };
 
 const setVerifyLoading=loading=>{
-    if(loading){
-        verifyButton.disabled=true;
-        buttonText.innerHTML=`<span class="loading-spinner"></span> Connecting...`;
-    }else{
-        verifyButton.disabled=false;
-        buttonText.textContent="Verify Email";
-    }
+verifyButton.disabled=loading;
+buttonText.textContent=loading?"Verifying…":"Verify OTP";
 };
 
 const setResendLoading=loading=>{
-    if(loading){
-        resendOTP.classList.add("disabled");
-        resendOTP.textContent="Connecting...";
-    }else{
-        resendOTP.classList.remove("disabled");
-        resendOTP.textContent="Resend OTP";
+resendOTP.classList.toggle("disabled",loading||!!countdownTimer);
+resendOTP.textContent=loading?"Resending…":"Resend OTP";
+};
+
+function showCooldownNotification(until){
+if(cooldownTimer)clearInterval(cooldownTimer);
+
+const cooldownUntil=new Date(until).getTime();
+
+const updateCountdown=()=>{
+    const remaining=Math.max(0,Math.ceil((cooldownUntil-Date.now())/1000));
+    const hours=Math.floor(remaining/3600);
+    const minutes=Math.floor((remaining%3600)/60);
+    const seconds=remaining%60;
+
+    notificationMessage.textContent=remaining>0
+        ?`You have reached the maximum of resend attempts. Please try again in ${hours}h ${minutes}m ${seconds}s.`
+        :"Your cooldown has ended. You can request a new OTP.";
+
+    if(remaining<=0){
+        clearInterval(cooldownTimer);
+        cooldownTimer=null;
     }
 };
 
+showNotification("error","Resend Limit Reached","");
+updateCountdown();
+cooldownTimer=setInterval(updateCountdown,1000);
+
+}
+
 otpForm.addEventListener("submit",async event=>{
-    event.preventDefault();
+event.preventDefault();
+if(isVerifying)return;
 
-    if(isVerifying)return;
+const otp=getOTP();
 
-    const otp=getOTP();
+if(!validateOTP(otp)){
+    markOTPInvalid();
+    showNotification("error","Invalid OTP","Please enter the complete 6-digit verification code.");
+    return;
+}
 
-    if(!validateOTP(otp)){
-        markOTPInvalid();
+if(!workerEmail){
+    showNotification("error","Session Expired","Your verification session has expired.",()=>window.location.href=authenticationPage);
+    return;
+}
 
-        showNotification(
-            "error",
-            "Invalid OTP",
-            "Please enter the complete 6-digit verification code."
-        );
+isVerifying=true;
+setVerifyLoading(true);
 
+try{
+    const response=await fetch(API_ENDPOINT("/api/auth/worker/verify"),{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({email:workerEmail,otp})
+    });
+
+    const data=await response.json();
+
+    if(!response.ok||!data.success){
+        clearOTPInputs();
+        showNotification("error","Verification Failed",data.message||"The verification code could not be verified.");
         return;
     }
 
-    isVerifying=true;
-    setVerifyLoading(true);
+    showNotification("success","Email Verified",data.message||"Your email has been successfully verified.",()=>{
+        window.location.href="../worker-create-profile/index.html";
+    });
+}catch(error){
+    console.error("Email OTP verification error:",error);
+    showNotification("error","Connection Error","Unable to connect to the server. Please check your internet connection and try again.");
+}finally{
+    isVerifying=false;
+    setVerifyLoading(false);
+}
 
-    try{
-        const response=await fetch(
-            API_ENDPOINT("/api/auth/worker/verify"),
-            {
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json"
-                },
-                body:JSON.stringify({
-                    email:workerEmail,
-                    otp:otp
-                })
-            }
-        );
-
-        const data=await response.json();
-
-        if(!response.ok||!data.success){
-            showNotification(
-                "error",
-                "Verification Failed",
-                data.message||"The verification code could not be verified."
-            );
-
-            clearOTPInputs();
-            return;
-        }
-
-        showNotification(
-            "success",
-            "Email Verified",
-            data.message||"Your email has been successfully verified.",
-            ()=>{
-                window.location.href="../worker-create-profile/index.html";
-            }
-        );
-
-    }catch(error){
-        console.error("Email OTP verification error:",error);
-
-        showNotification(
-            "error",
-            "Connection Error",
-            "Unable to connect to the server. Please check your internet connection and try again."
-        );
-
-    }finally{
-        isVerifying=false;
-        setVerifyLoading(false);
-    }
 });
 
 resendOTP.addEventListener("click",async event=>{
-    event.preventDefault();
+event.preventDefault();
+if(isResending||countdownTimer)return;
 
-    if(isResending||countdownTimer)return;
+if(!workerEmail){
+    showNotification("error","Session Expired","Your verification session has expired.",()=>window.location.href=authenticationPage);
+    return;
+}
 
-    if(!workerEmail){
-        showNotification(
-            "error",
-            "Session Expired",
-            "Your verification session has expired. Please return to the authentication page."
-        );
+isResending=true;
+setResendLoading(true);
 
+try{
+    const response=await fetch(API_ENDPOINT("/api/auth/worker/resend"),{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({email:workerEmail})
+    });
+
+    const data=await response.json();
+
+    if(!response.ok||!data.success){
+        if(response.status===429&&data.coolDownUntil){
+            showCooldownNotification(data.coolDownUntil);
+            return;
+        }
+
+        const callback=response.status===404?()=>window.location.href=authenticationPage:null;
+        showNotification("error","Unable to Resend OTP",data.message||"We could not send a new verification code.",callback);
         return;
     }
 
-    isResending=true;
-    setResendLoading(true);
+    clearOTPInputs();
+    showNotification("success","OTP Sent",data.message||"A new verification code has been sent to your email.",startCountdown);
+}catch(error){
+    console.error("Resend OTP error:",error);
+    showNotification("error","Connection Error","Unable to connect to the server. Please try again.");
+}finally{
+    isResending=false;
+    setResendLoading(false);
+}
 
-    try{
-        const response=await fetch(
-            API_ENDPOINT("/api/auth/worker/resend"),
-            {
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json"
-                },
-                body:JSON.stringify({
-                    email:workerEmail
-                })
-            }
-        );
-
-        const data=await response.json();
-
-        if(!response.ok||!data.success){
-            showNotification(
-                "error",
-                "Unable to Resend OTP",
-                data.message||"We could not send a new verification code."
-            );
-
-            return;
-        }
-
-        showNotification(
-            "success",
-            "OTP Sent",
-            data.message||"A new verification code has been sent to your email."
-        );
-
-        clearOTPInputs();
-        startCountdown();
-
-    }catch(error){
-        console.error("Resend OTP error:",error);
-
-        showNotification(
-            "error",
-            "Connection Error",
-            "Unable to connect to the server. Please try again."
-        );
-
-    }finally{
-        isResending=false;
-        setResendLoading(false);
-    }
 });
 
 function startCountdown(){
-    if(countdownTimer){
+if(countdownTimer)clearInterval(countdownTimer);
+countdownSeconds=60;
+resendOTP.classList.add("disabled");
+resendOTP.textContent="Resend OTP";
+countdownElement.textContent="Resend available in ${countdownSeconds}s";
+
+countdownTimer=setInterval(()=>{
+    countdownSeconds--;
+
+    if(countdownSeconds<=0){
         clearInterval(countdownTimer);
+        countdownTimer=null;
+        resendOTP.classList.remove("disabled");
+        resendOTP.textContent="Resend OTP";
+        countdownElement.textContent="You can request a new OTP.";
+        return;
     }
 
-    countdownSeconds=60;
-
-    resendOTP.classList.add("disabled");
-
     countdownElement.textContent=`Resend available in ${countdownSeconds}s`;
+},1000);
 
-    countdownTimer=setInterval(()=>{
-        countdownSeconds--;
-
-        if(countdownSeconds<=0){
-            clearInterval(countdownTimer);
-            countdownTimer=null;
-
-            resendOTP.classList.remove("disabled");
-            resendOTP.textContent="Resend OTP";
-            countdownElement.textContent="You can request a new OTP.";
-
-            return;
-        }
-
-        countdownElement.textContent=`Resend available in ${countdownSeconds}s`;
-    },1000);
 }
 
 if(workerEmail&&otpInputs[0]){
-    otpInputs[0].focus();
-    startCountdown();
+otpInputs[0].focus();
+startCountdown();
 }
 
-const observeModal=new MutationObserver(()=>{
-    if(notificationModal.hidden){
-        document.body.style.overflow="";
-    }else{
-        document.body.style.overflow="hidden";
-    }
-});
-
-observeModal.observe(
-    notificationModal,
-    {
-        attributes:true,
-        attributeFilter:["hidden"]
-    }
-);
+new MutationObserver(()=>{
+document.body.style.overflow=notificationModal.hidden?"":"hidden";
+}).observe(notificationModal,{attributes:true,attributeFilter:["hidden"]});
 
 console.log("SkillConnect Worker Email OTP JavaScript loaded successfully.");

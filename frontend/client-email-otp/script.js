@@ -1,3 +1,5 @@
+"use strict";
+
 const CLIENT_EMAIL_KEY="clientEmail";
 const VERIFY_OTP_ENDPOINT="/api/client-email-otp/verify";
 const RESEND_OTP_ENDPOINT="/api/client-email-otp/resend";
@@ -18,6 +20,7 @@ const clientEmail=sessionStorage.getItem(CLIENT_EMAIL_KEY);
 
 let notificationAction=null;
 let countdownTimer=null;
+let cooldownTimer=null;
 let resendAvailable=false;
 let currentLoadingAction=null;
 
@@ -32,8 +35,10 @@ function showNotification(title,message,type="success",action=null){
 
 function closeNotification(){
     notificationModal.hidden=true;
+
     const action=notificationAction;
     notificationAction=null;
+
     if(typeof action==="function")action();
 }
 
@@ -46,12 +51,14 @@ notificationModal.addEventListener("click",event=>{
 function initializeEmail(){
     if(!clientEmail){
         clientEmailElement.textContent="Email not found";
+
         showNotification(
             "Email Not Found",
             "We could not find your email address. Please return to client authentication and try again.",
             "error",
             ()=>window.location.href="../client-authentication/index.html"
         );
+
         return false;
     }
 
@@ -136,17 +143,20 @@ function setVerifyLoading(loading){
 
     if(loading){
         verifyButton.classList.add("loading");
-        verifyButton.innerHTML='<span class="loading-spinner"></span><span>Connecting...</span>';
+        verifyButton.innerHTML=
+            '<span class="loading-spinner"></span><span>Verifying...</span>';
     }else{
         verifyButton.classList.remove("loading");
-        verifyButton.innerHTML='<span class="btn-text">Verify OTP</span>';
+        verifyButton.innerHTML=
+            '<span class="btn-text">Verify OTP</span>';
     }
 }
 
 function setResendLoading(loading){
     currentLoadingAction=loading?"resend":null;
     resendOTP.classList.toggle("disabled",loading);
-    resendOTP.textContent=loading?"Connecting...":"Resend OTP";
+    resendOTP.setAttribute("aria-disabled",String(loading));
+    resendOTP.textContent=loading?"Resending...":"Resend OTP";
 }
 
 async function getResponseData(response){
@@ -161,10 +171,63 @@ function getServerMessage(data,fallback){
     return data.message||data.error||data.msg||fallback;
 }
 
+function showCooldownNotification(until){
+    if(cooldownTimer){
+        clearInterval(cooldownTimer);
+        cooldownTimer=null;
+    }
+
+    const cooldownUntil=new Date(until).getTime();
+
+    if(!Number.isFinite(cooldownUntil)){
+        showNotification(
+            "Resend Limit Reached",
+            "You have reached the maximum number of resend attempts. Please try again later.",
+            "error"
+        );
+        return;
+    }
+
+    resendAvailable=false;
+    resendOTP.classList.add("disabled");
+    resendOTP.setAttribute("aria-disabled","true");
+
+    const updateCountdown=()=>{
+        const remaining=Math.max(
+            0,
+            Math.ceil((cooldownUntil-Date.now())/1000)
+        );
+
+        const hours=Math.floor(remaining/3600);
+        const minutes=Math.floor((remaining%3600)/60);
+        const seconds=remaining%60;
+
+        if(remaining>0){
+            notificationMessage.textContent=
+                `You have reached the maximum number of resend attempts. try again in ${hours}h ${minutes}m ${seconds}s.`;
+        }else{
+            clearInterval(cooldownTimer);
+            cooldownTimer=null;
+
+            notificationMessage.textContent=
+                "Your cooldown has ended. You can request a new OTP.";
+        }
+    };
+
+    showNotification(
+        "Resend Limit Reached",
+        "",
+        "error"
+    );
+
+    updateCountdown();
+    cooldownTimer=setInterval(updateCountdown,1000);
+}
+
 otpForm.addEventListener("submit",async event=>{
     event.preventDefault();
 
-    if(!clientEmail)return;
+    if(!clientEmail||currentLoadingAction)return;
 
     const otp=validateOTP();
 
@@ -190,14 +253,20 @@ otpForm.addEventListener("submit",async event=>{
         const data=await getResponseData(response);
 
         if(!response.ok){
+            const missingClient=response.status===404;
+
             showNotification(
                 "Verification Failed",
                 getServerMessage(
                     data,
                     "We could not verify your email. Please check your OTP and try again."
                 ),
-                "error"
+                "error",
+                missingClient
+                    ?()=>window.location.href="../client-authentication/index.html"
+                    :null
             );
+
             return;
         }
 
@@ -229,11 +298,16 @@ otpForm.addEventListener("submit",async event=>{
 });
 
 function startCountdown(seconds=60){
-    clearInterval(countdownTimer);
+    if(countdownTimer){
+        clearInterval(countdownTimer);
+        countdownTimer=null;
+    }
 
     let remaining=seconds;
     resendAvailable=false;
+
     resendOTP.classList.add("disabled");
+    resendOTP.setAttribute("aria-disabled","true");
 
     countdown.textContent=`Resend available in ${remaining}s`;
 
@@ -243,9 +317,12 @@ function startCountdown(seconds=60){
         if(remaining<=0){
             clearInterval(countdownTimer);
             countdownTimer=null;
+
             resendAvailable=true;
             resendOTP.classList.remove("disabled");
+            resendOTP.setAttribute("aria-disabled","false");
             countdown.textContent="You can resend the OTP now.";
+
             return;
         }
 
@@ -256,7 +333,11 @@ function startCountdown(seconds=60){
 resendOTP.addEventListener("click",async event=>{
     event.preventDefault();
 
-    if(!clientEmail||!resendAvailable||currentLoadingAction)return;
+    if(
+        !clientEmail||
+        !resendAvailable||
+        currentLoadingAction
+    )return;
 
     setResendLoading(true);
 
@@ -277,14 +358,25 @@ resendOTP.addEventListener("click",async event=>{
         const data=await getResponseData(response);
 
         if(!response.ok){
+            if(response.status===429&&data.coolDownUntil){
+                showCooldownNotification(data.coolDownUntil);
+                return;
+            }
+
+            const missingClient=response.status===404;
+
             showNotification(
                 "Resend Failed",
                 getServerMessage(
                     data,
                     "We could not resend the verification code. Please try again."
                 ),
-                "error"
+                "error",
+                missingClient
+                    ?()=>window.location.href="../client-authentication/index.html"
+                    :null
             );
+
             return;
         }
 

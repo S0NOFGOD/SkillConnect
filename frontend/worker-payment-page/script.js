@@ -22,7 +22,7 @@ function initializePaymentPage() {
             window.history.back();
         } else {
             window.location.assign(
-                "../worker-phone-verification/index.html"
+                "../worker-dashboard/index.html"
             );
         }
     });

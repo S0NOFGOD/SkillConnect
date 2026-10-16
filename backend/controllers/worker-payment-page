@@ -25,7 +25,7 @@ return {
 
 async function verifyWithPaystack(reference) {
 const response = await axios.get(
-"${PAYSTACK_URL}/transaction/verify/${encodeURIComponent(reference)}",
+`${PAYSTACK_URL}/transaction/verify/${encodeURIComponent(reference)}`,
 {
 headers: paystackHeaders(),
 timeout: 15000

@@ -12,40 +12,23 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 const getElement = id => document.getElementById(id);
-
 let pendingRedirect = null;
 let passwordResetCooldownTimer = null;
 
 function validateEmail(email) {
-    if (!email) {
-        showModal("Email Required", "Please enter your email address.");
-        return false;
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showModal("Invalid Email", "Please enter a valid email address.");
-        return false;
-    }
-
+    if (!email) return showModal("Email Required", "Please enter your email address."), false;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+        return showModal("Invalid Email", "Please enter a valid email address."), false;
     return true;
 }
 
 function initializeTabs() {
     document.querySelectorAll(".tab").forEach(tab =>
         tab.addEventListener("click", () => {
-            document.querySelectorAll(".tab").forEach(item =>
-                item.classList.remove("active")
-            );
-
-            document.querySelectorAll(".auth-form").forEach(form =>
-                form.classList.remove("active")
-            );
-
+            document.querySelectorAll(".tab").forEach(item => item.classList.remove("active"));
+            document.querySelectorAll(".auth-form").forEach(form => form.classList.remove("active"));
             tab.classList.add("active");
-
-            getElement(
-                tab.dataset.tab === "login" ? "loginForm" : "signupForm"
-            ).classList.add("active");
+            getElement(tab.dataset.tab === "login" ? "loginForm" : "signupForm").classList.add("active");
         })
     );
 }
@@ -58,10 +41,8 @@ function initializePasswordToggles() {
     ].forEach(([buttonId, inputId]) => {
         const button = getElement(buttonId);
         const input = getElement(inputId);
-
         button.addEventListener("click", () => {
             const hidden = input.type === "password";
-
             input.type = hidden ? "text" : "password";
             button.textContent = hidden ? "Hide" : "Show";
         });
@@ -70,41 +51,28 @@ function initializePasswordToggles() {
 
 function setLoading(button, loading, text) {
     if (loading) {
+        if (!button.dataset.originalText) button.dataset.originalText = button.textContent;
         button.disabled = true;
-        button.dataset.text = button.textContent;
         button.textContent = text;
         button.classList.add("loading");
     } else {
         button.disabled = false;
-        button.textContent = button.dataset.text || text;
+        button.textContent = button.dataset.originalText || text;
         button.classList.remove("loading");
+        delete button.dataset.originalText;
     }
 }
 
 async function postRequest(endpoint, body) {
     const response = await fetch(API_ENDPOINT(endpoint), {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(body)
     });
 
     const data = await response.json();
-
     return { response, data };
-}
-
-function handleConnectionError(error, button) {
-    console.error(error);
-
-    setLoading(button, false);
-
-    showModal(
-        "Connection Error",
-        "Unable to connect to the server. Please try again."
-    );
 }
 
 function saveWorkerEmail(email) {
@@ -112,48 +80,81 @@ function saveWorkerEmail(email) {
 }
 
 function showModal(title, message, type = "error", redirect = null) {
-    const notificationIcon = getElement("notificationIcon");
-
-    // Remove the cooldown styling from all regular notifications.
-    notificationIcon.classList.remove("cooldown-icon");
-
+    const icon = getElement("notificationIcon");
+    icon.classList.remove("cooldown-icon");
     getElement("notificationTitle").textContent = title;
     getElement("notificationMessage").textContent = message;
-    notificationIcon.textContent =
-        type === "success" ? "✓" : "!";
-
+    icon.textContent = type === "success" ? "✓" : "!";
     pendingRedirect = redirect;
 
     const modal = getElement("notificationModal");
-
     modal.classList.add("show");
     modal.setAttribute("aria-hidden", "false");
 }
 
 function closeNotificationModal() {
     const modal = getElement("notificationModal");
-
     modal.classList.remove("show");
     modal.setAttribute("aria-hidden", "true");
 
     const redirect = pendingRedirect;
     pendingRedirect = null;
-
-    if (redirect) {
-        window.location.href = redirect;
-    }
+    if (redirect) window.location.href = redirect;
 }
 
 function initializeNotificationModal() {
-    getElement("closeNotification").addEventListener(
-        "click",
-        closeNotificationModal
-    );
+    getElement("closeNotification").addEventListener("click", closeNotificationModal);
+    getElement("notificationButton").addEventListener("click", closeNotificationModal);
+}
 
-    getElement("notificationButton").addEventListener(
-        "click",
-        closeNotificationModal
+function handleConnectionError(error, button, text) {
+    console.error(error);
+    setLoading(button, false, text);
+    showModal("Connection Error", "Unable to connect to the server. Please try again.");
+}
+
+function showCooldown(data) {
+    const value = data.cooldownUntil || data.coolDownUntil;
+    const date = value ? new Date(value) : null;
+
+    if (!date || Number.isNaN(date.getTime()) || date.getTime() <= Date.now()) {
+        showModal("Request Failed", data.message || "Unable to process your request.");
+        return;
+    }
+
+    showModal(
+        "Resend Cooldown Active",
+        data.message || "You have reached the OTP resend limit. Please try again after the cooldown period."
     );
+    getElement("notificationIcon").classList.add("cooldown-icon");
+    startPasswordResetCooldownCountdown(date);
+}
+
+function startPasswordResetCooldownCountdown(date) {
+    clearInterval(passwordResetCooldownTimer);
+
+    const message = getElement("notificationMessage");
+    const countdown = document.createElement("span");
+    countdown.style.cssText = "display:block;margin-top:12px;font-weight:600";
+    message.appendChild(countdown);
+
+    function update() {
+        const seconds = Math.max(0, Math.ceil((date.getTime() - Date.now()) / 1000));
+        if (!seconds) {
+            clearInterval(passwordResetCooldownTimer);
+            passwordResetCooldownTimer = null;
+            countdown.textContent = "Cooldown ended. You can request another code.";
+            return;
+        }
+
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        countdown.textContent = `Time remaining: ${hours}h ${minutes}m ${seconds % 60}s`;
+    }
+
+    update();
+    if (date.getTime() > Date.now())
+        passwordResetCooldownTimer = setInterval(update, 1000);
 }
 
 /* LOGIN */
@@ -167,86 +168,42 @@ function initializeLogin() {
         const password = getElement("loginPassword").value;
 
         if (!validateEmail(email)) return;
+        if (!password) return showModal("Password Required", "Please enter your password.");
 
-        if (!password) {
-            showModal("Password Required", "Please enter your password.");
-            return;
-        }
-
-        setLoading(button, true, "Connecting...");
+        setLoading(button, true, "Logging in...");
 
         try {
             const { response, data } = await postRequest(
-                "/api/worker-authentication/login",
-                { email, password }
+                "/api/worker-authentication/login", { email, password }
             );
 
+            setLoading(button, false, "Login");
+
             if (!response.ok) {
-                setLoading(button, false);
-
-                showModal(
-                    "Login Failed",
-                    data.message || "Unable to authenticate your account."
-                );
-
+                if (data.cooldownUntil || data.coolDownUntil) showCooldown(data);
+                else showModal("Login Failed", data.message || "Unable to authenticate your account.");
                 return;
             }
 
             if (data.nextStep === "email-verification") {
                 saveWorkerEmail(data.email || email);
-                setLoading(button, false);
-
-                showModal(
-                    "Verify Your Email",
-                    data.message || "A new verification code has been sent to your email.",
-                    "success",
-                    "../worker-email-otp/index.html"
-                );
-
-                return;
-            }
-
-            if (data.nextStep === "profile") {
+                showModal("Verify Your Email", data.message, "success", "../worker-email-otp/index.html");
+            } else if (data.nextStep === "profile") {
                 saveWorkerEmail(data.email || email);
-                setLoading(button, false);
-
-                showModal(
-                    "Complete Your Profile",
-                    data.message || "Please complete your worker profile.",
-                    "success",
-                    "../worker-create-profile/index.html"
-                );
-
-                return;
+                showModal("Complete Your Profile", data.message, "success", "../worker-create-profile/index.html");
+            } else if (data.nextStep === "authenticated") {
+                showModal("Login Successful", data.message || `Welcome back, ${data.fullName}.`,
+                    "success", "../worker-dashboard/index.html");
+            } else {
+                showModal("Authentication Error", data.message || "Unable to determine your account status.");
             }
-
-            if (data.nextStep === "authenticated") {
-                setLoading(button, false);
-
-                showModal(
-                    "Login Successful",
-                    data.message || `Welcome back, ${data.fullName}.`,
-                    "success",
-                    "../worker-dashboard/index.html"
-                );
-
-                return;
-            }
-
-            setLoading(button, false);
-
-            showModal(
-                "Authentication Error",
-                data.message || "Unable to determine your account status."
-            );
-
         } catch (error) {
-            handleConnectionError(error, button);
+            handleConnectionError(error, button, "Login");
         }
     });
 }
 
-/* SIGN UP */
+/* SIGNUP */
 
 function initializeSignup() {
     getElement("signupForm").addEventListener("submit", async event => {
@@ -259,33 +216,13 @@ function initializeSignup() {
         const termsAccepted = getElement("termsCheckbox").checked;
 
         if (!validateEmail(email)) return;
+        if (!password) return showModal("Password Required", "Please enter your password.");
+        if (password.length < 8) return showModal("Password Too Short", "Password must be at least 8 characters.");
+        if (!confirmPassword) return showModal("Confirm Password Required", "Please confirm your password.");
+        if (password !== confirmPassword) return showModal("Passwords Do Not Match", "Please make sure both passwords match.");
+        if (!termsAccepted) return showModal("Agreement Required", "You must agree to the Terms and Privacy Policy.");
 
-        if (!password) {
-            showModal("Password Required", "Please enter your password.");
-            return;
-        }
-
-        if (password.length < 8) {
-            showModal("Password Too Short", "Password must be at least 8 characters.");
-            return;
-        }
-
-        if (!confirmPassword) {
-            showModal("Confirm Password Required", "Please confirm your password.");
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            showModal("Passwords Do Not Match", "Please make sure both passwords match.");
-            return;
-        }
-
-        if (!termsAccepted) {
-            showModal("Agreement Required", "You must agree to the Terms and Privacy Policy.");
-            return;
-        }
-
-        setLoading(button, true, "Connecting...");
+        setLoading(button, true, "Creating...");
 
         try {
             const { response, data } = await postRequest(
@@ -293,29 +230,18 @@ function initializeSignup() {
                 { email, password, confirmPassword, termsAccepted }
             );
 
+            setLoading(button, false, "Create Account");
+
             if (!response.ok) {
-                setLoading(button, false);
-
-                showModal(
-                    "Account Creation Failed",
-                    data.message || "Unable to create your account."
-                );
-
+                showModal("Account Creation Failed", data.message || "Unable to create your account.");
                 return;
             }
 
             saveWorkerEmail(data.email || email);
-            setLoading(button, false);
-
-            showModal(
-                "Account Created",
-                data.message || "Your verification code has been sent to your email.",
-                "success",
-                "../worker-email-otp/index.html"
-            );
-
+            showModal("Account Created", data.message || "Your verification code has been sent to your email.",
+                "success", "../worker-email-otp/index.html");
         } catch (error) {
-            handleConnectionError(error, button);
+            handleConnectionError(error, button, "Create Account");
         }
     });
 }
@@ -331,112 +257,31 @@ function initializeForgotPassword() {
 
         if (!validateEmail(email)) return;
 
-        setLoading(button, true, "Connecting...");
+        setLoading(button, true, "Verifying...");
 
         try {
             const { response, data } = await postRequest(
-                "/api/worker-authentication/forgot-password",
-                { email }
+                "/api/worker-authentication/forgot-password", { email }
             );
 
+            setLoading(button, false, "Verify Email");
+
             if (!response.ok) {
-                setLoading(button, false);
                 closeForgotModal();
-
-                const cooldownValue =
-                    data.cooldownUntil || data.coolDownUntil;
-
-                if (cooldownValue) {
-                    const cooldownDate = new Date(cooldownValue);
-
-                    if (
-                        !Number.isNaN(cooldownDate.getTime()) &&
-                        cooldownDate.getTime() > Date.now()
-                    ) {
-                        showModal(
-                            "Resend Cooldown Active",
-                            data.message ||
-                                "You have reached the password reset OTP resend limit. Please try again after the cooldown period."
-                        );
-
-                        // Apply red styling only to this cooldown notification.
-                        getElement("notificationIcon").classList.add("cooldown-icon");
-
-                        startPasswordResetCooldownCountdown(cooldownDate);
-                        return;
-                    }
-                }
-
-                showModal(
-                    "Request Failed",
-                    data.message || "Unable to process your request."
-                );
-
+                if (data.cooldownUntil || data.coolDownUntil) showCooldown(data);
+                else showModal("Request Failed", data.message || "Unable to process your request.");
                 return;
             }
 
             saveWorkerEmail(data.email || email);
-            setLoading(button, false);
             closeForgotModal();
-
-            showModal(
-                "Verification Code Sent",
-                data.message || "A password reset code has been sent to your email.",
-                "success",
-                "../worker-password-reset-otp/index.html"
-            );
-
+            showModal("Verification Code Sent", data.message || "A password reset code has been sent to your email.",
+                "success", "../worker-password-reset-otp/index.html");
         } catch (error) {
-            handleConnectionError(error, button);
+            setLoading(button, false, "Verify Email");
+            handleConnectionError(error, button, "Verify Email");
         }
     });
-}
-
-function startPasswordResetCooldownCountdown(cooldownDate) {
-    if (passwordResetCooldownTimer) {
-        clearInterval(passwordResetCooldownTimer);
-        passwordResetCooldownTimer = null;
-    }
-
-    const messageElement = getElement("notificationMessage");
-    const countdownElement = document.createElement("span");
-
-    countdownElement.style.display = "block";
-    countdownElement.style.marginTop = "12px";
-    countdownElement.style.fontWeight = "600";
-
-    messageElement.appendChild(countdownElement);
-
-    function updateCountdown() {
-        const remainingMilliseconds =
-            cooldownDate.getTime() - Date.now();
-
-        if (remainingMilliseconds <= 0) {
-            if (passwordResetCooldownTimer) {
-                clearInterval(passwordResetCooldownTimer);
-                passwordResetCooldownTimer = null;
-            }
-
-            countdownElement.textContent =
-                "The cooldown has ended. You can request another password reset code.";
-
-            return;
-        }
-
-        const totalSeconds = Math.ceil(remainingMilliseconds / 1000);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-
-        countdownElement.textContent =
-            `Time remaining: ${hours}h ${minutes}m ${seconds}s`;
-    }
-
-    updateCountdown();
-
-    if (cooldownDate.getTime() > Date.now()) {
-        passwordResetCooldownTimer = setInterval(updateCountdown, 1000);
-    }
 }
 
 function initializeForgotModal() {
@@ -453,12 +298,11 @@ function initializeForgotModal() {
 
 function closeForgotModal() {
     const modal = getElement("forgotModal");
-
     modal.classList.remove("show");
     modal.setAttribute("aria-hidden", "true");
 }
 
-/* CONTINUE WITH GOOGLE */
+/* GOOGLE */
 
 function initializeGoogleButtons() {
     [
@@ -469,20 +313,12 @@ function initializeGoogleButtons() {
             button.disabled = true;
             button.textContent = "Connecting...";
             button.classList.add("loading");
-
-            window.location.href = API_ENDPOINT(
-                "/api/worker-authentication/google"
-            );
+            window.location.href = API_ENDPOINT("/api/worker-authentication/google");
         });
     });
 }
 
 document.addEventListener("keydown", event => {
-    if (event.key !== "Escape") return;
-
-    const modal = getElement("forgotModal");
-
-    if (modal.classList.contains("show")) {
+    if (event.key === "Escape" && getElement("forgotModal").classList.contains("show"))
         closeForgotModal();
-    }
 });
