@@ -1,341 +1,307 @@
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded", () => {
+    const $ = id => document.getElementById(id);
 
-const profilePage=document.getElementById("profilePage");
-const form=document.getElementById("workerProfileForm");
-const fullNameInput=document.getElementById("fullName");
-const phoneInput=document.getElementById("phone");
-const profilePhotoInput=document.getElementById("profilePhoto");
-const profilePhotoPlaceholder=document.getElementById("profilePhotoPlaceholder");
-const profilePhotoImage=document.getElementById("profilePhotoImage");
-const countryInput=document.getElementById("country");
-const stateInput=document.getElementById("state");
-const cityInput=document.getElementById("city");
-const lgaInput=document.getElementById("lga");
-const continueBtn=document.getElementById("continueBtn");
-const buttonText=continueBtn.querySelector(".button-text");
+    const profilePage = $("profilePage");
+    const form = $("workerProfileForm");
+    const photoInput = $("profilePhoto");
+    const photoImage = $("profilePhotoImage");
+    const photoPlaceholder = $("profilePhotoPlaceholder");
+    const nameInput = $("fullName");
+    const phoneInput = $("phone");
+    const countryInput = $("country");
+    const stateInput = $("state");
+    const cityInput = $("city");
+    const lgaInput = $("lga");
+    const button = $("continueBtn");
+    const buttonText = button.querySelector(".button-text");
 
-const notificationOverlay=document.getElementById("notificationOverlay");
-const notificationCard=document.getElementById("notificationCard");
-const notificationIcon=document.getElementById("notificationIcon");
-const notificationTitle=document.getElementById("notificationTitle");
-const notificationText=document.getElementById("notificationText");
-const notificationButton=document.getElementById("notificationButton");
+    const overlay = $("notificationOverlay");
+    const modal = $("notificationCard");
+    const icon = $("notificationIcon");
+    const title = $("notificationTitle");
+    const message = $("notificationText");
+    const modalButton = $("notificationButton");
 
-const workerEmail=sessionStorage.getItem("workerEmail");
+    const MAX_SIZE = 10 * 1024 * 1024;
+    const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+    const AUTH_PAGE = "../worker-authentication/index.html";
+    const DASHBOARD = "../worker-dashboard/index.html";
 
-if(!workerEmail){
-showModal(
-"error",
-"Authentication Required",
-"Your worker session could not be found. Please sign in again.",
-"Go to Login",
-()=>{
-window.location.href="../worker-authentication/index.html";
-}
-);
-return;
-}
+    let modalCallback = null;
+    let photoPreviewUrl = null;
 
-profilePage.hidden=false;
+    // Require an existing worker email session.
+    if (!sessionStorage.getItem("workerEmail")) {
+        showModal(
+            "error",
+            "Authentication Required",
+            "Your worker session could not be found. Please sign in again.",
+            "Continue",
+            () => window.location.href = AUTH_PAGE
+        );
+        return;
+    }
 
-/* PROFILE PHOTO SELECTION */
-profilePhotoInput.addEventListener("change",async()=>{
-const file=profilePhotoInput.files[0];
-if(!file){
-profilePhotoImage.hidden=true;
-profilePhotoPlaceholder.hidden=false;
-profilePhotoImage.removeAttribute("src");
-updateProgress();
-return;
-}
-if(!file.type||!file.type.startsWith("image/")){
-profilePhotoInput.value="";
-profilePhotoImage.hidden=true;
-profilePhotoPlaceholder.hidden=false;
-profilePhotoImage.removeAttribute("src");
-showModal("error","Invalid Profile Photo","Please select an image file.");
-updateProgress();
-return;
-}
-const imageUrl=URL.createObjectURL(file);
-profilePhotoImage.src=imageUrl;
-profilePhotoImage.hidden=false;
-profilePhotoPlaceholder.hidden=true;
-profilePhotoImage.addEventListener("load",()=>URL.revokeObjectURL(imageUrl),{once:true});
-updateProgress();
-});
+    profilePage.hidden = false;
 
-/* COUNTRY → STATE → CITY → LGA */
-countryInput.addEventListener("change",()=>{
-stateInput.innerHTML='<option value="">Select State</option>';
-cityInput.innerHTML='<option value="">Select City</option>';
-lgaInput.innerHTML='<option value="">Select LGA</option>';
+    // Profile photo preview and validation.
+    photoInput.addEventListener("change", () => {
+        const file = photoInput.files[0];
 
-stateInput.disabled=true;
-cityInput.disabled=true;
-lgaInput.disabled=true;
+        if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+        photoPreviewUrl = null;
 
-if(countryInput.value==="Nigeria"){
-getNigeriaStates().forEach(state=>{
-const option=document.createElement("option");
-option.value=state;
-option.textContent=state;
-stateInput.appendChild(option);
-});
-stateInput.disabled=false;
-}
+        if (!file) {
+            photoImage.hidden = true;
+            photoPlaceholder.hidden = false;
+            photoImage.removeAttribute("src");
+            updateProgress();
+            return;
+        }
 
-updateProgress();
-});
+        if (!ALLOWED_TYPES.includes(file.type) || file.size > MAX_SIZE) {
+            photoInput.value = "";
+            photoImage.hidden = true;
+            photoPlaceholder.hidden = false;
+            photoImage.removeAttribute("src");
 
-stateInput.addEventListener("change",()=>{
-cityInput.innerHTML='<option value="">Select City</option>';
-lgaInput.innerHTML='<option value="">Select LGA</option>';
+            showModal(
+                "error",
+                "Invalid Profile Photo",
+                "Choose a JPG, PNG, or WebP image no larger than 10 MB."
+            );
+            updateProgress();
+            return;
+        }
 
-cityInput.disabled=true;
-lgaInput.disabled=true;
+        photoPreviewUrl = URL.createObjectURL(file);
+        photoImage.src = photoPreviewUrl;
+        photoImage.hidden = false;
+        photoPlaceholder.hidden = true;
+        updateProgress();
+    });
 
-if(stateInput.value){
-getCitiesByState(stateInput.value).forEach(city=>{
-const option=document.createElement("option");
-option.value=city;
-option.textContent=city;
-cityInput.appendChild(option);
-});
+    // Country → state → city and LGA.
+    countryInput.addEventListener("change", () => {
+        resetOptions(stateInput, "Select State");
+        resetOptions(cityInput, "Select City");
+        resetOptions(lgaInput, "Select LGA");
 
-getLGAsByState(stateInput.value).forEach(lga=>{
-const option=document.createElement("option");
-option.value=lga;
-option.textContent=lga;
-lgaInput.appendChild(option);
-});
+        stateInput.disabled = cityInput.disabled = lgaInput.disabled = true;
 
-cityInput.disabled=false;
-lgaInput.disabled=false;
-}
+        if (countryInput.value === "Nigeria") {
+            getNigeriaStates().forEach(state => addOption(stateInput, state));
+            stateInput.disabled = false;
+        }
 
-updateProgress();
-});
+        updateProgress();
+    });
 
-cityInput.addEventListener("change",updateProgress);
-lgaInput.addEventListener("change",updateProgress);
+    stateInput.addEventListener("change", () => {
+        resetOptions(cityInput, "Select City");
+        resetOptions(lgaInput, "Select LGA");
+        cityInput.disabled = lgaInput.disabled = true;
 
-/* FORM FIELD CHANGES */
-[fullNameInput,phoneInput].forEach(element=>{
-element.addEventListener("input",updateProgress);
-element.addEventListener("change",updateProgress);
-});
+        if (stateInput.value) {
+            getCitiesByState(stateInput.value).forEach(city => addOption(cityInput, city));
+            getLGAsByState(stateInput.value).forEach(lga => addOption(lgaInput, lga));
+            cityInput.disabled = lgaInput.disabled = false;
+        }
 
-/* SUBMIT PROFILE */
-form.addEventListener("submit",async event=>{
-event.preventDefault();
+        updateProgress();
+    });
 
-const validation=validateForm();
+    [nameInput, phoneInput, cityInput, lgaInput].forEach(input => {
+        input.addEventListener("input", updateProgress);
+        input.addEventListener("change", updateProgress);
+    });
 
-if(!validation.valid){
-showModal("error","Invalid Information",validation.message);
-return;
-}
+    // Validate first, then send the request.
+    form.addEventListener("submit", async event => {
+        event.preventDefault();
 
-const phone=phoneInput.value.trim();
+        const validation = validateForm();
 
-setLoading(true);
+        if (!validation.valid) {
+            showModal("error", "Invalid Information", validation.message);
+            return;
+        }
 
-try{
-const formData=new FormData();
+        const workerEmail = sessionStorage.getItem("workerEmail");
 
-formData.append("email",workerEmail);
-formData.append("fullName",fullNameInput.value.trim());
-formData.append("phone",phone);
-formData.append("country",countryInput.value);
-formData.append("state",stateInput.value);
-formData.append("city",cityInput.value);
-formData.append("lga",lgaInput.value);
-formData.append("profilePhoto",profilePhotoInput.files[0]);
+        if (!workerEmail) {
+            showModal(
+                "error",
+                "Session Expired",
+                "Your worker session could not be found. Please sign in again.",
+                "Continue",
+                () => window.location.href = AUTH_PAGE
+            );
+            return;
+        }
 
-const response=await API_REQUEST("/api/worker/create-profile",{
-method:"POST",
-body:formData
-});
+        setLoading(true);
 
-let data={};
-try{data=await response.json();}catch{data={};}
+        try {
+            const formData = new FormData();
+            formData.append("email", workerEmail);
+            formData.append("profilePhoto", photoInput.files[0]);
+            formData.append("fullName", nameInput.value.trim());
+            formData.append("phone", phoneInput.value.trim());
+            formData.append("country", countryInput.value);
+            formData.append("state", stateInput.value);
+            formData.append("city", cityInput.value);
+            formData.append("lga", lgaInput.value);
 
-if(!response.ok){
-showModal(
-"error",
-"Profile Update Failed",
-data.message||"Unable to complete your profile. Please try again."
-);
-return;
-}
+            const response = await API_REQUEST("/api/worker/create-profile", {
+                method: "POST",
+                body: formData
+            });
 
-sessionStorage.removeItem("workerEmail");
+            let data = {};
+            try {
+                data = await response.json();
+            } catch {
+                data = {};
+            }
 
-showModal(
-"success",
-"Profile Completed",
-data.message||"Your worker profile has been completed successfully.",
-"Continue",
-()=>{
-window.location.href="../worker-dashboard/index.html";
-}
-);
+            if (!response.ok || data.success === false) {
+                setLoading(false);
 
-}catch(error){
-console.error("Worker profile request failed:",error);
+                const unverified = data.code === "EMAIL_NOT_VERIFIED";
 
-showModal(
-"error",
-"Connection Error",
-error.message||"Unable to connect to the server. Please try again."
-);
-}finally{
-setLoading(false);
-}
-});
+                showModal(
+                    "error",
+                    unverified ? "Email Not Verified" : "Profile Update Failed",
+                    data.message || "Unable to complete your profile. Please try again.",
+                    "Continue",
+                    unverified ? () => window.location.href = AUTH_PAGE : null
+                );
+                return;
+            }
 
-/* NOTIFICATION BUTTON */
-notificationButton.addEventListener("click",()=>closeModal());
+            sessionStorage.removeItem("workerEmail");
+            setLoading(false);
 
-updateProgress();
+            showModal(
+                "success",
+                "Profile Completed",
+                data.message || "Your worker profile has been completed successfully.",
+                "Continue",
+                () => window.location.href = DASHBOARD
+            );
+        } catch (error) {
+            console.error("Worker profile request failed:", error);
+            setLoading(false);
 
-/* NORMALIZE NIGERIAN PHONE NUMBER */
-function normalizePhone(value){
-let phone=value.trim().replace(/\s+/g,"").replace(/-/g,"").replace(/\(/g,"").replace(/\)/g,"");
+            showModal(
+                "error",
+                "Connection Error",
+                "Unable to connect to the server. Please check your connection and try again."
+            );
+        }
+    });
 
-if(/^0[789]\d{9}$/.test(phone)){
-phone="+234"+phone.substring(1);
-}
-else if(/^234[789]\d{9}$/.test(phone)){
-phone="+"+phone;
-}
+    modalButton.addEventListener("click", () => {
+        const callback = modalCallback;
+        closeModal();
+        if (callback) callback();
+    });
 
-return phone;
-}
+    function validateForm() {
+        const file = photoInput.files[0];
+        const name = nameInput.value.trim().replace(/\s+/g, " ");
+        const parts = name.split(" ");
+        const namePattern = /^[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*$/;
+        const phone = phoneInput.value.trim().replace(/[\s()-]/g, "");
 
-/* VALIDATE FORM */
-function validateForm(){
-const fullName=fullNameInput.value.trim();
-const phone=phoneInput.value.trim();
-const profilePhoto=profilePhotoInput.files[0];
-const country=countryInput.value;
-const state=stateInput.value;
-const city=cityInput.value;
-const lga=lgaInput.value;
+        if (!file)
+            return invalid("Please select a profile photo.");
 
-if(!profilePhoto){
-return{valid:false,message:"Please select a profile photo."};
-}
+        if (!ALLOWED_TYPES.includes(file.type) || file.size > MAX_SIZE)
+            return invalid("Choose a JPG, PNG, or WebP image no larger than 10 MB.");
 
-if(!profilePhoto.type||!profilePhoto.type.startsWith("image/")){
-return{valid:false,message:"Please select an image file."};
-}
+        if (parts.length !== 2 || !parts.every(part => namePattern.test(part)))
+            return invalid("Enter exactly two names, for example: Destiny Okpone.");
 
-const nameParts=fullName.replace(/\s+/g," ").split(" ");
-const namePattern=/^[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*$/;
+        if (!/^(?:0[789]\d{9}|\+?234[789]\d{9})$/.test(phone))
+            return invalid("Please enter a valid Nigerian phone number.");
 
-if(
-nameParts.length!==2||
-!namePattern.test(nameParts[0])||
-!namePattern.test(nameParts[1])
-){
-return{
-valid:false,
-message:"Please enter exactly two names with a space between them, for example: Destiny Okpone."
-};
-}
+        if (countryInput.value !== "Nigeria")
+            return invalid("Please select Nigeria as your country.");
 
-const phoneForValidation=phone.replace(/\s+/g,"").replace(/-/g,"").replace(/\(/g,"").replace(/\)/g,"");
+        if (!stateInput.value || !getNigeriaStates().includes(stateInput.value))
+            return invalid("Please select a valid state.");
 
-if(
-!/^0[789]\d{9}$/.test(phoneForValidation)&&
-!/^234[789]\d{9}$/.test(phoneForValidation)&&
-!(/^\+234[789]\d{9}$/.test(phoneForValidation))
-){
-return{
-valid:false,
-message:"Please enter a valid Nigerian phone number."
-};
-}
+        if (!cityInput.value || !getCitiesByState(stateInput.value).includes(cityInput.value))
+            return invalid("Please select a valid city.");
 
-if(!country){
-return{valid:false,message:"Please select your country."};
-}
+        if (!lgaInput.value || !getLGAsByState(stateInput.value).includes(lgaInput.value))
+            return invalid("Please select a valid LGA.");
 
-if(!state){
-return{valid:false,message:"Please select your state."};
-}
+        return { valid: true, message: "" };
+    }
 
-if(!city){
-return{valid:false,message:"Please select your city."};
-}
+    function invalid(message) {
+        return { valid: false, message };
+    }
 
-if(!lga){
-return{valid:false,message:"Please select your LGA."};
-}
+    function normalizePhone(value) {
+        const phone = value.replace(/[\s()-]/g, "");
+        if (phone.startsWith("0")) return "+234" + phone.slice(1);
+        if (phone.startsWith("234")) return "+" + phone;
+        return phone;
+    }
 
-return{valid:true,message:""};
-}
+    function resetOptions(select, label) {
+        select.replaceChildren(new Option(label, ""));
+    }
 
-/* UPDATE PROFILE PROGRESS */
-function updateProgress(){
-const fields=[
-profilePhotoInput.files.length>0,
-fullNameInput.value.trim(),
-phoneInput.value.trim(),
-countryInput.value,
-stateInput.value,
-cityInput.value,
-lgaInput.value
-];
+    function addOption(select, value) {
+        select.add(new Option(value, value));
+    }
 
-const completed=fields.filter(Boolean).length;
-const percentage=Math.round((completed/fields.length)*100);
+    function updateProgress() {
+        const fields = [
+            photoInput.files.length > 0,
+            nameInput.value.trim(),
+            phoneInput.value.trim(),
+            countryInput.value,
+            stateInput.value,
+            cityInput.value,
+            lgaInput.value
+        ];
 
-const progressFill=document.getElementById("progressFill");
-const progressPercentage=document.getElementById("progressPercentage");
+        const percentage = Math.round(
+            fields.filter(Boolean).length / fields.length * 100
+        );
 
-if(progressFill){
-progressFill.style.width=`${percentage}%`;
-}
+        if ($("progressFill")) $("progressFill").style.width = `${percentage}%`;
+        if ($("progressPercentage")) $("progressPercentage").textContent = `${percentage}%`;
+    }
 
-if(progressPercentage){
-progressPercentage.textContent=`${percentage}%`;
-}
-}
+    function setLoading(loading) {
+        button.disabled = loading;
+        button.classList.toggle("loading", loading);
+        if (buttonText) buttonText.textContent = loading ? "Creating…" : "Create Profile";
+    }
 
-/* BUTTON LOADING STATE */
-function setLoading(isLoading){
-continueBtn.disabled=isLoading;
-continueBtn.classList.toggle("loading",isLoading);
+    function showModal(type, heading, text, label = "Continue", callback = null) {
+        modal.className = `notification-card ${type}`;
+        icon.textContent = type === "success" ? "✓" : type === "error" ? "!" : "i";
+        title.textContent = heading;
+        message.textContent = text;
+        modalButton.textContent = label;
+        modalCallback = callback;
+        overlay.hidden = false;
+        document.body.classList.add("modal-open");
+    }
 
-if(buttonText){
-buttonText.textContent=isLoading?"Connecting...":"Continue";
-}
-}
+    function closeModal() {
+        overlay.hidden = true;
+        document.body.classList.remove("modal-open");
+        modalCallback = null;
+    }
 
-/* SHOW NOTIFICATION MODAL */
-function showModal(type,title,message,buttonLabel="Continue",onClose=null){
-notificationCard.className=`notification-card ${type}`;
-notificationIcon.textContent=type==="success"?"✓":type==="error"?"!":"i";
-notificationTitle.textContent=title;
-notificationText.textContent=message;
-notificationButton.textContent=buttonLabel;
-
-notificationButton.onclick=()=>{
-closeModal();
-if(onClose)onClose();
-};
-
-notificationOverlay.hidden=false;
-document.body.classList.add("modal-open");
-}
-
-/* CLOSE NOTIFICATION MODAL */
-function closeModal(){
-notificationOverlay.hidden=true;
-document.body.classList.remove("modal-open");
-}
-
+    updateProgress();
 });

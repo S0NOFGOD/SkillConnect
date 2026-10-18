@@ -1,66 +1,44 @@
-/* =========================================================
-   1. IMPORT EXPRESS
-========================================================= */
+const express = require("express");
+const multer = require("multer");
 
-const express=require("express");
-
-
-/* =========================================================
-   2. IMPORT MULTER
-========================================================= */
-
-const multer=require("multer");
-
-
-/* =========================================================
-   3. CREATE ROUTER
-========================================================= */
-
-const router=express.Router();
-
-
-/* =========================================================
-   4. CONFIGURE MULTER
-========================================================= */
-
-const upload=multer({
-
-    storage:multer.memoryStorage(),
-
-    limits:{
-        fileSize:20*1024*1024
-    }
-
-});
-
-
-/* =========================================================
-   5. IMPORT CONTROLLER
-========================================================= */
+const router = express.Router();
 
 const {
     createWorkerProfile
-}=require("../controllers/worker-create-profile");
+} = require("../controllers/worker-create-profile");
 
+const ALLOWED_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/webp"
+];
 
+const upload = multer({
+    storage: multer.memoryStorage(),
 
-/* =========================================================
-   7. CREATE WORKER PROFILE
-========================================================= */
+    limits: {
+        fileSize: 10 * 1024 * 1024,
+        files: 1
+    },
+
+    fileFilter(req, file, callback) {
+        if (!ALLOWED_TYPES.includes(file.mimetype)) {
+            const error = new Error(
+                "Profile photo must be a JPG, PNG, or WebP image."
+            );
+
+            error.statusCode = 400;
+            return callback(error);
+        }
+
+        callback(null, true);
+    }
+});
 
 router.post(
-
     "/create-profile",
-
     upload.single("profilePhoto"),
-
     createWorkerProfile
-
 );
 
-
-/* =========================================================
-   8. EXPORT ROUTER
-========================================================= */
-
-module.exports=router;
+module.exports = router;

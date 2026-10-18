@@ -1,53 +1,112 @@
+"use strict";
+
 /* =========================================================
    SKILLCONNECT WORKER CREATE PROFILE CONTROLLER
 ========================================================= */
 
-const Worker=require("../models/worker");
-const axios=require("axios");
-const crypto=require("crypto");
-const jwt=require("jsonwebtoken");
-const sharp=require("sharp");
+const Worker = require("../models/worker");
+const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
+const sharp = require("sharp");
+const { v2: cloudinary } = require("cloudinary");
 
-const{v2:cloudinary}=require("cloudinary");
+const MAX_UPLOAD_SIZE = 10 * 1024 * 1024;
+const MAX_COMPRESSED_SIZE = 5 * 1024 * 1024;
+
+const ALLOWED_IMAGE_TYPES = {
+    "image/jpeg": "jpeg",
+    "image/png": "png",
+    "image/webp": "webp"
+};
 
 cloudinary.config({
-    cloud_name:process.env.CLOUDINARY_CLOUD_NAME,
-    api_key:process.env.CLOUDINARY_API_KEY,
-    api_secret:process.env.CLOUDINARY_API_SECRET
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
 });
-
 
 /* =========================================================
    AUTHENTICATION TOKEN FUNCTIONS
 ========================================================= */
 
-const generateAccessToken=({userId,userType})=>jwt.sign(
-    {userId,userType},
+const generateAccessToken = ({ userId, userType }) => jwt.sign(
+    { userId, userType },
     process.env.ACCESS_TOKEN_SECRET,
-    {expiresIn:process.env.ACCESS_TOKEN_EXPIRE||"15m"}
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRE || "15m" }
 );
 
-const generateRefreshToken=({userId,userType})=>jwt.sign(
-    {userId,userType},
+const generateRefreshToken = ({ userId, userType }) => jwt.sign(
+    { userId, userType },
     process.env.REFRESH_TOKEN_SECRET,
-    {expiresIn:process.env.REFRESH_TOKEN_EXPIRE||"7d"}
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRE || "7d" }
 );
 
-const hashRefreshToken=refreshToken=>crypto
+const hashRefreshToken = token => crypto
     .createHash("sha256")
-    .update(refreshToken)
+    .update(token)
     .digest("hex");
 
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const sendError = (res, status, code, message) =>
+    res.status(status).json({
+        success: false,
+        code,
+        message
+    });
+
+const normalizeNamePart = name => name
+    .toLowerCase()
+    .split(/([-'])/)
+    .map(part => {
+        if (part === "-" || part === "'") return part;
+        return part.charAt(0).toUpperCase() + part.slice(1);
+    })
+    .join("");
+
+const normalizePhone = value => {
+    const phone = value
+        .replace(/[\s\-()]/g, "");
+
+    if (/^0[789]\d{9}$/.test(phone)) {
+        return "+234" + phone.substring(1);
+    }
+
+    if (/^\+?234[789]\d{9}$/.test(phone)) {
+        return phone.startsWith("+") ? phone : "+" + phone;
+    }
+
+    return null;
+};
+
+const uploadToCloudinary = buffer => new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+        {
+            folder: "skillconnect/workers/profile-photos",
+            resource_type: "image",
+            format: "jpg"
+        },
+        (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+        }
+    );
+
+    stream.end(buffer);
+});
 
 /* =========================================================
    CREATE WORKER PROFILE
 ========================================================= */
 
-const createWorkerProfile=async(req,res)=>{
-    let uploadedPublicId=null;
+const createWorkerProfile = async (req, res) => {
+    let uploadedPublicId = null;
+    let profileSaved = false;
 
-    try{
-        const{
+    try {
+        const {
             email,
             fullName,
             phone,
@@ -55,366 +114,334 @@ const createWorkerProfile=async(req,res)=>{
             state,
             city,
             lga
-        }=req.body;
+        } = req.body || {};
 
-        if(!email||typeof email!=="string"){
-            return res.status(400).json({
-                success:false,
-                code:"EMAIL_REQUIRED",
-                message:"Worker email is required."
-            });
+        /* VALIDATE EMAIL */
+
+        if (typeof email !== "string" || !email.trim()) {
+            return sendError(
+                res, 400, "EMAIL_REQUIRED",
+                "Worker email is required."
+            );
         }
 
-        const normalizedEmail=email.trim().toLowerCase();
+        const normalizedEmail = email.trim().toLowerCase();
 
-        const worker=await Worker.findOne({
-            email:normalizedEmail
+        const worker = await Worker.findOne({
+            email: normalizedEmail
         });
 
-        if(!worker){
-            return res.status(404).json({
-                success:false,
-                code:"WORKER_NOT_FOUND",
-                message:"Worker account could not be found."
-            });
+        if (!worker) {
+            return sendError(
+                res, 404, "WORKER_NOT_FOUND",
+                "Worker account could not be found."
+            );
         }
 
-        if(worker.emailVerified!==true){
-            return res.status(403).json({
-                success:false,
-                code:"EMAIL_NOT_VERIFIED",
-                message:"Please verify your email address before completing your profile."
-            });
+        if (worker.emailVerified !== true) {
+            return sendError(
+                res, 403, "EMAIL_NOT_VERIFIED",
+                "Please verify your email address before completing your profile."
+            );
         }
 
-        if(!req.file){
-            return res.status(400).json({
-                success:false,
-                code:"PROFILE_PHOTO_REQUIRED",
-                message:"Profile photo is required."
-            });
+        /* VALIDATE PHOTO */
+
+        if (!req.file || !req.file.buffer) {
+            return sendError(
+                res, 400, "PROFILE_PHOTO_REQUIRED",
+                "Profile photo is required."
+            );
         }
 
-        const allowedImageTypes=[
-            "image/jpeg",
-            "image/png",
-            "image/webp"
-        ];
-
-        if(!allowedImageTypes.includes(req.file.mimetype)){
-            return res.status(400).json({
-                success:false,
-                code:"INVALID_PROFILE_PHOTO",
-                message:"Profile photo must be a JPG, PNG, or WebP image."
-            });
+        if (
+            !Number.isFinite(req.file.size) ||
+            req.file.size > MAX_UPLOAD_SIZE
+        ) {
+            return sendError(
+                res, 413, "PROFILE_PHOTO_TOO_LARGE",
+                "Profile photo must not exceed 10 MB."
+            );
         }
 
-        const trimmedFullName=
-            typeof fullName==="string"?fullName.trim():"";
-
-        const trimmedPhone=
-            typeof phone==="string"?phone.trim():"";
-
-        const trimmedCountry=
-            typeof country==="string"?country.trim():"";
-
-        const trimmedState=
-            typeof state==="string"?state.trim():"";
-
-        const trimmedCity=
-            typeof city==="string"?city.trim():"";
-
-        const trimmedLga=
-            typeof lga==="string"?lga.trim():"";
-
-
-        if(!trimmedFullName){
-            return res.status(400).json({
-                success:false,
-                code:"FULL_NAME_REQUIRED",
-                message:"Full name is required."
-            });
+        if (!ALLOWED_IMAGE_TYPES[req.file.mimetype]) {
+            return sendError(
+                res, 400, "INVALID_PROFILE_PHOTO",
+                "Profile photo must be a JPG, PNG, or WebP image."
+            );
         }
 
-        const nameParts=trimmedFullName.replace(/\s+/g," ").split(" ");
+        /* VALIDATE ACTUAL IMAGE CONTENTS */
 
-        const namePattern=/^[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*$/;
+        let imageMetadata;
 
-        if(
-            nameParts.length!==2||
-            !namePattern.test(nameParts[0])||
+        try {
+            imageMetadata = await sharp(req.file.buffer).metadata();
+        } catch {
+            return sendError(
+                res, 400, "INVALID_PROFILE_PHOTO",
+                "The uploaded file is not a valid image."
+            );
+        }
+
+        if (
+            !imageMetadata.format ||
+            imageMetadata.format !== ALLOWED_IMAGE_TYPES[req.file.mimetype]
+        ) {
+            return sendError(
+                res, 400, "INVALID_PROFILE_PHOTO",
+                "The image contents do not match the uploaded file type."
+            );
+        }
+
+        /* VALIDATE FULL NAME */
+
+        const cleanName = typeof fullName === "string"
+            ? fullName.trim().replace(/\s+/g, " ")
+            : "";
+
+        const nameParts = cleanName.split(" ");
+        const namePattern = /^[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*$/;
+
+        if (
+            nameParts.length !== 2 ||
+            !namePattern.test(nameParts[0]) ||
             !namePattern.test(nameParts[1])
-        ){
-            return res.status(400).json({
-                success:false,
-                code:"INVALID_FULL_NAME",
-                message:"Please enter exactly two names with a space between them, for example: Destiny Okpone."
-            });
+        ) {
+            return sendError(
+                res, 400, "INVALID_FULL_NAME",
+                "Please enter exactly two names with a space between them, for example: Destiny Okpone."
+            );
         }
 
-        const normalizeNamePart=name=>name.toLowerCase().split(/([-'])/).map(part=>{
-            if(part==="-"||part==="'")return part;
-            return part.charAt(0).toUpperCase()+part.slice(1);
-        }).join("");
+        const normalizedFullName = nameParts
+            .map(normalizeNamePart)
+            .join(" ");
 
-        const normalizedFullName=nameParts.map(normalizeNamePart).join(" ");
+        /* VALIDATE PHONE */
 
-        if(!trimmedPhone){
-            return res.status(400).json({
-                success:false,
-                code:"PHONE_REQUIRED",
-                message:"Phone number is required."
-            });
+        if (typeof phone !== "string" || !phone.trim()) {
+            return sendError(
+                res, 400, "PHONE_REQUIRED",
+                "Phone number is required."
+            );
         }
 
-        const phoneWithoutFormatting=trimmedPhone
-            .replace(/\s+/g,"")
-            .replace(/-/g,"")
-            .replace(/\(/g,"")
-            .replace(/\)/g,"");
+        const normalizedPhone = normalizePhone(phone.trim());
 
-        let normalizedPhone=phoneWithoutFormatting;
-
-        if(/^0[789]\d{9}$/.test(phoneWithoutFormatting)){
-            normalizedPhone="+234"+phoneWithoutFormatting.substring(1);
-        }
-        else if(/^234[789]\d{9}$/.test(phoneWithoutFormatting)){
-            normalizedPhone="+"+phoneWithoutFormatting;
+        if (!normalizedPhone) {
+            return sendError(
+                res, 400, "INVALID_PHONE",
+                "Please provide a valid Nigerian phone number."
+            );
         }
 
-        if(!/^\+234[789]\d{9}$/.test(normalizedPhone)){
-            return res.status(400).json({
-                success:false,
-                code:"INVALID_PHONE",
-                message:"Please provide a valid Nigerian phone number."
-            });
+        /* VALIDATE LOCATION FIELDS */
+
+        const cleanCountry = typeof country === "string"
+            ? country.trim()
+            : "";
+
+        const cleanState = typeof state === "string"
+            ? state.trim()
+            : "";
+
+        const cleanCity = typeof city === "string"
+            ? city.trim()
+            : "";
+
+        const cleanLga = typeof lga === "string"
+            ? lga.trim()
+            : "";
+
+        if (!cleanCountry) {
+            return sendError(
+                res, 400, "COUNTRY_REQUIRED",
+                "Country is required."
+            );
         }
 
-        if(!trimmedCountry){
-            return res.status(400).json({
-                success:false,
-                code:"COUNTRY_REQUIRED",
-                message:"Country is required."
-            });
+        if (cleanCountry.toLowerCase() !== "nigeria") {
+            return sendError(
+                res, 400, "INVALID_COUNTRY",
+                "Country must be Nigeria."
+            );
         }
 
-        if(!trimmedState){
-            return res.status(400).json({
-                success:false,
-                code:"STATE_REQUIRED",
-                message:"State is required."
-            });
+        if (!cleanState) {
+            return sendError(
+                res, 400, "STATE_REQUIRED",
+                "State is required."
+            );
         }
 
-        if(!trimmedCity){
-            return res.status(400).json({
-                success:false,
-                code:"CITY_REQUIRED",
-                message:"City is required."
-            });
+        if (!cleanCity) {
+            return sendError(
+                res, 400, "CITY_REQUIRED",
+                "City is required."
+            );
         }
 
-        if(!trimmedLga){
-            return res.status(400).json({
-                success:false,
-                code:"LGA_REQUIRED",
-                message:"Local Government Area is required."
-            });
+        if (!cleanLga) {
+            return sendError(
+                res, 400, "LGA_REQUIRED",
+                "Local Government Area is required."
+            );
         }
 
-        const existingPhoneWorker=await Worker.findOne({
-            phone:normalizedPhone,
-            _id:{$ne:worker._id}
-        });
+        /* CHECK DUPLICATE PHONE */
 
-        if(existingPhoneWorker){
-            return res.status(409).json({
-                success:false,
-                code:"PHONE_ALREADY_EXISTS",
-                message:"This phone number is already registered to another worker."
-            });
+        const existingPhoneWorker = await Worker.findOne({
+            phone: normalizedPhone,
+            _id: { $ne: worker._id }
+        }).select("_id");
+
+        if (existingPhoneWorker) {
+            return sendError(
+                res, 409, "PHONE_ALREADY_EXISTS",
+                "This phone number is already registered to another worker."
+            );
         }
 
-        /* CONVERT + RESIZE + COMPRESS PROFILE PHOTO */
+        /* RESIZE AND COMPRESS PHOTO */
 
-        const maximumCompressedImageSize=5*1024*1024;
-
-        let compressedImageBuffer=await sharp(req.file.buffer)
+        const compressImage = quality => sharp(req.file.buffer)
             .rotate()
             .resize({
-                width:1920,
-                height:1920,
-                fit:"inside",
-                withoutEnlargement:true
+                width: 1920,
+                height: 1920,
+                fit: "inside",
+                withoutEnlargement: true
             })
             .jpeg({
-                quality:80,
-                mozjpeg:true
+                quality,
+                mozjpeg: true
             })
             .toBuffer();
 
-        if(compressedImageBuffer.length>maximumCompressedImageSize){
+        let compressedImageBuffer = await compressImage(80);
 
-            compressedImageBuffer=await sharp(req.file.buffer)
-                .rotate()
-                .resize({
-                    width:1920,
-                    height:1920,
-                    fit:"inside",
-                    withoutEnlargement:true
-                })
-                .jpeg({
-                    quality:65,
-                    mozjpeg:true
-                })
-                .toBuffer();
-
+        if (compressedImageBuffer.length > MAX_COMPRESSED_SIZE) {
+            compressedImageBuffer = await compressImage(65);
         }
 
-        if(compressedImageBuffer.length>maximumCompressedImageSize){
-            return res.status(400).json({
-                success:false,
-                code:"PROFILE_PHOTO_TOO_LARGE",
-                message:"Unable to compress the profile photo to 5 MB or less. Please select a smaller image."
-            });
+        if (compressedImageBuffer.length > MAX_COMPRESSED_SIZE) {
+            return sendError(
+                res, 400, "PROFILE_PHOTO_TOO_LARGE",
+                "Unable to compress the profile photo to 5 MB or less. Please select a smaller image."
+            );
         }
 
-        const cloudinaryUpload=()=>{
-            return new Promise((resolve,reject)=>{
-                const uploadStream=cloudinary.uploader.upload_stream(
-                    {
-                        folder:"skillconnect/workers/profile-photos",
-                        resource_type:"image",
-                        format:"jpg"
-                    },
-                    (error,result)=>{
-                        if(error){
-                            reject(error);
-                            return;
-                        }
+        /* UPLOAD PHOTO */
 
-                        resolve(result);
-                    }
-                );
+        const uploadedImage = await uploadToCloudinary(
+            compressedImageBuffer
+        );
 
-                uploadStream.end(compressedImageBuffer);
-            });
-        };
+        if (!uploadedImage || !uploadedImage.public_id) {
+            throw new Error("Cloudinary did not return an image public ID.");
+        }
 
-        const uploadedImage=await cloudinaryUpload();
+        uploadedPublicId = uploadedImage.public_id;
 
-        const profilePhotoPublicId=uploadedImage.public_id;
+        /* SAVE PROFILE */
 
-        uploadedPublicId=profilePhotoPublicId;
+        worker.fullName = normalizedFullName;
+        worker.profilePhoto = uploadedPublicId;
+        worker.phone = normalizedPhone;
+        worker.country = "Nigeria";
+        worker.state = cleanState;
+        worker.city = cleanCity;
+        worker.lga = cleanLga;
+        worker.profileCompleted = true;
 
-        worker.fullName=normalizedFullName;
-        worker.profilePhoto=profilePhotoPublicId;
-        worker.phone=normalizedPhone;
-        worker.country=trimmedCountry;
-        worker.state=trimmedState;
-        worker.city=trimmedCity;
-        worker.lga=trimmedLga;
-        worker.profileCompleted=true;
+        /* GENERATE AND SAVE TOKENS */
 
-        /* CREATE AUTHENTICATION TOKENS */
-        const accessToken=generateAccessToken({
-            userId:worker._id.toString(),
-            userType:"worker"
+        const accessToken = generateAccessToken({
+            userId: worker._id.toString(),
+            userType: "worker"
         });
 
-        const refreshToken=generateRefreshToken({
-            userId:worker._id.toString(),
-            userType:"worker"
+        const refreshToken = generateRefreshToken({
+            userId: worker._id.toString(),
+            userType: "worker"
         });
 
-        worker.refreshTokenHash=hashRefreshToken(refreshToken);
+        worker.refreshTokenHash = hashRefreshToken(refreshToken);
 
         await worker.save();
+        profileSaved = true;
 
         /* SET AUTHENTICATION COOKIES */
-        res.cookie("accessToken",accessToken,{
-            httpOnly:true,
-            secure:process.env.NODE_ENV==="production",
-            sameSite:process.env.NODE_ENV==="production"?"none":"lax",
-            maxAge:15*60*1000,
-            path:"/"
+
+        const isProduction = process.env.NODE_ENV === "production";
+
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
+            maxAge: 15 * 60 * 1000,
+            path: "/"
         });
 
-        res.cookie("refreshToken",refreshToken,{
-            httpOnly:true,
-            secure:process.env.NODE_ENV==="production",
-            sameSite:process.env.NODE_ENV==="production"?"none":"lax",
-            maxAge:7*24*60*60*1000,
-            path:"/"
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            path: "/"
         });
 
         return res.status(200).json({
-            success:true,
-            code:"PROFILE_COMPLETED",
-            message:"Your worker profile has been completed successfully."
+            success: true,
+            code: "PROFILE_COMPLETED",
+            message: "Your worker profile has been completed successfully."
         });
 
-    }catch(error){
-        if(uploadedPublicId){
-            try{
+    } catch (error) {
+        /* DO NOT DELETE A PHOTO AFTER THE PROFILE WAS SAVED */
+
+        if (uploadedPublicId && !profileSaved) {
+            try {
                 await cloudinary.uploader.destroy(
                     uploadedPublicId,
-                    {resource_type:"image"}
+                    { resource_type: "image" }
                 );
-            }catch(cleanupError){
-                console.error(
-                    "Cloudinary cleanup failed:",
-                    cleanupError
-                );
+            } catch (cleanupError) {
+                console.error("Cloudinary cleanup failed:", cleanupError);
             }
         }
 
-        if(error.http_code&&error.message){
-            console.error(
-                "Cloudinary profile photo upload error:",
-                error
+        if (error.code === 11000) {
+            return sendError(
+                res, 409, "DUPLICATE_VALUE",
+                "Some of the information provided is already registered."
             );
-
-            return res.status(500).json({
-                success:false,
-                code:"PROFILE_PHOTO_UPLOAD_FAILED",
-                message:"Unable to upload your profile photo. Please try again."
-            });
         }
 
-        if(error.code===11000){
-            return res.status(409).json({
-                success:false,
-                code:"DUPLICATE_VALUE",
-                message:"Some of the information provided is already registered."
-            });
-        }
+        if (error.name === "ValidationError") {
+            const firstError = Object.values(error.errors)[0];
 
-        if(error.name==="ValidationError"){
-            const firstError=Object.values(error.errors)[0];
-
-            return res.status(400).json({
-                success:false,
-                code:"VALIDATION_ERROR",
-                message:firstError?.message||
+            return sendError(
+                res, 400, "VALIDATION_ERROR",
+                firstError?.message ||
                     "The profile information provided is invalid."
-            });
+            );
         }
 
-        console.error(
-            "Create worker profile error:",
-            error
-        );
+        if (error.http_code || error.name === "Error") {
+            console.error("Create worker profile operation failed:", error);
+        } else {
+            console.error("Create worker profile error:", error);
+        }
 
-        return res.status(500).json({
-            success:false,
-            code:"SERVER_ERROR",
-            message:"Unable to complete your worker profile at this time."
-        });
+        return sendError(
+            res, 500, "SERVER_ERROR",
+            "Unable to complete your worker profile at this time."
+        );
     }
 };
 
-
-module.exports={
+module.exports = {
     createWorkerProfile
 };
