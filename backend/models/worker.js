@@ -79,7 +79,7 @@ const workerSchema = new mongoose.Schema({
             review: { type: String, trim: true, default: "" },
             date: { type: Date, default: Date.now }
         }],
-        date: { type: Date, default: Date.now },
+        serviceCountDown: {type: Date,default: null},
         adminApproval: {
             type: String,
             enum: ["in review", "approved", "rejected"],

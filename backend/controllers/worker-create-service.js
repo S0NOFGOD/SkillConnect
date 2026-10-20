@@ -348,7 +348,9 @@ skill,
 experience,
 description,
 portfolios:portfolioPublicIds,
-date:new Date(),
+serviceCountDown:new Date(
+Date.now()+30*24*60*60*1000
+),
 adminApproval:"in review",
 adminResponse:"Your service is currently under review. It may take up to 24 hours for an admin update."
 };

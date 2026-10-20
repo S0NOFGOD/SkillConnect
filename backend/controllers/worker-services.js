@@ -1,61 +1,89 @@
-const Worker=require("../models/worker");
+"use strict";
 
-const getWorkerServices=async(req,res)=>{
-try{
-const workerId=req.workerId;
+const Worker = require("../models/worker");
 
-if(!workerId){
-return res.status(401).json({
-success:false,
-message:"Worker authentication is required."
-});
-}
+const getWorkerServices = async (req, res) => {
+    try {
+        const workerId = req.workerId;
 
-const worker=await Worker.findById(workerId).select("services");
+        if (!workerId) {
+            return res.status(401).json({
+                success: false,
+                message: "Worker authentication is required."
+            });
+        }
 
-if(!worker){
-return res.status(404).json({
-success:false,
-message:"Worker account was not found."
-});
-}
+        const worker = await Worker.findById(workerId)
+            .select("services");
 
-if(
-worker.services===null||
-!Array.isArray(worker.services)||
-worker.services.length===0
-){
-return res.status(200).json({
-success:true,
-services:null
-});
-}
+        if (!worker) {
+            return res.status(404).json({
+                success: false,
+                message: "Worker account was not found."
+            });
+        }
 
-const services=worker.services.map(service=>({
-id:service.id,
-skill:service.skill,
-date:service.date,
-adminApproval:service.adminApproval
-}));
+        if (
+            !Array.isArray(worker.services) ||
+            worker.services.length === 0
+        ) {
+            return res.status(200).json({
+                success: true,
+                services: null
+            });
+        }
 
-return res.status(200).json({
-success:true,
-services
-});
+        const now = Date.now();
 
-}catch(error){
-console.error(
-"Get worker services error:",
-error
-);
+        // Delete services whose countdown has expired
+        // or whose serviceCountDown is missing or invalid.
+        worker.services = worker.services.filter(service => {
+            if (!service.serviceCountDown) {
+                return false;
+            }
 
-return res.status(500).json({
-success:false,
-message:"Unable to load your services."
-});
-}
+            const expiryTime = new Date(
+                service.serviceCountDown
+            ).getTime();
+
+            return (
+                Number.isFinite(expiryTime) &&
+                expiryTime > now
+            );
+        });
+
+        // Save the worker after removing expired services.
+        await worker.save();
+
+        // Return only services whose countdown is still valid.
+        const services = worker.services
+            .map(service => ({
+                id: service.id,
+                skill: service.skill,
+                serviceCountDown: service.serviceCountDown,
+                adminApproval: service.adminApproval
+            }));
+
+        return res.status(200).json({
+            success: true,
+            services: services.length > 0
+                ? services
+                : null
+        });
+
+    } catch (error) {
+        console.error(
+            "Get worker services error:",
+            error
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: "Unable to load your services."
+        });
+    }
 };
 
-module.exports={
-getWorkerServices
+module.exports = {
+    getWorkerServices
 };
