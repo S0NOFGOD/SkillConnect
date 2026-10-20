@@ -66,16 +66,21 @@ const normalizeNamePart = name => name
     })
     .join("");
 
-const normalizePhone = value => {
-    const phone = value
-        .replace(/[\s\-()]/g, "");
+/* =========================================================
+   NORMALIZE NIGERIAN PHONE TO LOCAL FORMAT
+========================================================= */
 
+const normalizePhone = value => {
+    const phone = value.replace(/[\s\-()]/g, "");
+
+    // Already in local Nigerian format: 07012345678
     if (/^0[789]\d{9}$/.test(phone)) {
-        return "+234" + phone.substring(1);
+        return phone;
     }
 
+    // International format: +2347012345678 or 2347012345678
     if (/^\+?234[789]\d{9}$/.test(phone)) {
-        return phone.startsWith("+") ? phone : "+" + phone;
+        return "0" + phone.replace(/^\+?234/, "");
     }
 
     return null;
