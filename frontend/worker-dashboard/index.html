@@ -3,533 +3,484 @@
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta
-    name="viewport"
-    content="width=device-width,initial-scale=1.0"
->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<title>
-    Worker Dashboard | SkillConnect
-</title>
+    <title>Worker Dashboard | SkillConnect</title>
 
-<link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
 
-<link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin
->
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
 
-<link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-    rel="stylesheet"
->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
 
-<link
-    rel="stylesheet"
-    href="style.css"
->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 
 </head>
 
 <body>
 
-<!-- Background effects -->
+    <!-- Background effects -->
 
-<div
-    class="green-glow"
-    aria-hidden="true"
-></div>
+    <div
+        class="green-glow"
+        aria-hidden="true"
+    ></div>
 
-<div
-    class="blue-glow"
-    aria-hidden="true"
-></div>
-
-
-<!-- Top navigation -->
-
-<header class="topbar">
-
-    <div class="topbar-inner">
-
-        <a
-            href="index.html"
-            class="logo"
-        >
-            SkillConnect
-        </a>
-
-        <button
-            type="button"
-            id="menuBtn"
-            class="menu-btn"
-            aria-label="Open navigation menu"
-            aria-controls="sidebar"
-            aria-expanded="false"
-        >
-
-            <span></span>
-            <span></span>
-            <span></span>
-
-        </button>
-
-    </div>
-
-</header>
+    <div
+        class="blue-glow"
+        aria-hidden="true"
+    ></div>
 
 
-<!-- Sidebar -->
+    <!-- Top navigation -->
 
-<aside
-    id="sidebar"
-    class="sidebar"
-    aria-label="Worker dashboard navigation"
->
+    <header class="topbar">
 
-    <div class="sidebar-header">
+        <div class="topbar-inner">
 
-        <div class="sidebar-brand">
+            <a
+                href="index.html"
+                class="logo"
+            >
+                SkillConnect
+            </a>
 
-            <span class="sidebar-brand-icon">
-                SC
-            </span>
-
-            <div class="sidebar-brand-text">
-
-                <strong>
-                    SkillConnect
-                </strong>
-
-                <small>
-                    Worker Portal
-                </small>
-
-            </div>
+            <button
+                type="button"
+                id="menuBtn"
+                class="menu-btn"
+                aria-label="Open navigation menu"
+                aria-controls="sidebar"
+                aria-expanded="false"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
 
         </div>
 
-        <button
-            type="button"
-            id="closeMenuBtn"
-            class="close-menu-btn"
-            aria-label="Close navigation menu"
-        >
-            ×
-        </button>
-
-    </div>
+    </header>
 
 
-    <nav class="sidebar-nav">
+    <!-- Sidebar -->
 
-        <a
-            href="index.html"
-            class="nav-link active"
-        >
+    <aside
+        id="sidebar"
+        class="sidebar"
+        aria-label="Worker dashboard navigation"
+    >
 
-            <span
-                class="nav-icon"
-                aria-hidden="true"
-            >
-                🏠
-            </span>
+        <div class="sidebar-header">
 
-            <span>
-                Dashboard
-            </span>
+            <div class="sidebar-brand">
 
-        </a>
-
-
-        <button
-            type="button"
-            id="viewServicesBtn"
-            class="nav-link verify-profile-link"
-        >
-
-            <span
-                class="nav-icon"
-                aria-hidden="true"
-            >
-                🛠️
-            </span>
-
-            <span>
-                View Services
-            </span>
-
-        </button>
-
-
-        <button
-            type="button"
-            id="editProfileBtn"
-            class="nav-link"
-        >
-
-            <span
-                class="nav-icon"
-                aria-hidden="true"
-            >
-                ✏️
-            </span>
-
-            <span>
-                Edit Profile
-            </span>
-
-        </button>
-
-    </nav>
-
-
-    <div class="sidebar-footer">
-
-        <button
-            type="button"
-            id="logoutBtn"
-            class="nav-link logout-link"
-        >
-
-            <span
-                class="nav-icon"
-                aria-hidden="true"
-            >
-                ↪
-            </span>
-
-            <span>
-                Logout
-            </span>
-
-        </button>
-
-    </div>
-
-</aside>
-
-
-<!-- Mobile sidebar overlay -->
-
-<div
-    id="overlay"
-    class="overlay"
-    aria-hidden="true"
-></div>
-
-
-<!-- Main dashboard -->
-
-<main
-    class="dashboard"
-    id="dashboardContent"
->
-
-    <!-- Dashboard header -->
-
-    <section class="dashboard-header">
-
-        <div class="welcome-content">
-
-            <h1>
-
-                Welcome,
-
-                <span id="workerFirstName">
-                    Worker
+                <span class="sidebar-brand-icon">
+                    SC
                 </span>
 
-            </h1>
+                <div class="sidebar-brand-text">
 
-            <p class="page-description">
-                Verify your profile and connect with clients.
-            </p>
+                    <strong>SkillConnect</strong>
 
-        </div>
+                    <small>Worker Portal</small>
 
-
-        <button
-            type="button"
-            id="verificationActionBtn"
-            class="verification-action-btn"
-        >
-            Verify Phone
-        </button>
-
-    </section>
-
-
-    <!-- Personal information -->
-
-    <section class="dashboard-section">
-
-        <div class="profile-photo-card">
-
-            <div class="profile-photo-wrapper">
-
-                <img
-                    id="profilePhoto"
-                    class="profile-photo"
-                    src=""
-                    alt="Worker profile photo"
-                    hidden
-                >
-
-                <div
-                    id="profilePhotoPlaceholder"
-                    class="profile-photo-placeholder"
-                    aria-hidden="true"
-                >
-                    👤
                 </div>
 
             </div>
 
-        </div>
-
-
-        <div class="section-heading">
-
-            <h2>
-                Personal Information
-            </h2>
-
-        </div>
-
-
-        <div class="information-grid">
-
-            <div class="information-card">
-
-                <span class="information-label">
-                    Full Name
-                </span>
-
-                <strong id="fullName">
-                    —
-                </strong>
-
-            </div>
-
-
-            <div class="information-card">
-
-                <span class="information-label">
-                    Phone Number
-                </span>
-
-                <strong id="phoneNumber">
-                    —
-                </strong>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- Location information -->
-
-    <section class="dashboard-section">
-
-        <div class="section-heading">
-
-            <h2>
-                Location
-            </h2>
+            <button
+                type="button"
+                id="closeMenuBtn"
+                class="close-menu-btn"
+                aria-label="Close navigation menu"
+            >
+                ×
+            </button>
 
         </div>
 
 
-        <div class="information-grid">
+        <nav class="sidebar-nav">
 
-            <div class="information-card">
+            <a
+                href="index.html"
+                class="nav-link active"
+                aria-current="page"
+            >
 
-                <span class="information-label">
-                    Country
-                </span>
+                <span
+                    class="nav-icon"
+                    aria-hidden="true"
+                >🏠</span>
 
-                <strong id="country">
-                    —
-                </strong>
+                <span>Dashboard</span>
 
-            </div>
-
-
-            <div class="information-card">
-
-                <span class="information-label">
-                    State
-                </span>
-
-                <strong id="state">
-                    —
-                </strong>
-
-            </div>
+            </a>
 
 
-            <div class="information-card">
+            <button
+                type="button"
+                id="viewServicesBtn"
+                class="nav-link verify-profile-link"
+            >
 
-                <span class="information-label">
-                    City
-                </span>
+                <span
+                    class="nav-icon"
+                    aria-hidden="true"
+                >🛠️</span>
 
-                <strong id="city">
-                    —
-                </strong>
+                <span>View Services</span>
 
-            </div>
-
-
-            <div class="information-card">
-
-                <span class="information-label">
-                    LGA
-                </span>
-
-                <strong id="lga">
-                    —
-                </strong>
-
-            </div>
-
-        </div>
-
-    </section>
+            </button>
 
 
-    <!-- Professional information -->
+            <button
+                type="button"
+                id="editProfileBtn"
+                class="nav-link"
+            >
 
-    <section class="dashboard-section">
+                <span
+                    class="nav-icon"
+                    aria-hidden="true"
+                >✏️</span>
 
-        <div class="section-heading">
+                <span>Edit Profile</span>
 
-            <h2>
-                Professional Information
-            </h2>
+            </button>
 
-        </div>
-
-
-        <div class="information-grid">
-
-            <div class="information-card">
-
-                <span class="information-label">
-                    Total Skills
-                </span>
-
-                <strong id="totalSkills">
-                    —
-                </strong>
-
-            </div>
+        </nav>
 
 
-            <div class="information-card">
+        <div class="sidebar-footer">
 
-                <span class="information-label">
-                    Verification
-                </span>
+            <button
+                type="button"
+                id="logoutBtn"
+                class="nav-link logout-link"
+            >
 
-                <strong id="phoneVerification">
-                    —
-                </strong>
+                <span
+                    class="nav-icon"
+                    aria-hidden="true"
+                >↪</span>
 
-            </div>
+                <span>Logout</span>
+
+            </button>
 
         </div>
 
-    </section>
-
-</main>
+    </aside>
 
 
-<!-- Notification modal -->
-
-<div
-    id="notificationOverlay"
-    class="notification-modal"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="notificationTitle"
-    aria-describedby="notificationText"
-    hidden
->
+    <!-- Mobile sidebar overlay -->
 
     <div
-        id="notificationCard"
-        class="notification-card"
+        id="overlay"
+        class="overlay"
+        aria-hidden="true"
+    ></div>
+
+
+    <!-- Main dashboard -->
+
+    <main
+        class="dashboard"
+        id="dashboardContent"
     >
 
-        <button
-            type="button"
-            id="notificationCancelButton"
-            class="notification-close-button"
-            aria-label="Close notification"
-        >
-            ×
-        </button>
+        <!-- Dashboard header -->
 
+        <section class="dashboard-header">
+
+            <div class="welcome-content">
+
+                <h1>
+                    Welcome,
+                    <span id="workerFirstName">Worker</span>
+                </h1>
+
+                <p class="page-description">
+                    Verify your profile to connect with nearby clients.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="verificationActionBtn"
+                class="verification-action-btn"
+            >
+                Verify Profile
+            </button>
+
+        </section>
+
+
+        <!-- Personal information -->
+
+        <section class="dashboard-section">
+
+            <div class="profile-photo-card">
+
+                <div class="profile-photo-wrapper">
+
+                    <img
+                        id="profilePhoto"
+                        class="profile-photo"
+                        src=""
+                        alt="Worker profile photo"
+                        hidden
+                    >
+
+                    <div
+                        id="profilePhotoPlaceholder"
+                        class="profile-photo-placeholder"
+                        aria-hidden="true"
+                    >
+                        👤
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="section-heading">
+
+                <h2>Personal Information</h2>
+
+            </div>
+
+
+            <div class="information-grid">
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        Full Name
+                    </span>
+
+                    <strong id="fullName">—</strong>
+
+                </div>
+
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        Phone Number
+                    </span>
+
+                    <strong id="phoneNumber">—</strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Location information -->
+
+        <section class="dashboard-section">
+
+            <div class="section-heading">
+
+                <h2>Location</h2>
+
+            </div>
+
+
+            <div class="information-grid">
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        Country
+                    </span>
+
+                    <strong id="country">—</strong>
+
+                </div>
+
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        State
+                    </span>
+
+                    <strong id="state">—</strong>
+
+                </div>
+
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        City
+                    </span>
+
+                    <strong id="city">—</strong>
+
+                </div>
+
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        LGA
+                    </span>
+
+                    <strong id="lga">—</strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Professional information -->
+
+        <section class="dashboard-section">
+
+            <div class="section-heading">
+
+                <h2>Professional Information</h2>
+
+            </div>
+
+
+            <div class="information-grid">
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        Total Skills
+                    </span>
+
+                    <strong id="totalSkills">—</strong>
+
+                </div>
+
+
+                <div class="information-card">
+
+                    <span class="information-label">
+                        Total Nearby Clients
+                    </span>
+
+                    <strong id="phoneVerification">—</strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Notification modal -->
+
+    <div
+        id="notificationOverlay"
+        class="notification-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="notificationTitle"
+        aria-describedby="notificationText"
+        hidden
+    >
 
         <div
-            id="notificationIcon"
-            class="notification-icon"
-            aria-hidden="true"
+            id="notificationCard"
+            class="notification-card"
         >
-            ✓
-        </div>
-
-
-        <h2 id="notificationTitle">
-            Notification
-        </h2>
-
-
-        <p id="notificationText"></p>
-
-
-        <div class="notification-actions">
 
             <button
                 type="button"
-                id="notificationNoButton"
-                class="notification-no-button"
-                hidden
+                id="notificationCancelButton"
+                class="notification-close-button"
+                aria-label="Close notification"
             >
-                No
+                ×
             </button>
 
 
-            <button
-                type="button"
-                id="notificationButton"
+            <div
+                id="notificationIcon"
+                class="notification-icon"
+                aria-hidden="true"
             >
-                Continue
-            </button>
+                ✓
+            </div>
+
+
+            <h2 id="notificationTitle">
+                Notification
+            </h2>
+
+
+            <p id="notificationText"></p>
+
+
+            <div class="notification-actions">
+
+                <button
+                    type="button"
+                    id="notificationNoButton"
+                    class="notification-no-button"
+                    hidden
+                >
+                    No
+                </button>
+
+
+                <button
+                    type="button"
+                    id="notificationButton"
+                >
+                    Continue
+                </button>
+
+            </div>
 
         </div>
 
     </div>
 
-</div>
 
+    <!-- Shared API configuration -->
 
-<script src="../config.js"></script>
+    <script src="../config.js"></script>
 
-<script
-    src="script.js"
-    defer
-></script>
+    <!-- Dashboard functionality -->
+
+    <script
+        src="script.js"
+        defer
+    ></script>
 
 </body>
 
