@@ -110,8 +110,8 @@ const getWorkerDashboard = async (req, res) => {
             city: worker.city || "",
             lga: worker.lga || "",
 
-            totalSkill: Array.isArray(worker.skills)
-                ? worker.skills.length
+            totalSkills: Array.isArray(worker.services)
+                ? worker.services.length
                 : 0,
 
             totalClients

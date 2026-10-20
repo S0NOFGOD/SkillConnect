@@ -352,8 +352,8 @@ function displayWorkerData(worker) {
     city.textContent = worker.city || "Not provided";
     lga.textContent = worker.lga || "Not provided";
 
-    totalSkills.textContent = Number.isFinite(Number(worker.totalSkill))
-        ? Number(worker.totalSkill)
+    totalSkills.textContent = Number.isFinite(Number(worker.totalSkills))
+        ? Number(worker.totalSkills)
         : 0;
 
     phoneVerification.textContent =

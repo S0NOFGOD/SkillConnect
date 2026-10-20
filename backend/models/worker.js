@@ -69,6 +69,7 @@ const workerSchema = new mongoose.Schema({
         experience: { type: String, trim: true, default: null },
         description: { type: String, trim: true, default: null },
         portfolios: [{ type: String, trim: true }],
+        date: { type: Date, default: Date.now },
         ratingAndReview: [{
             clientId: {
                 type: mongoose.Schema.Types.ObjectId,
