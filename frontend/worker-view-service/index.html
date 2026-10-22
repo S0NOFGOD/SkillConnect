@@ -11,35 +11,40 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <div class="green-glow" aria-hidden="true"></div>
 <div class="blue-glow" aria-hidden="true"></div>
 
 <header class="topbar">
     <div class="topbar-inner">
         <button type="button" class="back-navigation" id="backNavigation" aria-label="Go back to Worker Services">
-            <span class="back-icon">←</span>
-            <span class="back-text">Back</span>
+            <span class="back-icon">←</span><span class="back-text">Back</span>
         </button>
+        <div class="activation-area">
+            <button type="button" id="activateServiceBtn" class="activate-service-button" hidden>
+                <span id="activateButtonText">Activate</span>
+            </button>
+            <span id="serviceCountdown" class="service-countdown" hidden></span>
+        </div>
     </div>
 </header>
 
 <main class="view-service-page" id="viewServicePage" hidden>
-
     <section class="page-header">
-        <div>
-            <h1>View Service</h1>
-        </div>
-
-        <p class="page-description">
-                    Keep your service you offer to clients up to date.
-                </p>
+        <h1>View Service</h1>
+        <p class="page-description">Keep your service you offer to clients up to date.</p>
     </section>
+
+    <div class="service-activation-row">
+        <div class="activation-area">
+            <button type="button" id="activateServiceBtn" class="activate-service-button" hidden>
+                <span id="activateButtonText">Activate</span>
+            </button>
+            <span id="serviceCountdown" class="service-countdown" hidden></span>
+        </div>
+    </div>
 
     <section class="service-form-section">
         <form id="serviceForm" class="service-form" novalidate>
-
-            <!-- Admin approval information -->
             <div id="adminStatusContainer" class="admin-status-container status-in-review">
                 <h2 id="adminApproval">In Review</h2>
                 <p id="adminResponse">Your service is awaiting admin review.</p>
@@ -70,104 +75,63 @@
                     <label for="description">Description</label>
                     <span id="descriptionWordCount">0 / 150 words</span>
                 </div>
-                <textarea
-                    id="description"
-                    name="description"
-                    rows="7"
-                    placeholder="Describe the service you provide..."
-                    required
-                ></textarea>
+                <textarea id="description" name="description" rows="7" placeholder="Describe the service you provide..." required></textarea>
             </div>
 
             <div class="form-group">
-                <div>
-                    <label for="portfolioPhoto1">Portfolio</label>
-                </div>
-
+                <label for="portfolioPhoto1">Portfolio</label>
                 <div class="portfolio-grid">
-
                     <div class="portfolio-upload-card">
                         <label for="portfolioPhoto1">
                             <div id="portfolioPreview1" class="portfolio-preview">
-                                <span class="portfolio-placeholder">+</span>
-                                <span class="portfolio-add-text">Add Image</span>
+                                <span class="portfolio-placeholder">+</span><span class="portfolio-add-text">Add Image</span>
                             </div>
                             <input type="file" id="portfolioPhoto1" name="portfolioPhotos" accept="image/jpeg,image/png,image/webp">
                         </label>
                     </div>
-
                     <div class="portfolio-upload-card">
                         <label for="portfolioPhoto2">
                             <div id="portfolioPreview2" class="portfolio-preview">
-                                <span class="portfolio-placeholder">+</span>
-                                <span class="portfolio-add-text">Add Image</span>
+                                <span class="portfolio-placeholder">+</span><span class="portfolio-add-text">Add Image</span>
                             </div>
                             <input type="file" id="portfolioPhoto2" name="portfolioPhotos" accept="image/jpeg,image/png,image/webp">
                         </label>
                     </div>
-
                     <div class="portfolio-upload-card">
                         <label for="portfolioPhoto3">
                             <div id="portfolioPreview3" class="portfolio-preview">
-                                <span class="portfolio-placeholder">+</span>
-                                <span class="portfolio-add-text">Add Image</span>
+                                <span class="portfolio-placeholder">+</span><span class="portfolio-add-text">Add Image</span>
                             </div>
                             <input type="file" id="portfolioPhoto3" name="portfolioPhotos" accept="image/jpeg,image/png,image/webp">
                         </label>
                     </div>
-
                 </div>
+                <small class="portfolio-help">JPG, PNG or WebP. Maximum 10 MB per image.</small>
             </div>
 
             <div class="form-actions">
-                <button type="button" id="deleteServiceBtn" class="delete-service-button">
-                    <span class="delete-button-text">Delete Service</span>
-                    <span class="delete-button-loader" hidden></span>
-                </button>
-
                 <button type="submit" id="updateServiceBtn" class="update-service-button">
                     <span class="update-button-text">Update Service</span>
                     <span class="update-button-loader" hidden></span>
                 </button>
             </div>
-
         </form>
     </section>
 </main>
 
-<!-- Notification and confirmation modal -->
-<div
-    id="notificationOverlay"
-    class="notification-modal"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="notificationTitle"
-    aria-describedby="notificationText"
-    hidden
->
+<div id="notificationOverlay" class="notification-modal" role="dialog" aria-modal="true" aria-labelledby="notificationTitle" aria-describedby="notificationText" hidden>
     <div id="notificationCard" class="notification-card">
-
-        <button
-            type="button"
-            id="notificationCancelButton"
-            class="notification-close-button"
-            aria-label="Close notification"
-        >×</button>
-
+        <button type="button" id="notificationCancelButton" class="notification-close-button" aria-label="Close notification">×</button>
         <div id="notificationIcon" class="notification-icon">!</div>
-
         <h2 id="notificationTitle">Notification</h2>
         <p id="notificationText">Something happened.</p>
-
         <div class="notification-actions" id="notificationActions">
             <button type="button" id="notificationButton">Continue</button>
         </div>
-
     </div>
 </div>
 
 <script src="../config.js"></script>
 <script src="script.js" defer></script>
-
 </body>
 </html>

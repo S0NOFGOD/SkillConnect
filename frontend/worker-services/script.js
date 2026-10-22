@@ -1,84 +1,45 @@
 "use strict";
 
-/* =========================================================
-   ENDPOINTS
-========================================================= */
-
+/* ENDPOINTS */
 const SERVICES_ENDPOINT = "/api/worker/services";
+const ACTIVATE_ENDPOINT = "/api/worker/services/activate";
 const LOGOUT_ENDPOINT = "/api/auth/logout";
 
-
-/* =========================================================
-   DOM ELEMENTS
-========================================================= */
-
+/* DOM */
 const sidebar = document.getElementById("sidebar");
 const overlay = document.getElementById("overlay");
 const menuBtn = document.getElementById("menuBtn");
 const closeMenuBtn = document.getElementById("closeMenuBtn");
-
 const dashboardBtn = document.getElementById("dashboardBtn");
 const viewServicesBtn = document.getElementById("viewServicesBtn");
 const editProfileBtn = document.getElementById("editProfileBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const addServiceBtn = document.getElementById("addServiceBtn");
-
 const servicesContainer = document.getElementById("servicesContainer");
 const servicesLoading = document.getElementById("servicesLoading");
 const servicesEmpty = document.getElementById("servicesEmpty");
-
 const notificationOverlay = document.getElementById("notificationOverlay");
 const notificationCard = document.getElementById("notificationCard");
 const notificationTitle = document.getElementById("notificationTitle");
 const notificationText = document.getElementById("notificationText");
-
-const notificationCloseButton = document.getElementById(
-    "notificationCancelButton"
-);
-
-const notificationNoButton = document.getElementById(
-    "notificationNoButton"
-);
-
-const notificationButton = document.getElementById(
-    "notificationButton"
-);
+const notificationCloseButton = document.getElementById("notificationCancelButton");
+const notificationNoButton = document.getElementById("notificationNoButton");
+const notificationButton = document.getElementById("notificationButton");
 
 let modalAction = null;
 let countdownInterval = null;
+let currentServices = [];
 
-
-/* =========================================================
-   NOTIFICATION MODAL
-========================================================= */
-
-function showModal(
-    title,
-    message,
-    type = "info",
-    action = null,
-    buttonText = "OK",
-    confirmation = false
-) {
+/* NOTIFICATION MODAL */
+function showModal(title, message, type = "info", action = null, buttonText = "Continue", confirmation = false) {
     notificationTitle.textContent = title;
     notificationText.textContent = message;
     notificationButton.textContent = buttonText;
-
     notificationCard.className = `notification-card ${type}`;
-
     modalAction = action;
-
     notificationButton.hidden = false;
-    notificationCloseButton.hidden = true;
-    notificationNoButton.hidden = true;
-
-    if (confirmation) {
-        notificationNoButton.hidden = false;
-        notificationCloseButton.hidden = true;
-    } else {
-        notificationCloseButton.hidden = false;
-    }
-
+    notificationCloseButton.hidden = confirmation;
+    notificationNoButton.hidden = !confirmation;
     notificationOverlay.hidden = false;
     notificationOverlay.classList.add("active");
 }
@@ -86,415 +47,231 @@ function showModal(
 function hideModal() {
     notificationOverlay.classList.remove("active");
     notificationOverlay.hidden = true;
-
     modalAction = null;
-
     notificationButton.disabled = false;
     notificationButton.classList.remove("is-loading");
-
     notificationNoButton.disabled = false;
     notificationNoButton.hidden = true;
-
     notificationCloseButton.hidden = false;
 
     if (notificationButton.dataset.originalText) {
-        notificationButton.textContent =
-            notificationButton.dataset.originalText;
-
+        notificationButton.textContent = notificationButton.dataset.originalText;
         delete notificationButton.dataset.originalText;
     }
 }
 
 function closeModal() {
     const action = modalAction;
+    if (!action) return hideModal();
 
-    if (action) {
-        setLoading(notificationButton, true);
-
-        if (action === logoutWorker) {
-            notificationButton.textContent = "Logging Out...";
-        }
-
-        modalAction = null;
-
-        action();
-
-        return;
-    }
-
-    hideModal();
+    setLoading(notificationButton, true);
+    if (action === logoutWorker) notificationButton.textContent = "Logging Out...";
+    modalAction = null;
+    action();
 }
 
 notificationButton.addEventListener("click", closeModal);
-
-notificationNoButton.addEventListener("click", () => {
-    hideModal();
-});
-
+notificationNoButton.addEventListener("click", hideModal);
 notificationCloseButton.addEventListener("click", () => {
-    if (notificationButton.disabled) {
-        return;
-    }
-
-    hideModal();
+    if (!notificationButton.disabled) hideModal();
 });
 
-
-/* =========================================================
-   BUTTON LOADING STATE
-========================================================= */
-
-function setLoading(button, loading) {
-    if (!button) {
-        return;
-    }
+/* LOADING */
+function setLoading(button, loading, text = "Connecting...") {
+    if (!button) return;
 
     if (loading) {
         if (!button.dataset.originalText) {
-            button.dataset.originalText =
-                button.textContent.trim();
+            button.dataset.originalText = button.textContent.trim();
         }
-
         button.disabled = true;
         button.classList.add("is-loading");
-        button.textContent = "Connecting...";
-
-        return;
-    }
-
-    button.disabled = false;
-    button.classList.remove("is-loading");
-
-    if (button.dataset.originalText) {
-        button.textContent = button.dataset.originalText;
-
-        delete button.dataset.originalText;
+        button.textContent = text;
+    } else {
+        button.disabled = false;
+        button.classList.remove("is-loading");
+        if (button.dataset.originalText) {
+            button.textContent = button.dataset.originalText;
+            delete button.dataset.originalText;
+        }
     }
 }
-
-
-/* =========================================================
-   AUTHENTICATION
-========================================================= */
 
 function redirectToLogin() {
-    window.location.href =
-        "../worker-authentication/index.html";
+    window.location.href = "../worker-authentication/index.html";
 }
 
-function authenticationError(
-    message = "Your session has expired. Please log in again."
-) {
-    showModal(
-        "Authentication Required",
-        message,
-        "error",
-        redirectToLogin,
-        "Continue"
-    );
+function authenticationError(message = "Your session has expired. Please log in again.") {
+    showModal("Authentication Required", message, "error", redirectToLogin, "Continue");
 }
 
-
-/* =========================================================
-   SERVICES LOADING
-========================================================= */
-
+/* SERVICES LOADING */
 function setServicesLoading(loading) {
     servicesLoading.hidden = !loading;
 
     if (loading) {
         servicesContainer.innerHTML = "";
         servicesEmpty.hidden = true;
-
-        if (countdownInterval !== null) {
-            clearInterval(countdownInterval);
-            countdownInterval = null;
-        }
+        if (countdownInterval !== null) clearInterval(countdownInterval);
+        countdownInterval = null;
     }
 }
 
-
-/* =========================================================
-   LOAD SERVICES
-========================================================= */
-
+/* LOAD SERVICES */
 async function loadServices() {
     setServicesLoading(true);
 
     try {
-        const response = await API_REQUEST(
-            SERVICES_ENDPOINT,
-            {
-                method: "GET"
-            }
-        );
+        const response = await API_REQUEST(SERVICES_ENDPOINT, { method: "GET" });
 
-        // API_REQUEST handles session refresh and dispatches
-        // authSessionExpired if authentication cannot be restored.
-        if (response.status === 401) {
-            return;
-        }
+        // API_REQUEST handles refreshToken requests and dispatches
+        // authSessionExpired if the session cannot be restored.
+        if (response.status === 401) return;
 
         const data = await response.json();
 
         if (!response.ok) {
             showModal(
                 "Unable to Load Services",
-                data.message ||
-                    "Unable to load your services. Please try again.",
+                data.message || "Unable to load your services. Please try again.",
                 "error"
             );
-
             return;
         }
 
         displayServices(data.services);
-
     } catch (error) {
-        console.error(
-            "Services request failed:",
-            error
-        );
-
+        console.error("Services request failed:", error);
         showModal(
             "Connection Error",
             "Unable to connect to the server. Please try again.",
             "error"
         );
-
     } finally {
         setServicesLoading(false);
     }
 }
 
-
-/* =========================================================
-   FORMAT LIVE SERVICE COUNTDOWN
-   DAYS:HOURS:MINUTES:SECONDS
-========================================================= */
-
+/* COUNTDOWN */
 function formatServiceCountDown(expiryTime) {
-    const remainingMilliseconds = expiryTime - Date.now();
+    const remaining = expiryTime - Date.now();
+    if (remaining <= 0) return "00:00:00:00";
 
-    if (remainingMilliseconds <= 0) {
-        return "00:00:00:00";
-    }
+    const seconds = Math.floor(remaining / 1000);
+    const values = [
+        Math.floor(seconds / 86400),
+        Math.floor((seconds % 86400) / 3600),
+        Math.floor((seconds % 3600) / 60),
+        seconds % 60
+    ];
 
-    const totalSeconds = Math.floor(
-        remainingMilliseconds / 1000
-    );
-
-    const days = Math.floor(
-        totalSeconds / 86400
-    );
-
-    const hours = Math.floor(
-        (totalSeconds % 86400) / 3600
-    );
-
-    const minutes = Math.floor(
-        (totalSeconds % 3600) / 60
-    );
-
-    const seconds = totalSeconds % 60;
-
-    return [
-        String(days).padStart(2, "0"),
-        String(hours).padStart(2, "0"),
-        String(minutes).padStart(2, "0"),
-        String(seconds).padStart(2, "0")
-    ].join(":");
+    return values.map(value => String(value).padStart(2, "0")).join(":");
 }
 
-
-/* =========================================================
-   UPDATE LIVE COUNTDOWNS
-========================================================= */
+function serviceIsActive(service) {
+    const expiry = new Date(service.serviceCountDown).getTime();
+    return Number.isFinite(expiry) && expiry > Date.now();
+}
 
 function updateServiceCountDowns() {
-    const countdownElements = servicesContainer.querySelectorAll(
-        ".service-date[data-expiry-time]"
-    );
-
-    countdownElements.forEach(countdown => {
-        const expiryTime = Number(
-            countdown.dataset.expiryTime
+    servicesContainer.querySelectorAll(".service-card").forEach(card => {
+        const service = currentServices.find(
+            item => String(item.id) === card.dataset.serviceId
         );
+        if (!service) return;
 
-        const remainingMilliseconds = expiryTime - Date.now();
+        const countdown = card.querySelector(".service-date");
+        const activateButton = card.querySelector(".activate-service-btn");
+        const active = serviceIsActive(service);
 
-        if (
-            !Number.isFinite(expiryTime) ||
-            remainingMilliseconds <= 0
-        ) {
-            const card = countdown.closest(".service-card");
+        countdown.hidden = !active;
+        activateButton.hidden = active;
 
-            if (card) {
-                card.remove();
-            }
-
-            return;
+        if (active) {
+            countdown.dataset.expiryTime = String(
+                new Date(service.serviceCountDown).getTime()
+            );
+            countdown.textContent = formatServiceCountDown(
+                Number(countdown.dataset.expiryTime)
+            );
         }
-
-        countdown.textContent =
-            formatServiceCountDown(expiryTime);
     });
 
-    // Display the empty state when every service has expired.
-    if (
-        servicesContainer.querySelectorAll(".service-card").length === 0
-    ) {
-        servicesEmpty.hidden = false;
-
-        if (countdownInterval !== null) {
-            clearInterval(countdownInterval);
-            countdownInterval = null;
-        }
-    }
-}
-
-function startServiceCountDowns() {
     if (countdownInterval !== null) {
         clearInterval(countdownInterval);
         countdownInterval = null;
     }
 
-    updateServiceCountDowns();
-
-    if (
-        servicesContainer.querySelectorAll(
-            ".service-date[data-expiry-time]"
-        ).length === 0
-    ) {
-        return;
+    if (servicesContainer.querySelector(".service-date:not([hidden])")) {
+        countdownInterval = setInterval(updateServiceCountDowns, 1000);
     }
-
-    countdownInterval = setInterval(
-        updateServiceCountDowns,
-        1000
-    );
 }
 
-
-/* =========================================================
-   DISPLAY SERVICES
-========================================================= */
-
+/* DISPLAY SERVICES */
 function displayServices(services) {
+    currentServices = Array.isArray(services) ? [...services] : [];
     servicesContainer.innerHTML = "";
 
-    if (
-        !Array.isArray(services) ||
-        services.length === 0
-    ) {
+    if (!currentServices.length) {
         servicesEmpty.hidden = false;
         return;
     }
 
     servicesEmpty.hidden = true;
 
-    const now = Date.now();
+    currentServices.sort((a, b) => {
+        const aDate = new Date(a.serviceCountDown).getTime();
+        const bDate = new Date(b.serviceCountDown).getTime();
+        return (Number.isFinite(bDate) ? bDate : 0) -
+               (Number.isFinite(aDate) ? aDate : 0);
+    });
 
-    const validServices = services
-        .filter(service => {
-            if (!service.serviceCountDown) {
-                return false;
-            }
-
-            const expiryTime = new Date(
-                service.serviceCountDown
-            ).getTime();
-
-            return (
-                Number.isFinite(expiryTime) &&
-                expiryTime > now
-            );
-        })
-        .sort((a, b) => {
-            const expiryA = new Date(
-                a.serviceCountDown
-            ).getTime();
-
-            const expiryB = new Date(
-                b.serviceCountDown
-            ).getTime();
-
-            // Earliest upcoming expiry first.
-            return expiryA - expiryB;
-        });
-
-    if (validServices.length === 0) {
-        servicesEmpty.hidden = false;
-        return;
-    }
-
-    validServices.forEach(service => {
+    currentServices.forEach(service => {
         const card = document.createElement("article");
-
         card.className = "service-card";
+        card.dataset.serviceId = String(service.id);
         card.setAttribute("role", "button");
         card.setAttribute("tabindex", "0");
+        card.setAttribute("aria-label", `View ${service.skill || "service"}`);
 
         const skill = document.createElement("strong");
-
         skill.className = "service-skill";
         skill.textContent = service.skill || "Service";
 
-        const serviceInfo = document.createElement("div");
-
-        serviceInfo.className = "service-info";
+        const info = document.createElement("div");
+        info.className = "service-info";
 
         const countdown = document.createElement("span");
-
         countdown.className = "service-date";
 
-        const expiryTime = new Date(
-            service.serviceCountDown
-        ).getTime();
-
-        countdown.dataset.expiryTime = String(expiryTime);
-
-        countdown.textContent =
-            formatServiceCountDown(expiryTime);
-
         const approval = document.createElement("span");
-
         approval.className = "service-approval";
+        approval.textContent = service.adminApproval || "in review";
+        approval.classList.add(
+            service.adminApproval === "approved" ? "approved" :
+            service.adminApproval === "rejected" ? "rejected" : "in-review"
+        );
 
-        const approvalStatus =
-            service.adminApproval || "in review";
+        const activateButton = document.createElement("button");
+        activateButton.type = "button";
+        activateButton.className = "activate-service-btn";
+        activateButton.textContent = "Activate";
+        activateButton.hidden = serviceIsActive(service);
 
-        approval.textContent = approvalStatus;
+        countdown.hidden = !serviceIsActive(service);
+        info.append(countdown, approval);
+        card.append(skill, info, activateButton);
 
-        if (approvalStatus === "in review") {
-            approval.classList.add("in-review");
-        }
-
-        if (approvalStatus === "rejected") {
-            approval.classList.add("rejected");
-        }
-
-        if (approvalStatus === "approved") {
-            approval.classList.add("approved");
-        }
-
-        serviceInfo.appendChild(countdown);
-        serviceInfo.appendChild(approval);
-
-        card.appendChild(skill);
-        card.appendChild(serviceInfo);
-
-        card.addEventListener("click", () => {
-            openService(service.id);
+        activateButton.addEventListener("click", event => {
+            event.stopPropagation();
+            activateService(service.id, activateButton, countdown);
         });
 
+        card.addEventListener("click", () => openService(service.id));
         card.addEventListener("keydown", event => {
-            if (
-                event.key === "Enter" ||
-                event.key === " "
-            ) {
+            if (event.target !== card) return;
+            if (event.key === "Enter" || event.key === " ") {
                 event.preventDefault();
-
                 openService(service.id);
             }
         });
@@ -502,98 +279,116 @@ function displayServices(services) {
         servicesContainer.appendChild(card);
     });
 
-    startServiceCountDowns();
+    updateServiceCountDowns();
 }
 
-
-/* =========================================================
-   OPEN SERVICE
-========================================================= */
-
-function openService(serviceId) {
+/* ACTIVATE SERVICE */
+async function activateService(serviceId, button, countdown) {
     if (!serviceId) {
-        showModal(
-            "Service Error",
-            "This service could not be opened.",
-            "error"
-        );
-
+        showModal("Service Error", "This service could not be activated.", "error");
         return;
     }
 
-    sessionStorage.setItem(
-        "serviceId",
-        serviceId
-    );
+    sessionStorage.setItem("serviceId", String(serviceId));
+    button.disabled = true;
+    button.textContent = "Activating...";
 
-    window.location.href =
-        "../worker-view-service/index.html";
+    try {
+        const response = await API_REQUEST(ACTIVATE_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                serviceId: sessionStorage.getItem("serviceId")
+            })
+        });
+
+        if (response.status === 401) return;
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            button.disabled = false;
+            button.textContent = "Activate";
+            showModal(
+                "Activation Failed",
+                data.message || "Unable to activate this service. Please try again.",
+                "error"
+            );
+            return;
+        }
+
+        const updated = data.service;
+        const service = currentServices.find(
+            item => String(item.id) === String(serviceId)
+        );
+
+        if (service && updated) {
+            service.serviceCountDown = updated.serviceCountDown;
+        }
+
+        button.hidden = true;
+        button.disabled = false;
+        button.textContent = "Activate";
+        countdown.hidden = false;
+
+        updateServiceCountDowns();
+    } catch (error) {
+        console.error("Service activation failed:", error);
+        button.disabled = false;
+        button.textContent = "Activate";
+        showModal(
+            "Connection Error",
+            "Unable to activate this service. Please try again.",
+            "error"
+        );
+    }
 }
 
+/* OPEN SERVICE */
+function openService(serviceId) {
+    if (!serviceId) {
+        showModal("Service Error", "This service could not be opened.", "error");
+        return;
+    }
 
-/* =========================================================
-   NAVIGATION
-========================================================= */
+    sessionStorage.setItem("serviceId", String(serviceId));
+    window.location.href = "../worker-view-service/index.html";
+}
 
+/* NAVIGATION */
 addServiceBtn.addEventListener("click", () => {
-    window.location.href =
-        "../worker-create-service/index.html";
+    window.location.href = "../worker-create-service/index.html";
 });
 
 dashboardBtn.addEventListener("click", () => {
-    window.location.href =
-        "../worker-dashboard/index.html";
+    window.location.href = "../worker-dashboard/index.html";
 });
 
-viewServicesBtn.addEventListener("click", () => {
-    closeSidebar();
-});
+viewServicesBtn.addEventListener("click", closeSidebar);
 
 editProfileBtn.addEventListener("click", () => {
-    window.location.href =
-        "../worker-edit-profile/index.html";
+    window.location.href = "../worker-edit-profile/index.html";
 });
 
-
-/* =========================================================
-   MOBILE SIDEBAR
-========================================================= */
-
+/* MOBILE SIDEBAR */
 function openSidebar() {
     sidebar.classList.add("active");
     overlay.classList.add("active");
-
-    menuBtn.setAttribute(
-        "aria-expanded",
-        "true"
-    );
+    menuBtn.setAttribute("aria-expanded", "true");
 }
 
 function closeSidebar() {
     sidebar.classList.remove("active");
     overlay.classList.remove("active");
-
-    menuBtn.setAttribute(
-        "aria-expanded",
-        "false"
-    );
+    menuBtn.setAttribute("aria-expanded", "false");
 }
 
 menuBtn.addEventListener("click", openSidebar);
 closeMenuBtn.addEventListener("click", closeSidebar);
 overlay.addEventListener("click", closeSidebar);
 
-
-/* =========================================================
-   LOGOUT
-========================================================= */
-
-logoutBtn.addEventListener(
-    "click",
-    showLogoutConfirmation
-);
-
-function showLogoutConfirmation() {
+/* LOGOUT */
+logoutBtn.addEventListener("click", () => {
     showModal(
         "Logout",
         "Are you sure you want to log out?",
@@ -602,29 +397,16 @@ function showLogoutConfirmation() {
         "Yes",
         true
     );
-}
+});
 
 async function logoutWorker() {
     try {
-        const response = await API_REQUEST(
-            LOGOUT_ENDPOINT,
-            {
-                method: "POST"
-            }
-        );
+        const response = await API_REQUEST(LOGOUT_ENDPOINT, { method: "POST" });
 
         if (response.status === 401) {
             setLoading(notificationButton, false);
             hideModal();
-
-            showModal(
-                "Authentication Required",
-                "Your session has expired. Please log in again.",
-                "error",
-                redirectToLogin,
-                "Continue"
-            );
-
+            authenticationError();
             return;
         }
 
@@ -633,29 +415,19 @@ async function logoutWorker() {
         if (!response.ok) {
             setLoading(notificationButton, false);
             hideModal();
-
             showModal(
                 "Logout Failed",
-                data.message ||
-                    "Unable to log out. Please try again.",
+                data.message || "Unable to log out. Please try again.",
                 "error"
             );
-
             return;
         }
 
-        window.location.href =
-            "../worker-authentication/index.html";
-
+        window.location.href = "../worker-authentication/index.html";
     } catch (error) {
-        console.error(
-            "Logout request failed:",
-            error
-        );
-
+        console.error("Logout request failed:", error);
         setLoading(notificationButton, false);
         hideModal();
-
         showModal(
             "Connection Error",
             "Unable to log out at this time. Please try again.",
@@ -664,30 +436,12 @@ async function logoutWorker() {
     }
 }
 
+/* SESSION EXPIRY */
+window.addEventListener("authSessionExpired", () => {
+    setServicesLoading(false);
+    hideModal();
+    authenticationError();
+});
 
-/* =========================================================
-   SESSION EXPIRY EVENT
-========================================================= */
-
-window.addEventListener(
-    "authSessionExpired",
-    () => {
-        setServicesLoading(false);
-
-        hideModal();
-
-        authenticationError();
-    }
-);
-
-
-/* =========================================================
-   INITIALIZE
-========================================================= */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-        loadServices();
-    }
-);
+/* INITIALIZE */
+document.addEventListener("DOMContentLoaded", loadServices);

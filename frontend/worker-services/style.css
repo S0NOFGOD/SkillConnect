@@ -747,3 +747,31 @@ a:focus-visible{
         transition-duration:.01ms!important;
     }
 }
+
+/* SERVICE ACTIVATION */
+.activate-service-btn {
+    align-self: flex-start;
+    margin-top: 12px;
+    padding: 8px 16px;
+    border: 1px solid rgba(239, 68, 68, .35);
+    border-radius: 9px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.activate-service-btn:hover {
+    background: #dc2626;
+}
+
+.activate-service-btn:disabled {
+    cursor: wait;
+    opacity: .7;
+}
+
+.activate-service-btn[hidden],
+.service-date[hidden] {
+    display: none;
+}

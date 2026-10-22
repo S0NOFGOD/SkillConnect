@@ -1,60 +1,16 @@
-const express=require("express");
-const multer=require("multer");
-const router=express.Router();
+"use strict";
 
-const{authenticateWorker}=require("../controllers/worker-authentication");
-const{
+const express = require("express");
+const {
     getWorkerService,
     updateWorkerService,
-    deleteWorkerService
-}=require("../controllers/worker-view-service");
+    activateWorkerService
+} = require("../controllers/worker-view-service");
 
-const upload=multer({
-    storage:multer.memoryStorage(),
-    limits:{
-        fileSize:5*1024*1024,
-        files:3
-    },
-    fileFilter:(req,file,callback)=>{
-        if(!file.mimetype.startsWith("image/")){
-            return callback(new Error("Only image files are allowed."));
-        }
+const router = express.Router();
 
-        callback(null,true);
-    }
-});
+router.get("/view-service/:serviceId", getWorkerService);
+router.put("/view-service/:serviceId", updateWorkerService);
+router.post("/activate-service/:serviceId", activateWorkerService);
 
-const requireWorker=(req,res,next)=>{
-    const auth=authenticateWorker(req);
-
-    if(!auth.valid){
-        return res.status(auth.status).json({
-            success:false,
-            message:auth.message
-        });
-    }
-
-    req.workerId=auth.userId;
-    next();
-};
-
-router.get(
-    "/view-service/:serviceId",
-    requireWorker,
-    getWorkerService
-);
-
-router.put(
-    "/view-service/:serviceId",
-    requireWorker,
-    upload.array("portfolioPhotos",3),
-    updateWorkerService
-);
-
-router.delete(
-    "/view-service/:serviceId",
-    requireWorker,
-    deleteWorkerService
-);
-
-module.exports=router;
+module.exports = router;

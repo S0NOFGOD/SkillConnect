@@ -1,33 +1,14 @@
-const express=require("express");
+"use strict";
 
-const router=express.Router();
+const express = require("express");
+const router = express.Router();
 
-const{
-    authenticateWorker
-}=require("../controllers/worker-authentication");
+const {
+    getWorkerServices,
+    activateWorkerService
+} = require("../controllers/worker-services");
 
-const{
-    getWorkerServices
-}=require("../controllers/worker-services");
+router.get("/services", getWorkerServices);
+router.post("/services/activate", activateWorkerService);
 
-router.get(
-    "/services",
-    (req,res)=>{
-        const authentication=authenticateWorker(req);
-
-        if(!authentication.valid){
-            return res.status(
-                authentication.status
-            ).json({
-                success:false,
-                message:authentication.message
-            });
-        }
-
-        req.workerId=authentication.userId;
-
-        return getWorkerServices(req,res);
-    }
-);
-
-module.exports=router;
+module.exports = router;
