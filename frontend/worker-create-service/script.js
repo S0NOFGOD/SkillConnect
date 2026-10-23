@@ -41,6 +41,7 @@ const MAX_PORTFOLIO_IMAGES = 3;
 const CREATE_SERVICE_ENDPOINT = "/api/worker/create-service";
 
 const DASHBOARD_REDIRECT = "../worker-dashboard/index.html";
+const AUTHENTICATION_REDIRECT = "../worker-authentication/index.html";
 const SERVICES_REDIRECT = "../worker-services/index.html";
 
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -150,6 +151,11 @@ function setButtonLoading(button, isLoading) {
     }
 }
 
+function resetCreateServiceState() {
+    isAddingService = false;
+    setButtonLoading(addServiceBtn, false);
+}
+
 
 /* =========================================================
    5. NOTIFICATION MODAL
@@ -239,20 +245,8 @@ document.addEventListener("keydown", event => {
    6. AUTHENTICATION SESSION EXPIRY
 ========================================================= */
 
-/*
-   API_REQUEST is responsible for:
-   1. Sending the authenticated request.
-   2. Refreshing the access token when required.
-   3. Retrying the original request.
-   4. Returning the final response.
-
-   This listener handles the existing global expiry event.
-*/
-
 window.addEventListener("authSessionExpired", () => {
-    isAddingService = false;
-
-    setButtonLoading(addServiceBtn, false);
+    resetCreateServiceState();
 
     if (
         notificationOverlay &&
@@ -264,7 +258,10 @@ window.addEventListener("authSessionExpired", () => {
     showNotification(
         "error",
         "Authentication Required",
-        "Your session has expired. Please log in again."
+        "Your session has expired. Please log in again.",
+        () => {
+            window.location.href = AUTHENTICATION_REDIRECT;
+        }
     );
 });
 
@@ -574,9 +571,11 @@ async function createService() {
         const formData = buildServiceFormData();
 
         /*
-           Do not manually set Content-Type for FormData.
-           API_REQUEST must preserve cookie credentials and
-           perform its existing access-token refresh flow.
+           API_REQUEST must:
+           1. Include credentials/cookies.
+           2. Attempt access-token refresh when required.
+           3. Retry the original request after successful refresh.
+           4. Return the final response.
         */
 
         const response = await API_REQUEST(
@@ -588,10 +587,15 @@ async function createService() {
         );
 
         if (response.status === 401) {
+            resetCreateServiceState();
+
             showNotification(
                 "error",
                 "Authentication Required",
-                "Your session has expired or is invalid. Please log in again."
+                "Your session has expired or is invalid. Please log in again.",
+                () => {
+                    window.location.href = AUTHENTICATION_REDIRECT;
+                }
             );
 
             return;
@@ -600,21 +604,23 @@ async function createService() {
         if (!response.ok) {
             const message = await extractResponseMessage(response);
 
+            resetCreateServiceState();
+
             /*
-               Phone verification expiry redirects to the
-               worker dashboard only after Continue is clicked.
+               This assumes HTTP 403 from this endpoint means
+               profile verification has expired or is missing.
             */
 
-            const phoneVerificationExpired =
+            const profileVerificationRequired =
                 response.status === 403;
 
             showNotification(
                 "error",
-                phoneVerificationExpired
+                profileVerificationRequired
                     ? "Profile Verification Required"
                     : "Unable To Create Service",
                 message,
-                phoneVerificationExpired
+                profileVerificationRequired
                     ? () => {
                         window.location.href = DASHBOARD_REDIRECT;
                     }
@@ -624,7 +630,8 @@ async function createService() {
             return;
         }
 
-        let successMessage = "Your service has been added successfully.";
+        let successMessage =
+            "Your service has been added successfully.";
 
         try {
             const data = await response.json();
@@ -635,6 +642,8 @@ async function createService() {
         } catch (error) {
             console.log("No JSON success response returned.");
         }
+
+        resetCreateServiceState();
 
         showNotification(
             "success",
@@ -648,6 +657,8 @@ async function createService() {
     } catch (error) {
         console.error("Create service request failed:", error);
 
+        resetCreateServiceState();
+
         showNotification(
             "error",
             "Request Failed",
@@ -655,8 +666,7 @@ async function createService() {
         );
 
     } finally {
-        isAddingService = false;
-        setButtonLoading(addServiceBtn, false);
+        resetCreateServiceState();
     }
 }
 
