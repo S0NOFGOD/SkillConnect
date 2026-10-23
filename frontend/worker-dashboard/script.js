@@ -463,7 +463,7 @@ verificationActionBtn.addEventListener("click", () => {
 
     showModal(
         "Verify Profile",
-        "Verify your profile to be discovered by nearby clients?",
+        "Are ypu sure you want to verify ypur profile?",
         "confirm",
         sendPhoneOtp,
         "Yes",
