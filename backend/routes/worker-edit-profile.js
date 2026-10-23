@@ -1,29 +1,14 @@
-const express = require("express");
-const multer = require("multer");
+"use strict";
 
-const router = express.Router();
-
-const upload = multer({
-    storage: multer.memoryStorage(),
-    limits: {
-        fileSize: 5 * 1024 * 1024
-    }
-});
+const express=require("express");
+const router=express.Router();
 
 const {
     getProfile,
     updateProfile
-} = require("../controllers/worker-edit-profile");
+}=require("../controllers/worker-edit-profile");
 
-router.get(
-    "/edit-profile",
-    getProfile
-);
+router.get("/edit-profile",getProfile);
+router.put("/edit-profile",updateProfile);
 
-router.put(
-    "/edit-profile",
-    upload.single("profilePhoto"),
-    updateProfile
-);
-
-module.exports = router;
+module.exports=router;
