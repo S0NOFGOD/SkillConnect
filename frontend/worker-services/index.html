@@ -1,398 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        View Services | SkillConnect
-    </title>
-
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
-
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
-
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Services | SkillConnect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
-
-
 <body>
-
-    <div
-        class="green-glow"
-        aria-hidden="true"
-    ></div>
-
-    <div
-        class="blue-glow"
-        aria-hidden="true"
-    ></div>
-
+    <div class="green-glow" aria-hidden="true"></div>
+    <div class="blue-glow" aria-hidden="true"></div>
 
     <header class="topbar">
-
         <div class="topbar-inner">
-
-            <a
-                href="../worker-dashboard/index.html"
-                class="logo"
-            >
-                SkillConnect
-            </a>
-
-
-            <button
-                type="button"
-                id="menuBtn"
-                class="menu-btn"
-                aria-label="Open navigation menu"
-                aria-controls="sidebar"
-                aria-expanded="false"
-            >
-
-                <span></span>
-                <span></span>
-                <span></span>
-
+            <a href="../worker-dashboard/index.html" class="logo">SkillConnect</a>
+            <button type="button" id="menuBtn" class="menu-btn" aria-label="Open navigation menu" aria-controls="sidebar" aria-expanded="false">
+                <span></span><span></span><span></span>
             </button>
-
         </div>
-
     </header>
 
-
-    <aside
-        id="sidebar"
-        class="sidebar"
-        aria-label="Worker dashboard navigation"
-    >
-
+    <aside id="sidebar" class="sidebar" aria-label="Worker dashboard navigation">
         <div class="sidebar-header">
-
-            <div class="sidebar-brand">
-
-                <span class="sidebar-brand-icon">
-                    SC
-                </span>
-
-                <div class="sidebar-brand-text">
-
-                    <strong>
-                        SkillConnect
-                    </strong>
-
-                    <small>
-                        Worker Portal
-                    </small>
-
-                </div>
-
-            </div>
-
-
-            <button
-                type="button"
-                id="closeMenuBtn"
-                class="close-menu-btn"
-                aria-label="Close navigation menu"
-            >
-                ×
-            </button>
-
+            <button type="button" id="closeMenuBtn" class="close-menu-btn" aria-label="Close navigation menu">×</button>
         </div>
 
+        <div class="sidebar-profile">
+            <div class="profile-photo-wrapper">
+                <img id="profilePhoto" class="profile-photo" src="" alt="Worker profile photo" hidden>
+                <div id="profilePhotoPlaceholder" class="profile-photo-placeholder" aria-hidden="true">👤</div>
+            </div>
+        </div>
 
         <nav class="sidebar-nav">
-
-            <button
-                type="button"
-                id="dashboardBtn"
-                class="nav-link"
-            >
-
-                <span
-                    class="nav-icon"
-                    aria-hidden="true"
-                >
-                    🏠
-                </span>
-
-                <span>
-                    Dashboard
-                </span>
-
+            <button type="button" id="dashboardBtn" class="nav-link">
+                <span class="nav-icon" aria-hidden="true">🏠</span><span>Dashboard</span>
             </button>
-
-
-            <button
-                type="button"
-                id="viewServicesBtn"
-                class="nav-link active"
-            >
-
-                <span
-                    class="nav-icon"
-                    aria-hidden="true"
-                >
-                    🛠️
-                </span>
-
-                <span>
-                    View Services
-                </span>
-
+            <button type="button" id="viewServicesBtn" class="nav-link active">
+                <span class="nav-icon" aria-hidden="true">🛠️</span><span>View Services</span>
             </button>
-
-
-            <button
-                type="button"
-                id="editProfileBtn"
-                class="nav-link"
-            >
-
-                <span
-                    class="nav-icon"
-                    aria-hidden="true"
-                >
-                    ✏️
-                </span>
-
-                <span>
-                    Edit Profile
-                </span>
-
+            <button type="button" id="editProfileBtn" class="nav-link">
+                <span class="nav-icon" aria-hidden="true">✏️</span><span>Edit Profile</span>
             </button>
-
         </nav>
 
-
         <div class="sidebar-footer">
-
-            <button
-                type="button"
-                id="logoutBtn"
-                class="nav-link logout-link"
-            >
-
-                <span
-                    class="nav-icon"
-                    aria-hidden="true"
-                >
-                    ↪
-                </span>
-
-                <span>
-                    Logout
-                </span>
-
+            <button type="button" id="logoutBtn" class="nav-link logout-link">
+                <span class="nav-icon" aria-hidden="true">↪</span><span>Logout</span>
             </button>
-
         </div>
-
     </aside>
 
+    <div id="overlay" class="overlay" aria-hidden="true"></div>
 
-    <div
-        id="overlay"
-        class="overlay"
-        aria-hidden="true"
-    ></div>
-
-
-    <main
-        class="dashboard"
-        id="servicesPage"
-    >
-
+    <main class="dashboard" id="servicesPage">
         <section class="dashboard-header">
-
             <div>
-
-                <h1>
-                    My Services
-                </h1>
-
-                <p class="page-description">
-                    Manage the services you offer to clients, your services expire in 30 days
-                </p>
-
+                <h1>My Services</h1>
+                <p class="page-description">Manage the services you offer to clients, your services expire in 30 days</p>
             </div>
-
-
-            <button
-                type="button"
-                id="addServiceBtn"
-                class="add-service-btn"
-            >
-                Add A Service
-            </button>
-
+            <button type="button" id="addServiceBtn" class="add-service-btn">Add A Service</button>
         </section>
-
 
         <section class="dashboard-section">
-
-            <div class="section-heading">
-
-                <h2>
-                    Your Services
-                </h2>
-
+            <div class="section-heading"><h2>Your Services</h2></div>
+            <div id="servicesLoading" class="services-loading" hidden>
+                <div class="loading-spinner" aria-hidden="true"></div>
+                <p>Loading your services...</p>
             </div>
-
-
-            <div
-                id="servicesLoading"
-                class="services-loading"
-                hidden
-            >
-
-                <div
-                    class="loading-spinner"
-                    aria-hidden="true"
-                ></div>
-
-                <p>
-                    Loading your services...
-                </p>
-
+            <div id="servicesContainer" class="services-container"></div>
+            <div id="servicesEmpty" class="services-empty" hidden>
+                <div class="empty-icon" aria-hidden="true">🛠️</div>
+                <h3>No Services Yet</h3>
+                <p>Your services will be shown here</p>
             </div>
-
-
-            <div
-                id="servicesContainer"
-                class="services-container"
-            ></div>
-
-
-            <div
-                id="servicesEmpty"
-                class="services-empty"
-                hidden
-            >
-
-                <div
-                    class="empty-icon"
-                    aria-hidden="true"
-                >
-                    🛠️
-                </div>
-
-                <h3>
-                    No Services Yet
-                </h3>
-
-                <p>
-                    Your services will be shown here
-                </p>
-
-            </div>
-
         </section>
-
     </main>
 
-
-    <!-- Notification modal -->
-
-    <div
-        id="notificationOverlay"
-        class="notification-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="notificationTitle"
-        aria-describedby="notificationText"
-        hidden
-    >
-
-        <div
-            id="notificationCard"
-            class="notification-card"
-        >
-
-            <button
-                type="button"
-                id="notificationCancelButton"
-                class="notification-close-button"
-                aria-label="Close notification"
-            >
-                ×
-            </button>
-
-
-            <div
-                id="notificationIcon"
-                class="notification-icon"
-                aria-hidden="true"
-            >
-                ✓
-            </div>
-
-
-            <h2 id="notificationTitle">
-                Notification
-            </h2>
-
-
+    <div id="notificationOverlay" class="notification-modal" role="dialog" aria-modal="true" aria-labelledby="notificationTitle" aria-describedby="notificationText" hidden>
+        <div id="notificationCard" class="notification-card">
+            <button type="button" id="notificationCancelButton" class="notification-close-button" aria-label="Close notification">×</button>
+            <div id="notificationIcon" class="notification-icon" aria-hidden="true">✓</div>
+            <h2 id="notificationTitle">Notification</h2>
             <p id="notificationText"></p>
-
-
             <div class="notification-actions">
-
-                <button
-                    type="button"
-                    id="notificationNoButton"
-                    class="notification-no-button"
-                    hidden
-                >
-                    No
-                </button>
-
-
-                <button
-                    type="button"
-                    id="notificationButton"
-                >
-                    Continue
-                </button>
-
+                <button type="button" id="notificationNoButton" class="notification-no-button" hidden>No</button>
+                <button type="button" id="notificationButton">Continue</button>
             </div>
-
         </div>
-
     </div>
 
-
     <script src="../config.js"></script>
-
-
-    <script
-        src="script.js"
-        defer
-    ></script>
-
+    <script src="script.js" defer></script>
 </body>
-
 </html>

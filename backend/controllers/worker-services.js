@@ -3,6 +3,7 @@
 const Worker = require("../models/worker");
 const { authenticateWorker } = require("./worker-authentication");
 
+/* ACCESS TOKEN AUTHENTICATION */
 const authenticateRequest = (req, res) => {
     const auth = authenticateWorker(req);
 
@@ -11,18 +12,22 @@ const authenticateRequest = (req, res) => {
             success: false,
             message: auth.message || "Authentication required."
         });
+
         return null;
     }
 
     return auth.userId;
 };
 
+/* GET WORKER SERVICES */
 const getWorkerServices = async (req, res) => {
     try {
         const workerId = authenticateRequest(req, res);
+
         if (!workerId) return;
 
-        const worker = await Worker.findById(workerId).select("services");
+        const worker = await Worker.findById(workerId)
+            .select("services");
 
         if (!worker) {
             return res.status(404).json({
@@ -38,12 +43,20 @@ const getWorkerServices = async (req, res) => {
             adminApproval: service.adminApproval
         }));
 
-        // Keep expired services so workers can activate them again.
+        // Most recent serviceCountDown first.
+        // Invalid and expired services remain available for activation.
         services.sort((a, b) => {
-            const aTime = new Date(a.serviceCountDown).getTime();
-            const bTime = new Date(b.serviceCountDown).getTime();
+            const aTime = new Date(
+                a.serviceCountDown
+            ).getTime();
+
+            const bTime = new Date(
+                b.serviceCountDown
+            ).getTime();
+
             const aValid = Number.isFinite(aTime) ? aTime : 0;
             const bValid = Number.isFinite(bTime) ? bTime : 0;
+
             return bValid - aValid;
         });
 
@@ -51,8 +64,10 @@ const getWorkerServices = async (req, res) => {
             success: true,
             services: services.length ? services : null
         });
+
     } catch (error) {
         console.error("Get worker services error:", error);
+
         return res.status(500).json({
             success: false,
             message: "Unable to load your services."
@@ -60,21 +75,30 @@ const getWorkerServices = async (req, res) => {
     }
 };
 
+/* ACTIVATE WORKER SERVICE */
 const activateWorkerService = async (req, res) => {
     try {
+        // Authenticate the access-token credential first.
         const workerId = authenticateRequest(req, res);
+
         if (!workerId) return;
 
         const { serviceId } = req.body || {};
 
-        if (serviceId === undefined || serviceId === null || serviceId === "") {
+        if (
+            serviceId === undefined ||
+            serviceId === null ||
+            serviceId === ""
+        ) {
             return res.status(400).json({
                 success: false,
                 message: "Service ID is required."
             });
         }
 
-        const worker = await Worker.findById(workerId).select("services");
+        // Retrieve the worker's verification expiry and services.
+        const worker = await Worker.findById(workerId)
+            .select("profileVerificationExpires services");
 
         if (!worker) {
             return res.status(404).json({
@@ -83,6 +107,23 @@ const activateWorkerService = async (req, res) => {
             });
         }
 
+        // Check profile verification before activating a service.
+        const verificationExpiry = worker.profileVerificationExpires;
+        const verificationTime = verificationExpiry
+            ? new Date(verificationExpiry).getTime()
+            : NaN;
+
+        if (
+            !Number.isFinite(verificationTime) ||
+            verificationTime <= Date.now()
+        ) {
+            return res.status(403).json({
+                success: false,
+                message: "Your profile verification has expired or is invalid. Please verify your profile before activating a service."
+            });
+        }
+
+        // Find the requested service by its ID.
         const service = worker.services.find(
             item => String(item.id) === String(serviceId)
         );
@@ -94,6 +135,7 @@ const activateWorkerService = async (req, res) => {
             });
         }
 
+        // Activate the service for 30 days.
         service.serviceCountDown = new Date(
             Date.now() + 30 * 24 * 60 * 60 * 1000
         );
@@ -110,8 +152,10 @@ const activateWorkerService = async (req, res) => {
                 adminApproval: service.adminApproval
             }
         });
+
     } catch (error) {
         console.error("Activate worker service error:", error);
+
         return res.status(500).json({
             success: false,
             message: "Unable to activate this service."

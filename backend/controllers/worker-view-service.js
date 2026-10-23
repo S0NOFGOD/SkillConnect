@@ -19,25 +19,34 @@ const MAX_WORDS = 150;
 const SERVICE_DAYS = 30;
 
 const SKILLS = [
-    "Swimming Instructor","Barber","Hairdresser","Makeup Artist","Tailor",
-    "Fashion Designer","Plumber","Electrician","Painter","Welder","Carpenter",
-    "Bricklayer","Cleaner","Laundry Service","Mechanic","Auto Electrician",
-    "Phone Repair","Computer Repair","Graphic Designer","Web Developer",
-    "Photographer","Videographer","Caterer","Baker","Cook","Event Planner",
-    "Interior Decorator","AC Technician","Generator Repair","POP Installer",
-    "Tiler","Furniture Maker","Driver","Tutor","Fitness Trainer","Other"
+    "Swimming Instructor", "Barber", "Hairdresser", "Makeup Artist",
+    "Tailor", "Fashion Designer", "Plumber", "Electrician", "Painter",
+    "Welder", "Carpenter", "Bricklayer", "Cleaner", "Laundry Service",
+    "Mechanic", "Auto Electrician", "Phone Repair", "Computer Repair",
+    "Graphic Designer", "Web Developer", "Photographer", "Videographer",
+    "Caterer", "Baker", "Cook", "Event Planner", "Interior Decorator",
+    "AC Technician", "Generator Repair", "POP Installer", "Tiler",
+    "Furniture Maker", "Driver", "Tutor", "Fitness Trainer", "Other"
 ];
 
 const EXPERIENCES = [
-    "Less than 1 year","1 year","2 years","3 years","4 years","5 years+"
+    "Less than 1 year", "1 year", "2 years",
+    "3 years", "4 years", "5 years+"
 ];
 
 const upload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: MAX_UPLOAD_SIZE, files: MAX_IMAGES },
+    limits: {
+        fileSize: MAX_UPLOAD_SIZE,
+        files: MAX_IMAGES
+    },
     fileFilter: (req, file, callback) => {
-        if (!["image/jpeg", "image/png", "image/webp"].includes(file.mimetype))
-            return callback(new Error("Portfolio images must be JPG, PNG, or WebP."));
+        if (!["image/jpeg", "image/png", "image/webp"].includes(file.mimetype)) {
+            return callback(
+                new Error("Portfolio images must be JPG, PNG, or WebP.")
+            );
+        }
+
         callback(null, true);
     }
 });
@@ -48,8 +57,10 @@ function authenticate(req, res) {
     if (!auth.valid) {
         res.status(auth.status || 401).json({
             success: false,
-            message: auth.message || "Authentication required. Please log in again."
+            message: auth.message ||
+                "Authentication required. Please log in again."
         });
+
         return null;
     }
 
@@ -57,20 +68,39 @@ function authenticate(req, res) {
 }
 
 async function findWorkerAndService(workerId, serviceId, res) {
-    if (!serviceId || !String(serviceId).trim()) {
-        res.status(400).json({ success: false, message: "A valid service ID is required." });
+    if (
+        !serviceId ||
+        !String(serviceId).trim()
+    ) {
+        res.status(400).json({
+            success: false,
+            message: "A valid service ID is required."
+        });
+
         return null;
     }
 
     const worker = await Worker.findById(workerId);
+
     if (!worker) {
-        res.status(404).json({ success: false, message: "Worker account could not be found." });
+        res.status(404).json({
+            success: false,
+            message: "Worker account could not be found."
+        });
+
         return null;
     }
 
-    const service = worker.services.find(item => String(item.id) === String(serviceId));
+    const service = worker.services.find(
+        item => String(item.id) === String(serviceId)
+    );
+
     if (!service) {
-        res.status(404).json({ success: false, message: "Service not found." });
+        res.status(404).json({
+            success: false,
+            message: "Service not found."
+        });
+
         return null;
     }
 
@@ -79,20 +109,37 @@ async function findWorkerAndService(workerId, serviceId, res) {
 
 function imageUrl(publicId) {
     if (!publicId) return null;
-    return cloudinary.url(publicId, { resource_type: "image", secure: true });
+
+    if (/^https?:\/\//i.test(publicId)) {
+        return publicId;
+    }
+
+    return cloudinary.url(publicId, {
+        resource_type: "image",
+        secure: true
+    });
 }
 
 function uploadToCloudinary(buffer) {
     return new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream({
-            folder: "skillconnect/workers/services",
-            resource_type: "image",
-            format: "jpg"
-        }, (error, result) => {
-            if (error) return reject(error);
-            if (!result?.public_id) return reject(new Error("Cloudinary did not return an image ID."));
-            resolve(result.public_id);
-        });
+        const stream = cloudinary.uploader.upload_stream(
+            {
+                folder: "skillconnect/workers/services",
+                resource_type: "image",
+                format: "jpg"
+            },
+            (error, result) => {
+                if (error) return reject(error);
+
+                if (!result?.public_id) {
+                    return reject(
+                        new Error("Cloudinary did not return an image ID.")
+                    );
+                }
+
+                resolve(result.public_id);
+            }
+        );
 
         stream.end(buffer);
     });
@@ -105,60 +152,108 @@ async function deleteCloudinaryImage(publicId) {
         resource_type: "image"
     });
 
-    if (!["ok", "not found"].includes(result.result))
-        throw new Error(`Could not delete Cloudinary image ${publicId}.`);
+    if (!["ok", "not found"].includes(result.result)) {
+        throw new Error(
+            `Could not delete Cloudinary image ${publicId}.`
+        );
+    }
 }
 
 async function optimizeImage(buffer) {
     const metadata = await sharp(buffer).metadata();
+
     let width = Math.min(metadata.width || 1600, 1600);
     let quality = 82;
 
     for (let attempt = 0; attempt < 12; attempt++) {
         const output = await sharp(buffer)
             .rotate()
-            .resize({ width, withoutEnlargement: true })
-            .jpeg({ quality, mozjpeg: true })
+            .resize({
+                width,
+                withoutEnlargement: true
+            })
+            .jpeg({
+                quality,
+                mozjpeg: true
+            })
             .toBuffer();
 
-        if (output.length <= MAX_OPTIMIZED_SIZE) return output;
+        if (output.length <= MAX_OPTIMIZED_SIZE) {
+            return output;
+        }
 
-        if (quality > 45) quality -= 7;
-        else width = Math.max(160, Math.floor(width * 0.75));
+        if (quality > 45) {
+            quality -= 7;
+        } else {
+            width = Math.max(160, Math.floor(width * 0.75));
+        }
     }
 
-    throw new Error("A portfolio image could not be optimized to 5 MB or less.");
+    throw new Error(
+        "A portfolio image could not be optimized to 5 MB or less."
+    );
 }
 
 function validateServiceInput(req, res) {
     const serviceId = String(req.params.serviceId || "").trim();
 
     if (!serviceId) {
-        res.status(400).json({ success: false, message: "A valid service ID is required." });
+        res.status(400).json({
+            success: false,
+            message: "A valid service ID is required."
+        });
+
         return null;
     }
 
-    if (req.body.serviceId && String(req.body.serviceId) !== serviceId) {
-        res.status(400).json({ success: false, message: "The service IDs do not match." });
+    if (
+        req.body.serviceId &&
+        String(req.body.serviceId).trim() !== serviceId
+    ) {
+        res.status(400).json({
+            success: false,
+            message: "The service IDs do not match."
+        });
+
         return null;
     }
 
-    const skill = typeof req.body.skill === "string" ? req.body.skill.trim() : "";
-    const experience = typeof req.body.experience === "string" ? req.body.experience.trim() : "";
-    const description = typeof req.body.description === "string" ? req.body.description.trim() : "";
+    const skill = typeof req.body.skill === "string"
+        ? req.body.skill.trim()
+        : "";
+
+    const experience = typeof req.body.experience === "string"
+        ? req.body.experience.trim()
+        : "";
+
+    const description = typeof req.body.description === "string"
+        ? req.body.description.trim()
+        : "";
 
     if (!SKILLS.includes(skill)) {
-        res.status(400).json({ success: false, message: "Please select a valid skill." });
+        res.status(400).json({
+            success: false,
+            message: "Please select a valid skill."
+        });
+
         return null;
     }
 
     if (!EXPERIENCES.includes(experience)) {
-        res.status(400).json({ success: false, message: "Please select a valid experience level." });
+        res.status(400).json({
+            success: false,
+            message: "Please select a valid experience level."
+        });
+
         return null;
     }
 
     if (!description) {
-        res.status(400).json({ success: false, message: "Please enter a service description." });
+        res.status(400).json({
+            success: false,
+            message: "Please enter a service description."
+        });
+
         return null;
     }
 
@@ -167,10 +262,16 @@ function validateServiceInput(req, res) {
             success: false,
             message: "The service description cannot exceed 150 words."
         });
+
         return null;
     }
 
-    return { serviceId, skill, experience, description };
+    return {
+        serviceId,
+        skill,
+        experience,
+        description
+    };
 }
 
 /* GET SERVICE */
@@ -178,9 +279,15 @@ function validateServiceInput(req, res) {
 async function getWorkerService(req, res) {
     try {
         const workerId = authenticate(req, res);
+
         if (!workerId) return;
 
-        const found = await findWorkerAndService(workerId, req.params.serviceId, res);
+        const found = await findWorkerAndService(
+            workerId,
+            req.params.serviceId,
+            res
+        );
+
         if (!found) return;
 
         const { service } = found;
@@ -192,7 +299,9 @@ async function getWorkerService(req, res) {
                 skill: service.skill,
                 experience: service.experience,
                 description: service.description,
-                portfolios: (service.portfolios || []).map(imageUrl),
+                portfolios: (service.portfolios || [])
+                    .map(imageUrl)
+                    .filter(Boolean),
                 adminApproval: service.adminApproval,
                 adminResponse: service.adminResponse,
                 serviceCountDown: service.serviceCountDown
@@ -200,6 +309,7 @@ async function getWorkerService(req, res) {
         });
     } catch (error) {
         console.error("Get worker service error:", error);
+
         return res.status(500).json({
             success: false,
             message: "An error occurred while loading your service."
@@ -212,13 +322,56 @@ async function getWorkerService(req, res) {
 async function activateWorkerService(req, res) {
     try {
         const workerId = authenticate(req, res);
+
         if (!workerId) return;
 
-        const found = await findWorkerAndService(workerId, req.params.serviceId, res);
-        if (!found) return;
+        const worker = await Worker.findById(workerId);
 
-        const { worker, service } = found;
-        service.serviceCountDown = new Date(Date.now() + SERVICE_DAYS * 24 * 60 * 60 * 1000);
+        if (!worker) {
+            return res.status(404).json({
+                success: false,
+                message: "Worker account could not be found."
+            });
+        }
+
+        const verificationExpiry = worker.profileVerificationExpires;
+
+        if (
+            !verificationExpiry ||
+            !Number.isFinite(new Date(verificationExpiry).getTime()) ||
+            new Date(verificationExpiry).getTime() <= Date.now()
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Your profile verification has expired. Please verify your profile before activating your service."
+            });
+        }
+
+        const serviceId = String(
+            req.params.serviceId || ""
+        ).trim();
+
+        if (!serviceId) {
+            return res.status(400).json({
+                success: false,
+                message: "A valid service ID is required."
+            });
+        }
+
+        const service = worker.services.find(
+            item => String(item.id) === serviceId
+        );
+
+        if (!service) {
+            return res.status(404).json({
+                success: false,
+                message: "Service not found."
+            });
+        }
+
+        service.serviceCountDown = new Date(
+            Date.now() + SERVICE_DAYS * 24 * 60 * 60 * 1000
+        );
 
         await worker.save();
 
@@ -229,6 +382,7 @@ async function activateWorkerService(req, res) {
         });
     } catch (error) {
         console.error("Activate worker service error:", error);
+
         return res.status(500).json({
             success: false,
             message: "An error occurred while activating your service."
@@ -240,21 +394,30 @@ async function activateWorkerService(req, res) {
 
 function updateWorkerService(req, res) {
     const workerId = authenticate(req, res);
+
     if (!workerId) return;
 
-    upload.array("portfolioPhotos", MAX_IMAGES)(req, res, error => {
-        if (error) {
-            const message = error.code === "LIMIT_FILE_SIZE"
-                ? "Each portfolio image must not exceed 10 MB."
-                : error.code === "LIMIT_FILE_COUNT"
-                    ? "You can upload a maximum of 3 portfolio images."
-                    : error.message || "Portfolio upload failed.";
+    upload.array("portfolioPhotos", MAX_IMAGES)(
+        req,
+        res,
+        error => {
+            if (error) {
+                const message =
+                    error.code === "LIMIT_FILE_SIZE"
+                        ? "Each portfolio image must not exceed 10 MB."
+                        : error.code === "LIMIT_FILE_COUNT"
+                            ? "You can upload a maximum of 3 portfolio images."
+                            : error.message || "Portfolio upload failed.";
 
-            return res.status(400).json({ success: false, message });
+                return res.status(400).json({
+                    success: false,
+                    message
+                });
+            }
+
+            updateWorkerServiceData(req, res, workerId);
         }
-
-        updateWorkerServiceData(req, res, workerId);
-    });
+    );
 }
 
 async function updateWorkerServiceData(req, res, workerId) {
@@ -262,17 +425,30 @@ async function updateWorkerServiceData(req, res, workerId) {
 
     try {
         const input = validateServiceInput(req, res);
+
         if (!input) return;
 
-        const { serviceId, skill, experience, description } = input;
-        const found = await findWorkerAndService(workerId, serviceId, res);
+        const {
+            serviceId,
+            skill,
+            experience,
+            description
+        } = input;
+
+        const found = await findWorkerAndService(
+            workerId,
+            serviceId,
+            res
+        );
+
         if (!found) return;
 
         const { worker, service } = found;
 
         const duplicate = worker.services.some(item =>
-            String(item.id) !== String(serviceId) &&
-            item.skill.trim().toLowerCase() === skill.toLowerCase()
+            String(item.id) !== serviceId &&
+            String(item.skill || "").trim().toLowerCase() ===
+                skill.toLowerCase()
         );
 
         if (duplicate) {
@@ -283,10 +459,17 @@ async function updateWorkerServiceData(req, res, workerId) {
         }
 
         const files = req.files || [];
-        let indexes = req.body.portfolioIndexes;
-        if (typeof indexes === "string") indexes = [indexes];
 
-        if (files.length && (!Array.isArray(indexes) || indexes.length !== files.length)) {
+        let indexes = req.body.portfolioIndexes;
+
+        if (typeof indexes === "string") {
+            indexes = [indexes];
+        }
+
+        if (
+            files.length &&
+            (!Array.isArray(indexes) || indexes.length !== files.length)
+        ) {
             return res.status(400).json({
                 success: false,
                 message: "Portfolio image information is invalid."
@@ -298,9 +481,14 @@ async function updateWorkerServiceData(req, res, workerId) {
             slot: Number(indexes[index])
         }));
 
-        if (slots.some(({ slot }) =>
-            !Number.isInteger(slot) || slot < 0 || slot >= MAX_IMAGES
-        ) || new Set(slots.map(item => item.slot)).size !== slots.length) {
+        if (
+            slots.some(({ slot }) =>
+                !Number.isInteger(slot) ||
+                slot < 0 ||
+                slot >= MAX_IMAGES
+            ) ||
+            new Set(slots.map(item => item.slot)).size !== slots.length
+        ) {
             return res.status(400).json({
                 success: false,
                 message: "Portfolio image slots are invalid or duplicated."
@@ -312,37 +500,54 @@ async function updateWorkerServiceData(req, res, workerId) {
         const replacedIds = [];
 
         for (const { file, slot } of slots) {
-            if (!Buffer.isBuffer(file.buffer))
-                throw new Error("A portfolio image could not be processed.");
+            if (!Buffer.isBuffer(file.buffer)) {
+                throw new Error(
+                    "A portfolio image could not be processed."
+                );
+            }
 
             const optimized = await optimizeImage(file.buffer);
             const publicId = await uploadToCloudinary(optimized);
 
             newlyUploadedIds.push(publicId);
-            newPortfolios[slot] = publicId;
 
-            if (oldPortfolios[slot] && oldPortfolios[slot] !== publicId)
+            if (
+                oldPortfolios[slot] &&
+                oldPortfolios[slot] !== publicId
+            ) {
                 replacedIds.push(oldPortfolios[slot]);
+            }
+
+            newPortfolios[slot] = publicId;
         }
 
         service.skill = skill;
         service.experience = experience;
         service.description = description;
         service.portfolios = newPortfolios.filter(Boolean);
-        service.serviceCountDown = new Date(Date.now() + SERVICE_DAYS * 24 * 60 * 60 * 1000);
+
+        service.serviceCountDown = new Date(
+            Date.now() + SERVICE_DAYS * 24 * 60 * 60 * 1000
+        );
+
         service.adminApproval = "in review";
-        service.adminResponse = "It may take up to 24 hours for admin update";
+        service.adminResponse =
+            "It may take up to 24 hours for admin update";
 
         await worker.save();
 
-        // The database now references the new images. Remove replaced images afterward.
+        // The database now references the uploaded images.
         newlyUploadedIds.length = 0;
 
         for (const publicId of replacedIds) {
             try {
                 await deleteCloudinaryImage(publicId);
             } catch (error) {
-                console.error("Old portfolio cleanup failed:", publicId, error.message);
+                console.error(
+                    "Old portfolio cleanup failed:",
+                    publicId,
+                    error.message
+                );
             }
         }
 
@@ -352,15 +557,22 @@ async function updateWorkerServiceData(req, res, workerId) {
             serviceCountDown: service.serviceCountDown
         });
     } catch (error) {
-        await Promise.all(newlyUploadedIds.map(async publicId => {
-            try {
-                await deleteCloudinaryImage(publicId);
-            } catch (cleanupError) {
-                console.error("New portfolio cleanup failed:", publicId, cleanupError.message);
-            }
-        }));
+        await Promise.all(
+            newlyUploadedIds.map(async publicId => {
+                try {
+                    await deleteCloudinaryImage(publicId);
+                } catch (cleanupError) {
+                    console.error(
+                        "New portfolio cleanup failed:",
+                        publicId,
+                        cleanupError.message
+                    );
+                }
+            })
+        );
 
         console.error("Update worker service error:", error);
+
         return res.status(500).json({
             success: false,
             message: "An error occurred while updating your service."

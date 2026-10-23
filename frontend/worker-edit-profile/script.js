@@ -1,9 +1,11 @@
-/* 1. PAGE ELEMENTS */
+"use strict";
+
+/* PAGE ELEMENTS */
 const editProfilePage=document.getElementById("editProfilePage"),
 profileForm=document.getElementById("profileForm"),
 profilePhotoInput=document.getElementById("profilePhotoInput"),
-profilePhoto=document.getElementById("profilePhoto"),
-profilePhotoPlaceholder=document.getElementById("profilePhotoPlaceholder"),
+profilePhotoElements=document.querySelectorAll("#profilePhoto"),
+profilePhotoPlaceholders=document.querySelectorAll("#profilePhotoPlaceholder"),
 photoFileName=document.getElementById("photoFileName"),
 fullNameInput=document.getElementById("fullName"),
 phoneInput=document.getElementById("phone"),
@@ -14,6 +16,7 @@ lgaInput=document.getElementById("lga"),
 updateProfileBtn=document.getElementById("updateProfileBtn"),
 buttonText=updateProfileBtn.querySelector(".button-text"),
 cancelBtn=document.getElementById("cancelBtn"),
+dashboardBtn=document.getElementById("dashboardBtn"),
 viewServicesBtn=document.getElementById("viewServicesBtn"),
 editProfileBtn=document.getElementById("editProfileBtn"),
 logoutBtn=document.getElementById("logoutBtn"),
@@ -22,7 +25,11 @@ closeMenuBtn=document.getElementById("closeMenuBtn"),
 sidebar=document.getElementById("sidebar"),
 overlay=document.getElementById("overlay");
 
-/* 2. NOTIFICATION MODAL */
+/* SIDEBAR PROFILE PHOTO */
+const sidebarProfilePhoto=document.querySelector(".sidebar-profile #profilePhoto"),
+sidebarProfilePhotoPlaceholder=document.querySelector(".sidebar-profile #profilePhotoPlaceholder");
+
+/* NOTIFICATION MODAL */
 const notificationOverlay=document.getElementById("notificationOverlay"),
 notificationCard=document.getElementById("notificationCard"),
 notificationIcon=document.getElementById("notificationIcon"),
@@ -32,46 +39,40 @@ notificationButton=document.getElementById("notificationButton"),
 notificationCancelButton=document.getElementById("notificationCancelButton"),
 notificationNoButton=document.getElementById("notificationNoButton");
 
-/* 3. API ENDPOINTS */
+/* ENDPOINTS */
 const PROFILE_ENDPOINT="/api/worker/edit-profile",
+DASHBOARD_ENDPOINT="/api/worker/dashboard",
 LOGOUT_ENDPOINT="/api/auth/logout";
 
-/* 4. PAGE STATE */
-let currentWorker=null,
-modalCloseAction=null,
-isUpdatingProfile=false,
-isLoggingOut=false;
+/* STATE */
+let currentWorker=null,modalCloseAction=null,isUpdatingProfile=false,isLoggingOut=false;
 
-/* 5. UPDATE LOADING */
+/* LOADING */
 function setUpdateLoading(loading){
     updateProfileBtn.disabled=loading;
     cancelBtn.disabled=loading;
     buttonText.textContent=loading?"Connecting...":"Update Profile";
 }
 
-/* 6. PAGE LOADING */
 function setPageLoading(loading){
     editProfilePage.setAttribute("aria-busy",loading?"true":"false");
     profileForm.style.opacity=loading?".55":"1";
     profileForm.style.pointerEvents=loading?"none":"auto";
 }
 
-/* 7. LOCATION DROPDOWNS */
+/* LOCATION DROPDOWNS */
 function resetLocationFields(){
     stateInput.innerHTML='<option value="">Select State</option>';
     cityInput.innerHTML='<option value="">Select City</option>';
     lgaInput.innerHTML='<option value="">Select LGA</option>';
-    stateInput.disabled=true;
-    cityInput.disabled=true;
-    lgaInput.disabled=true;
+    stateInput.disabled=cityInput.disabled=lgaInput.disabled=true;
 }
 
 function populateStates(selectedState=""){
     stateInput.innerHTML='<option value="">Select State</option>';
     cityInput.innerHTML='<option value="">Select City</option>';
     lgaInput.innerHTML='<option value="">Select LGA</option>';
-    cityInput.disabled=true;
-    lgaInput.disabled=true;
+    cityInput.disabled=lgaInput.disabled=true;
 
     if(countryInput.value!=="Nigeria"){
         stateInput.disabled=true;
@@ -80,8 +81,7 @@ function populateStates(selectedState=""){
 
     getNigeriaStates().forEach(state=>{
         const option=document.createElement("option");
-        option.value=state;
-        option.textContent=state;
+        option.value=option.textContent=state;
         stateInput.appendChild(option);
     });
 
@@ -96,28 +96,23 @@ function populateStates(selectedState=""){
 function populateStateLocations(selectedCity="",selectedLga=""){
     cityInput.innerHTML='<option value="">Select City</option>';
     lgaInput.innerHTML='<option value="">Select LGA</option>';
-    cityInput.disabled=true;
-    lgaInput.disabled=true;
+    cityInput.disabled=lgaInput.disabled=true;
 
     if(!stateInput.value)return;
 
     getCitiesByState(stateInput.value).forEach(city=>{
         const option=document.createElement("option");
-        option.value=city;
-        option.textContent=city;
+        option.value=option.textContent=city;
         cityInput.appendChild(option);
     });
 
     getLGAsByState(stateInput.value).forEach(lga=>{
         const option=document.createElement("option");
-        option.value=lga;
-        option.textContent=lga;
+        option.value=option.textContent=lga;
         lgaInput.appendChild(option);
     });
 
-    cityInput.disabled=false;
-    lgaInput.disabled=false;
-
+    cityInput.disabled=lgaInput.disabled=false;
     if(selectedCity)cityInput.value=selectedCity;
     if(selectedLga)lgaInput.value=selectedLga;
 }
@@ -125,83 +120,59 @@ function populateStateLocations(selectedCity="",selectedLga=""){
 countryInput.addEventListener("change",()=>populateStates());
 stateInput.addEventListener("change",()=>populateStateLocations());
 
-/* 8. MODAL */
-function showModal({
-    type="success",
-    title="Notification",
-    message="",
-    icon="✓",
-    onClose=null,
-    buttonText="Continue"
-}={}){
+/* NOTIFICATION MODAL */
+function showModal({type="success",title="Notification",message="",icon="✓",onClose=null,buttonText="Continue"}={}){
     notificationCard.className=`notification-card ${type}`;
     notificationIcon.textContent=icon;
     notificationTitle.textContent=title;
     notificationText.textContent=message;
-
     modalCloseAction=onClose;
 
     notificationButton.textContent=buttonText;
     notificationButton.disabled=false;
     notificationButton.hidden=false;
-
     notificationNoButton.textContent="No";
     notificationNoButton.hidden=true;
     notificationNoButton.disabled=false;
-
     notificationCancelButton.hidden=false;
     notificationCancelButton.disabled=false;
 
     notificationButton.onclick=()=>{
         if(!notificationButton.disabled)closeModal();
     };
-
     notificationNoButton.onclick=()=>{
         if(!notificationNoButton.disabled)hideModal();
     };
-
     notificationCancelButton.onclick=()=>{
         if(!notificationCancelButton.disabled)closeModal();
     };
 
     notificationOverlay.hidden=false;
-
     notificationButton.focus();
 }
 
-function showConfirmationModal({
-    title,
-    message,
-    icon="?",
-    onConfirm
-}){
+function showConfirmationModal({title,message,icon="?",onConfirm}){
     notificationCard.className="notification-card confirm";
     notificationIcon.textContent=icon;
     notificationTitle.textContent=title;
     notificationText.textContent=message;
-
     modalCloseAction=null;
 
     notificationButton.textContent="Yes";
     notificationButton.disabled=false;
     notificationButton.hidden=false;
-
     notificationNoButton.textContent="No";
     notificationNoButton.hidden=false;
     notificationNoButton.disabled=false;
-
     notificationCancelButton.hidden=true;
     notificationCancelButton.disabled=false;
 
     notificationButton.onclick=async()=>{
         if(notificationButton.disabled)return;
-
         notificationButton.disabled=true;
         notificationNoButton.disabled=true;
         notificationButton.textContent="Connecting...";
-
         modalCloseAction=null;
-
         await onConfirm();
     };
 
@@ -211,40 +182,30 @@ function showConfirmationModal({
     };
 
     notificationOverlay.hidden=false;
-
     notificationButton.focus();
 }
 
 function hideModal(){
     notificationOverlay.hidden=true;
-
     modalCloseAction=null;
-
-    notificationButton.onclick=null;
-    notificationNoButton.onclick=null;
-    notificationCancelButton.onclick=null;
-
+    notificationButton.onclick=notificationNoButton.onclick=notificationCancelButton.onclick=null;
     notificationButton.textContent="Continue";
     notificationButton.disabled=false;
     notificationButton.hidden=false;
-
     notificationNoButton.textContent="No";
     notificationNoButton.disabled=false;
     notificationNoButton.hidden=true;
-
     notificationCancelButton.disabled=false;
     notificationCancelButton.hidden=false;
 }
 
 function closeModal(){
     const action=modalCloseAction;
-
     hideModal();
-
     if(typeof action==="function")action();
 }
 
-/* 9. AUTHENTICATION */
+/* AUTHENTICATION */
 function redirectToAuthentication(){
     window.location.href="../worker-authentication/index.html";
 }
@@ -259,20 +220,17 @@ function showAuthenticationError(message){
     });
 }
 
-/* 10. BACKEND RESPONSE */
+/* BACKEND RESPONSE */
 async function getResponseData(response){
-    try{
-        return await response.json();
-    }catch(error){
-        return {};
-    }
+    try{return await response.json();}
+    catch(error){return {};}
 }
 
 function getBackendMessage(data,fallback){
     return data.message||data.error||fallback;
 }
 
-/* 11. PHONE */
+/* PHONE */
 function normalizePhone(phone){
     let value=String(phone||"").trim().replace(/[\s()-]/g,"");
 
@@ -287,7 +245,7 @@ function isValidPhone(phone){
     return /^234[789]\d{9}$/.test(phone);
 }
 
-/* 12. PHOTO */
+/* PHOTO */
 function validatePhoto(file){
     if(!file)return null;
     if(file.size>5*1024*1024)return"Profile photo must not be more than 5 MB.";
@@ -296,31 +254,45 @@ function validatePhoto(file){
 }
 
 function displayProfilePhoto(photoUrl){
-    if(!photoUrl){
-        profilePhoto.hidden=true;
-        profilePhotoPlaceholder.hidden=false;
-        return;
-    }
+    const photo=typeof photoUrl==="string"?photoUrl.trim():"";
 
-    profilePhoto.src=photoUrl;
-    profilePhoto.hidden=false;
-    profilePhotoPlaceholder.hidden=true;
+    profilePhotoElements.forEach(image=>{
+        if(!photo){
+            image.removeAttribute("src");
+            image.hidden=true;
+            return;
+        }
+
+        image.onerror=()=>{
+            image.removeAttribute("src");
+            image.hidden=true;
+            const placeholder=image.parentElement.querySelector(".profile-photo-placeholder");
+            if(placeholder)placeholder.hidden=false;
+        };
+
+        image.onload=()=>{
+            image.hidden=false;
+            const placeholder=image.parentElement.querySelector(".profile-photo-placeholder");
+            if(placeholder)placeholder.hidden=true;
+        };
+
+        image.src=photo;
+    });
+
+    profilePhotoPlaceholders.forEach(placeholder=>{
+        placeholder.hidden=Boolean(photo);
+    });
 }
 
-/* 13. DISPLAY WORKER */
+/* WORKER DATA */
 function displayWorkerData(worker){
     currentWorker=worker;
-
     fullNameInput.value=worker.fullName||"";
     phoneInput.value=worker.phone||"";
     countryInput.value=worker.country||"";
-
     populateStates(worker.state||"");
 
-    if(worker.state){
-        populateStateLocations(worker.city||"",worker.lga||"");
-    }
-
+    if(worker.state)populateStateLocations(worker.city||"",worker.lga||"");
     displayProfilePhoto(worker.profilePhoto);
 }
 
@@ -328,7 +300,25 @@ function extractWorkerData(data){
     return data.worker||data.data||data;
 }
 
-/* 14. LOAD PROFILE */
+/* LOAD SIDEBAR PROFILE PHOTO: SAME DASHBOARD ENDPOINT AS WORKER-SERVICES */
+async function loadSidebarProfilePhoto(){
+    try{
+        const response=await API_REQUEST(DASHBOARD_ENDPOINT,{method:"GET"});
+        if(response.status===401)return;
+
+        if(!response.ok){
+            console.error("Unable to load worker profile photo:",response.status);
+            return;
+        }
+
+        const data=await response.json();
+        displayProfilePhoto((data.worker||data).profilePhoto);
+    }catch(error){
+        console.error("Worker profile photo request failed:",error);
+    }
+}
+
+/* LOAD PROFILE */
 async function loadProfile(){
     setPageLoading(true);
 
@@ -365,23 +355,20 @@ async function loadProfile(){
         }
 
         displayWorkerData(worker);
-
     }catch(error){
         console.error("Load profile error:",error);
-
         showModal({
             type:"error",
             title:"Connection Error",
             message:"Unable to connect to the server. Please try again.",
             icon:"!"
         });
-
     }finally{
         setPageLoading(false);
     }
 }
 
-/* 15. FULL NAME */
+/* FULL NAME */
 function normalizeNamePart(name){
     return name.toLowerCase().split(/([-'])/).map(part=>{
         if(part==="-"||part==="'")return part;
@@ -391,23 +378,18 @@ function normalizeNamePart(name){
 
 function normalizeFullName(value){
     const fullName=String(value||"").trim().replace(/\s+/g," "),
-    nameParts=fullName.split(" ");
+    nameParts=fullName.split(" "),
+    namePattern=/^[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*$/;
 
-    if(nameParts.length!==2)return null;
-
-    const namePattern=/^[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*$/;
-
-    if(!namePattern.test(nameParts[0])||!namePattern.test(nameParts[1]))return null;
-
+    if(nameParts.length!==2||!namePattern.test(nameParts[0])||!namePattern.test(nameParts[1]))return null;
     return nameParts.map(normalizeNamePart).join(" ");
 }
 
-/* 16. VALIDATION */
+/* VALIDATION */
 function validateProfile(){
     const normalizedFullName=normalizeFullName(fullNameInput.value),
     phone=normalizePhone(phoneInput.value),
-    photo=profilePhotoInput.files[0],
-    photoError=validatePhoto(photo);
+    photoError=validatePhoto(profilePhotoInput.files[0]);
 
     if(photoError){
         showModal({type:"error",title:"Invalid Photo",message:photoError,icon:"!"});
@@ -436,36 +418,27 @@ function validateProfile(){
         return null;
     }
 
-    if(!countryInput.value){
-        showModal({type:"error",title:"Country Required",message:"Please select your country.",icon:"!"});
-        return null;
-    }
+    const requiredFields=[
+        [countryInput,"Country Required","Please select your country."],
+        [stateInput,"State Required","Please select your state."],
+        [cityInput,"City Required","Please select your city."],
+        [lgaInput,"LGA Required","Please select your LGA."]
+    ];
 
-    if(!stateInput.value){
-        showModal({type:"error",title:"State Required",message:"Please select your state.",icon:"!"});
-        return null;
-    }
-
-    if(!cityInput.value){
-        showModal({type:"error",title:"City Required",message:"Please select your city.",icon:"!"});
-        return null;
-    }
-
-    if(!lgaInput.value){
-        showModal({type:"error",title:"LGA Required",message:"Please select your LGA.",icon:"!"});
-        return null;
+    for(const [field,title,message] of requiredFields){
+        if(!field.value){
+            showModal({type:"error",title,message,icon:"!"});
+            return null;
+        }
     }
 
     return{fullName:normalizedFullName,phone};
 }
 
-/* 17. UPDATE PROFILE CONFIRMATION */
+/* CONFIRM PROFILE UPDATE */
 function confirmProfileUpdate(){
     if(isUpdatingProfile)return;
-
-    const validated=validateProfile();
-
-    if(!validated)return;
+    if(!validateProfile())return;
 
     showConfirmationModal({
         title:"Confirm Profile Update",
@@ -475,7 +448,7 @@ function confirmProfileUpdate(){
     });
 }
 
-/* 18. UPDATE PROFILE */
+/* UPDATE PROFILE */
 async function updateProfile(){
     if(isUpdatingProfile)return;
 
@@ -487,7 +460,6 @@ async function updateProfile(){
     }
 
     const formData=new FormData(profileForm);
-
     formData.set("fullName",validated.fullName);
     formData.set("phone",validated.phone);
     formData.set("country",countryInput.value);
@@ -511,7 +483,6 @@ async function updateProfile(){
 
         if(!response.ok){
             hideModal();
-
             showModal({
                 type:"error",
                 title:"Update Failed",
@@ -521,46 +492,35 @@ async function updateProfile(){
             return;
         }
 
-        if(data.worker){
-            displayWorkerData(data.worker);
-        }else{
-            await loadProfile();
-        }
+        if(data.worker)displayWorkerData(data.worker);
+        else await loadProfile();
 
         profilePhotoInput.value="";
-
-        if(photoFileName){
-            photoFileName.textContent="No new photo selected";
-        }
+        if(photoFileName)photoFileName.textContent="No new photo selected";
 
         hideModal();
-
         showModal({
             type:"success",
             title:"Profile Updated",
             message:data.message||"Your profile has been updated successfully.",
             icon:"✓"
         });
-
     }catch(error){
         console.error("Update profile error:",error);
-
         hideModal();
-
         showModal({
             type:"error",
             title:"Connection Error",
             message:"Unable to update your profile. Please try again.",
             icon:"!"
         });
-
     }finally{
         isUpdatingProfile=false;
         setUpdateLoading(false);
     }
 }
 
-/* 19. PHOTO PREVIEW */
+/* PHOTO PREVIEW */
 profilePhotoInput.addEventListener("change",()=>{
     const file=profilePhotoInput.files[0];
 
@@ -573,33 +533,35 @@ profilePhotoInput.addEventListener("change",()=>{
 
     if(error){
         profilePhotoInput.value="";
-
         if(photoFileName)photoFileName.textContent="No new photo selected";
-
-        showModal({
-            type:"error",
-            title:"Invalid Photo",
-            message:error,
-            icon:"!"
-        });
-
+        showModal({type:"error",title:"Invalid Photo",message:error,icon:"!"});
         return;
     }
 
     if(photoFileName)photoFileName.textContent=file.name;
 
-    profilePhoto.src=URL.createObjectURL(file);
-    profilePhoto.hidden=false;
-    profilePhotoPlaceholder.hidden=true;
+    const previewUrl=URL.createObjectURL(file);
+    const formPhoto=profileForm.querySelector(".profile-photo");
+    const formPlaceholder=profileForm.querySelector(".profile-photo-placeholder");
+
+    if(formPhoto){
+        formPhoto.src=previewUrl;
+        formPhoto.hidden=false;
+    }
+    if(formPlaceholder)formPlaceholder.hidden=true;
 });
 
-/* 20. FORM SUBMISSION */
+/* FORM SUBMISSION */
 profileForm.addEventListener("submit",event=>{
     event.preventDefault();
     confirmProfileUpdate();
 });
 
-/* 21. NAVIGATION */
+/* NAVIGATION */
+dashboardBtn.addEventListener("click",()=>{
+    window.location.href="../worker-dashboard/index.html";
+});
+
 editProfileBtn.addEventListener("click",closeMobileMenu);
 
 cancelBtn.addEventListener("click",()=>{
@@ -610,7 +572,7 @@ viewServicesBtn.addEventListener("click",()=>{
     window.location.href="../worker-services/index.html";
 });
 
-/* 22. MOBILE SIDEBAR */
+/* MOBILE SIDEBAR */
 function openMobileMenu(){
     sidebar.classList.add("active");
     overlay.classList.add("active");
@@ -627,7 +589,7 @@ menuBtn.addEventListener("click",openMobileMenu);
 closeMenuBtn.addEventListener("click",closeMobileMenu);
 overlay.addEventListener("click",closeMobileMenu);
 
-/* 23. LOGOUT */
+/* LOGOUT */
 logoutBtn.addEventListener("click",()=>{
     if(isLoggingOut)return;
 
@@ -648,19 +610,16 @@ async function logoutUser(){
 
     try{
         const response=await API_REQUEST(LOGOUT_ENDPOINT,{method:"POST"});
-
         const data=await getResponseData(response);
 
         if(response.status===401){
             hideModal();
-
             showAuthenticationError("Your login session has expired. Please log in again.");
             return;
         }
 
         if(!response.ok){
             hideModal();
-
             showModal({
                 type:"error",
                 title:"Logout Failed",
@@ -671,19 +630,15 @@ async function logoutUser(){
         }
 
         window.location.href="../worker-authentication/index.html";
-
     }catch(error){
         console.error("Logout error:",error);
-
         hideModal();
-
         showModal({
             type:"error",
             title:"Connection Error",
             message:"Unable to connect to the server. Please try again.",
             icon:"!"
         });
-
     }finally{
         isLoggingOut=false;
         logoutBtn.disabled=false;
@@ -691,12 +646,14 @@ async function logoutUser(){
     }
 }
 
-/* 24. SESSION EXPIRATION */
+/* SESSION EXPIRATION */
 window.addEventListener("authSessionExpired",()=>{
     hideModal();
-
     showAuthenticationError("Your login session has expired. Please log in again.");
 });
 
-/* 25. INITIALIZE PAGE */
-document.addEventListener("DOMContentLoaded",loadProfile);
+/* INITIALIZE */
+document.addEventListener("DOMContentLoaded",()=>{
+    loadSidebarProfilePhoto();
+    loadProfile();
+});
