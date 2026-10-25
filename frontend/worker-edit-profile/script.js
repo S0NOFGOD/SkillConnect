@@ -141,7 +141,7 @@ function showConfirmationModal({title,message,icon="?",onConfirm}){
         if(notificationButton.disabled)return;
         notificationButton.disabled=true;
         notificationNoButton.disabled=true;
-        notificationButton.textContent="Connecting...";
+        notificationButton.textContent="Loggging Out...";
         await onConfirm();
     };
 

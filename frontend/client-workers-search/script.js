@@ -1,77 +1,72 @@
+"use strict";
+
 document.addEventListener("DOMContentLoaded", () => {
-    "use strict";
+    const $ = id => document.getElementById(id);
 
-    // ==========================================
-    // DOM ELEMENTS
-    // ==========================================
+    const menuBtn = $("menuBtn");
+    const closeMenuBtn = $("closeMenuBtn");
+    const sidebar = $("sidebar");
+    const overlay = $("overlay");
 
-    const menuBtn = document.getElementById("menuBtn");
-    const closeMenuBtn = document.getElementById("closeMenuBtn");
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlay");
+    const dashboardBtn = $("dashboardBtn");
+    const findWorkersBtn = $("findWorkersBtn");
+    const editProfileBtn = $("editProfileBtn");
+    const logoutBtn = $("logoutBtn");
+    const changeLocationBtn = $("changeLocationBtn");
+    const skillFilter = $("skillFilter");
 
-    const dashboardBtn = document.getElementById("dashboardBtn");
-    const findWorkersBtn = document.getElementById("findWorkersBtn");
-    const editProfileBtn = document.getElementById("editProfileBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
+    const profilePhoto = $("profilePhoto");
+    const profilePhotoPlaceholder = $("profilePhotoPlaceholder");
 
-    const changeLocationBtn = document.getElementById("changeLocationBtn");
-    const skillFilter = document.getElementById("skillFilter");
+    const workersContainer = $("workersContainer");
+    const workersLoading = $("workersLoading");
+    const workersEmpty = $("workersEmpty");
 
-    const workersContainer = document.getElementById("workersContainer");
-    const workersLoading = document.getElementById("workersLoading");
-    const workersEmpty = document.getElementById("workersEmpty");
-
-    const notificationOverlay = document.getElementById("notificationOverlay");
-    const notificationIcon = document.getElementById("notificationIcon");
-    const notificationTitle = document.getElementById("notificationTitle");
-    const notificationText = document.getElementById("notificationText");
-    const notificationButton = document.getElementById("notificationButton");
-    const notificationCancelButtonMobile = document.getElementById(
-        "notificationCancelButtonMobile"
-    );
-
-    // ==========================================
-    // STATE
-    // ==========================================
+    const notificationOverlay = $("notificationOverlay");
+    const notificationCard = $("notificationOverlay").querySelector(".notification-card");
+    const notificationIcon = $("notificationIcon");
+    const notificationTitle = $("notificationTitle");
+    const notificationText = $("notificationText");
+    const notificationButton = $("notificationButton");
+    const notificationCancelButtonMobile = $("notificationCancelButtonMobile");
 
     let workers = [];
     let notificationAction = null;
     let sessionExpired = false;
     let isLoggingOut = false;
     let isLoadingWorkers = false;
-
-    // Prevent stale worker responses from replacing newer results.
     let workerRequestVersion = 0;
 
-    // ==========================================
-    // NAVIGATION
-    // ==========================================
-
-    const closeSidebar = () => {
-        sidebar.classList.remove("open");
+    /* Sidebar — matches client dashboard */
+    function closeSidebar() {
+        sidebar.classList.remove("active");
         overlay.classList.remove("active");
-
         menuBtn.setAttribute("aria-expanded", "false");
-    };
+        overlay.setAttribute("aria-hidden", "true");
+    }
 
-    const openSidebar = () => {
-        sidebar.classList.add("open");
+    function openSidebar() {
+        sidebar.classList.add("active");
         overlay.classList.add("active");
-
         menuBtn.setAttribute("aria-expanded", "true");
-    };
+        overlay.setAttribute("aria-hidden", "false");
+    }
 
     menuBtn.addEventListener("click", () => {
-        if (sidebar.classList.contains("open")) {
-            closeSidebar();
-        } else {
-            openSidebar();
-        }
+        sidebar.classList.contains("active")
+            ? closeSidebar()
+            : openSidebar();
     });
 
     closeMenuBtn.addEventListener("click", closeSidebar);
     overlay.addEventListener("click", closeSidebar);
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            closeSidebar();
+            if (!notificationOverlay.hidden) closeNotification();
+        }
+    });
 
     dashboardBtn.addEventListener("click", () => {
         window.location.href = "../client-dashboard/index.html";
@@ -79,8 +74,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     findWorkersBtn.addEventListener("click", () => {
         closeSidebar();
-
-        // Already on the Find Workers page.
         renderWorkers();
     });
 
@@ -92,149 +85,137 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = "../client-edit-profile/index.html";
     });
 
-    // ==========================================
-    // NOTIFICATION MODAL
-    // ==========================================
+    /* Client profile photo */
+    function displayProfilePhoto(photoUrl) {
+        profilePhoto.hidden = true;
+        profilePhotoPlaceholder.hidden = false;
+        profilePhoto.onload = null;
+        profilePhoto.onerror = null;
 
-    const resetNotificationButtons = () => {
-        notificationButton.disabled = false;
-        notificationCancelButtonMobile.disabled = false;
-
-        notificationButton.textContent = "Continue";
-        notificationCancelButtonMobile.textContent = "No";
-
-        notificationButton.onclick = null;
-        notificationCancelButtonMobile.onclick = null;
-    };
-
-    const showNotification = (
-        title,
-        message,
-        type = "info",
-        action = null
-    ) => {
-        notificationTitle.textContent = title;
-        notificationText.textContent = message;
-
-        notificationIcon.textContent =
-            type === "error"
-                ? "!"
-                : type === "success"
-                    ? "✓"
-                    : "i";
-
-        notificationAction = action;
-
-        resetNotificationButtons();
-
-        notificationOverlay.hidden = false;
-
-        notificationButton.focus();
-    };
-
-    const closeNotification = () => {
-        notificationOverlay.hidden = true;
-
-        const action = notificationAction;
-        notificationAction = null;
-
-        resetNotificationButtons();
-
-        if (typeof action === "function") {
-            action();
-        }
-    };
-
-    // FIX: Do not close or reset the modal when a custom
-    // button handler, such as the logout handler, is active.
-    notificationButton.addEventListener("click", () => {
-        if (typeof notificationButton.onclick === "function") {
+        if (typeof photoUrl !== "string" || !photoUrl.trim()) {
+            profilePhoto.removeAttribute("src");
             return;
         }
 
+        profilePhoto.onload = () => {
+            profilePhoto.hidden = false;
+            profilePhotoPlaceholder.hidden = true;
+        };
+
+        profilePhoto.onerror = () => {
+            profilePhoto.hidden = true;
+            profilePhoto.removeAttribute("src");
+            profilePhotoPlaceholder.hidden = false;
+        };
+
+        profilePhoto.src = photoUrl.trim();
+    }
+
+    async function loadClientProfilePhoto() {
+        try {
+            const response = await API_REQUEST("/api/client-dashboard");
+            if (!response.ok) return;
+
+            const data = await response.json();
+            const client = data.client || data;
+            displayProfilePhoto(client.profilePhoto);
+        } catch (error) {
+            console.error("Client profile photo request failed:", error);
+        }
+    }
+
+    /* Notifications */
+    function resetNotificationButtons() {
+        notificationButton.disabled = false;
+        notificationCancelButtonMobile.disabled = false;
+        notificationButton.textContent = "Continue";
+        notificationCancelButtonMobile.textContent = "No";
+        notificationButton.onclick = null;
+        notificationCancelButtonMobile.onclick = null;
+    }
+
+    function showNotification(title, message, type = "info", action = null) {
+        notificationCard.className = `notification-card ${type}`;
+        notificationTitle.textContent = title;
+        notificationText.textContent = message;
+        notificationIcon.textContent =
+            type === "error" ? "!" :
+            type === "success" ? "✓" :
+            type === "confirm" ? "?" : "i";
+
+        notificationAction = action;
+        resetNotificationButtons();
+        notificationOverlay.hidden = false;
+        notificationButton.focus();
+    }
+
+    function closeNotification() {
+        notificationOverlay.hidden = true;
+        const action = notificationAction;
+        notificationAction = null;
+        resetNotificationButtons();
+
+        if (typeof action === "function") action();
+    }
+
+    notificationButton.addEventListener("click", () => {
+        if (typeof notificationButton.onclick === "function") return;
         closeNotification();
     });
 
     notificationCancelButtonMobile.addEventListener("click", () => {
         notificationOverlay.hidden = true;
         notificationAction = null;
-
         resetNotificationButtons();
     });
 
-    // ==========================================
-    // AUTHENTICATION SESSION EXPIRED
-    // Uses the event dispatched by ../config.js
-    // ==========================================
+    notificationOverlay.addEventListener("click", event => {
+        if (event.target === notificationOverlay) {
+            notificationOverlay.hidden = true;
+            notificationAction = null;
+            resetNotificationButtons();
+        }
+    });
 
+    /* Session expiry — refresh and retry are handled by config.js */
     window.addEventListener("authSessionExpired", () => {
         sessionExpired = true;
-
         workersLoading.hidden = true;
         isLoadingWorkers = false;
 
-        if (isLoggingOut) {
-            return;
-        }
+        if (isLoggingOut) return;
 
         showNotification(
-            "Authentication Required",
-            "Your session has expired. Please log in again.",
+            "Session Expired",
+            "Your authentication session has expired. Please log in again.",
             "error",
             () => {
-                window.location.href =
-                    "../client-authentication/index.html";
+                window.location.href = "../client-authentication/index.html";
             }
         );
     });
 
-    // ==========================================
-    // WORKER DATA HELPERS
-    // ==========================================
+    /* Worker data helpers */
+    const getWorkerId = worker => worker.workerId || worker._id || "";
 
-    const getWorkerId = (worker) => {
-        return worker.workerId || worker._id || "";
-    };
-
-    const getWorkerServices = (worker) => {
+    function getWorkerServices(worker) {
         if (Array.isArray(worker.services)) {
-            return worker.services.filter(service => {
-                return (
-                    service &&
-                    service.skill &&
-                    String(service.skill).trim()
-                );
-            });
+            return worker.services.filter(service =>
+                service && service.skill && String(service.skill).trim()
+            );
         }
 
-        // Supports a single skill if the backend supplies one.
-        if (worker.skill) {
-            return [
-                {
-                    skill: worker.skill,
-                    id: worker.serviceId || worker.id || ""
-                }
-            ];
-        }
+        return worker.skill
+            ? [{ skill: worker.skill, id: worker.serviceId || worker.id || "" }]
+            : [];
+    }
 
-        return [];
-    };
+    const getServiceId = service =>
+        service.id || service.Id || service._id || service.serviceId || "";
 
-    const getServiceId = (service) => {
-        return (
-            service.id ||
-            service.Id ||
-            service._id ||
-            service.serviceId ||
-            ""
-        );
-    };
+    const getWorkerLocation = worker => worker.lga || "Location unavailable";
 
-    const getWorkerLocation = (worker) => {
-        return worker.lga || "Location unavailable";
-    };
-
-    const getWorkerInitials = (name) => {
+    function getWorkerInitials(name) {
         return String(name || "Worker")
             .trim()
             .split(/\s+/)
@@ -243,74 +224,47 @@ document.addEventListener("DOMContentLoaded", () => {
             .join("")
             .slice(0, 2)
             .toUpperCase();
-    };
+    }
 
-    // ==========================================
-    // SKILLS DROPDOWN
-    // Skills are derived from loaded workers.
-    // No additional API request is necessary.
-    // ==========================================
-
-    const loadSkills = () => {
+    /* Skills dropdown */
+    function loadSkills() {
         const selectedSkill = skillFilter.value;
-
-        const skills = [
-            ...new Set(
-                workers.flatMap(worker => {
-                    return getWorkerServices(worker).map(service => {
-                        return String(service.skill).trim();
-                    });
-                })
+        const skills = [...new Set(
+            workers.flatMap(worker =>
+                getWorkerServices(worker).map(service => String(service.skill).trim())
             )
-        ].sort((a, b) => a.localeCompare(b));
+        )].sort((a, b) => a.localeCompare(b));
 
         skillFilter.replaceChildren();
 
-        const allSkillsOption = document.createElement("option");
-        allSkillsOption.value = "";
-        allSkillsOption.textContent = "All Skills";
-
-        skillFilter.appendChild(allSkillsOption);
+        const allOption = document.createElement("option");
+        allOption.value = "";
+        allOption.textContent = "All Skills";
+        skillFilter.appendChild(allOption);
 
         skills.forEach(skill => {
             const option = document.createElement("option");
-
             option.value = skill;
             option.textContent = skill;
-
             skillFilter.appendChild(option);
         });
 
-        // Preserve the selection if the skill still exists.
-        if (skills.some(skill => skill === selectedSkill)) {
-            skillFilter.value = selectedSkill;
-        } else {
-            skillFilter.value = "";
-        }
-    };
+        skillFilter.value = skills.includes(selectedSkill) ? selectedSkill : "";
+    }
 
-    // ==========================================
-    // WORKER CARD
-    // ==========================================
-
-    const createWorkerCard = (worker, service) => {
+    /* Worker cards */
+    function createWorkerCard(worker, service) {
         const name = worker.fullName || "Worker";
-        const initials = getWorkerInitials(name);
         const skill = String(service.skill).trim();
         const location = getWorkerLocation(worker);
-
         const workerId = getWorkerId(worker);
         const serviceId = getServiceId(service);
 
         const card = document.createElement("div");
-
         card.className = "worker-card";
         card.tabIndex = 0;
         card.setAttribute("role", "button");
-        card.setAttribute(
-            "aria-label",
-            `View ${name}, ${skill}, ${location}`
-        );
+        card.setAttribute("aria-label", `View ${name}, ${skill}, ${location}`);
 
         const info = document.createElement("div");
         info.className = "worker-info";
@@ -335,62 +289,42 @@ document.addEventListener("DOMContentLoaded", () => {
         locationElement.className = "worker-location";
         locationElement.textContent = location;
 
-        details.append(
-            skillElement,
-            divider,
-            locationElement
-        );
-
+        details.append(skillElement, divider, locationElement);
         info.append(workerName, details);
 
         const placeholder = document.createElement("div");
         placeholder.className = "worker-photo-placeholder";
-        placeholder.textContent = initials;
+        placeholder.textContent = getWorkerInitials(name);
         placeholder.setAttribute("aria-hidden", "true");
 
         if (worker.profilePhoto) {
             const photo = document.createElement("img");
-
             photo.className = "worker-photo";
             photo.src = worker.profilePhoto;
             photo.alt = `${name}'s profile photo`;
             photo.loading = "lazy";
-
-            photo.onerror = () => {
-                photo.replaceWith(placeholder);
-            };
-
+            photo.onerror = () => photo.replaceWith(placeholder);
             card.append(info, photo);
         } else {
             card.append(info, placeholder);
         }
 
-        // ======================================
-        // VIEW WORKER FLOW
-        // Save workerId and service.id.
-        // Redirect to worker details.
-        // ======================================
-
-        const openWorkerDetails = () => {
+        function openWorkerDetails() {
             if (!workerId || !serviceId) {
                 showNotification(
                     "Worker Details Unavailable",
                     "The worker or service identifier is missing. Please try again later.",
                     "error"
                 );
-
                 return;
             }
 
             sessionStorage.setItem("workerId", String(workerId));
             sessionStorage.setItem("serviceId", String(serviceId));
-
-            window.location.href =
-                "../client-worker-details/index.html";
-        };
+            window.location.href = "../client-worker-details/index.html";
+        }
 
         card.addEventListener("click", openWorkerDetails);
-
         card.addEventListener("keydown", event => {
             if (event.key === "Enter" || event.key === " ") {
                 event.preventDefault();
@@ -399,80 +333,43 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         return card;
-    };
+    }
 
-    // ==========================================
-    // RENDER WORKERS
-    // All Skills = every available service.
-    // Selected skill = matching services only.
-    // ==========================================
-
-    const renderWorkers = () => {
+    /* Render filtered workers */
+    function renderWorkers() {
         workersContainer.replaceChildren();
 
         const selectedSkill = skillFilter.value.trim().toLowerCase();
-
-        const matchingCards = [];
+        const cards = [];
 
         workers.forEach(worker => {
-            const services = getWorkerServices(worker);
-
-            services.forEach(service => {
+            getWorkerServices(worker).forEach(service => {
                 const skill = String(service.skill).trim();
 
-                if (
-                    !selectedSkill ||
-                    skill.toLowerCase() === selectedSkill
-                ) {
-                    matchingCards.push(
-                        createWorkerCard(worker, service)
-                    );
+                if (!selectedSkill || skill.toLowerCase() === selectedSkill) {
+                    cards.push(createWorkerCard(worker, service));
                 }
             });
         });
 
-        if (matchingCards.length === 0) {
+        if (!cards.length) {
             workersContainer.hidden = true;
             workersEmpty.hidden = false;
             return;
         }
 
-        workersContainer.append(...matchingCards);
-
-        workersEmpty.hidden = true;
+        workersContainer.append(...cards);
         workersContainer.hidden = false;
-    };
-
-    // ==========================================
-    // SKILLS FILTER FLOW
-    // ==========================================
+        workersEmpty.hidden = true;
+    }
 
     skillFilter.addEventListener("change", () => {
-        if (isLoadingWorkers || sessionExpired) {
-            return;
-        }
-
-        renderWorkers();
+        if (!isLoadingWorkers && !sessionExpired) renderWorkers();
     });
 
-    // ==========================================
-    // LOAD WORKERS
-    // Uses API_REQUEST() from ../config.js.
-    //
-    // Expected endpoint:
-    // GET /api/client/worker-search
-    //
-    // config.js handles:
-    // - credentials: "include"
-    // - 401 detection
-    // - POST /api/auth/refresh
-    // - retrying the original request
-    // ==========================================
-
-    const loadWorkers = async () => {
-        if (isLoadingWorkers) {
-            return;
-        }
+    /* Load workers */
+    async function loadWorkers() {
+        if (isLoadingWorkers) return;
 
         isLoadingWorkers = true;
         sessionExpired = false;
@@ -484,61 +381,31 @@ document.addEventListener("DOMContentLoaded", () => {
         workersEmpty.hidden = true;
 
         try {
-            const response = await API_REQUEST(
-                "/api/client/worker-search",
-                {
-                    method: "GET"
-                }
-            );
+            const response = await API_REQUEST("/api/client/worker-search", {
+                method: "GET"
+            });
 
-            if (requestVersion !== workerRequestVersion) {
-                return;
-            }
-
-            if (sessionExpired) {
-                return;
-            }
+            if (requestVersion !== workerRequestVersion || sessionExpired) return;
 
             if (!response.ok) {
-                let message =
-                    "Unable to find workers. Please try again.";
+                let message = "Unable to find workers. Please try again.";
 
                 try {
                     const data = await response.json();
+                    if (data.message) message = data.message;
+                } catch {}
 
-                    if (data.message) {
-                        message = data.message;
-                    }
-                } catch {
-                    // Keep the default error message.
-                }
-
-                showNotification(
-                    "Search Error",
-                    message,
-                    "error"
-                );
-
+                showNotification("Search Error", message, "error");
                 return;
             }
 
             const data = await response.json();
 
-            if (requestVersion !== workerRequestVersion) {
-                return;
-            }
+            if (requestVersion !== workerRequestVersion || sessionExpired) return;
 
-            if (sessionExpired) {
-                return;
-            }
-
-            workers = Array.isArray(data.workers)
-                ? data.workers
-                : [];
-
+            workers = Array.isArray(data.workers) ? data.workers : [];
             loadSkills();
             renderWorkers();
-
         } catch (error) {
             console.error("Worker search error:", error);
 
@@ -555,30 +422,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 isLoadingWorkers = false;
             }
         }
-    };
+    }
 
-    // ==========================================
-    // LOGOUT FLOW
-    //
-    // No:
-    // Close confirmation modal.
-    //
-    // Yes:
-    // Display Connecting…
-    // POST /api/auth/logout
-    // Redirect after successful logout.
-    // ==========================================
-
+    /* Logout */
     logoutBtn.addEventListener("click", () => {
         closeSidebar();
-
-        if (isLoggingOut) {
-            return;
-        }
+        if (isLoggingOut) return;
 
         showNotification(
             "Logout",
-            "Are you sure you want to logout?",
+            "Are you sure you want to log out?",
             "info"
         );
 
@@ -586,56 +439,34 @@ document.addEventListener("DOMContentLoaded", () => {
         notificationCancelButtonMobile.textContent = "No";
 
         notificationButton.onclick = async () => {
-            if (isLoggingOut) {
-                return;
-            }
+            if (isLoggingOut) return;
 
             isLoggingOut = true;
-
             notificationButton.disabled = true;
             notificationCancelButtonMobile.disabled = true;
-
             notificationButton.textContent = "Connecting…";
 
             try {
-                const response = await API_REQUEST(
-                    "/api/auth/logout",
-                    {
-                        method: "POST"
-                    }
-                );
+                const response = await API_REQUEST("/api/auth/logout", {
+                    method: "POST"
+                });
 
                 if (!response.ok) {
                     let message = "Logout failed. Please try again.";
 
                     try {
                         const data = await response.json();
-
-                        if (data.message) {
-                            message = data.message;
-                        }
-                    } catch {
-                        // Keep the default message.
-                    }
+                        if (data.message) message = data.message;
+                    } catch {}
 
                     isLoggingOut = false;
-
-                    showNotification(
-                        "Logout Error",
-                        message,
-                        "error"
-                    );
-
+                    showNotification("Logout Error", message, "error");
                     return;
                 }
 
-                // Successful logout.
-                window.location.href =
-                    "../client-authentication/index.html";
-
+                window.location.href = "../client-authentication/index.html";
             } catch (error) {
                 console.error("Logout error:", error);
-
                 isLoggingOut = false;
 
                 showNotification(
@@ -647,20 +478,14 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         notificationCancelButtonMobile.onclick = () => {
-            // No: cancel logout and close the modal.
             notificationOverlay.hidden = true;
             notificationAction = null;
-
             isLoggingOut = false;
-
             resetNotificationButtons();
         };
     });
 
-    // ==========================================
-    // INITIAL PAGE LOAD
-    // ==========================================
-
+    /* Initial page load */
+    loadClientProfilePhoto();
     loadWorkers();
-
 });
