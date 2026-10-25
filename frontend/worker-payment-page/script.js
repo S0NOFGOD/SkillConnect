@@ -1,30 +1,25 @@
 "use strict";
 
-document.addEventListener("DOMContentLoaded", () => {
-    initializePaymentPage();
-});
+document.addEventListener("DOMContentLoaded", initializePaymentPage);
 
 const getElement = id => document.getElementById(id);
+
 const INITIALIZE_URL = "/api/worker-payment-page/paystack/initialize";
 const STATUS_URL = "/api/worker-payment-page/paystack/status";
 const DASHBOARD_URL = "../worker-dashboard/index.html";
+const AUTH_URL = "../worker-authentication/index.html";
+
 const AMOUNT = 100000;
 const CURRENCY = "NGN";
 
 let busy = false;
 let modalOpen = false;
+let continueDestination = DASHBOARD_URL;
 
 function initializePaymentPage() {
     getElement("backBtn")?.addEventListener("click", () => {
         if (busy || modalOpen) return;
-
-        if (window.history.length > 1) {
-            window.history.back();
-        } else {
-            window.location.assign(
-                "../worker-dashboard/index.html"
-            );
-        }
+        window.history.back();
     });
 
     getElement("paystackPaymentButton")
@@ -38,7 +33,7 @@ function initializePaymentPage() {
             document.body.classList.remove("modal-open");
             modalOpen = false;
 
-            window.location.assign(DASHBOARD_URL);
+            window.location.assign(continueDestination);
         });
 
     const year = getElement("currentYear");
@@ -64,24 +59,24 @@ function setButton(connecting) {
 }
 
 function showMessage(message, type = "info") {
-    const el = getElement("paymentMessage");
-    if (!el) return;
+    const element = getElement("paymentMessage");
+    if (!element) return;
 
-    el.textContent = message;
-    el.className = `payment-message ${type}`;
-    el.hidden = false;
+    element.textContent = message;
+    element.className = `payment-message ${type}`;
+    element.hidden = false;
 }
 
 function hideMessage() {
-    const el = getElement("paymentMessage");
-    if (!el) return;
+    const element = getElement("paymentMessage");
+    if (!element) return;
 
-    el.textContent = "";
-    el.className = "payment-message";
-    el.hidden = true;
+    element.textContent = "";
+    element.className = "payment-message";
+    element.hidden = true;
 }
 
-function showResult(success, title, message) {
+function showResult(success, title, message, destination = DASHBOARD_URL) {
     const modal = getElement("paymentResultModal");
     const icon = getElement("paymentModalIcon");
     const heading = getElement("paymentModalTitle");
@@ -93,7 +88,9 @@ function showResult(success, title, message) {
         return;
     }
 
+    continueDestination = destination;
     modalOpen = true;
+
     icon.className = `payment-modal-icon ${success ? "success" : "error"}`;
     icon.textContent = success ? "✓" : "!";
     heading.textContent = title;
@@ -133,18 +130,37 @@ function validCheckoutURL(value) {
     }
 }
 
+function isAuthenticationError(response, data) {
+    return response.status === 401 ||
+        data?.code === "AUTHENTICATION_REQUIRED" ||
+        data?.code === "INVALID_ACCESS_TOKEN";
+}
+
+function showAuthenticationError(message) {
+    showResult(
+        false,
+        "Session expired",
+        message || "Your session has expired. Please log in again.",
+        AUTH_URL
+    );
+}
+
 async function startPayment() {
     if (busy || modalOpen) return;
 
     busy = true;
     setButton(true);
+    hideMessage();
     showMessage("Connecting to Paystack securely...");
 
     try {
+        // API_REQUEST is responsible for the existing access-token
+        // and refresh-token flow.
         const response = await API_REQUEST(INITIALIZE_URL, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                Accept: "application/json"
             },
             body: JSON.stringify({})
         });
@@ -152,12 +168,22 @@ async function startPayment() {
         const data = await readJSON(response);
 
         if (!response.ok) {
+            if (isAuthenticationError(response, data)) {
+                throw Object.assign(
+                    new Error(
+                        responseMessage(
+                            data,
+                            "Your session has expired. Please log in again."
+                        )
+                    ),
+                    { authenticationError: true }
+                );
+            }
+
             throw new Error(
                 responseMessage(
                     data,
-                    response.status === 401
-                        ? "Your session has expired. Please log in again."
-                        : "Unable to initialize payment. Please try again."
+                    "Unable to initialize payment. Please try again."
                 )
             );
         }
@@ -179,19 +205,20 @@ async function startPayment() {
         }
 
         hideMessage();
-        setButton(false);
-        busy = false;
-
         window.location.assign(checkoutURL);
     } catch (error) {
         console.error("Payment initialization error:", error);
 
-        showResult(
-            false,
-            "Unable to start payment",
-            error.message ||
-                "Please try again. If you may have been charged, contact support before retrying."
-        );
+        if (error.authenticationError) {
+            showAuthenticationError(error.message);
+        } else {
+            showResult(
+                false,
+                "Unable to start payment",
+                error.message ||
+                    "Please try again. If you may have been charged, contact support before retrying."
+            );
+        }
     } finally {
         busy = false;
         setButton(false);
@@ -235,10 +262,11 @@ function handlePaystackReturn() {
 }
 
 async function verifyPayment(reference) {
-    if (busy) return;
+    if (busy || modalOpen) return;
 
     busy = true;
     setButton(true);
+    hideMessage();
     showMessage("Checking your payment with SkillConnect...");
 
     try {
@@ -255,12 +283,22 @@ async function verifyPayment(reference) {
         const data = await readJSON(response);
 
         if (!response.ok) {
+            if (isAuthenticationError(response, data)) {
+                throw Object.assign(
+                    new Error(
+                        responseMessage(
+                            data,
+                            "Your session has expired. Please log in again."
+                        )
+                    ),
+                    { authenticationError: true }
+                );
+            }
+
             throw new Error(
                 responseMessage(
                     data,
-                    response.status === 401
-                        ? "Your session has expired. Please log in again."
-                        : "We could not confirm your payment. Contact support if you have been charged."
+                    "We could not confirm your payment. Contact support if you have been charged."
                 )
             );
         }
@@ -275,7 +313,7 @@ async function verifyPayment(reference) {
             showResult(
                 true,
                 "Payment successful",
-                "Your ₦1,000 payment has been confirmed. Continue to your worker dashboard."
+                "Your ₦1,000 payment has been confirmed. Your profile-verification access is active for 30 days."
             );
         } else if (
             data.paymentStatus === "failed" ||
@@ -284,23 +322,29 @@ async function verifyPayment(reference) {
             showResult(
                 false,
                 "Payment not completed",
-                "Your payment was not successful. You can continue to your worker dashboard."
+                data.message ||
+                    "Your payment was not successful or was cancelled. You can continue to your worker dashboard."
             );
         } else {
             showResult(
                 false,
                 "Payment pending",
-                "Your payment has not yet been confirmed. Please wait or contact support before trying another payment."
+                data.message ||
+                    "Your payment has not yet been confirmed. Please wait or contact support before trying another payment."
             );
         }
     } catch (error) {
         console.error("Payment status error:", error);
 
-        showResult(
-            false,
-            "Unable to confirm payment",
-            `${error.message || "Please try again later."} If you have been charged, contact support before retrying.`
-        );
+        if (error.authenticationError) {
+            showAuthenticationError(error.message);
+        } else {
+            showResult(
+                false,
+                "Unable to confirm payment",
+                `${error.message || "Please try again later."} If you have been charged, contact support before retrying.`
+            );
+        }
     } finally {
         busy = false;
         setButton(false);

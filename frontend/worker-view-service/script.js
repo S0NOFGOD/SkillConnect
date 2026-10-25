@@ -170,6 +170,7 @@ function displayService(service) {
 
 function renderActivationStatus() {
     clearInterval(countdownTimer);
+    countdownTimer = null;
 
     const button = $("activateServiceBtn");
     const text = $("activateButtonText");
@@ -204,6 +205,7 @@ function renderActivationStatus() {
 
         if (remaining <= 0) {
             clearInterval(countdownTimer);
+            countdownTimer = null;
             serviceDate = null;
             renderActivationStatus();
             return;
@@ -259,8 +261,6 @@ async function activateService() {
         const data = await readResponse(response);
 
         if (response.status === 401) {
-            button.disabled = false;
-            text.textContent = "Activate";
             showAuthenticationError();
             return;
         }
@@ -310,7 +310,10 @@ function displayPortfolios(portfolios = []) {
         const preview = $(`portfolioPreview${i}`);
         const url = portfolios[i - 1];
 
-        if (!url) continue;
+        if (!url) {
+            preview.replaceChildren();
+            continue;
+        }
 
         const image = document.createElement("img");
 
@@ -492,6 +495,18 @@ async function updateService() {
         }
 
         if (!response.ok) {
+            if (data.code === "PROFILE_VERIFICATION_EXPIRED") {
+                showNotification(
+                    "error",
+                    "Profile Verification Required",
+                    data.message ||
+                        "Your profile verification has expired. Please verify your profile before updating this service.",
+                    "Continue",
+                    goToWorkerDashboard
+                );
+                return;
+            }
+
             throw new Error(
                 data.message || "Unable to update this service."
             );
@@ -605,6 +620,7 @@ function showNotification(
 function showLoadingModal(title, message) {
     modalCallback = null;
 
+    $("notificationCard").className = "notification-card";
     $("notificationTitle").textContent = title;
     $("notificationText").textContent = message;
     $("notificationIcon").textContent = "…";
@@ -642,6 +658,10 @@ function showAuthenticationError() {
 
 function goToServices() {
     location.href = "../worker-services/index.html";
+}
+
+function goToWorkerDashboard() {
+    location.href = "../worker-dashboard/index.html";
 }
 
 async function readResponse(response) {

@@ -36,14 +36,21 @@ const EXPERIENCES = [
 
 const upload = multer({
     storage: multer.memoryStorage(),
+
     limits: {
         fileSize: MAX_UPLOAD_SIZE,
         files: MAX_IMAGES
     },
+
     fileFilter: (req, file, callback) => {
-        if (!["image/jpeg", "image/png", "image/webp"].includes(file.mimetype)) {
+        if (
+            !["image/jpeg", "image/png", "image/webp"]
+                .includes(file.mimetype)
+        ) {
             return callback(
-                new Error("Portfolio images must be JPG, PNG, or WebP.")
+                new Error(
+                    "Portfolio images must be JPG, PNG, or WebP."
+                )
             );
         }
 
@@ -67,11 +74,28 @@ function authenticate(req, res) {
     return auth.userId;
 }
 
+function hasValidProfileVerification(worker) {
+    const expiry = worker.profileVerificationExpires;
+
+    if (!expiry) return false;
+
+    const expiryTime = new Date(expiry).getTime();
+
+    return Number.isFinite(expiryTime) &&
+        expiryTime > Date.now();
+}
+
+function sendProfileVerificationError(res) {
+    return res.status(400).json({
+        success: false,
+        code: "PROFILE_VERIFICATION_EXPIRED",
+        message:
+            "Your profile verification has expired. Please verify your profile before updating your service."
+    });
+}
+
 async function findWorkerAndService(workerId, serviceId, res) {
-    if (
-        !serviceId ||
-        !String(serviceId).trim()
-    ) {
+    if (!serviceId || !String(serviceId).trim()) {
         res.status(400).json({
             success: false,
             message: "A valid service ID is required."
@@ -131,9 +155,11 @@ function uploadToCloudinary(buffer) {
             (error, result) => {
                 if (error) return reject(error);
 
-                if (!result?.public_id) {
+                if (!result || !result.public_id) {
                     return reject(
-                        new Error("Cloudinary did not return an image ID.")
+                        new Error(
+                            "Cloudinary did not return an image ID."
+                        )
                     );
                 }
 
@@ -146,7 +172,12 @@ function uploadToCloudinary(buffer) {
 }
 
 async function deleteCloudinaryImage(publicId) {
-    if (!publicId) return;
+    if (
+        !publicId ||
+        /^https?:\/\//i.test(publicId)
+    ) {
+        return;
+    }
 
     const result = await cloudinary.uploader.destroy(publicId, {
         resource_type: "image"
@@ -185,7 +216,10 @@ async function optimizeImage(buffer) {
         if (quality > 45) {
             quality -= 7;
         } else {
-            width = Math.max(160, Math.floor(width * 0.75));
+            width = Math.max(
+                160,
+                Math.floor(width * 0.75)
+            );
         }
     }
 
@@ -195,7 +229,9 @@ async function optimizeImage(buffer) {
 }
 
 function validateServiceInput(req, res) {
-    const serviceId = String(req.params.serviceId || "").trim();
+    const serviceId = String(
+        req.params.serviceId || ""
+    ).trim();
 
     if (!serviceId) {
         res.status(400).json({
@@ -260,7 +296,8 @@ function validateServiceInput(req, res) {
     if (description.split(/\s+/).length > MAX_WORDS) {
         res.status(400).json({
             success: false,
-            message: "The service description cannot exceed 150 words."
+            message:
+                "The service description cannot exceed 150 words."
         });
 
         return null;
@@ -272,6 +309,20 @@ function validateServiceInput(req, res) {
         experience,
         description
     };
+}
+
+function handleUploadError(error, res) {
+    const message =
+        error.code === "LIMIT_FILE_SIZE"
+            ? "Each portfolio image must not exceed 10 MB."
+            : error.code === "LIMIT_FILE_COUNT"
+                ? "You can upload a maximum of 3 portfolio images."
+                : error.message || "Portfolio upload failed.";
+
+    return res.status(400).json({
+        success: false,
+        message
+    });
 }
 
 /* GET SERVICE */
@@ -294,14 +345,17 @@ async function getWorkerService(req, res) {
 
         return res.status(200).json({
             success: true,
+
             service: {
                 id: service.id,
                 skill: service.skill,
                 experience: service.experience,
                 description: service.description,
+
                 portfolios: (service.portfolios || [])
                     .map(imageUrl)
                     .filter(Boolean),
+
                 adminApproval: service.adminApproval,
                 adminResponse: service.adminResponse,
                 serviceCountDown: service.serviceCountDown
@@ -312,7 +366,8 @@ async function getWorkerService(req, res) {
 
         return res.status(500).json({
             success: false,
-            message: "An error occurred while loading your service."
+            message:
+                "An error occurred while loading your service."
         });
     }
 }
@@ -334,16 +389,11 @@ async function activateWorkerService(req, res) {
             });
         }
 
-        const verificationExpiry = worker.profileVerificationExpires;
-
-        if (
-            !verificationExpiry ||
-            !Number.isFinite(new Date(verificationExpiry).getTime()) ||
-            new Date(verificationExpiry).getTime() <= Date.now()
-        ) {
+        if (!hasValidProfileVerification(worker)) {
             return res.status(400).json({
                 success: false,
-                message: "Your profile verification has expired. Please verify your profile before activating your service."
+                message:
+                    "Your profile verification has expired. Please verify your profile before activating your service."
             });
         }
 
@@ -370,7 +420,8 @@ async function activateWorkerService(req, res) {
         }
 
         service.serviceCountDown = new Date(
-            Date.now() + SERVICE_DAYS * 24 * 60 * 60 * 1000
+            Date.now() +
+            SERVICE_DAYS * 24 * 60 * 60 * 1000
         );
 
         await worker.save();
@@ -385,34 +436,52 @@ async function activateWorkerService(req, res) {
 
         return res.status(500).json({
             success: false,
-            message: "An error occurred while activating your service."
+            message:
+                "An error occurred while activating your service."
         });
     }
 }
 
 /* UPDATE SERVICE */
 
-function updateWorkerService(req, res) {
-    const workerId = authenticate(req, res);
+async function updateWorkerService(req, res) {
+    try {
+        const workerId = authenticate(req, res);
 
-    if (!workerId) return;
+        if (!workerId) return;
 
+        const worker = await Worker.findById(workerId);
+
+        if (!worker) {
+            return res.status(404).json({
+                success: false,
+                message: "Worker account could not be found."
+            });
+        }
+
+        if (!hasValidProfileVerification(worker)) {
+            return sendProfileVerificationError(res);
+        }
+
+        processUpdateUpload(req, res, workerId);
+    } catch (error) {
+        console.error("Prepare worker service update error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message:
+                "An error occurred while preparing your service update."
+        });
+    }
+}
+
+function processUpdateUpload(req, res, workerId) {
     upload.array("portfolioPhotos", MAX_IMAGES)(
         req,
         res,
         error => {
             if (error) {
-                const message =
-                    error.code === "LIMIT_FILE_SIZE"
-                        ? "Each portfolio image must not exceed 10 MB."
-                        : error.code === "LIMIT_FILE_COUNT"
-                            ? "You can upload a maximum of 3 portfolio images."
-                            : error.message || "Portfolio upload failed.";
-
-                return res.status(400).json({
-                    success: false,
-                    message
-                });
+                return handleUploadError(error, res);
             }
 
             updateWorkerServiceData(req, res, workerId);
@@ -445,6 +514,12 @@ async function updateWorkerServiceData(req, res, workerId) {
 
         const { worker, service } = found;
 
+        // Check profile verification before making any changes.
+        if (!hasValidProfileVerification(worker)) {
+            return sendProfileVerificationError(res);
+        }
+
+        // A skill already used by another service is not allowed.
         const duplicate = worker.services.some(item =>
             String(item.id) !== serviceId &&
             String(item.skill || "").trim().toLowerCase() ===
@@ -454,12 +529,12 @@ async function updateWorkerServiceData(req, res, workerId) {
         if (duplicate) {
             return res.status(400).json({
                 success: false,
-                message: "You have already added a service with this skill."
+                message:
+                    "You have already added a service with this skill."
             });
         }
 
         const files = req.files || [];
-
         let indexes = req.body.portfolioIndexes;
 
         if (typeof indexes === "string") {
@@ -468,11 +543,13 @@ async function updateWorkerServiceData(req, res, workerId) {
 
         if (
             files.length &&
-            (!Array.isArray(indexes) || indexes.length !== files.length)
+            (!Array.isArray(indexes) ||
+                indexes.length !== files.length)
         ) {
             return res.status(400).json({
                 success: false,
-                message: "Portfolio image information is invalid."
+                message:
+                    "Portfolio image information is invalid."
             });
         }
 
@@ -487,11 +564,13 @@ async function updateWorkerServiceData(req, res, workerId) {
                 slot < 0 ||
                 slot >= MAX_IMAGES
             ) ||
-            new Set(slots.map(item => item.slot)).size !== slots.length
+            new Set(slots.map(item => item.slot)).size !==
+                slots.length
         ) {
             return res.status(400).json({
                 success: false,
-                message: "Portfolio image slots are invalid or duplicated."
+                message:
+                    "Portfolio image slots are invalid or duplicated."
             });
         }
 
@@ -499,6 +578,7 @@ async function updateWorkerServiceData(req, res, workerId) {
         const newPortfolios = [...oldPortfolios];
         const replacedIds = [];
 
+        // Optimize and upload only the portfolio slots being replaced.
         for (const { file, slot } of slots) {
             if (!Buffer.isBuffer(file.buffer)) {
                 throw new Error(
@@ -521,13 +601,19 @@ async function updateWorkerServiceData(req, res, workerId) {
             newPortfolios[slot] = publicId;
         }
 
+        // Recheck immediately before changing and saving the service.
+        if (!hasValidProfileVerification(worker)) {
+            return sendProfileVerificationError(res);
+        }
+
         service.skill = skill;
         service.experience = experience;
         service.description = description;
         service.portfolios = newPortfolios.filter(Boolean);
 
         service.serviceCountDown = new Date(
-            Date.now() + SERVICE_DAYS * 24 * 60 * 60 * 1000
+            Date.now() +
+            SERVICE_DAYS * 24 * 60 * 60 * 1000
         );
 
         service.adminApproval = "in review";
@@ -536,7 +622,7 @@ async function updateWorkerServiceData(req, res, workerId) {
 
         await worker.save();
 
-        // The database now references the uploaded images.
+        // The database now references the newly uploaded images.
         newlyUploadedIds.length = 0;
 
         for (const publicId of replacedIds) {
@@ -575,7 +661,8 @@ async function updateWorkerServiceData(req, res, workerId) {
 
         return res.status(500).json({
             success: false,
-            message: "An error occurred while updating your service."
+            message:
+                "An error occurred while updating your service."
         });
     }
 }
