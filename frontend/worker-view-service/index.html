@@ -19,11 +19,12 @@
         <button type="button" class="back-navigation" id="backNavigation" aria-label="Go back to Worker Services">
             <span class="back-icon">←</span><span class="back-text">Back</span>
         </button>
+
         <div class="activation-area">
-            <button type="button" id="activateServiceBtn" class="activate-service-button" hidden>
-                <span id="activateButtonText">Activate</span>
+            <button type="button" id="activateServiceBtnTopbar" class="activate-service-button" hidden>
+                <span id="activateButtonTextTopbar">Activate</span>
             </button>
-            <span id="serviceCountdown" class="service-countdown" hidden></span>
+            <span id="serviceCountdownTopbar" class="service-countdown" hidden></span>
         </div>
     </div>
 </header>
@@ -116,6 +117,32 @@
                 </button>
             </div>
         </form>
+    </section>
+
+    <!-- Ratings and Reviews -->
+    <section class="service-reviews-section">
+        <div class="reviews-header">
+            <h2>Ratings &amp; Reviews</h2>
+            <p>See what clients say about your service.</p>
+        </div>
+
+        <div class="rating-summary">
+            <div class="rating-average">
+                <span id="serviceAverageRating" class="rating-average-number">—</span>
+                <div class="rating-summary-details">
+                    <div id="serviceAverageStars" class="rating-stars" aria-label="Average rating">☆☆☆☆☆</div>
+                    <p id="serviceReviewCount">No reviews yet</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="serviceReviewList" class="service-review-list" aria-live="polite">
+            <p class="empty-service-reviews">Your customer reviews will appear here.</p>
+        </div>
+
+        <button type="button" id="serviceSeeMoreReviews" class="service-see-more-button" hidden>
+            See More
+        </button>
     </section>
 </main>
 

@@ -33,13 +33,16 @@ document.addEventListener("DOMContentLoaded", () => {
     initializePortfolioInputs();
 
     $("description").addEventListener("input", updateWordCount);
-
     $("serviceForm").addEventListener("submit", event => {
         event.preventDefault();
         updateService();
     });
 
     $("activateServiceBtn").addEventListener("click", activateService);
+    $("serviceSeeMoreReviews").addEventListener("click", () => {
+        if (modalBusy) return;
+        location.href = "../client-view-ratings/index.html";
+    });
 
     updateWordCount();
     initializePage();
@@ -58,7 +61,6 @@ function populateSkills() {
 function initializeBackNavigation() {
     $("backNavigation").addEventListener("click", () => {
         if (modalBusy) return;
-
         sessionStorage.removeItem("serviceId");
         location.href = "../worker-services/index.html";
     });
@@ -68,20 +70,13 @@ async function initializePage() {
     const serviceId = sessionStorage.getItem("serviceId");
 
     if (!serviceId) {
-        showNotification(
-            "error",
-            "Service Not Found",
+        showNotification("error", "Service Not Found",
             "The service ID could not be found. Please return to your services.",
-            "Continue",
-            goToServices
-        );
+            "Continue", goToServices);
         return;
     }
 
-    showLoadingModal(
-        "Connecting...",
-        "Please wait while we load your service."
-    );
+    showLoadingModal("Connecting...", "Please wait while we load your service.");
 
     try {
         const response = await API_REQUEST(
@@ -109,12 +104,8 @@ async function initializePage() {
         closeNotification();
     } catch (error) {
         closeNotification();
-
-        showNotification(
-            "error",
-            "Unable to Load Service",
-            error.message || "Something went wrong. Please try again."
-        );
+        showNotification("error", "Unable to Load Service",
+            error.message || "Something went wrong. Please try again.");
     }
 }
 
@@ -129,9 +120,8 @@ function displayService(service) {
     $("experience").value = service.experience || "";
     $("description").value = service.description || "";
 
-    const status = String(
-        service.adminApproval || "in review"
-    ).trim().toLowerCase();
+    const status = String(service.adminApproval || "in review")
+        .trim().toLowerCase();
 
     const classes = {
         "in review": "status-in-review",
@@ -139,33 +129,104 @@ function displayService(service) {
         approved: "status-approved"
     };
 
-    $("adminApproval").textContent =
-        service.adminApproval || "In Review";
-
-    $("adminResponse").textContent =
-        service.adminResponse ||
+    $("adminApproval").textContent = service.adminApproval || "In Review";
+    $("adminResponse").textContent = service.adminResponse ||
         "Your service is awaiting admin review.";
 
-    const container = $("adminStatusContainer");
-
-    container.classList.remove(
-        "status-in-review",
-        "status-rejected",
-        "status-approved"
+    $("adminStatusContainer").classList.remove(
+        "status-in-review", "status-rejected", "status-approved"
     );
-
-    container.classList.add(
+    $("adminStatusContainer").classList.add(
         classes[status] || "status-in-review"
     );
 
     displayPortfolios(service.portfolios || []);
-
+    displayReviews(service);
+    
     serviceDate = service.serviceCountDown
         ? new Date(service.serviceCountDown)
         : null;
 
     renderActivationStatus();
     updateWordCount();
+}
+
+function displayReviews(service) {
+    const reviews = Array.isArray(service.ratingAndReview)
+        ? service.ratingAndReview
+        : [];
+
+    const total = Number(service.reviewCount ?? reviews.length);
+    const average = Number(service.averageRating) || 0;
+
+    $("serviceAverageRating").textContent =
+        total > 0 ? average.toFixed(1) : "—";
+
+    const rounded = Math.round(average);
+    $("serviceAverageStars").textContent =
+        "★".repeat(rounded) + "☆".repeat(5 - rounded);
+
+    $("serviceAverageStars").setAttribute(
+        "aria-label",
+        `Average rating: ${average.toFixed(1)} out of 5`
+    );
+
+    $("serviceReviewCount").textContent = total === 0
+        ? "No reviews yet"
+        : `${total} ${total === 1 ? "review" : "reviews"}`;
+
+    const list = $("serviceReviewList");
+    list.replaceChildren();
+
+    if (!reviews.length) {
+        const empty = document.createElement("p");
+        empty.className = "empty-service-reviews";
+        empty.textContent = "Your customer reviews will appear here.";
+        list.appendChild(empty);
+    } else {
+        reviews.forEach(review => {
+            const item = document.createElement("article");
+            item.className = "service-review-item";
+
+            const top = document.createElement("div");
+            top.className = "service-review-top";
+
+            const name = document.createElement("div");
+            name.className = "service-review-name";
+            name.textContent = review.fullName || "Client";
+
+            const rating = Math.max(0, Math.min(5, Number(review.rating) || 0));
+            const stars = document.createElement("div");
+            stars.className = "service-review-rating";
+            stars.textContent = `${"★".repeat(rating)}${"☆".repeat(5 - rating)} (${rating}/5)`;
+
+            top.append(name, stars);
+
+            const text = document.createElement("p");
+            text.className = "service-review-text";
+            text.textContent = review.review || "No written review.";
+
+            item.append(top, text);
+
+            if (review.date) {
+                const date = new Date(review.date);
+
+                if (Number.isFinite(date.getTime())) {
+                    const dateElement = document.createElement("p");
+                    dateElement.className = "service-review-date";
+                    dateElement.textContent = date.toLocaleDateString(
+                        undefined,
+                        { day: "numeric", month: "short", year: "numeric" }
+                    );
+                    item.appendChild(dateElement);
+                }
+            }
+
+            list.appendChild(item);
+        });
+    }
+
+    $("serviceSeeMoreReviews").hidden = total <= reviews.length;
 }
 
 function renderActivationStatus() {
@@ -176,23 +237,18 @@ function renderActivationStatus() {
     const text = $("activateButtonText");
     const countdown = $("serviceCountdown");
 
-    const validDate =
-        serviceDate &&
+    const validDate = serviceDate &&
         Number.isFinite(serviceDate.getTime()) &&
         serviceDate.getTime() > Date.now();
 
     if (!validDate) {
         button.hidden = false;
         button.disabled = false;
-        button.style.backgroundColor = "#dc2626";
+        button.style.background = "linear-gradient(135deg,#ef4444,#dc2626)";
         button.style.color = "#ffffff";
-
         text.textContent = "Activate";
-
         countdown.hidden = true;
         countdown.textContent = "";
-        countdown.style.color = "";
-
         return;
     }
 
@@ -212,15 +268,9 @@ function renderActivationStatus() {
         }
 
         const days = Math.floor(remaining / 86400000);
-        const hours = Math.floor(
-            (remaining % 86400000) / 3600000
-        );
-        const minutes = Math.floor(
-            (remaining % 3600000) / 60000
-        );
-        const seconds = Math.floor(
-            (remaining % 60000) / 1000
-        );
+        const hours = Math.floor((remaining % 86400000) / 3600000);
+        const minutes = Math.floor((remaining % 3600000) / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
 
         countdown.textContent =
             `Active · ${days}d ${hours}h ${minutes}m ${seconds}s`;
@@ -236,13 +286,9 @@ async function activateService() {
     const serviceId = sessionStorage.getItem("serviceId");
 
     if (!serviceId) {
-        showNotification(
-            "error",
-            "Service Not Found",
+        showNotification("error", "Service Not Found",
             "The service ID could not be found.",
-            "Continue",
-            goToServices
-        );
+            "Continue", goToServices);
         return;
     }
 
@@ -266,42 +312,28 @@ async function activateService() {
         }
 
         if (!response.ok) {
-            throw new Error(
-                data.message || "Unable to activate this service."
-            );
+            throw new Error(data.message || "Unable to activate this service.");
         }
 
         serviceDate = data.serviceCountDown
             ? new Date(data.serviceCountDown)
             : null;
 
-        if (
-            !serviceDate ||
+        if (!serviceDate ||
             !Number.isFinite(serviceDate.getTime()) ||
-            serviceDate.getTime() <= Date.now()
-        ) {
-            throw new Error(
-                "The server did not return a valid activation expiry date."
-            );
+            serviceDate.getTime() <= Date.now()) {
+            throw new Error("The server did not return a valid activation expiry date.");
         }
 
         renderActivationStatus();
 
-        showNotification(
-            "success",
-            "Service Activated",
-            data.message ||
-                "Your service has been activated successfully for 30 days."
-        );
+        showNotification("success", "Service Activated",
+            data.message || "Your service has been activated successfully for 30 days.");
     } catch (error) {
         button.disabled = false;
         text.textContent = "Activate";
-
-        showNotification(
-            "error",
-            "Activation Failed",
-            error.message || "Unable to activate this service."
-        );
+        showNotification("error", "Activation Failed",
+            error.message || "Unable to activate this service.");
     }
 }
 
@@ -312,20 +344,23 @@ function displayPortfolios(portfolios = []) {
 
         if (!url) {
             preview.replaceChildren();
+            const plus = document.createElement("span");
+            plus.className = "portfolio-placeholder";
+            plus.textContent = "+";
+            const label = document.createElement("span");
+            label.className = "portfolio-add-text";
+            label.textContent = "Add Image";
+            preview.append(plus, label);
             continue;
         }
 
         const image = document.createElement("img");
-
         image.src = typeof url === "string"
             ? url
             : url.url || url.secure_url || "";
-
         image.alt = `Portfolio ${i}`;
 
-        if (image.src) {
-            preview.replaceChildren(image);
-        }
+        if (image.src) preview.replaceChildren(image);
     }
 }
 
@@ -336,7 +371,6 @@ function initializePortfolioInputs() {
 
         input.addEventListener("change", () => {
             const file = input.files?.[0];
-
             if (!file) return;
 
             const error = validateImage(file);
@@ -351,10 +385,8 @@ function initializePortfolioInputs() {
 
             reader.onload = event => {
                 const image = document.createElement("img");
-
                 image.src = event.target.result;
                 image.alt = `Portfolio ${i}`;
-
                 preview.replaceChildren(image);
             };
 
@@ -378,7 +410,6 @@ function validateImage(file) {
 function updateWordCount() {
     const value = $("description").value.trim();
     const count = value ? value.split(/\s+/).length : 0;
-
     $("descriptionWordCount").textContent = `${count} / 150 words`;
 }
 
@@ -388,31 +419,19 @@ function validateService() {
     const description = $("description").value.trim();
 
     if (!skill || !SKILLS.includes(skill)) {
-        return validationError(
-            "Skill Required",
-            "Please select a valid skill."
-        );
+        return validationError("Skill Required", "Please select a valid skill.");
     }
 
     if (!experience || !EXPERIENCES.includes(experience)) {
-        return validationError(
-            "Experience Required",
-            "Please select a valid experience level."
-        );
+        return validationError("Experience Required", "Please select a valid experience level.");
     }
 
     if (!description) {
-        return validationError(
-            "Description Required",
-            "Please describe the service you provide."
-        );
+        return validationError("Description Required", "Please describe the service you provide.");
     }
 
     if (description.split(/\s+/).length > 150) {
-        return validationError(
-            "Description Too Long",
-            "Your description must not exceed 150 words."
-        );
+        return validationError("Description Too Long", "Your description must not exceed 150 words.");
     }
 
     for (let i = 1; i <= 3; i++) {
@@ -420,13 +439,7 @@ function validateService() {
 
         if (file) {
             const error = validateImage(file);
-
-            if (error) {
-                return validationError(
-                    "Invalid Portfolio Image",
-                    error
-                );
-            }
+            if (error) return validationError("Invalid Portfolio Image", error);
         }
     }
 
@@ -444,13 +457,9 @@ async function updateService() {
     const serviceId = sessionStorage.getItem("serviceId");
 
     if (!serviceId) {
-        showNotification(
-            "error",
-            "Service Not Found",
+        showNotification("error", "Service Not Found",
             "The service ID could not be found.",
-            "Continue",
-            goToServices
-        );
+            "Continue", goToServices);
         return;
     }
 
@@ -463,7 +472,6 @@ async function updateService() {
     loader.hidden = false;
 
     const formData = new FormData();
-
     formData.append("serviceId", serviceId);
     formData.append("skill", $("skill").value.trim());
     formData.append("experience", $("experience").value.trim());
@@ -481,10 +489,7 @@ async function updateService() {
     try {
         const response = await API_REQUEST(
             `${VIEW_ENDPOINT}/${encodeURIComponent(serviceId)}`,
-            {
-                method: "PUT",
-                body: formData
-            }
+            { method: "PUT", body: formData }
         );
 
         const data = await readResponse(response);
@@ -496,35 +501,21 @@ async function updateService() {
 
         if (!response.ok) {
             if (data.code === "PROFILE_VERIFICATION_EXPIRED") {
-                showNotification(
-                    "error",
-                    "Profile Verification Required",
-                    data.message ||
-                        "Your profile verification has expired. Please verify your profile before updating this service.",
-                    "Continue",
-                    goToWorkerDashboard
-                );
+                showNotification("error", "Profile Verification Required",
+                    data.message || "Your profile verification has expired. Please verify your profile before updating this service.",
+                    "Continue", goToWorkerDashboard);
                 return;
             }
 
-            throw new Error(
-                data.message || "Unable to update this service."
-            );
+            throw new Error(data.message || "Unable to update this service.");
         }
 
-        showNotification(
-            "success",
-            "Service Updated",
+        showNotification("success", "Service Updated",
             data.message || "Your service has been updated successfully.",
-            "Continue",
-            goToServices
-        );
+            "Continue", goToServices);
     } catch (error) {
-        showNotification(
-            "error",
-            "Update Failed",
-            error.message || "Unable to update this service."
-        );
+        showNotification("error", "Update Failed",
+            error.message || "Unable to update this service.");
     } finally {
         button.disabled = false;
         buttonText.textContent = "Update Service";
@@ -536,22 +527,13 @@ function initializeModal() {
     $("notificationActions").addEventListener("click", event => {
         const button = event.target.closest("button");
 
-        if (
-            !button ||
-            modalBusy ||
-            button.id !== "notificationButton"
-        ) {
-            return;
-        }
+        if (!button || modalBusy || button.id !== "notificationButton") return;
 
         const callback = modalCallback;
         modalCallback = null;
-
         closeNotification();
 
-        if (typeof callback === "function") {
-            callback();
-        }
+        if (typeof callback === "function") callback();
     });
 
     $("notificationCancelButton").addEventListener("click", () => {
@@ -559,77 +541,51 @@ function initializeModal() {
     });
 
     $("notificationOverlay").addEventListener("click", event => {
-        if (
-            event.target === $("notificationOverlay") &&
-            !modalBusy
-        ) {
+        if (event.target === $("notificationOverlay") && !modalBusy) {
             closeNotification();
         }
     });
 }
 
-function showNotification(
-    type,
-    title,
-    message,
-    buttonText = "Continue",
-    callback = null
-) {
+function showNotification(type, title, message, buttonText = "Continue", callback = null) {
     const overlay = $("notificationOverlay");
     const icon = $("notificationIcon");
 
     modalCallback = callback;
-
     $("notificationCard").className = `notification-card ${type}`;
     $("notificationTitle").textContent = title;
     $("notificationText").textContent = message;
 
     icon.textContent = type === "success" ? "✓" : "!";
-    icon.style.color =
-        type === "success"
-            ? "#22c55e"
-            : type === "warning"
-                ? "#f59e0b"
-                : "#ef4444";
-
-    icon.style.background =
-        type === "success"
-            ? "rgba(34,197,94,.1)"
-            : type === "warning"
-                ? "rgba(245,158,11,.1)"
-                : "rgba(239,68,68,.1)";
+    icon.style.color = type === "success" ? "#22c55e" :
+        type === "warning" ? "#f59e0b" : "#ef4444";
+    icon.style.background = type === "success" ? "rgba(34,197,94,.1)" :
+        type === "warning" ? "rgba(245,158,11,.1)" : "rgba(239,68,68,.1)";
 
     const actions = $("notificationActions");
     actions.replaceChildren();
 
     const button = document.createElement("button");
-
     button.type = "button";
     button.id = "notificationButton";
     button.textContent = buttonText;
-
     actions.appendChild(button);
 
-    $("notificationCancelButton").style.display =
-        callback ? "none" : "flex";
-
+    $("notificationCancelButton").style.display = callback ? "none" : "flex";
     overlay.hidden = false;
     overlay.classList.add("active");
 }
 
 function showLoadingModal(title, message) {
     modalCallback = null;
-
     $("notificationCard").className = "notification-card";
     $("notificationTitle").textContent = title;
     $("notificationText").textContent = message;
     $("notificationIcon").textContent = "…";
     $("notificationIcon").style.color = "#22c55e";
     $("notificationIcon").style.background = "rgba(34,197,94,.1)";
-
     $("notificationActions").replaceChildren();
     $("notificationCancelButton").style.display = "none";
-
     $("notificationOverlay").hidden = false;
     $("notificationOverlay").classList.add("active");
 }
@@ -638,22 +594,16 @@ function closeNotification() {
     $("notificationOverlay").classList.remove("active");
     $("notificationOverlay").hidden = true;
     $("notificationCancelButton").style.display = "flex";
-
     modalCallback = null;
 }
 
 function showAuthenticationError() {
     closeNotification();
-
-    showNotification(
-        "error",
-        "Authentication Required",
+    showNotification("error", "Authentication Required",
         "Your session has expired. Please log in again.",
-        "Continue",
-        () => {
+        "Continue", () => {
             location.href = "../worker-authentication/index.html";
-        }
-    );
+        });
 }
 
 function goToServices() {
@@ -666,14 +616,11 @@ function goToWorkerDashboard() {
 
 async function readResponse(response) {
     const responseText = await response.text();
-
     if (!responseText) return {};
 
     try {
         return JSON.parse(responseText);
     } catch {
-        throw new Error(
-            "The server returned an invalid response. Please try again."
-        );
+        throw new Error("The server returned an invalid response. Please try again.");
     }
 }

@@ -327,10 +327,11 @@ function handleUploadError(error, res) {
 
 /* GET SERVICE */
 
+/* GET SERVICE */
+
 async function getWorkerService(req, res) {
     try {
         const workerId = authenticate(req, res);
-
         if (!workerId) return;
 
         const found = await findWorkerAndService(
@@ -343,19 +344,40 @@ async function getWorkerService(req, res) {
 
         const { service } = found;
 
+        const allReviews = (service.ratingAndReview || [])
+            .slice()
+            .sort((a, b) =>
+                new Date(b.date || 0).getTime() -
+                new Date(a.date || 0).getTime()
+            );
+
+        const reviewCount = allReviews.length;
+
+        const averageRating = reviewCount
+            ? allReviews.reduce(
+                (total, review) => total + Number(review.rating || 0),
+                0
+            ) / reviewCount
+            : 0;
+
         return res.status(200).json({
             success: true,
-
             service: {
                 id: service.id,
                 skill: service.skill,
                 experience: service.experience,
                 description: service.description,
-
                 portfolios: (service.portfolios || [])
                     .map(imageUrl)
                     .filter(Boolean),
-
+                ratingAndReview: allReviews.slice(0, 3).map(review => ({
+                    fullName: review.fullName,
+                    rating: review.rating,
+                    review: review.review,
+                    date: review.date
+                })),
+                reviewCount,
+                averageRating: Number(averageRating.toFixed(1)),
                 adminApproval: service.adminApproval,
                 adminResponse: service.adminResponse,
                 serviceCountDown: service.serviceCountDown
@@ -366,8 +388,7 @@ async function getWorkerService(req, res) {
 
         return res.status(500).json({
             success: false,
-            message:
-                "An error occurred while loading your service."
+            message: "An error occurred while loading your service."
         });
     }
 }

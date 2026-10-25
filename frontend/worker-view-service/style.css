@@ -38,7 +38,6 @@ button,input,select,textarea{font:inherit}
 .form-group textarea{min-height:150px;padding:14px;resize:vertical;line-height:1.6}
 .form-group select:focus,.form-group textarea:focus{border-color:rgba(34,197,94,.55);box-shadow:0 0 0 3px rgba(34,197,94,.08)}
 .form-group select option{background:#0f172a}
-.form-group small{display:block;margin-top:7px;color:var(--muted);font-size:11px}
 .label-row{display:flex;align-items:center;justify-content:space-between}
 #descriptionWordCount{color:var(--muted);font-size:11px}
 .portfolio-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
@@ -55,7 +54,30 @@ button,input,select,textarea{font:inherit}
 .update-service-button{display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--green2));color:white;box-shadow:0 8px 25px rgba(34,197,94,.12);cursor:pointer;font-size:13px;font-weight:700;transition:.2s}
 .update-service-button:hover{transform:translateY(-1px);box-shadow:0 12px 30px rgba(34,197,94,.2)}
 .update-service-button:disabled{cursor:not-allowed;opacity:.65;transform:none}
-.update-button-loader{width:17px;height:17px;border:2px solid rgba(255,255,255,.35);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite}
+
+/* Ratings and Reviews */
+.service-reviews-section{margin-top:22px;padding:25px;border:1px solid var(--border);border-radius:22px;background:var(--card);box-shadow:0 25px 60px rgba(0,0,0,.2);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.reviews-header{margin-bottom:20px}
+.reviews-header h2{font-size:20px;font-weight:800;letter-spacing:-.3px}
+.reviews-header p{margin-top:7px;color:var(--muted);font-size:13px;line-height:1.6}
+.rating-summary{margin-bottom:20px;padding:18px;border:1px solid rgba(34,197,94,.18);border-radius:14px;background:rgba(34,197,94,.055)}
+.rating-average{display:flex;align-items:center;gap:16px}
+.rating-average-number{font-size:38px;font-weight:800;letter-spacing:-1px;line-height:1;color:var(--text)}
+.rating-summary-details{display:flex;flex-direction:column;gap:5px}
+.rating-stars{color:#facc15;font-size:19px;letter-spacing:2px;line-height:1.2}
+#serviceReviewCount{color:var(--muted);font-size:12px}
+.service-review-list{display:flex;flex-direction:column;gap:12px}
+.service-review-item{padding:16px;border:1px solid var(--border);border-radius:13px;background:rgba(17,28,49,.75)}
+.service-review-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}
+.service-review-name{min-width:0;color:var(--text);font-size:13px;font-weight:700;overflow-wrap:anywhere}
+.service-review-rating{flex-shrink:0;color:#facc15;font-size:12px;white-space:nowrap}
+.service-review-text{color:var(--soft);font-size:13px;line-height:1.75;overflow-wrap:anywhere}
+.service-review-date{margin-top:10px;color:var(--muted);font-size:11px}
+.empty-service-reviews{padding:22px 12px;text-align:center;color:var(--muted);font-size:13px;line-height:1.7}
+.service-see-more-button{display:block;margin:17px 0 0 auto;padding:0;border:0;background:transparent;color:#4ade80;font-size:13px;font-weight:700;cursor:pointer}
+.service-see-more-button:hover{color:#86efac}
+.service-see-more-button:disabled{opacity:.6;cursor:not-allowed}
+
 .notification-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(2,6,23,.78);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
 .notification-modal.active{display:flex}
 .notification-card{position:relative;width:min(100%,420px);padding:30px 25px;border:1px solid var(--border);border-radius:20px;background:rgba(15,23,42,.97);text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.45);animation:modalIn .2s ease}
@@ -69,7 +91,7 @@ button,input,select,textarea{font:inherit}
 .notification-actions button:disabled{cursor:not-allowed;opacity:.65}
 .notification-actions .cancel-button{border:1px solid var(--border);background:var(--card2);color:var(--soft)}
 @keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:700px){#viewServicePage{padding:96px 15px 45px}.page-header h1{font-size:28px}.service-form{padding:22px;border-radius:18px}}
-@media(max-width:500px){.topbar{height:62px}.topbar-inner{padding:0 15px;gap:15px}.back-text{display:none}#viewServicePage{padding:88px 12px 40px}.page-header h1{font-size:25px}.service-form{padding:18px}.admin-status-container{align-items:flex-start;padding:13px}.admin-status-container p{flex-basis:100%}.portfolio-grid{gap:8px}.activation-area{gap:8px}.activate-service-button{min-height:35px;padding:0 12px}.service-countdown{font-size:10px}.service-activation-row{margin-top:-8px;margin-bottom:10px;padding-right:2px}}
-@media(max-width:360px){.topbar-inner{gap:9px}.portfolio-grid{gap:6px}.service-countdown{font-size:9px}}
+@media(max-width:700px){#viewServicePage{padding:96px 15px 45px}.page-header h1{font-size:28px}.service-form{padding:22px}.service-reviews-section{padding:21px}}
+@media(max-width:500px){.topbar{height:62px}.topbar-inner{padding:0 15px;gap:15px}.back-text{display:none}#viewServicePage{padding:88px 12px 40px}.page-header h1{font-size:25px}.service-form{padding:18px}.admin-status-container{align-items:flex-start;padding:13px}.admin-status-container p{flex-basis:100%}.portfolio-grid{gap:8px}.activation-area{gap:8px}.activate-service-button{min-height:35px;padding:0 12px}.service-countdown{font-size:10px}.service-activation-row{margin-top:-8px;margin-bottom:10px;padding-right:2px}.service-reviews-section{padding:17px;border-radius:18px}.reviews-header h2{font-size:18px}.rating-average-number{font-size:34px}.service-review-item{padding:13px}.service-review-top{align-items:flex-start;flex-direction:column;gap:6px}}
+@media(max-width:360px){.topbar-inner{gap:9px}.portfolio-grid{gap:6px}.service-countdown{font-size:9px}.rating-average{gap:11px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
