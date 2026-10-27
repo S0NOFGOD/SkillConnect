@@ -292,7 +292,7 @@ showModal(
 data.message||
 "Your client profile has been completed successfully.",
 "Continue",
-()=>window.location.href="../client-dashboard/index.html"
+()=>window.location.href="../client-workers-search/index.html"
 );
 
 }catch(error){

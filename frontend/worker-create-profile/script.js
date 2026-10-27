@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const MAX_SIZE = 10 * 1024 * 1024;
     const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
     const AUTH_PAGE = "../worker-authentication/index.html";
-    const DASHBOARD = "../worker-dashboard/index.html";
+    const DASHBOARD = "../worker-services/index.html";
 
     let modalCallback = null;
     let photoPreviewUrl = null;
