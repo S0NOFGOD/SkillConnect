@@ -226,7 +226,7 @@ function initializeLogin(){
                     "Login Successful",
                     data.message||`Welcome back, ${data.fullName||"Client"}!`,
                     "success",
-                    ()=>{location.href="../client-dashboard/index.html";}
+                    ()=>{location.href="../client-workers-search/index.html";}
                 );
             }
 

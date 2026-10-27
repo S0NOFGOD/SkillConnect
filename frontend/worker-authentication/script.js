@@ -193,7 +193,7 @@ function initializeLogin() {
                 showModal("Complete Your Profile", data.message, "success", "../worker-create-profile/index.html");
             } else if (data.nextStep === "authenticated") {
                 showModal("Login Successful", data.message || `Welcome back, ${data.fullName}.`,
-                    "success", "../worker-dashboard/index.html");
+                    "success", "../worker-services/index.html");
             } else {
                 showModal("Authentication Error", data.message || "Unable to determine your account status.");
             }
