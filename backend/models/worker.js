@@ -156,31 +156,14 @@ const workerSchema = new mongoose.Schema({
         }
     }],
 
-    country: {
-        type: String,
-        trim: true,
-        default: null
-    },
+    latitude: {
+       type: Number,
+       default: null
+     },
 
-    state: {
-        type: String,
-        trim: true,
-        default: null,
-        index: true
-    },
-
-    city: {
-        type: String,
-        trim: true,
-        default: null,
-        index: true
-    },
-
-    lga: {
-        type: String,
-        trim: true,
-        default: null,
-        index: true
+    longitude: {
+      type: Number,
+      default: null
     },
 
     skills: [{

@@ -439,6 +439,70 @@ select:disabled {
 
 
 /* ========================================
+   READ-ONLY LOCATION INPUTS
+======================================== */
+
+input[readonly] {
+    background: rgba(15, 23, 42, 0.85);
+    color: #22c55e;
+    cursor: default;
+}
+
+input[readonly]:focus {
+    border-color: rgba(34, 197, 94, 0.5);
+    box-shadow: none;
+}
+
+
+/* ========================================
+   GET MY LOCATION BUTTON
+======================================== */
+
+.get-location-btn {
+    width: 100%;
+    min-height: 50px;
+    padding: 13px 18px;
+    border: 1px solid rgba(34, 197, 94, 0.35);
+    border-radius: 12px;
+    background: rgba(34, 197, 94, 0.10);
+    color: #22c55e;
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        background 0.3s ease,
+        border-color 0.3s ease,
+        transform 0.3s ease,
+        opacity 0.3s ease;
+}
+
+.get-location-btn:hover {
+    background: rgba(34, 197, 94, 0.17);
+    border-color: #22c55e;
+    transform: translateY(-2px);
+}
+
+.get-location-btn:active {
+    transform: translateY(0);
+}
+
+.get-location-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.location-help {
+    display: block;
+    margin-top: 10px;
+    color: #94a3b8;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+
+/* ========================================
    CREATE PROFILE BUTTON
    NO LOADING SPINNER
 ======================================== */
@@ -748,6 +812,10 @@ a:focus-visible,
 
     input,
     select {
+        min-height: 48px;
+    }
+
+    .get-location-btn {
         min-height: 48px;
     }
 

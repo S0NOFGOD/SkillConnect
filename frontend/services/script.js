@@ -3,265 +3,213 @@
 document.addEventListener("DOMContentLoaded", () => {
     const $ = id => document.getElementById(id);
 
-    /* Demo worker data — no API requests */
-    const workers = [
-        {
-            workerId: "demo-worker-001",
-            fullName: "Demo Worker One",
-            profilePhoto: "",
-            lga: "Ibadan North",
-            services: [
-                { id: "demo-service-001", skill: "Electrician" },
-                { id: "demo-service-002", skill: "Generator Repair" }
-            ]
-        },
-        {
-            workerId: "demo-worker-002",
-            fullName: "Demo Worker Two",
-            profilePhoto: "",
-            lga: "Ibadan South-West",
-            services: [
-                { id: "demo-service-003", skill: "Plumber" }
-            ]
-        },
-        {
-            workerId: "demo-worker-003",
-            fullName: "Demo Worker Three",
-            profilePhoto: "",
-            lga: "Ibadan North-West",
-            services: [
-                { id: "demo-service-004", skill: "Carpenter" },
-                { id: "demo-service-005", skill: "Painter" }
-            ]
-        },
-        {
-            workerId: "demo-worker-004",
-            fullName: "Demo Worker Four",
-            profilePhoto: "",
-            lga: "Oluyole",
-            services: [
-                { id: "demo-service-006", skill: "Barber" }
-            ]
-        },
-        {
-            workerId: "demo-worker-005",
-            fullName: "Demo Worker Five",
-            profilePhoto: "",
-            lga: "Akinyele",
-            services: [
-                { id: "demo-service-007", skill: "Mechanic" }
-            ]
-        },
-        {
-            workerId: "demo-worker-006",
-            fullName: "Demo Worker Six",
-            profilePhoto: "",
-            lga: "Ibadan North-East",
-            services: [
-                { id: "demo-service-008", skill: "Cleaner" },
-                { id: "demo-service-009", skill: "Welder" }
-            ]
-        }
-    ];
+    const menuBtn = $("menuBtn");
+    const closeMenuBtn = $("closeMenuBtn");
+    const sidebar = $("sidebar");
+    const overlay = $("overlay");
 
-    /* Page elements */
+    const dashboardBtn = $("dashboardBtn");
+    const findWorkersBtn = $("findWorkersBtn");
+    const editProfileBtn = $("editProfileBtn");
+    const logoutBtn = $("logoutBtn");
     const skillFilter = $("skillFilter");
+    const skillSearch = $("skillSearch");
+
+    const profilePhoto = $("profilePhoto");
+    const profilePhotoPlaceholder = $("profilePhotoPlaceholder");
+
     const workersContainer = $("workersContainer");
     const workersLoading = $("workersLoading");
     const workersEmpty = $("workersEmpty");
 
-    /* Location elements */
-    const getLocationButton = $("getLocationButton");
-    const locationButtonText = $("locationButtonText");
-
-    let currentLocation = null;
-
-    /* Notification elements */
     const notificationOverlay = $("notificationOverlay");
-    const notificationCard = $("notificationCard");
+    const notificationCard = $("notificationOverlay").querySelector(".notification-card");
     const notificationIcon = $("notificationIcon");
     const notificationTitle = $("notificationTitle");
     const notificationText = $("notificationText");
     const notificationButton = $("notificationButton");
-    const notificationCancelButton = $("notificationCancelButtonMobile");
+    const notificationCancelButtonMobile = $("notificationCancelButtonMobile");
 
-    /* ==========================
-       Notifications
-    ========================== */
+    let workers = [];
+    let notificationAction = null;
+    let sessionExpired = false;
+    let isLoggingOut = false;
+    let isLoadingWorkers = false;
+    let workerRequestVersion = 0;
 
-    function resetNotificationButtons() {
-        notificationButton.disabled = false;
-        notificationCancelButton.disabled = false;
-
-        notificationButton.textContent = "Continue";
-        notificationCancelButton.textContent = "Close";
-
-        notificationButton.onclick = null;
-        notificationCancelButton.onclick = null;
+    /* Sidebar — matches client dashboard */
+    function closeSidebar() {
+        sidebar.classList.remove("active");
+        overlay.classList.remove("active");
+        menuBtn.setAttribute("aria-expanded", "false");
+        overlay.setAttribute("aria-hidden", "true");
     }
 
-    function showNotification(title, message, type = "info") {
+    function openSidebar() {
+        sidebar.classList.add("active");
+        overlay.classList.add("active");
+        menuBtn.setAttribute("aria-expanded", "true");
+        overlay.setAttribute("aria-hidden", "false");
+    }
+
+    menuBtn.addEventListener("click", () => {
+        sidebar.classList.contains("active")
+            ? closeSidebar()
+            : openSidebar();
+    });
+
+    closeMenuBtn.addEventListener("click", closeSidebar);
+    overlay.addEventListener("click", closeSidebar);
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            closeSidebar();
+            if (!notificationOverlay.hidden) closeNotification();
+        }
+    });
+
+    dashboardBtn.addEventListener("click", () => {
+        window.location.href = "../client-dashboard/index.html";
+    });
+
+    findWorkersBtn.addEventListener("click", () => {
+        closeSidebar();
+        renderWorkers();
+    });
+
+    editProfileBtn.addEventListener("click", () => {
+        window.location.href = "../client-edit-profile/index.html";
+    });
+
+    /* Client profile photo */
+    function displayProfilePhoto(photoUrl) {
+        profilePhoto.hidden = true;
+        profilePhotoPlaceholder.hidden = false;
+        profilePhoto.onload = null;
+        profilePhoto.onerror = null;
+
+        if (typeof photoUrl !== "string" || !photoUrl.trim()) {
+            profilePhoto.removeAttribute("src");
+            return;
+        }
+
+        profilePhoto.onload = () => {
+            profilePhoto.hidden = false;
+            profilePhotoPlaceholder.hidden = true;
+        };
+
+        profilePhoto.onerror = () => {
+            profilePhoto.hidden = true;
+            profilePhoto.removeAttribute("src");
+            profilePhotoPlaceholder.hidden = false;
+        };
+
+        profilePhoto.src = photoUrl.trim();
+    }
+
+    async function loadClientProfilePhoto() {
+        try {
+            const response = await API_REQUEST("/api/client-dashboard");
+            if (!response.ok) return;
+
+            const data = await response.json();
+            const client = data.client || data;
+            displayProfilePhoto(client.profilePhoto);
+        } catch (error) {
+            console.error("Client profile photo request failed:", error);
+        }
+    }
+
+    /* Notifications */
+    function resetNotificationButtons() {
+        notificationButton.disabled = false;
+        notificationCancelButtonMobile.disabled = false;
+        notificationButton.textContent = "Continue";
+        notificationCancelButtonMobile.textContent = "No";
+        notificationButton.onclick = null;
+        notificationCancelButtonMobile.onclick = null;
+    }
+
+    function showNotification(title, message, type = "info", action = null) {
         notificationCard.className = `notification-card ${type}`;
         notificationTitle.textContent = title;
         notificationText.textContent = message;
-
         notificationIcon.textContent =
             type === "error" ? "!" :
-            type === "success" ? "✓" : "i";
+            type === "success" ? "✓" :
+            type === "confirm" ? "?" : "i";
 
+        notificationAction = action;
         resetNotificationButtons();
-
         notificationOverlay.hidden = false;
         notificationButton.focus();
     }
 
     function closeNotification() {
         notificationOverlay.hidden = true;
+        const action = notificationAction;
+        notificationAction = null;
         resetNotificationButtons();
+
+        if (typeof action === "function") action();
     }
 
-    notificationButton.addEventListener("click", closeNotification);
+    notificationButton.addEventListener("click", () => {
+        if (typeof notificationButton.onclick === "function") return;
+        closeNotification();
+    });
 
-    notificationCancelButton.addEventListener(
-        "click",
-        closeNotification
-    );
+    notificationCancelButtonMobile.addEventListener("click", () => {
+        notificationOverlay.hidden = true;
+        notificationAction = null;
+        resetNotificationButtons();
+    });
 
     notificationOverlay.addEventListener("click", event => {
         if (event.target === notificationOverlay) {
-            closeNotification();
+            notificationOverlay.hidden = true;
+            notificationAction = null;
+            resetNotificationButtons();
         }
     });
 
-    document.addEventListener("keydown", event => {
-        if (event.key === "Escape" && !notificationOverlay.hidden) {
-            closeNotification();
-        }
-    });
+    /* Session expiry — refresh and retry are handled by config.js */
+    window.addEventListener("authSessionExpired", () => {
+        sessionExpired = true;
+        workersLoading.hidden = true;
+        isLoadingWorkers = false;
 
-    /* ==========================
-       Get My Location
-    ========================== */
-
-    function resetLocationButton() {
-        getLocationButton.disabled = false;
-
-        locationButtonText.textContent = currentLocation
-            ? "Refresh My Location"
-            : "Get My Location";
-    }
-
-    function handleLocationError(error) {
-        let message;
-
-        switch (error.code) {
-            case 1:
-                message =
-                    "Location permission was denied. Please allow location access in your browser settings and try again.";
-                break;
-
-            case 2:
-                message =
-                    "Your location could not be determined. Check your device's location settings and try again.";
-                break;
-
-            case 3:
-                message =
-                    "The location request timed out. Please try again.";
-                break;
-
-            default:
-                message =
-                    "Something went wrong while getting your location. Please try again.";
-        }
-
-        resetLocationButton();
+        if (isLoggingOut) return;
 
         showNotification(
-            "Unable to Get Location",
-            message,
-            "error"
-        );
-    }
-
-    getLocationButton.addEventListener("click", () => {
-        if (!navigator.geolocation) {
-            showNotification(
-                "Location Not Supported",
-                "Your browser does not support geolocation. Try using an updated browser.",
-                "error"
-            );
-
-            return;
-        }
-
-        getLocationButton.disabled = true;
-        locationButtonText.textContent = "Getting Location...";
-
-        navigator.geolocation.getCurrentPosition(
-            position => {
-                const latitude = position.coords.latitude;
-                const longitude = position.coords.longitude;
-
-                currentLocation = {
-                    latitude,
-                    longitude
-                };
-
-                resetLocationButton();
-
-                showNotification(
-                    "Location Retrieved",
-                    `Your current coordinates are:\n\nLatitude: ${latitude}\nLongitude: ${longitude}\n\nYour location has been retrieved successfully.`,
-                    "success"
-                );
-            },
-
-            error => {
-                handleLocationError(error);
-            },
-
-            {
-                enableHighAccuracy: true,
-                timeout: 15000,
-                maximumAge: 0
+            "Session Expired",
+            "Your authentication session has expired. Please log in again.",
+            "error",
+            () => {
+                window.location.href = "../client-authentication/index.html";
             }
         );
     });
 
-    /* ==========================
-       Worker Data Helpers
-    ========================== */
-
-    const getWorkerId = worker =>
-        worker.workerId || worker._id || "";
+    /* Worker data helpers */
+    const getWorkerId = worker => worker.workerId || worker._id || "";
 
     function getWorkerServices(worker) {
         if (Array.isArray(worker.services)) {
             return worker.services.filter(service =>
-                service &&
-                service.skill &&
-                String(service.skill).trim()
+                service && service.skill && String(service.skill).trim()
             );
         }
 
         return worker.skill
-            ? [{
-                skill: worker.skill,
-                id: worker.serviceId || worker.id || ""
-            }]
+            ? [{ skill: worker.skill, id: worker.serviceId || worker.id || "" }]
             : [];
     }
 
     const getServiceId = service =>
-        service.id ||
-        service.Id ||
-        service._id ||
-        service.serviceId ||
-        "";
+        service.id || service.Id || service._id || service.serviceId || "";
 
-    const getWorkerLocation = worker =>
-        worker.lga || "Location unavailable";
+    const getWorkerLocation = worker => worker.lga || "Location unavailable";
 
     function getWorkerInitials(name) {
         return String(name || "Worker")
@@ -274,18 +222,12 @@ document.addEventListener("DOMContentLoaded", () => {
             .toUpperCase();
     }
 
-    /* ==========================
-       Populate Skill Dropdown
-    ========================== */
-
+    /* Skills dropdown */
     function loadSkills() {
         const selectedSkill = skillFilter.value;
-
         const skills = [...new Set(
             workers.flatMap(worker =>
-                getWorkerServices(worker).map(service =>
-                    String(service.skill).trim()
-                )
+                getWorkerServices(worker).map(service => String(service.skill).trim())
             )
         )].sort((a, b) => a.localeCompare(b));
 
@@ -294,27 +236,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const allOption = document.createElement("option");
         allOption.value = "";
         allOption.textContent = "All Skills";
-
         skillFilter.appendChild(allOption);
 
         skills.forEach(skill => {
             const option = document.createElement("option");
-
             option.value = skill;
             option.textContent = skill;
-
             skillFilter.appendChild(option);
         });
 
-        skillFilter.value = skills.includes(selectedSkill)
-            ? selectedSkill
-            : "";
+        skillFilter.value = skills.includes(selectedSkill) ? selectedSkill : "";
     }
 
-    /* ==========================
-       Create Worker Cards
-    ========================== */
-
+    /* Worker cards */
     function createWorkerCard(worker, service) {
         const name = worker.fullName || "Worker";
         const skill = String(service.skill).trim();
@@ -323,15 +257,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const serviceId = getServiceId(service);
 
         const card = document.createElement("div");
-
         card.className = "worker-card";
         card.tabIndex = 0;
         card.setAttribute("role", "button");
-
-        card.setAttribute(
-            "aria-label",
-            `View ${name}, ${skill}, ${location}`
-        );
+        card.setAttribute("aria-label", `View ${name}, ${skill}, ${location}`);
 
         const info = document.createElement("div");
         info.className = "worker-info";
@@ -356,30 +285,21 @@ document.addEventListener("DOMContentLoaded", () => {
         locationElement.className = "worker-location";
         locationElement.textContent = location;
 
-        details.append(
-            skillElement,
-            divider,
-            locationElement
-        );
-
+        details.append(skillElement, divider, locationElement);
         info.append(workerName, details);
 
         const placeholder = document.createElement("div");
-
         placeholder.className = "worker-photo-placeholder";
         placeholder.textContent = getWorkerInitials(name);
         placeholder.setAttribute("aria-hidden", "true");
 
         if (worker.profilePhoto) {
             const photo = document.createElement("img");
-
             photo.className = "worker-photo";
             photo.src = worker.profilePhoto;
             photo.alt = `${name}'s profile photo`;
             photo.loading = "lazy";
-
             photo.onerror = () => photo.replaceWith(placeholder);
-
             card.append(info, photo);
         } else {
             card.append(info, placeholder);
@@ -389,22 +309,18 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!workerId || !serviceId) {
                 showNotification(
                     "Worker Details Unavailable",
-                    "The demo worker or service identifier is missing.",
+                    "The worker or service identifier is missing. Please try again later.",
                     "error"
                 );
-
                 return;
             }
 
             sessionStorage.setItem("workerId", String(workerId));
             sessionStorage.setItem("serviceId", String(serviceId));
-
-            window.location.href =
-                "../client-worker-details/index.html";
+            window.location.href = "../client-worker-details/index.html";
         }
 
         card.addEventListener("click", openWorkerDetails);
-
         card.addEventListener("keydown", event => {
             if (event.key === "Enter" || event.key === " ") {
                 event.preventDefault();
@@ -415,30 +331,27 @@ document.addEventListener("DOMContentLoaded", () => {
         return card;
     }
 
-    /* ==========================
-       Render Workers by Skill
-    ========================== */
-
+    /* Render workers filtered by dropdown and search field */
     function renderWorkers() {
         workersContainer.replaceChildren();
 
-        const selectedSkill = skillFilter.value
-            .trim()
-            .toLowerCase();
-
+        const selectedSkill = skillFilter.value.trim().toLowerCase();
+        const searchTerm = skillSearch.value.trim().toLowerCase();
         const cards = [];
 
         workers.forEach(worker => {
             getWorkerServices(worker).forEach(service => {
                 const skill = String(service.skill).trim();
+                const normalizedSkill = skill.toLowerCase();
 
-                if (
-                    !selectedSkill ||
-                    skill.toLowerCase() === selectedSkill
-                ) {
-                    cards.push(
-                        createWorkerCard(worker, service)
-                    );
+                const matchesDropdown =
+                    !selectedSkill || normalizedSkill === selectedSkill;
+
+                const matchesSearch =
+                    !searchTerm || normalizedSkill.includes(searchTerm);
+
+                if (matchesDropdown && matchesSearch) {
+                    cards.push(createWorkerCard(worker, service));
                 }
             });
         });
@@ -450,28 +363,137 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         workersContainer.append(...cards);
-
         workersContainer.hidden = false;
         workersEmpty.hidden = true;
     }
 
-    skillFilter.addEventListener("change", renderWorkers);
+    skillFilter.addEventListener("change", () => {
+        if (!isLoadingWorkers && !sessionExpired) renderWorkers();
+    });
 
-    /* ==========================
-       Initial Page Load
-       Demo Data Only
-    ========================== */
+    skillSearch.addEventListener("input", () => {
+        if (!isLoadingWorkers && !sessionExpired) renderWorkers();
+    });
 
-    function loadDemoWorkers() {
+    /* Load workers */
+    async function loadWorkers() {
+        if (isLoadingWorkers) return;
+
+        isLoadingWorkers = true;
+        sessionExpired = false;
+
+        const requestVersion = ++workerRequestVersion;
+
         workersLoading.hidden = false;
         workersContainer.hidden = true;
         workersEmpty.hidden = true;
 
-        loadSkills();
-        renderWorkers();
+        try {
+            const response = await API_REQUEST("/api/client/worker-search", {
+                method: "GET"
+            });
 
-        workersLoading.hidden = true;
+            if (requestVersion !== workerRequestVersion || sessionExpired) return;
+
+            if (!response.ok) {
+                let message = "Unable to find workers. Please try again.";
+
+                try {
+                    const data = await response.json();
+                    if (data.message) message = data.message;
+                } catch {}
+
+                showNotification("Search Error", message, "error");
+                return;
+            }
+
+            const data = await response.json();
+
+            if (requestVersion !== workerRequestVersion || sessionExpired) return;
+
+            workers = Array.isArray(data.workers) ? data.workers : [];
+            loadSkills();
+            renderWorkers();
+        } catch (error) {
+            console.error("Worker search error:", error);
+
+            if (!sessionExpired) {
+                showNotification(
+                    "Connection Error",
+                    "Unable to connect to the server. Please check your connection and try again.",
+                    "error"
+                );
+            }
+        } finally {
+            if (requestVersion === workerRequestVersion) {
+                workersLoading.hidden = true;
+                isLoadingWorkers = false;
+            }
+        }
     }
 
-    loadDemoWorkers();
+    /* Logout */
+    logoutBtn.addEventListener("click", () => {
+        closeSidebar();
+        if (isLoggingOut) return;
+
+        showNotification(
+            "Logout",
+            "Are you sure you want to log out?",
+            "info"
+        );
+
+        notificationButton.textContent = "Yes";
+        notificationCancelButtonMobile.textContent = "No";
+
+        notificationButton.onclick = async () => {
+            if (isLoggingOut) return;
+
+            isLoggingOut = true;
+            notificationButton.disabled = true;
+            notificationCancelButtonMobile.disabled = true;
+            notificationButton.textContent = "Connecting…";
+
+            try {
+                const response = await API_REQUEST("/api/auth/logout", {
+                    method: "POST"
+                });
+
+                if (!response.ok) {
+                    let message = "Logout failed. Please try again.";
+
+                    try {
+                        const data = await response.json();
+                        if (data.message) message = data.message;
+                    } catch {}
+
+                    isLoggingOut = false;
+                    showNotification("Logout Error", message, "error");
+                    return;
+                }
+
+                window.location.href = "../client-authentication/index.html";
+            } catch (error) {
+                console.error("Logout error:", error);
+                isLoggingOut = false;
+
+                showNotification(
+                    "Connection Error",
+                    "Unable to connect to the server. Please try again.",
+                    "error"
+                );
+            }
+        };
+
+        notificationCancelButtonMobile.onclick = () => {
+            notificationOverlay.hidden = true;
+            notificationAction = null;
+            isLoggingOut = false;
+            resetNotificationButtons();
+        };
+    });
+
+    /* Initial page load */
+    loadClientProfilePhoto();
+    loadWorkers();
 });

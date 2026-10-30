@@ -2,58 +2,96 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Find skilled workers near you with SkillConnect">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Find Workers | SkillConnect</title>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div class="green-glow" aria-hidden="true"></div>
     <div class="blue-glow" aria-hidden="true"></div>
+    <div class="green-glow" aria-hidden="true"></div>
 
-    <!-- Fixed Navbar and Page Description -->
-    <div class="fixed-header">
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a href="../client-dashboard/index.html" class="logo">SkillConnect</a>
+            <button type="button" id="menuBtn" class="menu-btn" aria-label="Open navigation menu" aria-controls="sidebar" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
 
-        <nav class="services-navbar">
-            <a href="../index.html" class="back-navigation" aria-label="Go back to homepage">
-                <span aria-hidden="true">←</span>
-                <span>Back</span>
-            </a>
+    <aside id="sidebar" class="sidebar" aria-label="Client dashboard navigation">
+        <div class="sidebar-header">
+            <button type="button" id="closeMenuBtn" class="close-menu-btn" aria-label="Close navigation menu">×</button>
+        </div>
+
+        <div class="sidebar-profile">
+            <div class="profile-photo-wrapper">
+                <img id="profilePhoto" class="profile-photo" src="" alt="Client profile photo" hidden>
+                <div id="profilePhotoPlaceholder" class="profile-photo-placeholder" aria-hidden="true">👤</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <button type="button" id="dashboardBtn" class="nav-link">
+                <span class="nav-icon" aria-hidden="true">🏠</span>
+                <span>Dashboard</span>
+            </button>
+
+            <button type="button" id="findWorkersBtn" class="nav-link active" aria-current="page">
+                <span class="nav-icon" aria-hidden="true">🔎</span>
+                <span>Find Workers</span>
+            </button>
+
+            <button type="button" id="editProfileBtn" class="nav-link">
+                <span class="nav-icon" aria-hidden="true">✏️</span>
+                <span>Edit Profile</span>
+            </button>
         </nav>
 
-        <!-- Page description and filters -->
-        <section class="dashboard-header" aria-label="Worker search">
-            <div class="header-content">
+        <div class="sidebar-footer">
+            <button type="button" id="logoutBtn" class="nav-link logout-link">
+                <span class="nav-icon" aria-hidden="true">↪</span>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
 
+    <div id="overlay" class="overlay" aria-hidden="true"></div>
+
+    <main class="dashboard" id="findWorkersPage">
+        <section class="dashboard-header">
+            <div class="welcome-content">
+                <h1>Available <span>Workers</span></h1>
+                <p class="page-description">Find nearby workers near your location.</p>
+            </div>
+        </section>
+
+        <section class="dashboard-section">
+            <div class="filter-bar">
                 <div class="filter-group">
-                    <button type="button" class="get-location-button" id="getLocationButton">
-                        <span aria-hidden="true">⌖</span>
-                        <span id="locationButtonText">Get My Location</span>
-                    </button>
-
                     <select id="skillFilter" aria-label="Filter workers by skill">
                         <option value="">All Skills</option>
                     </select>
                 </div>
 
+                <div class="search-group">
+                    <span class="search-icon" aria-hidden="true">⌕</span>
+                    <input
+                        type="search"
+                        id="skillSearch"
+                        placeholder="Search by skill name..."
+                        aria-label="Search workers by skill name"
+                        autocomplete="off"
+                    >
+                </div>
             </div>
-        </section>
-
-    </div>
-
-    <main class="dashboard" id="findWorkersPage">
-
-        <!-- Available workers -->
-        <section class="dashboard-section" aria-label="Available workers">
 
             <div id="workersLoading" class="workers-loading" role="status" aria-live="polite" hidden>
                 <div class="loading-spinner" aria-hidden="true"></div>
-                <p>Loading demo workers…</p>
+                <p>Connecting…</p>
             </div>
 
             <div id="workersContainer" class="workers-container"></div>
@@ -61,30 +99,24 @@
             <div id="workersEmpty" class="workers-empty" hidden>
                 <div class="empty-icon" aria-hidden="true">🔎</div>
                 <h3>No Workers Found</h3>
-                <p>No demo workers match the selected skill.</p>
+                <p>No workers matching your search are currently available.</p>
             </div>
-
         </section>
     </main>
 
-    <!-- Notification modal -->
-    <div id="notificationOverlay" class="notification-modal"
-         role="dialog" aria-modal="true"
-         aria-labelledby="notificationTitle"
-         aria-describedby="notificationText" hidden>
-
+    <div id="notificationOverlay" class="notification-modal" role="dialog" aria-modal="true" aria-labelledby="notificationTitle" aria-describedby="notificationText" hidden>
         <div id="notificationCard" class="notification-card">
-            <div id="notificationIcon" class="notification-icon" aria-hidden="true">i</div>
+            <div id="notificationIcon" class="notification-icon" aria-hidden="true">✓</div>
             <h2 id="notificationTitle">Notification</h2>
             <p id="notificationText"></p>
-
             <div class="notification-actions">
-                <button type="button" id="notificationCancelButtonMobile" aria-label="Close notification">Close</button>
+                <button type="button" id="notificationCancelButtonMobile" aria-label="Cancel or close notification">No</button>
                 <button type="button" id="notificationButton">Continue</button>
             </div>
         </div>
     </div>
 
+    <script src="../config.js"></script>
     <script src="script.js" defer></script>
 </body>
 </html>
