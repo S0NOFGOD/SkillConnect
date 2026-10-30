@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Find skilled workers near you with SkillConnect">
+    <title>Find Workers | SkillConnect</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="green-glow" aria-hidden="true"></div>
+    <div class="blue-glow" aria-hidden="true"></div>
+
+    <!-- Fixed Navbar and Page Description -->
+    <div class="fixed-header">
+
+        <nav class="services-navbar">
+            <a href="../index.html" class="back-navigation" aria-label="Go back to homepage">
+                <span aria-hidden="true">←</span>
+                <span>Back</span>
+            </a>
+        </nav>
+
+        <!-- Page description and filters -->
+        <section class="dashboard-header" aria-label="Worker search">
+            <div class="header-content">
+
+                <div class="filter-group">
+                    <button type="button" class="get-location-button" id="getLocationButton">
+                        <span aria-hidden="true">⌖</span>
+                        <span id="locationButtonText">Get My Location</span>
+                    </button>
+
+                    <select id="skillFilter" aria-label="Filter workers by skill">
+                        <option value="">All Skills</option>
+                    </select>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+    <main class="dashboard" id="findWorkersPage">
+
+        <!-- Available workers -->
+        <section class="dashboard-section" aria-label="Available workers">
+
+            <div id="workersLoading" class="workers-loading" role="status" aria-live="polite" hidden>
+                <div class="loading-spinner" aria-hidden="true"></div>
+                <p>Loading demo workers…</p>
+            </div>
+
+            <div id="workersContainer" class="workers-container"></div>
+
+            <div id="workersEmpty" class="workers-empty" hidden>
+                <div class="empty-icon" aria-hidden="true">🔎</div>
+                <h3>No Workers Found</h3>
+                <p>No demo workers match the selected skill.</p>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Notification modal -->
+    <div id="notificationOverlay" class="notification-modal"
+         role="dialog" aria-modal="true"
+         aria-labelledby="notificationTitle"
+         aria-describedby="notificationText" hidden>
+
+        <div id="notificationCard" class="notification-card">
+            <div id="notificationIcon" class="notification-icon" aria-hidden="true">i</div>
+            <h2 id="notificationTitle">Notification</h2>
+            <p id="notificationText"></p>
+
+            <div class="notification-actions">
+                <button type="button" id="notificationCancelButtonMobile" aria-label="Close notification">Close</button>
+                <button type="button" id="notificationButton">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
