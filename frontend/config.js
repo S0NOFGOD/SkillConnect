@@ -1,36 +1,65 @@
-const DEVELOPMENT_API_URL="http://localhost:5000";
-const PRODUCTION_API_URL="https://skillconnect-qjhr.onrender.com";
+"use strict";
 
-const REFRESH_TOKEN_ENDPOINT="/api/auth/refresh";
 
-const isDevelopment=window.location.hostname==="localhost"||window.location.hostname==="127.0.0.1";
+// ==========================
+// API CONFIGURATION
+// ==========================
 
-const API_URL=isDevelopment?DEVELOPMENT_API_URL:PRODUCTION_API_URL;
+const DEVELOPMENT_API_URL = "http://localhost:5000";
+const PRODUCTION_API_URL = "https://skillconnect-qjhr.onrender.com";
 
-function API_ENDPOINT(path){
-    const cleanPath=path.startsWith("/")?path:`/${path}`;
+const REFRESH_TOKEN_ENDPOINT = "/api/auth/refresh";
+
+const isDevelopment =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1";
+
+const API_URL = isDevelopment
+    ? DEVELOPMENT_API_URL
+    : PRODUCTION_API_URL;
+
+
+// ==========================
+// API ENDPOINT
+// ==========================
+
+function API_ENDPOINT(path) {
+    const cleanPath = path.startsWith("/")
+        ? path
+        : `/${path}`;
+
     return `${API_URL}${cleanPath}`;
 }
 
-let refreshTokenPromise=null;
 
-async function refreshAccessToken(){
-    if(refreshTokenPromise)return refreshTokenPromise;
+// ==========================
+// REFRESH TOKEN
+// ==========================
 
-    refreshTokenPromise=(async()=>{
-        try{
-            const response=await fetch(
+let refreshTokenPromise = null;
+
+async function refreshAccessToken() {
+
+    if (refreshTokenPromise) return refreshTokenPromise;
+
+    refreshTokenPromise = (async () => {
+
+        try {
+
+            const response = await fetch(
                 API_ENDPOINT(REFRESH_TOKEN_ENDPOINT),
                 {
-                    method:"POST",
-                    credentials:"include"
+                    method: "POST",
+                    credentials: "include"
                 }
             );
 
-            if(!response.ok){
+            if (!response.ok) {
+
                 window.dispatchEvent(
                     new CustomEvent("authSessionExpired")
                 );
+
                 return false;
             }
 
@@ -40,11 +69,9 @@ async function refreshAccessToken(){
 
             return true;
 
-        }catch(error){
-            console.error(
-                "Refresh token request failed:",
-                error
-            );
+        } catch (error) {
+
+            console.error("Refresh token request failed:", error);
 
             window.dispatchEvent(
                 new CustomEvent("authSessionExpired")
@@ -52,35 +79,43 @@ async function refreshAccessToken(){
 
             return false;
 
-        }finally{
-            refreshTokenPromise=null;
+        } finally {
+
+            refreshTokenPromise = null;
         }
+
     })();
 
     return refreshTokenPromise;
 }
 
-async function API_REQUEST(path,options={}){
-    const requestOptions={
+
+// ==========================
+// API REQUEST
+// ==========================
+
+async function API_REQUEST(path, options = {}) {
+
+    const requestOptions = {
         ...options,
-        credentials:"include",
-        headers:{
-            ...(options.headers||{})
+        credentials: "include",
+        headers: {
+            ...(options.headers || {})
         }
     };
 
-    let response=await fetch(
+    let response = await fetch(
         API_ENDPOINT(path),
         requestOptions
     );
 
-    if(response.status!==401)return response;
+    if (response.status !== 401) return response;
 
-    const refreshed=await refreshAccessToken();
+    const refreshed = await refreshAccessToken();
 
-    if(!refreshed)return response;
+    if (!refreshed) return response;
 
-    response=await fetch(
+    response = await fetch(
         API_ENDPOINT(path),
         requestOptions
     );
@@ -88,37 +123,34 @@ async function API_REQUEST(path,options={}){
     return response;
 }
 
+
+// ==========================
+// AUTH EVENTS
+// ==========================
+
 window.addEventListener(
     "accessTokenRefreshed",
-    ()=>{
-        console.log(
-            "SkillConnect access token refreshed."
-        );
+    () => {
+        console.log("SkillConnect access token refreshed.");
     }
 );
 
 window.addEventListener(
     "authSessionExpired",
-    ()=>{
-        console.warn(
-            "SkillConnect authentication session expired."
-        );
+    () => {
+        console.warn("SkillConnect authentication session expired.");
     }
 );
 
+
+// ==========================
+// ENVIRONMENT
+// ==========================
+
 console.log(
     `SkillConnect API environment: ${
-        isDevelopment?"DEVELOPMENT":"PRODUCTION"
+        isDevelopment ? "DEVELOPMENT" : "PRODUCTION"
     }`
 );
 
-console.log(
-    `SkillConnect API URL: ${API_URL}`
-);
-
-export {
-    API_URL,
-    API_ENDPOINT,
-    API_REQUEST,
-    refreshAccessToken
-};
+console.log(`SkillConnect API URL: ${API_URL}`);
