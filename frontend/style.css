@@ -94,7 +94,7 @@ justify-content:space-between;
 }
 
 .logo{
-font-size:22px;
+font-size:1.35rem;
 font-weight:800;
 letter-spacing:-.7px;
 color:var(--worker-green);
