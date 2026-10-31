@@ -3,437 +3,222 @@
 
 <head>
 
-    <!-- =====================================================
-         META INFORMATION
-    ====================================================== -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Character encoding -->
-    <meta charset="UTF-8">
+<title>Worker Email Verification | SkillConnect</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <!-- Responsive layout for mobile devices -->
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-
-    <!-- Browser page title -->
-    <title>
-        Worker Email Verification | SkillConnect
-    </title>
-
-
-    <!-- =====================================================
-         GOOGLE FONTS
-    ====================================================== -->
-
-    <!-- Improve font loading performance -->
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com">
-
-
-    <!-- Allow cross-origin font loading -->
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin>
-
-
-    <!-- Inter font used throughout SkillConnect -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-
-
-    <!-- =====================================================
-         PAGE STYLESHEET
-    ====================================================== -->
-
-    <link
-        rel="stylesheet"
-        href="style.css">
+<link rel="stylesheet" href="style.css">
 
 </head>
 
-
 <body>
 
+<!-- HEADER / NAVIGATION -->
 
-    <!-- =====================================================
-         HEADER / NAVIGATION
-    ====================================================== -->
+<header class="header">
 
-    <header>
+<nav class="navbar" aria-label="Main navigation">
 
-        <nav class="navbar">
+<a href="../index.html" class="logo">
+SKILLCONNECT
+</a>
 
+<div class="nav-links">
+<a href="../index.html">Home</a>
+</div>
 
-            <!-- =================================================
-                 SKILLCONNECT LOGO
-            ================================================== -->
+</nav>
 
-            <a
-                href="../index.html"
-                class="logo">
+</header>
 
-                SkillConnect
+<!-- MAIN OTP PAGE -->
 
-            </a>
+<main class="otp-page">
 
+<section class="otp-section">
 
-            <!-- =================================================
-                 NAVIGATION LINKS
-            ================================================== -->
+<div class="otp-card">
 
-            <div class="nav-links">
+<!-- OTP HEADER -->
 
-                <a href="../index.html">
+<div class="otp-header">
 
-                    Home
+<span class="otp-badge">
+Email Verification
+</span>
 
-                </a>
+<h1>
+Verify Your Email
+</h1>
 
-            </div>
+<p>
+Enter the 6-digit verification code sent to:
+</p>
 
+<p id="workerEmail" class="worker-email">
+Loading email...
+</p>
 
-        </nav>
+<p class="spam-notice">
+Didn't receive the email? Check your
+<strong>Spam or Junk folder</strong>.
+</p>
 
-    </header>
+</div>
 
+<!-- OTP FORM -->
 
+<form id="otpForm" novalidate>
 
-    <!-- =====================================================
-         MAIN OTP PAGE
-    ====================================================== -->
+<div class="otp-box">
 
-    <main class="otp-page">
+<input
+type="text"
+maxlength="1"
+class="otp-input"
+inputmode="numeric"
+autocomplete="one-time-code"
+aria-label="OTP digit 1"
+required>
 
+<input
+type="text"
+maxlength="1"
+class="otp-input"
+inputmode="numeric"
+aria-label="OTP digit 2"
+required>
 
-        <!-- =================================================
-             EMAIL OTP SECTION
-        ================================================== -->
+<input
+type="text"
+maxlength="1"
+class="otp-input"
+inputmode="numeric"
+aria-label="OTP digit 3"
+required>
 
-        <section class="otp-section">
+<input
+type="text"
+maxlength="1"
+class="otp-input"
+inputmode="numeric"
+aria-label="OTP digit 4"
+required>
 
+<input
+type="text"
+maxlength="1"
+class="otp-input"
+inputmode="numeric"
+aria-label="OTP digit 5"
+required>
 
-            <!-- =================================================
-                 OTP CARD
-            ================================================== -->
+<input
+type="text"
+maxlength="1"
+class="otp-input"
+inputmode="numeric"
+aria-label="OTP digit 6"
+required>
 
-            <div class="otp-card">
+</div>
 
+<button
+id="verifyButton"
+type="submit"
+class="submit-btn">
 
-                <!-- =================================================
-                     OTP HEADER
-                ================================================== -->
+<span class="btn-text">
+Verify Email
+</span>
 
-                <div class="otp-header">
+</button>
 
+</form>
 
-                    <!-- Verification badge -->
-                    <span class="otp-badge">
+<!-- RESEND OTP -->
 
-                        Email Verification
+<p class="resend">
 
-                    </span>
+Didn't receive the code?
 
+<a href="#" id="resendOTP">
+Resend OTP
+</a>
 
-                    <!-- Main heading -->
-                    <h1>
+</p>
 
-                        Verify Your Email
+<!-- RESEND COUNTDOWN -->
 
-                    </h1>
+<p id="countdown" class="countdown">
+Resend available in 60s
+</p>
 
+</div>
 
-                    <!-- Verification explanation -->
-                    <p>
+</section>
 
-                        Enter the 6-digit verification
-                        code sent to:
+</main>
 
-                    </p>
+<!-- SUCCESS / ERROR NOTIFICATION MODAL -->
 
-                    <p
-                        id="workerEmail"
-                        class="worker-email">
+<div
+id="notificationModal"
+class="notification-modal"
+role="dialog"
+aria-modal="true"
+aria-labelledby="notificationTitle"
+hidden>
 
-                        Loading email...
+<div class="notification-card">
 
-                    </p>
+<div
+id="notificationIcon"
+class="notification-icon">
 
+✓
 
-                    <!-- SPAM / JUNK FOLDER MESSAGE -->
+</div>
 
-                    <p class="spam-notice">
+<h2 id="notificationTitle">
+Email Verified
+</h2>
 
-                        Didn't receive the email? Check your
-                        <strong>Spam or Junk folder</strong>.
+<p id="notificationMessage">
+Your email has been successfully verified.
+</p>
 
-                    </p>
+<button
+id="notificationCloseButton"
+type="button"
+class="notification-close-button">
 
+Close
 
-                </div>
+</button>
 
+</div>
 
+</div>
 
-                <!-- =================================================
-                     OTP FORM
-                ================================================== -->
+<!-- FOOTER -->
 
-                <form
-                    id="otpForm"
-                    novalidate>
+<footer>
+<p>
+© 2026 SkillConnect. All rights reserved.
+</p>
+</footer>
 
+<!-- JAVASCRIPT -->
 
-                    <!-- =================================================
-                         SIX-DIGIT OTP INPUT AREA
-                    ================================================== -->
-
-                    <div class="otp-box">
-
-
-                        <!-- OTP DIGIT 1 -->
-
-                        <input
-                            type="text"
-                            maxlength="1"
-                            class="otp-input"
-                            inputmode="numeric"
-                            autocomplete="one-time-code"
-                            aria-label="OTP digit 1"
-                            required>
-
-
-                        <!-- OTP DIGIT 2 -->
-
-                        <input
-                            type="text"
-                            maxlength="1"
-                            class="otp-input"
-                            inputmode="numeric"
-                            aria-label="OTP digit 2"
-                            required>
-
-
-                        <!-- OTP DIGIT 3 -->
-
-                        <input
-                            type="text"
-                            maxlength="1"
-                            class="otp-input"
-                            inputmode="numeric"
-                            aria-label="OTP digit 3"
-                            required>
-
-
-                        <!-- OTP DIGIT 4 -->
-
-                        <input
-                            type="text"
-                            maxlength="1"
-                            class="otp-input"
-                            inputmode="numeric"
-                            aria-label="OTP digit 4"
-                            required>
-
-
-                        <!-- OTP DIGIT 5 -->
-
-                        <input
-                            type="text"
-                            maxlength="1"
-                            class="otp-input"
-                            inputmode="numeric"
-                            aria-label="OTP digit 5"
-                            required>
-
-
-                        <!-- OTP DIGIT 6 -->
-
-                        <input
-                            type="text"
-                            maxlength="1"
-                            class="otp-input"
-                            inputmode="numeric"
-                            aria-label="OTP digit 6"
-                            required>
-
-
-                    </div>
-
-                    <button
-                        id="verifyButton"
-                        type="submit"
-                        class="submit-btn">
-
-                        <span class="btn-text">
-
-                            Verify Email
-
-                        </span>
-
-
-                    </button>
-
-
-                </form>
-
-
-
-                <!-- =================================================
-                     RESEND OTP
-                ================================================== -->
-
-                <p class="resend">
-
-                    Didn't receive the code?
-
-                    <a
-                        href="#"
-                        id="resendOTP">
-
-                        Resend OTP
-
-                    </a>
-
-                </p>
-
-
-
-                <!-- =================================================
-                     RESEND COUNTDOWN
-                ================================================== -->
-
-                <p
-                    id="countdown"
-                    class="countdown">
-
-                    Resend available in 60s
-
-                </p>
-
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-
-    <!-- =====================================================
-         SUCCESS / ERROR NOTIFICATION MODAL
-         
-         IMPORTANT:
-
-         Authentication responses MUST use this modal.
-
-         JavaScript will dynamically change:
-
-         - icon
-         - title
-         - message
-         - success/error state
-    ====================================================== -->
-
-    <div
-        id="notificationModal"
-        class="notification-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="notificationTitle"
-        hidden>
-
-
-        <!-- =================================================
-             NOTIFICATION CARD
-        ================================================== -->
-
-        <div class="notification-card">
-
-
-            <!-- =================================================
-                 NOTIFICATION ICON
-
-                 JavaScript will display:
-
-                 ✓ = success
-
-                 ! = error
-            ================================================== -->
-
-            <div
-                id="notificationIcon"
-                class="notification-icon">
-
-                ✓
-
-            </div>
-
-
-            <!-- Notification title -->
-
-            <h2 id="notificationTitle">
-
-                Email Verified
-
-            </h2>
-
-
-            <!-- Notification message -->
-
-            <p id="notificationMessage">
-
-                Your email has been successfully verified.
-
-            </p>
-
-
-            <!-- =================================================
-                 NOTIFICATION CLOSE / CONTINUE BUTTON
-            ================================================== -->
-
-            <button
-                id="notificationCloseButton"
-                type="button"
-                class="notification-close-button">
-
-                Close
-
-            </button>
-
-        </div>
-
-    </div>
-
-
-
-    <!-- =====================================================
-         FOOTER
-    ====================================================== -->
-
-    <footer>
-
-        <p>
-
-            © 2026 SkillConnect. All rights reserved.
-
-        </p>
-
-    </footer>
-
-
-
-    <!-- =====================================================
-         PAGE JAVASCRIPT
-    ====================================================== -->
-
-    <script src="../config.js"></script>
-    <script src="script.js"></script>
-
+<script src="../config.js"></script>
+<script src="script.js"></script>
 
 </body>
-
 </html>

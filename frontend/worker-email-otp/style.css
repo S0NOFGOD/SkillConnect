@@ -1,15 +1,28 @@
 /* =========================================================
-   1. GLOBAL RESET
+   1. ROOT VARIABLES - HOMEPAGE STYLE
+========================================================= */
+
+:root {
+--background:#08111f;
+--card-background:#111c2d;
+--worker-green:#22c55e;
+--worker-green-dark:#16a34a;
+--text-white:#fff;
+--text-light:#cbd5e1;
+--text-muted:#94a3b8;
+--border:rgba(255,255,255,.08);
+}
+
+
+/* =========================================================
+   2. GLOBAL RESET
 ========================================================= */
 
 * {
-
-    margin: 0;
-
-    padding: 0;
-
-    box-sizing: border-box;
-
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:"Inter",sans-serif;
 }
 
 
@@ -18,72 +31,97 @@
 ========================================================= */
 
 html {
-
-    scroll-behavior: smooth;
-
+scroll-behavior:smooth;
 }
 
 
 /* =========================================================
-   BODY
+   BODY - HOMEPAGE BACKGROUND
 ========================================================= */
 
 body {
-
-    font-family: "Inter", sans-serif;
-
-    background: #020617;
-
-    color: #ffffff;
-
-    line-height: 1.6;
-
-    overflow-x: hidden;
-
-    min-height: 100vh;
-
+min-height:100vh;
+position:relative;
+font-family:"Inter",sans-serif;
+background:var(--background);
+color:var(--text-white);
+line-height:1.6;
+overflow-x:hidden;
+display:flex;
+flex-direction:column;
 }
 
 
 /* =========================================================
-   LINKS
+   BACKGROUND GLOW - SAME AS HOMEPAGE
+========================================================= */
+
+body::before,
+body::after {
+content:"";
+position:fixed;
+width:320px;
+height:320px;
+border-radius:50%;
+filter:blur(120px);
+opacity:.22;
+z-index:-1;
+pointer-events:none;
+}
+
+body::before {
+background:#22c55e;
+top:-100px;
+left:-100px;
+}
+
+body::after {
+background:#3b82f6;
+bottom:-100px;
+right:-100px;
+}
+
+
+/* =========================================================
+   LINKS AND BUTTONS
 ========================================================= */
 
 a {
+text-decoration:none;
+color:inherit;
+}
 
-    text-decoration: none;
+button,
+input {
+font:inherit;
+}
 
-    color: inherit;
+button,
+a {
+-webkit-tap-highlight-color:transparent;
+}
 
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+outline:2px solid var(--worker-green);
+outline-offset:3px;
 }
 
 
 /* =========================================================
-   2. FIXED NAVBAR
+   3. HEADER - HOMEPAGE NAVBAR
 ========================================================= */
 
-header {
-
-    position: fixed;
-
-    top: 0;
-
-    left: 0;
-
-    width: 100%;
-
-    z-index: 1000;
-
-    background:
-        rgba(2, 6, 23, .85);
-
-    backdrop-filter:
-        blur(15px);
-
-    border-bottom:
-        1px solid
-        rgba(255, 255, 255, .08);
-
+.header {
+position:fixed;
+top:0;
+left:0;
+width:100%;
+z-index:1000;
+background:rgba(8,17,31,.90);
+backdrop-filter:blur(15px);
+border-bottom:1px solid var(--border);
 }
 
 
@@ -92,38 +130,26 @@ header {
 ========================================================= */
 
 .navbar {
-
-    width: 90%;
-
-    max-width: 1200px;
-
-    height: 70px;
-
-    margin: auto;
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
+width:90%;
+max-width:1200px;
+height:70px;
+margin:auto;
+display:flex;
+align-items:center;
+justify-content:space-between;
 }
 
 
 /* =========================================================
-   LOGO
+   LOGO - SAME AS HOMEPAGE
 ========================================================= */
 
 .logo {
-
-    font-size: 24px;
-
-    font-weight: 800;
-
-    letter-spacing: -1px;
-
-    color: #16a34a;
-
+font-size:1.35rem;
+font-weight:800;
+letter-spacing:-.7px;
+color:var(--worker-green);
+white-space:nowrap;
 }
 
 
@@ -132,156 +158,78 @@ header {
 ========================================================= */
 
 .nav-links {
-
-    display: flex;
-
-    gap: 30px;
-
+display:flex;
+align-items:center;
+gap:25px;
 }
-
 
 .nav-links a {
-
-    color: #cbd5e1;
-
-    font-size: 15px;
-
-    font-weight: 600;
-
-    transition: .3s;
-
+color:var(--text-light);
+font-size:14px;
+font-weight:600;
+transition:color .3s;
 }
 
-
 .nav-links a:hover {
-
-    color: #22c55e;
-
+color:var(--worker-green);
 }
 
 
 /* =========================================================
-   3. MAIN OTP PAGE
+   4. MAIN OTP PAGE
 ========================================================= */
 
 .otp-page {
-
-    width: 90%;
-
-    max-width: 1200px;
-
-    min-height:
-        calc(100vh - 70px);
-
-    margin: auto;
-
-    padding-top: 110px;
-
-    padding-bottom: 70px;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    position: relative;
-
+width:90%;
+max-width:1200px;
+flex:1;
+min-height:calc(100vh - 70px);
+margin:auto;
+padding-top:110px;
+padding-bottom:50px;
+display:flex;
+justify-content:center;
+align-items:center;
+position:relative;
 }
 
 
 /* =========================================================
-   BACKGROUND GREEN GLOW
-========================================================= */
-
-.otp-page::before {
-
-    content: "";
-
-    position: absolute;
-
-    width: 360px;
-
-    height: 360px;
-
-    background: #22c55e;
-
-    filter: blur(170px);
-
-    opacity: .18;
-
-    top: 100px;
-
-    left: 50%;
-
-    transform:
-        translateX(-50%);
-
-    pointer-events: none;
-
-}
-
-
-/* =========================================================
-   4. OTP SECTION
+   5. OTP SECTION
 ========================================================= */
 
 .otp-section {
-
-    width: 100%;
-
-    display: flex;
-
-    justify-content: center;
-
-    position: relative;
-
-    z-index: 2;
-
+width:100%;
+display:flex;
+justify-content:center;
+position:relative;
+z-index:2;
 }
 
 
 /* =========================================================
-   5. OTP CARD
+   6. OTP CARD
 ========================================================= */
 
 .otp-card {
-
-    width: 100%;
-
-    max-width: 460px;
-
-    padding: 35px;
-
-    border-radius: 24px;
-
-    background:
-        rgba(255, 255, 255, .05);
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .08);
-
-    backdrop-filter:
-        blur(15px);
-
-    box-shadow:
-        0 25px 70px
-        rgba(0, 0, 0, .45);
-
+width:100%;
+max-width:460px;
+padding:35px;
+border-radius:24px;
+background:rgba(17,28,45,.90);
+border:1px solid var(--border);
+backdrop-filter:blur(15px);
+box-shadow:0 25px 70px rgba(0,0,0,.35);
 }
 
 
 /* =========================================================
-   6. OTP HEADER
+   7. OTP HEADER
 ========================================================= */
 
 .otp-header {
-
-    text-align: center;
-
-    margin-bottom: 30px;
-
+text-align:center;
+margin-bottom:30px;
 }
 
 
@@ -290,28 +238,15 @@ header {
 ========================================================= */
 
 .otp-badge {
-
-    display: inline-block;
-
-    padding: 8px 18px;
-
-    margin-bottom: 18px;
-
-    border-radius: 30px;
-
-    color: #22c55e;
-
-    background:
-        rgba(34, 197, 94, .15);
-
-    border:
-        1px solid
-        rgba(34, 197, 94, .3);
-
-    font-size: 14px;
-
-    font-weight: 600;
-
+display:inline-block;
+padding:8px 18px;
+margin-bottom:18px;
+border-radius:30px;
+color:var(--worker-green);
+background:rgba(34,197,94,.15);
+border:1px solid rgba(34,197,94,.3);
+font-size:14px;
+font-weight:500;
 }
 
 
@@ -320,22 +255,15 @@ header {
 ========================================================= */
 
 .otp-header h1 {
-
-    font-size: 32px;
-
-    font-weight: 800;
-
-    margin-bottom: 10px;
-
+font-size:32px;
+font-weight:800;
+line-height:1.2;
+margin-bottom:10px;
 }
 
-
 .otp-header p {
-
-    color: #cbd5e1;
-
-    font-size: 15px;
-
+color:var(--text-light);
+font-size:15px;
 }
 
 
@@ -344,17 +272,11 @@ header {
 ========================================================= */
 
 .worker-email {
-
-    margin-top: 8px;
-
-    color: #ffffff !important;
-
-    font-size: 15px !important;
-
-    font-weight: 700;
-
-    word-break: break-word;
-
+margin-top:8px;
+color:var(--text-white)!important;
+font-size:15px!important;
+font-weight:700;
+word-break:break-word;
 }
 
 
@@ -363,57 +285,38 @@ header {
 ========================================================= */
 
 .spam-notice {
-
-    margin-top: 12px;
-
-    color: #94a3b8 !important;
-
-    font-size: 13px !important;
-
-    line-height: 1.6;
-
+margin-top:12px;
+color:var(--text-muted)!important;
+font-size:13px!important;
+line-height:1.6;
 }
 
-
 .spam-notice strong {
-
-    color: #22c55e;
-
-    font-weight: 700;
-
+color:var(--worker-green);
+font-weight:700;
 }
 
 
 /* =========================================================
-   7. OTP FORM
+   8. OTP FORM
 ========================================================= */
 
 #otpForm {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 14px;
-
+display:flex;
+flex-direction:column;
+gap:14px;
 }
 
 
 /* =========================================================
-   8. OTP INPUT CONTAINER
+   OTP INPUT CONTAINER
 ========================================================= */
 
 .otp-box {
-
-    display: flex;
-
-    justify-content: center;
-
-    gap: 10px;
-
-    margin:
-        15px 0 25px;
-
+display:flex;
+justify-content:center;
+gap:10px;
+margin:15px 0 25px;
 }
 
 
@@ -422,33 +325,18 @@ header {
 ========================================================= */
 
 .otp-input {
-
-    width: 55px;
-
-    height: 60px;
-
-    padding: 0;
-
-    border:
-        1px solid
-        transparent;
-
-    border-radius: 14px;
-
-    background: #111827;
-
-    color: #ffffff;
-
-    font-size: 24px;
-
-    font-weight: 700;
-
-    text-align: center;
-
-    outline: none;
-
-    transition: .3s;
-
+width:55px;
+height:60px;
+padding:0;
+border:1px solid var(--border);
+border-radius:14px;
+background:#111c2d;
+color:var(--text-white);
+font-size:24px;
+font-weight:700;
+text-align:center;
+outline:none;
+transition:.3s;
 }
 
 
@@ -457,15 +345,8 @@ header {
 ========================================================= */
 
 .otp-input:focus {
-
-    border:
-        1px solid
-        #22c55e;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(34, 197, 94, .15);
-
+border:1px solid var(--worker-green);
+box-shadow:0 0 0 3px rgba(34,197,94,.15);
 }
 
 
@@ -474,10 +355,7 @@ header {
 ========================================================= */
 
 .otp-input:not(:placeholder-shown) {
-
-    border-color:
-        rgba(34, 197, 94, .35);
-
+border-color:rgba(34,197,94,.35);
 }
 
 
@@ -486,14 +364,8 @@ header {
 ========================================================= */
 
 .otp-input.invalid {
-
-    border-color:
-        #ef4444;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(239, 68, 68, .12);
-
+border-color:#ef4444;
+box-shadow:0 0 0 3px rgba(239,68,68,.12);
 }
 
 
@@ -502,40 +374,20 @@ header {
 ========================================================= */
 
 .submit-btn {
-
-    width: 100%;
-
-    border: none;
-
-    border-radius: 14px;
-
-    padding: 15px;
-
-    font-size: 16px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    color: #ffffff;
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
-    transition: .3s;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    gap: 10px;
-
+width:100%;
+border:none;
+border-radius:14px;
+padding:15px;
+font-size:16px;
+font-weight:700;
+cursor:pointer;
+color:var(--text-white);
+background:var(--worker-green-dark);
+transition:.3s;
+display:flex;
+justify-content:center;
+align-items:center;
+gap:10px;
 }
 
 
@@ -544,14 +396,8 @@ header {
 ========================================================= */
 
 .submit-btn:hover {
-
-    transform:
-        translateY(-3px);
-
-    box-shadow:
-        0 10px 30px
-        rgba(34, 197, 94, .20);
-
+transform:translateY(-3px);
+box-shadow:0 10px 30px rgba(34,197,94,.20);
 }
 
 
@@ -560,13 +406,9 @@ header {
 ========================================================= */
 
 .submit-btn:disabled {
-
-    opacity: .7;
-
-    cursor: not-allowed;
-
-    transform: none;
-
+opacity:.7;
+cursor:not-allowed;
+transform:none;
 }
 
 
@@ -575,42 +417,22 @@ header {
 ========================================================= */
 
 .loading-spinner {
-
-    width: 18px;
-
-    height: 18px;
-
-    border-radius: 50%;
-
-    border:
-        3px solid
-        rgba(255, 255, 255, .35);
-
-    border-top-color:
-        #ffffff;
-
-    animation:
-        spin .8s linear infinite;
-
+width:18px;
+height:18px;
+border-radius:50%;
+border:3px solid rgba(255,255,255,.35);
+border-top-color:#ffffff;
+animation:spin .8s linear infinite;
 }
 
 
 /* =========================================================
    BUTTON LOADING STATE
-
-   JavaScript can add the class:
-
-   .loading
-
-   while verifying or resending OTP.
 ========================================================= */
 
 .submit-btn.loading {
-
-    pointer-events: none;
-
-    opacity: .75;
-
+pointer-events:none;
+opacity:.75;
 }
 
 
@@ -619,51 +441,31 @@ header {
 ========================================================= */
 
 .resend {
-
-    text-align: center;
-
-    margin-top: 25px;
-
-    color: #cbd5e1;
-
-    font-size: 14px;
-
+text-align:center;
+margin-top:25px;
+color:var(--text-light);
+font-size:14px;
 }
-
 
 .resend a {
-
-    color: #3b82f6;
-
-    font-weight: 600;
-
-    transition: .3s;
-
+color:var(--worker-green);
+font-weight:600;
+transition:.3s;
 }
 
-
 .resend a:hover {
-
-    color: #22c55e;
-
+color:var(--worker-green-dark);
 }
 
 
 /* =========================================================
    DISABLED RESEND LINK
-
-   JavaScript uses this while the 60-second
-   resend countdown is running.
 ========================================================= */
 
 .resend a.disabled {
-
-    pointer-events: none;
-
-    opacity: .5;
-
-    cursor: not-allowed;
-
+pointer-events:none;
+opacity:.5;
+cursor:not-allowed;
 }
 
 
@@ -672,15 +474,10 @@ header {
 ========================================================= */
 
 .countdown {
-
-    margin-top: 10px;
-
-    text-align: center;
-
-    color: #94a3b8;
-
-    font-size: 13px;
-
+margin-top:10px;
+text-align:center;
+color:var(--text-muted);
+font-size:13px;
 }
 
 
@@ -689,30 +486,16 @@ header {
 ========================================================= */
 
 .notification-modal {
-
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 2000;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    padding: 20px;
-
-    background:
-        rgba(2, 6, 23, .78);
-
-    backdrop-filter:
-        blur(10px);
-
-    animation:
-        fadeIn .25s ease;
-
+position:fixed;
+inset:0;
+z-index:2000;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
+background:rgba(8,17,31,.85);
+backdrop-filter:blur(10px);
+animation:fadeIn .25s ease;
 }
 
 
@@ -721,9 +504,7 @@ header {
 ========================================================= */
 
 .notification-modal[hidden] {
-
-    display: none;
-
+display:none;
 }
 
 
@@ -732,31 +513,15 @@ header {
 ========================================================= */
 
 .notification-card {
-
-    width: 100%;
-
-    max-width: 390px;
-
-    padding: 35px 30px;
-
-    text-align: center;
-
-    border-radius: 22px;
-
-    background:
-        rgba(15, 23, 42, .96);
-
-    border:
-        1px solid
-        rgba(255, 255, 255, .10);
-
-    box-shadow:
-        0 25px 80px
-        rgba(0, 0, 0, .55);
-
-    animation:
-        scaleIn .25s ease;
-
+width:100%;
+max-width:390px;
+padding:35px 30px;
+text-align:center;
+border-radius:22px;
+background:rgba(17,28,45,.96);
+border:1px solid var(--border);
+box-shadow:0 25px 80px rgba(0,0,0,.55);
+animation:scaleIn .25s ease;
 }
 
 
@@ -765,35 +530,17 @@ header {
 ========================================================= */
 
 .notification-icon {
-
-    width: 64px;
-
-    height: 64px;
-
-    margin:
-        0 auto 20px;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    border-radius: 50%;
-
-    color: #ffffff;
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
-    font-size: 30px;
-
-    font-weight: 800;
-
+width:64px;
+height:64px;
+margin:0 auto 20px;
+display:flex;
+justify-content:center;
+align-items:center;
+border-radius:50%;
+color:#ffffff;
+background:var(--worker-green-dark);
+font-size:30px;
+font-weight:800;
 }
 
 
@@ -802,14 +549,7 @@ header {
 ========================================================= */
 
 .notification-icon.success {
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
+background:linear-gradient(135deg,#22c55e,#16a34a);
 }
 
 
@@ -818,14 +558,7 @@ header {
 ========================================================= */
 
 .notification-icon.error {
-
-    background:
-        linear-gradient(
-            135deg,
-            #ef4444,
-            #dc2626
-        );
-
+background:linear-gradient(135deg,#ef4444,#dc2626);
 }
 
 
@@ -834,13 +567,9 @@ header {
 ========================================================= */
 
 .notification-card h2 {
-
-    margin-bottom: 10px;
-
-    font-size: 24px;
-
-    font-weight: 800;
-
+margin-bottom:10px;
+font-size:24px;
+font-weight:800;
 }
 
 
@@ -849,51 +578,29 @@ header {
 ========================================================= */
 
 .notification-card p {
-
-    color: #cbd5e1;
-
-    font-size: 14px;
-
-    line-height: 1.7;
-
+color:var(--text-light);
+font-size:14px;
+line-height:1.7;
 }
 
 
 /* =========================================================
-   NOTIFICATION CLOSE / CONTINUE BUTTON
+   NOTIFICATION CLOSE BUTTON
 ========================================================= */
 
 .notification-close-button {
-
-    width: 100%;
-
-    margin-top: 25px;
-
-    padding: 14px 20px;
-
-    border: none;
-
-    border-radius: 12px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
-    color: #ffffff;
-
-    font-family: "Inter", sans-serif;
-
-    font-size: 15px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition: .3s;
-
+width:100%;
+margin-top:25px;
+padding:14px 20px;
+border:none;
+border-radius:12px;
+background:var(--worker-green-dark);
+color:#ffffff;
+font-family:"Inter",sans-serif;
+font-size:15px;
+font-weight:700;
+cursor:pointer;
+transition:.3s;
 }
 
 
@@ -902,14 +609,8 @@ header {
 ========================================================= */
 
 .notification-close-button:hover {
-
-    transform:
-        translateY(-2px);
-
-    box-shadow:
-        0 10px 25px
-        rgba(34, 197, 94, .20);
-
+transform:translateY(-2px);
+box-shadow:0 10px 25px rgba(34,197,94,.20);
 }
 
 
@@ -918,10 +619,7 @@ header {
 ========================================================= */
 
 .notification-close-button:active {
-
-    transform:
-        translateY(0);
-
+transform:translateY(0);
 }
 
 
@@ -930,88 +628,57 @@ header {
 ========================================================= */
 
 footer {
-
-    padding: 30px;
-
-    text-align: center;
-
-    color: #94a3b8;
-
-    border-top:
-        1px solid
-        rgba(255, 255, 255, .08);
-
+padding:25px 20px;
+text-align:center;
+color:var(--text-muted);
+border-top:1px solid var(--border);
 }
 
 
 /* =========================================================
-   19. ANIMATION — FADE IN
+   19. ANIMATION - FADE IN
 ========================================================= */
 
 @keyframes fadeIn {
+from {
+opacity:0;
+}
 
-    from {
-
-        opacity: 0;
-
-    }
-
-    to {
-
-        opacity: 1;
-
-    }
-
+to {
+opacity:1;
+}
 }
 
 
 /* =========================================================
-   20. ANIMATION — SCALE IN
+   20. ANIMATION - SCALE IN
 ========================================================= */
 
 @keyframes scaleIn {
+from {
+transform:scale(.85);
+opacity:0;
+}
 
-    from {
-
-        transform:
-            scale(.85);
-
-        opacity: 0;
-
-    }
-
-    to {
-
-        transform:
-            scale(1);
-
-        opacity: 1;
-
-    }
-
+to {
+transform:scale(1);
+opacity:1;
+}
 }
 
 
 /* =========================================================
-   21. ANIMATION — SPINNER
+   21. ANIMATION - SPINNER
 ========================================================= */
 
 @keyframes spin {
+from {
+transform:rotate(0deg);
+}
 
-    from {
-
-        transform:
-            rotate(0deg);
-
-    }
-
-    to {
-
-        transform:
-            rotate(360deg);
-
-    }
-
+to {
+transform:rotate(360deg);
+}
 }
 
 
@@ -1019,27 +686,20 @@ footer {
    22. TABLET
 ========================================================= */
 
-@media (min-width: 768px) {
+@media(min-width:768px) {
 
-    .otp-page {
+.navbar,
+.otp-page {
+width:85%;
+}
 
-        width: 85%;
+.otp-card {
+padding:40px;
+}
 
-    }
-
-
-    .otp-card {
-
-        padding: 40px;
-
-    }
-
-
-    .otp-header h1 {
-
-        font-size: 38px;
-
-    }
+.otp-header h1 {
+font-size:38px;
+}
 
 }
 
@@ -1048,20 +708,15 @@ footer {
    23. DESKTOP
 ========================================================= */
 
-@media (min-width: 1024px) {
+@media(min-width:1024px) {
 
-    .otp-page {
+.otp-page {
+max-width:1200px;
+}
 
-        max-width: 1200px;
-
-    }
-
-
-    .otp-card {
-
-        max-width: 480px;
-
-    }
+.otp-card {
+max-width:480px;
+}
 
 }
 
@@ -1070,104 +725,62 @@ footer {
    24. MOBILE
 ========================================================= */
 
-@media (max-width: 600px) {
+@media(max-width:600px) {
 
-    .navbar {
+.navbar {
+width:90%;
+height:70px;
+}
 
-        width: 90%;
+.logo {
+font-size:19px;
+}
 
-        height: 65px;
+.nav-links {
+gap:15px;
+}
 
-    }
+.nav-links a {
+font-size:14px;
+}
 
+.otp-page {
+width:92%;
+padding-top:95px;
+padding-bottom:50px;
+}
 
-    .logo {
+.otp-card {
+padding:25px 20px;
+border-radius:22px;
+}
 
-        font-size: 22px;
+.otp-header h1 {
+font-size:28px;
+}
 
-    }
+.otp-header p {
+font-size:14px;
+}
 
+.worker-email {
+font-size:14px!important;
+}
 
-    .nav-links {
+.otp-box {
+gap:7px;
+}
 
-        gap: 15px;
+.otp-input {
+width:46px;
+height:54px;
+font-size:21px;
+border-radius:12px;
+}
 
-    }
-
-
-    .nav-links a {
-
-        font-size: 14px;
-
-    }
-
-
-    .otp-page {
-
-        width: 92%;
-
-        padding-top: 95px;
-
-        padding-bottom: 50px;
-
-    }
-
-
-    .otp-card {
-
-        padding: 25px 20px;
-
-        border-radius: 22px;
-
-    }
-
-
-    .otp-header h1 {
-
-        font-size: 28px;
-
-    }
-
-
-    .otp-header p {
-
-        font-size: 14px;
-
-    }
-
-
-    .worker-email {
-
-        font-size: 14px !important;
-
-    }
-
-
-    .otp-box {
-
-        gap: 7px;
-
-    }
-
-
-    .otp-input {
-
-        width: 46px;
-
-        height: 54px;
-
-        font-size: 21px;
-
-        border-radius: 12px;
-
-    }
-
-
-    .notification-card {
-
-        padding: 30px 22px;
-
-    }
+.notification-card {
+padding:30px 22px;
+}
 
 }
 
@@ -1176,51 +789,49 @@ footer {
    25. SMALL MOBILE
 ========================================================= */
 
-@media (max-width: 400px) {
+@media(max-width:400px) {
 
-    .otp-card {
+.otp-card {
+padding:22px 16px;
+}
 
-        padding: 22px 16px;
+.otp-header h1 {
+font-size:25px;
+}
 
-    }
+.otp-box {
+gap:5px;
+}
 
+.otp-input {
+width:42px;
+height:50px;
+font-size:19px;
+}
 
-    .otp-header h1 {
+.nav-links a {
+font-size:13px;
+}
 
-        font-size: 25px;
+.notification-card {
+max-width:340px;
+}
 
-    }
-
-
-    .otp-box {
-
-        gap: 5px;
-
-    }
-
-
-    .otp-input {
-
-        width: 42px;
-
-        height: 50px;
-
-        font-size: 19px;
-
-    }
+}
 
 
-    .nav-links a {
+/* =========================================================
+   26. ACCESSIBILITY
+========================================================= */
 
-        font-size: 13px;
+@media(prefers-reduced-motion:reduce) {
 
-    }
-
-
-    .notification-card {
-
-        max-width: 340px;
-
-    }
+*,
+*::before,
+*::after {
+scroll-behavior:auto!important;
+transition:none!important;
+animation:none!important;
+}
 
 }
