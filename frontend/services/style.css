@@ -20,7 +20,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{ou
 .menu-btn{display:none;width:42px;height:42px;padding:10px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid var(--border)}
 .menu-btn span{display:block;height:2px;margin:4px 0;border-radius:2px;background:#fff}
 
-/* Left sidebar — matches client dashboard */
+/* Left sidebar */
 .sidebar{position:fixed;top:70px;left:0;right:auto;bottom:0;width:270px;display:flex;flex-direction:column;padding:16px;background:rgba(8,15,30,.94);border-right:1px solid var(--border);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:900}
 .sidebar-header{display:flex;justify-content:flex-end;align-items:center;margin-bottom:8px;padding:0 4px}
 .close-menu-btn{display:grid;place-items:center;width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.06);color:#fff;font-size:1.5rem;line-height:1}

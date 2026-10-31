@@ -33,6 +33,9 @@ const clientWorkerSearchRoutes = require("./routes/client-workers-search");
 const clientWorkerDetailsRoutes = require("./routes/client-worker-details");
 const clientViewRatingsRoutes = require("./routes/client-view-ratings");
 
+// SERVICES ROUTE
+const servicesRoutes = require("./routes/services");
+
 const adminAuthenticationRoutes = require("./routes/admin-authentication");
 const adminDashboardRoutes = require("./routes/admin-dashboard");
 const adminWorkerServicesRoutes = require("./routes/admin-worker-services");
@@ -95,9 +98,7 @@ app.use(cors({
     credentials: true
 }));
 
-// PAYSTACK WEBHOOK SUPPORT:
-// Preserve the original JSON body for signature verification.
-// The webhook route must use this exact endpoint path.
+// PAYSTACK WEBHOOK SUPPORT
 app.use(express.json({
     verify(req, res, buffer) {
         const requestPath = req.originalUrl.split("?")[0];
@@ -142,10 +143,12 @@ app.use("/api/auth/", LogoutRoutes);
 app.use("/api/worker", workerPhoneOTPRoutes);
 app.use("/api/worker", workerCreateProfileRoutes);
 app.use("/api/worker", workerEditProfileRoutes);
+
 app.use(
     "/api/worker-password-change",
     workerPasswordChangeRoutes
 );
+
 app.use("/api/worker", workerCreateServiceRoutes);
 app.use("/api/worker", workerViewServiceRoutes);
 
@@ -157,22 +160,30 @@ app.use(
 );
 
 app.use("/api/client-email-otp", clientEmailOTPRoutes);
+
 app.use(
     "/api/client-password-reset-otp",
     clientPasswordResetOTPRoutes
 );
+
 app.use("/api/client-create-profile", clientCreateProfileRoutes);
 app.use("/api/client", clientEditProfileRoutes);
+
 app.use(
     "/api/client-password-change",
     clientPasswordChangeRoutes
 );
+
 app.use("/api/client-dashboard", clientDashboardRoutes);
 app.use("/api/client/worker-search", clientWorkerSearchRoutes);
 app.use("/api/client-worker-details", clientWorkerDetailsRoutes);
 app.use("/api/client-view-ratings", clientViewRatingsRoutes);
 
-/* 7. ADMIN ROUTES */
+/* 7. SERVICES ROUTE */
+
+app.use("/api/services", servicesRoutes);
+
+/* 8. ADMIN ROUTES */
 
 app.use("/api/admin/auth", adminAuthenticationRoutes);
 app.use("/api/admin-dashboard", adminDashboardRoutes);
@@ -180,7 +191,7 @@ app.use("/api/admin-worker-services", adminWorkerServicesRoutes);
 app.use("/api/admin-view-service", adminViewServiceRoutes);
 app.use("/api/admin-management", adminManagementRoutes);
 
-/* 8. OTHER WORKER ROUTES */
+/* 9. OTHER WORKER ROUTES */
 
 app.use("/api/worker", workerDashboardRoutes);
 app.use("/api/worker", workerServicesRoutes);
@@ -191,7 +202,7 @@ app.use(
     workerPaymentPageRoutes
 );
 
-/* 9. 404 ERROR */
+/* 10. 404 ERROR */
 
 app.use((req, res) => {
     res.status(404).json({
@@ -200,7 +211,7 @@ app.use((req, res) => {
     });
 });
 
-/* 10. GLOBAL ERROR HANDLER */
+/* 11. GLOBAL ERROR HANDLER */
 
 app.use((error, req, res, next) => {
     console.error("Server Error:", error);
@@ -222,7 +233,7 @@ app.use((error, req, res, next) => {
     });
 });
 
-/* 11. START SERVER */
+/* 12. START SERVER */
 
 const startServer = async () => {
     try {
