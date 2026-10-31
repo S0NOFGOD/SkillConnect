@@ -27,13 +27,9 @@ document.addEventListener("DOMContentLoaded", () => {
   menuToggle.addEventListener("click", () =>
     sidebar.classList.contains("open") ? closeSidebar() : openSidebar()
   );
-
   closeButton.addEventListener("click", closeSidebar);
   overlay.addEventListener("click", closeSidebar);
-
-  sidebarLinks.forEach(link =>
-    link.addEventListener("click", closeSidebar)
-  );
+  sidebarLinks.forEach(link => link.addEventListener("click", closeSidebar));
 
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && sidebar.classList.contains("open")) {
@@ -49,7 +45,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const observer = new IntersectionObserver((entries, currentObserver) => {
       if (!entries[0].isIntersecting || animated) return;
-
       animated = true;
       currentObserver.unobserve(counter);
 
@@ -58,14 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       function update(now) {
         const progress = Math.min((now - start) / duration, 1);
-
-        counter.textContent = Math.floor(
-          target * progress
-        ).toLocaleString();
-
-        if (progress < 1) {
-          requestAnimationFrame(update);
-        }
+        counter.textContent = Math.floor(target * progress).toLocaleString();
+        if (progress < 1) requestAnimationFrame(update);
       }
 
       requestAnimationFrame(update);
@@ -87,17 +76,12 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }, { threshold: 0.15 });
 
-    revealElements.forEach(element =>
-      revealObserver.observe(element)
-    );
+    revealElements.forEach(element => revealObserver.observe(element));
   } else {
-    revealElements.forEach(element =>
-      element.classList.add("show")
-    );
+    revealElements.forEach(element => element.classList.add("show"));
   }
 
-  document.getElementById("currentYear").textContent =
-    new Date().getFullYear();
+  document.getElementById("currentYear").textContent = new Date().getFullYear();
 
   console.log("SkillConnect homepage JavaScript loaded successfully.");
 });
