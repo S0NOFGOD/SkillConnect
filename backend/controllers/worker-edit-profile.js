@@ -2,6 +2,7 @@
 
 const jwt=require("jsonwebtoken");
 const multer=require("multer");
+const sharp=require("sharp");
 const Worker=require("../models/worker");
 const {v2:cloudinary}=require("cloudinary");
 
@@ -11,8 +12,12 @@ cloudinary.config({
     api_secret:process.env.CLOUDINARY_API_SECRET
 });
 
-/* MULTIPART PHOTO HANDLING: CONTROLLER ONLY */
+/* =========================================================
+   1. PHOTO UPLOAD CONFIGURATION
+========================================================= */
+
 const MAX_PHOTO_SIZE=10*1024*1024;
+const MAX_OPTIMIZED_SIZE=5*1024*1024;
 const ALLOWED_PHOTO_TYPES=["image/jpeg","image/png","image/webp"];
 
 const upload=multer({
@@ -28,7 +33,10 @@ const upload=multer({
     }
 }).single("profilePhoto");
 
-/* AUTHENTICATION */
+/* =========================================================
+   2. AUTHENTICATION
+========================================================= */
+
 async function authenticate(req){
     const token=req.cookies?.accessToken;
     if(!token)return null;
@@ -42,21 +50,27 @@ async function authenticate(req){
     }
 }
 
-/* PHONE */
+/* =========================================================
+   3. PHONE
+========================================================= */
+
 function normalizePhone(phone){
     let value=String(phone||"").trim().replace(/[\s()-]/g,"");
 
-    if(value.startsWith("+234"))value=value.slice(1);
-    else if(value.startsWith("0"))value="234"+value.slice(1);
+    if(value.startsWith("+234"))value="0"+value.slice(4);
+    else if(value.startsWith("234"))value="0"+value.slice(3);
 
     return value;
 }
 
 function isValidPhone(phone){
-    return /^234[789]\d{9}$/.test(phone);
+    return /^0[789]\d{9}$/.test(phone);
 }
 
-/* FULL NAME */
+/* =========================================================
+   4. FULL NAME
+========================================================= */
+
 function normalizeNamePart(name){
     return name.toLowerCase().split(/([-'])/).map(part=>{
         if(part==="-"||part==="'")return part;
@@ -72,36 +86,54 @@ function normalizeFullName(value){
     return parts.map(normalizeNamePart).join(" ");
 }
 
-/* PHOTO VALIDATION */
+/* =========================================================
+   5. VALIDATION
+========================================================= */
+
 function validatePhoto(file){
     if(!file)return null;
 
-    if(!ALLOWED_PHOTO_TYPES.includes(file.mimetype))
-        return"Profile photo must be a JPG, PNG, or WebP image.";
+    if(!ALLOWED_PHOTO_TYPES.includes(file.mimetype)){
+        return "Profile photo must be a JPG, PNG, or WebP image.";
+    }
 
-    if(file.size>MAX_PHOTO_SIZE)
-        return"Profile photo must not exceed 10 MB.";
-
-    return null;
-}
-
-/* PROFILE VALIDATION */
-function validateProfile({fullName,phone,country,state,city,lga}){
-    if(!fullName)
-        return"Please enter exactly two names separated by a space.";
-
-    if(!isValidPhone(phone))
-        return"Please provide a valid Nigerian phone number.";
-
-    if(!country)return"Country is required.";
-    if(!state)return"State is required.";
-    if(!city)return"City is required.";
-    if(!lga)return"LGA is required.";
+    if(file.size>MAX_PHOTO_SIZE){
+        return "Profile photo must not exceed 10 MB.";
+    }
 
     return null;
 }
 
-/* WORKER RESPONSE */
+function validateCoordinates(latitude,longitude){
+    if(latitude===undefined||latitude===null||String(latitude).trim()===""){
+        return "Latitude is required.";
+    }
+
+    if(longitude===undefined||longitude===null||String(longitude).trim()===""){
+        return "Longitude is required.";
+    }
+
+    if(!Number.isFinite(latitude)||latitude<-90||latitude>90){
+        return "Please provide a valid latitude.";
+    }
+
+    if(!Number.isFinite(longitude)||longitude<-180||longitude>180){
+        return "Please provide a valid longitude.";
+    }
+
+    return null;
+}
+
+function validateProfile({fullName,phone,latitude,longitude}){
+    if(!fullName)return "Please enter exactly two names separated by a space.";
+    if(!isValidPhone(phone))return "Please provide a valid Nigerian phone number.";
+    return validateCoordinates(latitude,longitude);
+}
+
+/* =========================================================
+   6. WORKER RESPONSE
+========================================================= */
+
 function workerResponse(worker){
     return{
         profilePhoto:worker.profilePhoto
@@ -109,14 +141,15 @@ function workerResponse(worker){
             :null,
         fullName:worker.fullName,
         phone:worker.phone,
-        country:worker.country,
-        state:worker.state,
-        city:worker.city,
-        lga:worker.lga
+        latitude:worker.latitude,
+        longitude:worker.longitude
     };
 }
 
-/* LOAD PROFILE */
+/* =========================================================
+   7. GET PROFILE
+========================================================= */
+
 async function getProfile(req,res){
     try{
         const worker=await authenticate(req);
@@ -132,9 +165,9 @@ async function getProfile(req,res){
             success:true,
             worker:workerResponse(worker)
         });
+
     }catch(error){
         console.error("Get worker edit profile error:",error);
-
         return res.status(500).json({
             success:false,
             message:"Unable to load your profile."
@@ -142,12 +175,73 @@ async function getProfile(req,res){
     }
 }
 
-/* UPDATE PROFILE */
+/* =========================================================
+   8. UPLOAD MIDDLEWARE PROMISE
+========================================================= */
+
+function processUpload(req,res){
+    return new Promise((resolve,reject)=>{
+        upload(req,res,error=>{
+            if(error)return reject(error);
+            resolve();
+        });
+    });
+}
+
+/* =========================================================
+   9. SHARP PHOTO OPTIMIZATION + CLOUDINARY UPLOAD
+========================================================= */
+
+async function uploadProfilePhoto(file){
+    let optimizedBuffer;
+    let quality=85;
+
+    do{
+        optimizedBuffer=await sharp(file.buffer)
+            .rotate()
+            .resize({
+                width:1600,
+                height:1600,
+                fit:"inside",
+                withoutEnlargement:true
+            })
+            .webp({quality,effort:5})
+            .toBuffer();
+
+        quality-=10;
+
+    }while(optimizedBuffer.length>MAX_OPTIMIZED_SIZE&&quality>=45);
+
+    if(optimizedBuffer.length>MAX_OPTIMIZED_SIZE){
+        throw new Error("Your optimized profile photo exceeds 5 MB. Please upload a smaller image.");
+    }
+
+    const result=await new Promise((resolve,reject)=>{
+        const stream=cloudinary.uploader.upload_stream({
+            folder:"skillconnect/workers/profile-photos",
+            resource_type:"image",
+            format:"webp"
+        },(error,uploadResult)=>{
+            if(error)return reject(error);
+            resolve(uploadResult);
+        });
+
+        stream.end(optimizedBuffer);
+    });
+
+    return result.public_id;
+}
+
+/* =========================================================
+   10. UPDATE PROFILE
+========================================================= */
+
 async function updateProfile(req,res){
-    let uploadedPublicId=null;
+    let newPhotoPublicId=null;
 
     try{
-        /* AUTHENTICATE BEFORE PROCESSING THE UPLOAD */
+        /* AUTHENTICATE BEFORE PROCESSING REQUEST */
+
         const worker=await authenticate(req);
 
         if(!worker){
@@ -157,162 +251,153 @@ async function updateProfile(req,res){
             });
         }
 
-        /* PROCESS MULTIPART REQUEST INSIDE THE CONTROLLER */
-        upload(req,res,async uploadError=>{
-            if(uploadError){
-                const isSizeError=uploadError instanceof multer.MulterError&&
-                    uploadError.code==="LIMIT_FILE_SIZE";
+        /* PROCESS MULTIPART REQUEST */
 
-                return res.status(isSizeError||uploadError.code==="INVALID_PHOTO_TYPE"?400:500).json({
+        try{
+            await processUpload(req,res);
+        }catch(error){
+            const isSizeError=error instanceof multer.MulterError&&error.code==="LIMIT_FILE_SIZE";
+            const isTypeError=error.code==="INVALID_PHOTO_TYPE";
+
+            return res.status(isSizeError||isTypeError?400:500).json({
+                success:false,
+                message:isSizeError
+                    ?"Profile photo must not exceed 10 MB."
+                    :isTypeError
+                        ?error.message
+                        :"Unable to process your profile photo."
+            });
+        }
+
+        /* READ REQUEST DATA */
+
+        const fullName=normalizeFullName(req.body.fullName);
+        const phone=normalizePhone(req.body.phone);
+        const latitude=Number(req.body.latitude);
+        const longitude=Number(req.body.longitude);
+
+        /* VALIDATE PHOTO */
+
+        const photoError=validatePhoto(req.file);
+
+        if(photoError){
+            return res.status(400).json({
+                success:false,
+                message:photoError
+            });
+        }
+
+        /* VALIDATE PROFILE */
+
+        const validationError=validateProfile({fullName,phone,latitude,longitude});
+
+        if(validationError){
+            return res.status(400).json({
+                success:false,
+                message:validationError
+            });
+        }
+
+        /* CHECK PHONE UNIQUENESS ONLY IF PHONE CHANGED */
+
+        const phoneChanged=normalizePhone(worker.phone)!==phone;
+
+        if(phoneChanged){
+            const existingWorkers=await Worker.find({
+                _id:{$ne:worker._id},
+                phone:{
+                    $in:[
+                        phone,
+                        "234"+phone.slice(1),
+                        "+234"+phone.slice(1)
+                    ]
+                }
+            }).select("_id");
+
+            if(existingWorkers.length){
+                return res.status(409).json({
                     success:false,
-                    message:isSizeError
-                        ?"Profile photo must not exceed 10 MB."
-                        :uploadError.code==="INVALID_PHOTO_TYPE"
-                            ?uploadError.message
-                            :"Unable to process your profile photo."
+                    message:"This phone number is already registered."
                 });
             }
+        }
 
+        /* RETRIEVE OLD PROFILE PHOTO */
+
+        const oldPhotoPublicId=worker.profilePhoto;
+
+        /* UPLOAD OPTIMIZED NEW PROFILE PHOTO */
+
+        if(req.file){
+            newPhotoPublicId=await uploadProfilePhoto(req.file);
+        }
+
+        /* SAVE PROFILE */
+
+        worker.fullName=fullName;
+        worker.phone=phone;
+        worker.latitude=latitude;
+        worker.longitude=longitude;
+
+        if(newPhotoPublicId){
+            worker.profilePhoto=newPhotoPublicId;
+        }
+
+        if(phoneChanged){
+            worker.profileVerificationExpires=null;
+        }
+
+        await worker.save();
+
+        /* DELETE OLD PHOTO AFTER SUCCESSFUL SAVE */
+
+        if(newPhotoPublicId&&oldPhotoPublicId&&oldPhotoPublicId!==newPhotoPublicId){
             try{
-                await processProfileUpdate(req,res,worker,id=>{
-                    uploadedPublicId=id;
+                await cloudinary.uploader.destroy(oldPhotoPublicId,{
+                    resource_type:"image"
                 });
             }catch(error){
-                console.error("Update worker profile error:",error);
-
-                if(uploadedPublicId){
-                    try{
-                        await cloudinary.uploader.destroy(uploadedPublicId,{
-                            resource_type:"image"
-                        });
-                    }catch(cleanupError){
-                        console.error("Cloudinary upload cleanup error:",cleanupError);
-                    }
-                }
-
-                if(!res.headersSent){
-                    return res.status(500).json({
-                        success:false,
-                        message:"Unable to update your profile."
-                    });
-                }
+                console.error("Old Cloudinary photo deletion error:",error);
             }
+        }
+
+        /* SUCCESS RESPONSE */
+
+        return res.status(200).json({
+            success:true,
+            message:"Your profile was updated successfully.",
+            worker:workerResponse(worker)
         });
+
     }catch(error){
-        console.error("Worker profile authentication error:",error);
+        console.error("Update worker profile error:",error);
+
+        /* CLEAN UP NEW PHOTO IF DATABASE UPDATE FAILS */
+
+        if(newPhotoPublicId){
+            try{
+                await cloudinary.uploader.destroy(newPhotoPublicId,{
+                    resource_type:"image"
+                });
+            }catch(cleanupError){
+                console.error("Cloudinary cleanup error:",cleanupError);
+            }
+        }
 
         return res.status(500).json({
             success:false,
-            message:"Unable to update your profile."
+            message:error.message==="Your optimized profile photo exceeds 5 MB. Please upload a smaller image."
+                ?error.message
+                :"Unable to update your profile."
         });
     }
 }
 
-/* PROFILE UPDATE BUSINESS LOGIC */
-async function processProfileUpdate(req,res,worker,setUploadedPublicId){
-    const fullName=normalizeFullName(req.body.fullName);
-    const phone=normalizePhone(req.body.phone);
-    const country=String(req.body.country||"").trim();
-    const state=String(req.body.state||"").trim();
-    const city=String(req.body.city||"").trim();
-    const lga=String(req.body.lga||"").trim();
+/* =========================================================
+   11. EXPORT CONTROLLERS
+========================================================= */
 
-    /* VALIDATE ALL FIELDS */
-    const photoError=validatePhoto(req.file);
-
-    if(photoError){
-        return res.status(400).json({
-            success:false,
-            message:photoError
-        });
-    }
-
-    const validationError=validateProfile({
-        fullName,phone,country,state,city,lga
-    });
-
-    if(validationError){
-        return res.status(400).json({
-            success:false,
-            message:validationError
-        });
-    }
-
-    /* CHECK PHONE UNIQUENESS */
-    const phoneChanged=normalizePhone(worker.phone)!==phone;
-
-    const existingWorker=await Worker.findOne({
-        phone,
-        _id:{$ne:worker._id}
-    });
-
-    if(existingWorker){
-        return res.status(409).json({
-            success:false,
-            message:"This phone number is already registered."
-        });
-    }
-
-    /* UPLOAD AND OPTIMIZE PHOTO */
-    const oldPhotoPublicId=worker.profilePhoto;
-    let newPhotoPublicId=oldPhotoPublicId;
-
-    if(req.file){
-        const result=await new Promise((resolve,reject)=>{
-            const stream=cloudinary.uploader.upload_stream({
-                folder:"skillconnect/workers/profile-photos",
-                resource_type:"image",
-                transformation:[{
-                    width:1600,
-                    height:1600,
-                    crop:"limit",
-                    quality:"auto:eco",
-                    fetch_format:"auto"
-                }]
-            },(error,uploadResult)=>{
-                if(error)return reject(error);
-                resolve(uploadResult);
-            });
-
-            stream.end(req.file.buffer);
-        });
-
-        newPhotoPublicId=result.public_id;
-        setUploadedPublicId(newPhotoPublicId);
-    }
-
-    /* SAVE PROFILE */
-    worker.fullName=fullName;
-    worker.phone=phone;
-    worker.country=country;
-    worker.state=state;
-    worker.city=city;
-    worker.lga=lga;
-
-    if(req.file)worker.profilePhoto=newPhotoPublicId;
-
-    if(phoneChanged){
-        worker.profileVerificationExpires=null;
-    }
-
-    await worker.save();
-
-    /* REMOVE OLD PHOTO AFTER SUCCESSFUL SAVE */
-    if(req.file&&oldPhotoPublicId&&oldPhotoPublicId!==newPhotoPublicId){
-        try{
-            await cloudinary.uploader.destroy(oldPhotoPublicId,{
-                resource_type:"image"
-            });
-        }catch(error){
-            console.error("Old Cloudinary photo deletion error:",error);
-        }
-    }
-
-    return res.status(200).json({
-        success:true,
-        message:"Your profile was updated successfully.",
-        worker:workerResponse(worker)
-    });
-}
-
-module.exports={getProfile,updateProfile};
+module.exports={
+    getProfile,
+    updateProfile
+};

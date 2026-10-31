@@ -29,8 +29,8 @@
 
         <div class="sidebar-profile">
             <div class="profile-photo-wrapper">
-                <img id="profilePhoto" class="profile-photo" src="" alt="Worker profile photo" hidden>
-                <div id="profilePhotoPlaceholder" class="profile-photo-placeholder" aria-hidden="true">👤</div>
+                <img id="sidebarProfilePhoto" class="profile-photo" src="" alt="Worker profile photo" hidden>
+                <div id="sidebarProfilePhotoPlaceholder" class="profile-photo-placeholder" aria-hidden="true">👤</div>
             </div>
         </div>
 
@@ -55,81 +55,83 @@
 
     <div id="overlay" class="overlay" aria-hidden="true"></div>
 
-    <main class="edit-profile" id="editProfilePage">
-        <section class="page-header">
-            <div>
-                <h1>Edit Profile</h1>
-                <p>Update your personal information.</p>
-            </div>
+    <main class="edit-profile" id="editProfilePage" aria-busy="true">
+        <section id="connectionStatus" class="connection-status">
+            <span class="loading-spinner"></span>
+            <span>Connecting...</span>
         </section>
 
-        <form id="profileForm" class="profile-form" novalidate>
-            <section class="profile-section">
-                <div class="section-heading"><h2>Profile Photo</h2></div>
-                <div class="photo-editor">
-                    <div class="profile-photo-wrapper">
-                        <img id="profilePhoto" class="profile-photo" src="" alt="Worker profile photo" hidden>
-                        <div id="profilePhotoPlaceholder" class="profile-photo-placeholder" aria-hidden="true">👤</div>
-                    </div>
-                    <div class="photo-actions">
-                        <label for="profilePhotoInput" class="photo-upload-button">Change Photo</label>
-                        <input type="file" id="profilePhotoInput" name="profilePhoto" accept="image/*" hidden>
-                    </div>
+        <section id="profileContent" hidden>
+            <section class="page-header">
+                <div>
+                    <h1>Edit Profile</h1>
+                    <p>Update your personal information.</p>
                 </div>
             </section>
 
-            <section class="profile-section">
-                <div class="section-heading"><h2>Personal Information</h2></div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="fullName">Full Name</label>
-                        <input type="text" id="fullName" name="fullName" autocomplete="name" maxlength="100" required>
+            <form id="profileForm" class="profile-form" novalidate>
+                <section class="profile-section">
+                    <div class="section-heading"><h2>Profile Photo</h2></div>
+                    <div class="photo-editor">
+                        <div class="profile-photo-wrapper">
+                            <img id="formProfilePhoto" class="profile-photo" src="" alt="Worker profile photo" hidden>
+                            <div id="formProfilePhotoPlaceholder" class="profile-photo-placeholder" aria-hidden="true">👤</div>
+                        </div>
+                        <div class="photo-actions">
+                            <label for="profilePhotoInput" class="photo-upload-button">Change Photo</label>
+                            <input type="file" id="profilePhotoInput" name="profilePhoto" accept="image/jpeg,image/png,image/webp" hidden>
+                            <span id="photoFileName" class="photo-file-name">No new photo selected</span>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone" autocomplete="tel" maxlength="20" required>
-                    </div>
-                </div>
-            </section>
+                </section>
 
-            <section class="profile-section">
-                <div class="section-heading"><h2>Location</h2></div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="country">Country</label>
-                        <select id="country" name="country" required>
-                            <option value="">Select Country</option>
-                            <option value="Nigeria">Nigeria</option>
-                        </select>
+                <section class="profile-section">
+                    <div class="section-heading"><h2>Personal Information</h2></div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" name="fullName" autocomplete="name" maxlength="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" autocomplete="tel" maxlength="20" required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="state">State</label>
-                        <select id="state" name="state" required disabled>
-                            <option value="">Select State</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="city">City</label>
-                        <select id="city" name="city" required disabled>
-                            <option value="">Select City</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="lga">LGA</label>
-                        <select id="lga" name="lga" required disabled>
-                            <option value="">Select LGA</option>
-                        </select>
-                    </div>
-                </div>
-            </section>
+                </section>
 
-            <section class="form-actions">
-                <button type="button" id="cancelBtn" class="cancel-button">Cancel</button>
-                <button type="submit" id="updateProfileBtn" class="update-profile-button">
-                    <span class="button-text">Update Profile</span>
-                </button>
-            </section>
-        </form>
+                <section class="profile-section">
+                    <div class="section-heading">
+                        <h2>Location</h2>
+                        <p>Use your device location to update your coordinates.</p>
+                    </div>
+
+                    <div class="location-action">
+                        <button type="button" id="getLocationBtn" class="location-button">
+                            Get My Location
+                        </button>
+                        <span id="locationStatus" aria-live="polite"></span>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="latitude">Latitude</label>
+                            <input type="text" id="latitude" name="latitude" readonly required>
+                        </div>
+                        <div class="form-group">
+                            <label for="longitude">Longitude</label>
+                            <input type="text" id="longitude" name="longitude" readonly required>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-actions">
+                    <button type="button" id="cancelBtn" class="cancel-button">Cancel</button>
+                    <button type="submit" id="updateProfileBtn" class="update-profile-button">
+                        <span class="button-text">Update Profile</span>
+                    </button>
+                </section>
+            </form>
+        </section>
     </main>
 
     <div id="notificationOverlay" class="notification-modal" role="dialog" aria-modal="true" aria-labelledby="notificationTitle" aria-describedby="notificationText" hidden>
@@ -146,7 +148,6 @@
     </div>
 
     <script src="../config.js"></script>
-    <script src="../worker-create-profile/nigeria-location.js"></script>
     <script src="script.js" defer></script>
 </body>
 </html>

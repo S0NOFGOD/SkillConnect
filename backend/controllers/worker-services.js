@@ -22,10 +22,12 @@ const authenticateRequest = (req, res) => {
 /* GET WORKER SERVICES */
 const getWorkerServices = async (req, res) => {
     try {
+        // Authenticate the access-token credential.
         const workerId = authenticateRequest(req, res);
 
         if (!workerId) return;
 
+        // Retrieve the worker's services.
         const worker = await Worker.findById(workerId)
             .select("services");
 
@@ -36,23 +38,18 @@ const getWorkerServices = async (req, res) => {
             });
         }
 
+        // Retrieve only the required service information.
         const services = (worker.services || []).map(service => ({
             id: service.id,
             skill: service.skill,
-            serviceCountDown: service.serviceCountDown,
+            date: service.date,
             adminApproval: service.adminApproval
         }));
 
-        // Most recent serviceCountDown first.
-        // Invalid and expired services remain available for activation.
+        // Most recent service date first.
         services.sort((a, b) => {
-            const aTime = new Date(
-                a.serviceCountDown
-            ).getTime();
-
-            const bTime = new Date(
-                b.serviceCountDown
-            ).getTime();
+            const aTime = new Date(a.date).getTime();
+            const bTime = new Date(b.date).getTime();
 
             const aValid = Number.isFinite(aTime) ? aTime : 0;
             const bValid = Number.isFinite(bTime) ? bTime : 0;
@@ -75,95 +72,6 @@ const getWorkerServices = async (req, res) => {
     }
 };
 
-/* ACTIVATE WORKER SERVICE */
-const activateWorkerService = async (req, res) => {
-    try {
-        // Authenticate the access-token credential first.
-        const workerId = authenticateRequest(req, res);
-
-        if (!workerId) return;
-
-        const { serviceId } = req.body || {};
-
-        if (
-            serviceId === undefined ||
-            serviceId === null ||
-            serviceId === ""
-        ) {
-            return res.status(400).json({
-                success: false,
-                message: "Service ID is required."
-            });
-        }
-
-        // Retrieve the worker's verification expiry and services.
-        const worker = await Worker.findById(workerId)
-            .select("profileVerificationExpires services");
-
-        if (!worker) {
-            return res.status(404).json({
-                success: false,
-                message: "Worker account was not found."
-            });
-        }
-
-        // Check profile verification before activating a service.
-        const verificationExpiry = worker.profileVerificationExpires;
-        const verificationTime = verificationExpiry
-            ? new Date(verificationExpiry).getTime()
-            : NaN;
-
-        if (
-            !Number.isFinite(verificationTime) ||
-            verificationTime <= Date.now()
-        ) {
-            return res.status(403).json({
-                success: false,
-                message: "Your profile verification has expired or is invalid. Please verify your profile before activating a service."
-            });
-        }
-
-        // Find the requested service by its ID.
-        const service = worker.services.find(
-            item => String(item.id) === String(serviceId)
-        );
-
-        if (!service) {
-            return res.status(404).json({
-                success: false,
-                message: "Service was not found."
-            });
-        }
-
-        // Activate the service for 30 days.
-        service.serviceCountDown = new Date(
-            Date.now() + 30 * 24 * 60 * 60 * 1000
-        );
-
-        await worker.save();
-
-        return res.status(200).json({
-            success: true,
-            message: "Service activated successfully.",
-            service: {
-                id: service.id,
-                skill: service.skill,
-                serviceCountDown: service.serviceCountDown,
-                adminApproval: service.adminApproval
-            }
-        });
-
-    } catch (error) {
-        console.error("Activate worker service error:", error);
-
-        return res.status(500).json({
-            success: false,
-            message: "Unable to activate this service."
-        });
-    }
-};
-
 module.exports = {
-    getWorkerServices,
-    activateWorkerService
+    getWorkerServices
 };

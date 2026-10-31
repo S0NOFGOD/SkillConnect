@@ -324,6 +324,7 @@ async function createWorkerService(req, res) {
     const uploadedPublicIds = [];
 
     try {
+
         /* -----------------------------------------------
            A. AUTHENTICATE ACCESS TOKEN
         ----------------------------------------------- */
@@ -349,6 +350,7 @@ async function createWorkerService(req, res) {
             );
         }
 
+
         /* -----------------------------------------------
            B. PARSE PORTFOLIO IMAGES
         ----------------------------------------------- */
@@ -372,6 +374,11 @@ async function createWorkerService(req, res) {
             });
         });
 
+
+        /* -----------------------------------------------
+           C. FIND WORKER
+        ----------------------------------------------- */
+
         const worker = await Worker.findById(workerId);
 
         if (!worker) {
@@ -382,8 +389,9 @@ async function createWorkerService(req, res) {
             );
         }
 
+
         /* -----------------------------------------------
-           C. VALIDATE PORTFOLIO IMAGES
+           D. VALIDATE PORTFOLIO IMAGES
         ----------------------------------------------- */
 
         const portfolioFiles = Array.isArray(req.files)
@@ -401,8 +409,9 @@ async function createWorkerService(req, res) {
             );
         }
 
+
         /* -----------------------------------------------
-           D. VALIDATE SKILL
+           E. VALIDATE SKILL
         ----------------------------------------------- */
 
         const skill = typeof req.body.skill === "string"
@@ -425,8 +434,9 @@ async function createWorkerService(req, res) {
             );
         }
 
+
         /* -----------------------------------------------
-           E. VALIDATE EXPERIENCE
+           F. VALIDATE EXPERIENCE
         ----------------------------------------------- */
 
         const experience =
@@ -450,8 +460,9 @@ async function createWorkerService(req, res) {
             );
         }
 
+
         /* -----------------------------------------------
-           F. VALIDATE DESCRIPTION
+           G. VALIDATE DESCRIPTION
         ----------------------------------------------- */
 
         const description =
@@ -475,8 +486,9 @@ async function createWorkerService(req, res) {
             );
         }
 
+
         /* -----------------------------------------------
-           G. VERIFY ACTUAL IMAGE CONTENT
+           H. VERIFY ACTUAL IMAGE CONTENT
         ----------------------------------------------- */
 
         for (
@@ -502,6 +514,7 @@ async function createWorkerService(req, res) {
                         `Portfolio image ${index + 1} must be a valid JPG, PNG, or WebP image.`
                     );
                 }
+
             } catch (error) {
                 return sendError(
                     res,
@@ -511,8 +524,9 @@ async function createWorkerService(req, res) {
             }
         }
 
+
         /* -----------------------------------------------
-           H. CHECK PROFILE VERIFICATION EXPIRY
+           I. CHECK PROFILE VERIFICATION EXPIRY
         ----------------------------------------------- */
 
         const profileVerificationExpires =
@@ -532,8 +546,9 @@ async function createWorkerService(req, res) {
             );
         }
 
+
         /* -----------------------------------------------
-           I. CHECK DUPLICATE SERVICE SKILL
+           J. CHECK DUPLICATE SERVICE SKILL
         ----------------------------------------------- */
 
         const skillAlreadyExists =
@@ -552,8 +567,9 @@ async function createWorkerService(req, res) {
             );
         }
 
+
         /* -----------------------------------------------
-           J. GENERATE SERVICE ID
+           K. GENERATE SERVICE ID
         ----------------------------------------------- */
 
         let nextServiceId = 1;
@@ -577,13 +593,15 @@ async function createWorkerService(req, res) {
             nextServiceId = highestServiceId + 1;
         }
 
+
         /* -----------------------------------------------
-           K. OPTIMIZE AND UPLOAD PORTFOLIOS
+           L. OPTIMIZE AND UPLOAD PORTFOLIOS
         ----------------------------------------------- */
 
         const portfolioPublicIds = [];
 
         for (const file of portfolioFiles) {
+
             const compressedImage =
                 await convertAndCompressImage(file.buffer);
 
@@ -596,32 +614,39 @@ async function createWorkerService(req, res) {
             uploadedPublicIds.push(uploadedImage.public_id);
         }
 
+
         /* -----------------------------------------------
-           L. PREPARE SERVICE DATA
+           M. PREPARE SERVICE DATA
         ----------------------------------------------- */
 
         const now = new Date();
 
         const newService = {
             id: nextServiceId,
+
             skill,
+
             experience,
+
             description,
+
             portfolios: portfolioPublicIds,
+
             date: now,
 
             serviceCountDown: new Date(
                 now.getTime() + 30 * 24 * 60 * 60 * 1000
             ),
 
-            adminApproval: "in review",
+            adminApproval: "Under Review",
 
             adminResponse:
                 "It may take up to 24 hours for admin update"
         };
 
+
         /* -----------------------------------------------
-           M. SAVE SERVICE AND WORKER SKILL
+           N. SAVE SERVICE AND WORKER SKILL
         ----------------------------------------------- */
 
         worker.services.push(newService);
@@ -642,8 +667,9 @@ async function createWorkerService(req, res) {
 
         await worker.save();
 
+
         /* -----------------------------------------------
-           N. SUCCESS RESPONSE
+           O. SUCCESS RESPONSE
         ----------------------------------------------- */
 
         return res.status(201).json({
@@ -652,9 +678,11 @@ async function createWorkerService(req, res) {
         });
 
     } catch (error) {
+
         await deleteCloudinaryImages(uploadedPublicIds);
 
         if (error instanceof multer.MulterError) {
+
             if (error.code === "LIMIT_FILE_SIZE") {
                 return sendError(
                     res,

@@ -1,10 +1,16 @@
+"use strict";
+
 /* =========================================================
-   WORKER DASHBOARD
+   1. ENDPOINTS
 ========================================================= */
 
 const DASHBOARD_ENDPOINT = "/api/worker/dashboard";
 const SEND_PHONE_OTP_ENDPOINT = "/api/worker/send-phone-otp";
 const LOGOUT_ENDPOINT = "/api/auth/logout";
+
+/* =========================================================
+   2. DOM ELEMENTS
+========================================================= */
 
 const $ = id => document.getElementById(id);
 
@@ -16,17 +22,18 @@ const closeMenuBtn = $("closeMenuBtn");
 const viewServicesBtn = $("viewServicesBtn");
 const editProfileBtn = $("editProfileBtn");
 const logoutBtn = $("logoutBtn");
+
 const verificationActionBtn = $("verificationActionBtn");
 
 const workerFirstName = $("workerFirstName");
 const fullName = $("fullName");
 const phoneNumber = $("phoneNumber");
-const country = $("country");
-const state = $("state");
-const city = $("city");
-const lga = $("lga");
+
+const latitude = $("latitude");
+const longitude = $("longitude");
+
 const totalSkills = $("totalSkills");
-const phoneVerification = $("phoneVerification");
+const totalClients = $("totalClients");
 
 const profilePhoto = $("profilePhoto");
 const profilePhotoPlaceholder = $("profilePhotoPlaceholder");
@@ -35,20 +42,27 @@ const notificationOverlay = $("notificationOverlay");
 const notificationCard = $("notificationCard");
 const notificationTitle = $("notificationTitle");
 const notificationText = $("notificationText");
+
 const notificationCloseButton = $("notificationCancelButton");
 const notificationNoButton = $("notificationNoButton");
 const notificationButton = $("notificationButton");
 
+/* =========================================================
+   3. STATE
+========================================================= */
+
 let modalAction = null;
 let modalRedirect = null;
+
 let countdownTimer = null;
 let cooldownTimer = null;
+
 let dashboardLoading = false;
 let otpSending = false;
 let logoutInProgress = false;
 
 /* =========================================================
-   NOTIFICATION MODAL
+   4. NOTIFICATION MODAL
 ========================================================= */
 
 function showModal(
@@ -62,18 +76,22 @@ function showModal(
 ) {
     notificationTitle.textContent = title;
     notificationText.textContent = message;
+
     notificationButton.textContent = buttonText;
 
-    notificationCard.className = `notification-card ${type}`;
+    notificationCard.className =
+        `notification-card ${type}`;
 
     notificationButton.hidden = false;
     notificationNoButton.hidden = !confirmation;
+
     notificationCloseButton.hidden = confirmation;
 
     notificationButton.disabled = false;
     notificationNoButton.disabled = false;
 
     notificationButton.classList.remove("is-loading");
+
     delete notificationButton.dataset.originalText;
 
     modalAction = action;
@@ -95,20 +113,31 @@ function hideModal() {
     notificationNoButton.disabled = false;
 
     notificationButton.classList.remove("is-loading");
+
     delete notificationButton.dataset.originalText;
 }
 
-function setLoading(button, loading, text = "Connecting...") {
+/* =========================================================
+   5. BUTTON LOADING STATE
+========================================================= */
+
+function setLoading(
+    button,
+    loading,
+    text = "Connecting..."
+) {
     if (!button) return;
 
     if (loading) {
         if (!button.dataset.originalText) {
-            button.dataset.originalText = button.textContent.trim();
+            button.dataset.originalText =
+                button.textContent.trim();
         }
 
         button.disabled = true;
         button.classList.add("is-loading");
         button.textContent = text;
+
         return;
     }
 
@@ -116,13 +145,15 @@ function setLoading(button, loading, text = "Connecting...") {
     button.classList.remove("is-loading");
 
     if (button.dataset.originalText) {
-        button.textContent = button.dataset.originalText;
+        button.textContent =
+            button.dataset.originalText;
+
         delete button.dataset.originalText;
     }
 }
 
 /* =========================================================
-   COOLDOWN COUNTDOWN
+   6. COOLDOWN COUNTDOWN
 ========================================================= */
 
 function formatCooldown(remainingMilliseconds) {
@@ -132,7 +163,11 @@ function formatCooldown(remainingMilliseconds) {
     );
 
     const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+    const minutes = Math.floor(
+        (totalSeconds % 3600) / 60
+    );
+
     const seconds = totalSeconds % 60;
 
     return `${hours}h ${minutes}m ${seconds}s`;
@@ -142,7 +177,8 @@ function showCooldownModal(coolDownUntil, message) {
     clearInterval(cooldownTimer);
     cooldownTimer = null;
 
-    const expiryTime = new Date(coolDownUntil).getTime();
+    const expiryTime =
+        new Date(coolDownUntil).getTime();
 
     if (!Number.isFinite(expiryTime)) {
         showModal(
@@ -150,6 +186,7 @@ function showCooldownModal(coolDownUntil, message) {
             message || "You cannot request another OTP yet.",
             "error"
         );
+
         return;
     }
 
@@ -159,6 +196,7 @@ function showCooldownModal(coolDownUntil, message) {
             "Your cooldown has expired. You can try requesting another OTP.",
             "info"
         );
+
         return;
     }
 
@@ -183,30 +221,26 @@ function showCooldownModal(coolDownUntil, message) {
 
         notificationText.textContent =
             `${message || "You cannot request another OTP yet."}\n\n` +
-            ` ${formatCooldown(remaining)}`;
+            `${formatCooldown(remaining)}`;
     };
 
     updateCountdown();
+
     cooldownTimer = setInterval(updateCountdown, 1000);
 }
 
 /* =========================================================
-   MODAL CONTINUE BUTTON
+   7. MODAL CONTINUE BUTTON
 ========================================================= */
 
 notificationButton.addEventListener("click", async () => {
-    console.log("Notification Continue clicked.");
 
-    if (notificationButton.disabled) {
-        console.log("Continue is disabled.");
-        return;
-    }
+    if (notificationButton.disabled) return;
 
     const redirect = modalRedirect;
     const action = modalAction;
 
     if (redirect) {
-        console.log("Redirecting to:", redirect);
         window.location.href = redirect;
         return;
     }
@@ -220,6 +254,7 @@ notificationButton.addEventListener("click", async () => {
 
     try {
         await action();
+
     } catch (error) {
         console.error("Modal action failed:", error);
 
@@ -234,26 +269,32 @@ notificationButton.addEventListener("click", async () => {
 });
 
 notificationNoButton.addEventListener("click", () => {
+
     if (!notificationNoButton.disabled) {
         hideModal();
     }
+
 });
 
 notificationCloseButton.addEventListener("click", () => {
+
     if (!notificationButton.disabled) {
         hideModal();
     }
+
 });
 
 /* =========================================================
-   AUTHENTICATION
+   8. AUTHENTICATION ERROR
 ========================================================= */
 
 function redirectToAuthentication() {
-    window.location.href = "../worker-authentication/index.html";
+    window.location.href =
+        "../worker-authentication/index.html";
 }
 
 function handleAuthenticationError() {
+
     if (dashboardLoading) return;
 
     showModal(
@@ -265,10 +306,11 @@ function handleAuthenticationError() {
 }
 
 /* =========================================================
-   LOAD DASHBOARD
+   9. LOAD DASHBOARD
 ========================================================= */
 
 async function loadDashboard() {
+
     if (dashboardLoading) return;
 
     dashboardLoading = true;
@@ -284,11 +326,30 @@ async function loadDashboard() {
     notificationNoButton.hidden = true;
 
     try {
-        const response = await API_REQUEST(DASHBOARD_ENDPOINT, {
-            method: "GET"
-        });
+
+        /*
+         * API_REQUEST handles:
+         * 1. AccessToken cookie request.
+         * 2. RefreshToken request if accessToken expires.
+         * 3. Retry of the original request.
+         *
+         * Both cookies are handled by config.js.
+         */
+
+        const response = await API_REQUEST(
+            DASHBOARD_ENDPOINT,
+            {
+                method: "GET"
+            }
+        );
+
+        /*
+         * API_REQUEST has completed its refresh attempt.
+         * A remaining 401 means authentication failed.
+         */
 
         if (response.status === 401) {
+
             hideModal();
 
             showModal(
@@ -304,6 +365,7 @@ async function loadDashboard() {
         const data = await response.json();
 
         if (!response.ok) {
+
             hideModal();
 
             showModal(
@@ -317,9 +379,11 @@ async function loadDashboard() {
         }
 
         displayWorkerData(data.worker || data);
+
         hideModal();
 
     } catch (error) {
+
         console.error("Dashboard request failed:", error);
 
         hideModal();
@@ -331,113 +395,159 @@ async function loadDashboard() {
         );
 
     } finally {
+
         dashboardLoading = false;
+
     }
 }
 
 /* =========================================================
-   DISPLAY WORKER DATA
+   10. DISPLAY WORKER DATA
 ========================================================= */
 
 function displayWorkerData(worker) {
+
     const name = worker.fullName || "";
 
     workerFirstName.textContent =
         name.trim().split(/\s+/)[0] || "Worker";
 
-    fullName.textContent = name || "Not provided";
-    phoneNumber.textContent = worker.phone || "Not provided";
-    country.textContent = worker.country || "Not provided";
-    state.textContent = worker.state || "Not provided";
-    city.textContent = worker.city || "Not provided";
-    lga.textContent = worker.lga || "Not provided";
+    fullName.textContent =
+        name || "Not provided";
 
-    totalSkills.textContent = Number.isFinite(Number(worker.totalSkills))
-        ? Number(worker.totalSkills)
-        : 0;
+    phoneNumber.textContent =
+        worker.phone || "Not provided";
 
-    phoneVerification.textContent =
+    latitude.textContent =
+        Number.isFinite(Number(worker.latitude)) &&
+        worker.latitude !== null
+            ? worker.latitude
+            : "Not provided";
+
+    longitude.textContent =
+        Number.isFinite(Number(worker.longitude)) &&
+        worker.longitude !== null
+            ? worker.longitude
+            : "Not provided";
+
+    totalSkills.textContent =
+        Number.isFinite(Number(worker.totalSkills))
+            ? Number(worker.totalSkills)
+            : 0;
+
+    totalClients.textContent =
         Number.isFinite(Number(worker.totalClients))
             ? Number(worker.totalClients)
             : 0;
 
     displayProfilePhoto(worker.profilePhoto);
-    checkPhoneVerification(worker.phoneVerificationExpires);
+
+    checkProfileVerification(
+        worker.profileVerificationExpires
+    );
 }
 
 /* =========================================================
-   PROFILE PHOTO
+   11. PROFILE PHOTO
 ========================================================= */
 
 function displayProfilePhoto(photoUrl) {
+
     profilePhoto.hidden = true;
     profilePhotoPlaceholder.hidden = false;
 
     profilePhoto.onload = null;
     profilePhoto.onerror = null;
 
-    if (typeof photoUrl !== "string" || !photoUrl.trim()) {
+    if (
+        typeof photoUrl !== "string" ||
+        !photoUrl.trim()
+    ) {
         profilePhoto.removeAttribute("src");
         return;
     }
 
     profilePhoto.onload = () => {
+
         profilePhoto.hidden = false;
         profilePhotoPlaceholder.hidden = true;
+
     };
 
     profilePhoto.onerror = () => {
+
         profilePhoto.hidden = true;
+
         profilePhoto.removeAttribute("src");
+
         profilePhotoPlaceholder.hidden = false;
+
     };
 
     profilePhoto.src = photoUrl.trim();
 }
 
 /* =========================================================
-   PHONE VERIFICATION COUNTDOWN
+   12. PROFILE VERIFICATION COUNTDOWN
 ========================================================= */
 
-function checkPhoneVerification(expiresAt) {
+function checkProfileVerification(expiresAt) {
+
     clearInterval(countdownTimer);
+    countdownTimer = null;
 
     const expiryTime = expiresAt
         ? new Date(expiresAt).getTime()
         : NaN;
 
-    if (!Number.isFinite(expiryTime) || expiryTime <= Date.now()) {
+    if (
+        !Number.isFinite(expiryTime) ||
+        expiryTime <= Date.now()
+    ) {
         showVerificationPrompt();
         return;
     }
 
     verificationActionBtn.classList.add("verified");
-    phoneVerification.dataset.verificationStatus = "verified";
 
-    startVerificationCountdown(expiryTime);
+    startProfileVerificationCountdown(expiryTime);
 }
 
 function showVerificationPrompt() {
-    verificationActionBtn.classList.remove("verified");
-    verificationActionBtn.textContent = "Verify Profile";
 
-    phoneVerification.dataset.verificationStatus = "unverified";
+    verificationActionBtn.classList.remove("verified");
+
+    verificationActionBtn.textContent = "Verify Profile";
 }
 
-function startVerificationCountdown(expiryTime) {
+function startProfileVerificationCountdown(expiryTime) {
+
     const update = () => {
+
         const remaining = expiryTime - Date.now();
 
         if (remaining <= 0) {
+
             clearInterval(countdownTimer);
+            countdownTimer = null;
+
             showVerificationPrompt();
+
             return;
         }
 
         const seconds = Math.floor(remaining / 1000);
+
         const days = Math.floor(seconds / 86400);
-        const hours = Math.floor((seconds % 86400) / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
+
+        const hours = Math.floor(
+            (seconds % 86400) / 3600
+        );
+
+        const minutes = Math.floor(
+            (seconds % 3600) / 60
+        );
+
         const secs = seconds % 60;
 
         verificationActionBtn.textContent =
@@ -445,14 +555,16 @@ function startVerificationCountdown(expiryTime) {
     };
 
     update();
+
     countdownTimer = setInterval(update, 1000);
 }
 
 /* =========================================================
-   VERIFY PROFILE
+   13. VERIFY PROFILE CONFIRMATION
 ========================================================= */
 
 verificationActionBtn.addEventListener("click", () => {
+
     if (
         verificationActionBtn.classList.contains("verified") ||
         verificationActionBtn.disabled ||
@@ -469,37 +581,65 @@ verificationActionBtn.addEventListener("click", () => {
         "Yes",
         true
     );
+
 });
 
+/* =========================================================
+   14. SEND PHONE OTP
+========================================================= */
+
 async function sendPhoneOtp() {
+
     if (otpSending) return;
 
     otpSending = true;
 
-    setLoading(notificationButton, true, "Verifying...");
+    setLoading(
+        notificationButton,
+        true,
+        "Verifying..."
+    );
 
     try {
-        const response = await API_REQUEST(SEND_PHONE_OTP_ENDPOINT, {
-            method: "POST"
-        });
+
+        const response = await API_REQUEST(
+            SEND_PHONE_OTP_ENDPOINT,
+            {
+                method: "POST"
+            }
+        );
 
         const data = await response.json().catch(() => ({}));
 
+        /*
+         * Authentication failure after refresh attempt.
+         */
+
         if (response.status === 401) {
+
             hideModal();
+
             handleAuthenticationError();
+
             return;
         }
 
+        /*
+         * Cooldown response.
+         */
+
         if (!response.ok) {
+
             hideModal();
 
-            // Display the backend cooldown timestamp when supplied.
             if (data.coolDownUntil) {
+
                 showCooldownModal(
                     data.coolDownUntil,
-                    data.message || "You have reached the OTP request limit."
+                    data.message ||
+                        "You have reached the OTP request limit."
                 );
+
                 return;
             }
 
@@ -513,8 +653,17 @@ async function sendPhoneOtp() {
             return;
         }
 
+        /*
+         * Save phone for the OTP page.
+         */
+
         if (data.phone) {
-            sessionStorage.setItem("workerPhone", data.phone);
+
+            sessionStorage.setItem(
+                "workerPhone",
+                data.phone
+            );
+
         }
 
         showModal(
@@ -529,6 +678,7 @@ async function sendPhoneOtp() {
         );
 
     } catch (error) {
+
         console.error("Phone OTP request failed:", error);
 
         hideModal();
@@ -540,57 +690,80 @@ async function sendPhoneOtp() {
         );
 
     } finally {
+
         otpSending = false;
+
     }
 }
 
 /* =========================================================
-   SIDEBAR NAVIGATION
+   15. SIDEBAR NAVIGATION
 ========================================================= */
 
 function openSidebar() {
+
     sidebar.classList.add("active");
     overlay.classList.add("active");
 
     menuBtn.setAttribute("aria-expanded", "true");
+
     overlay.setAttribute("aria-hidden", "false");
 }
 
 function closeSidebar() {
+
     sidebar.classList.remove("active");
     overlay.classList.remove("active");
 
     menuBtn.setAttribute("aria-expanded", "false");
+
     overlay.setAttribute("aria-hidden", "true");
 }
 
 menuBtn.addEventListener("click", openSidebar);
+
 closeMenuBtn.addEventListener("click", closeSidebar);
+
 overlay.addEventListener("click", closeSidebar);
 
 document.addEventListener("keydown", event => {
+
     if (event.key === "Escape") {
+
         closeSidebar();
 
         if (!notificationButton.disabled) {
             hideModal();
         }
+
     }
-});
 
-viewServicesBtn.addEventListener("click", () => {
-    window.location.href = "../worker-services/index.html";
-});
-
-editProfileBtn.addEventListener("click", () => {
-    window.location.href = "../worker-edit-profile/index.html";
 });
 
 /* =========================================================
-   LOGOUT
+   16. PAGE NAVIGATION
+========================================================= */
+
+viewServicesBtn.addEventListener("click", () => {
+
+    window.location.href =
+        "../worker-services/index.html";
+
+});
+
+editProfileBtn.addEventListener("click", () => {
+
+    window.location.href =
+        "../worker-edit-profile/index.html";
+
+});
+
+/* =========================================================
+   17. LOGOUT CONFIRMATION
 ========================================================= */
 
 logoutBtn.addEventListener("click", () => {
+
     showModal(
         "Logout",
         "Are you sure you want to log out?",
@@ -599,30 +772,53 @@ logoutBtn.addEventListener("click", () => {
         "Yes",
         true
     );
+
 });
 
+/* =========================================================
+   18. LOGOUT
+========================================================= */
+
 async function logoutWorker() {
+
     if (logoutInProgress) return;
 
     logoutInProgress = true;
 
-    setLoading(notificationButton, true, "Logging Out...");
+    setLoading(
+        notificationButton,
+        true,
+        "Logging Out..."
+    );
 
     try {
-        const response = await fetch(API_ENDPOINT(LOGOUT_ENDPOINT), {
-            method: "POST",
-            credentials: "include"
-        });
+
+        /*
+         * Browser automatically includes the refreshToken
+         * cookie because credentials is set to include.
+         */
+
+        const response = await fetch(
+            API_ENDPOINT(LOGOUT_ENDPOINT),
+            {
+                method: "POST",
+                credentials: "include"
+            }
+        );
 
         if (response.status === 401) {
+
             hideModal();
+
             handleAuthenticationError();
+
             return;
         }
 
         const data = await response.json().catch(() => ({}));
 
         if (!response.ok) {
+
             hideModal();
 
             showModal(
@@ -635,9 +831,11 @@ async function logoutWorker() {
             return;
         }
 
-        window.location.href = "../worker-authentication/index.html";
+        window.location.href =
+            "../worker-authentication/index.html";
 
     } catch (error) {
+
         console.error("Logout request failed:", error);
 
         hideModal();
@@ -649,24 +847,31 @@ async function logoutWorker() {
         );
 
     } finally {
+
         logoutInProgress = false;
+
     }
 }
 
 /* =========================================================
-   SESSION EXPIRY
+   19. SESSION EXPIRY
 ========================================================= */
 
 window.addEventListener("authSessionExpired", () => {
+
     if (dashboardLoading) return;
 
     if (notificationOverlay.hidden || !modalAction) {
         handleAuthenticationError();
     }
+
 });
 
 /* =========================================================
-   INITIALIZE
+   20. INITIALIZE
 ========================================================= */
 
-document.addEventListener("DOMContentLoaded", loadDashboard);
+document.addEventListener(
+    "DOMContentLoaded",
+    loadDashboard
+);

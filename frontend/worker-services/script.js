@@ -2,7 +2,6 @@
 
 /* ENDPOINTS */
 const SERVICES_ENDPOINT = "/api/worker/services";
-const ACTIVATE_ENDPOINT = "/api/worker/services/activate";
 const DASHBOARD_ENDPOINT = "/api/worker/dashboard";
 const LOGOUT_ENDPOINT = "/api/auth/logout";
 
@@ -31,7 +30,6 @@ const notificationButton = document.getElementById("notificationButton");
 
 /* STATE */
 let modalAction = null;
-let countdownInterval = null;
 let currentServices = [];
 
 /* NOTIFICATION MODAL */
@@ -237,12 +235,6 @@ function setServicesLoading(loading) {
     if (loading) {
         servicesContainer.innerHTML = "";
         servicesEmpty.hidden = true;
-
-        if (countdownInterval !== null) {
-            clearInterval(countdownInterval);
-        }
-
-        countdownInterval = null;
     }
 }
 
@@ -284,90 +276,21 @@ async function loadServices() {
     }
 }
 
-/* SERVICE COUNTDOWN */
-function formatServiceCountDown(expiryTime) {
-    const remaining = expiryTime - Date.now();
+/* SERVICE DATE */
+function formatServiceDate(dateValue) {
+    if (!dateValue) return "Date unavailable";
 
-    if (remaining <= 0) {
-        return "00:00:00:00";
+    const date = new Date(dateValue);
+
+    if (Number.isNaN(date.getTime())) {
+        return "Date unavailable";
     }
 
-    const seconds = Math.floor(remaining / 1000);
-
-    return [
-        Math.floor(seconds / 86400),
-        Math.floor((seconds % 86400) / 3600),
-        Math.floor((seconds % 3600) / 60),
-        seconds % 60
-    ]
-        .map(value => String(value).padStart(2, "0"))
-        .join(":");
-}
-
-function serviceIsActive(service) {
-    const expiry = new Date(
-        service.serviceCountDown
-    ).getTime();
-
-    return Number.isFinite(expiry) && expiry > Date.now();
-}
-
-function updateServiceCountDowns() {
-    servicesContainer
-        .querySelectorAll(".service-card")
-        .forEach(card => {
-            const service = currentServices.find(
-                item => String(item.id) === card.dataset.serviceId
-            );
-
-            if (!service) return;
-
-            const countdown = card.querySelector(".service-date");
-            const activateButton = card.querySelector(
-                ".activate-service-btn"
-            );
-
-            const active = serviceIsActive(service);
-
-            countdown.hidden = !active;
-            activateButton.hidden = active;
-
-            // Expired or invalid service: show a red Activate button.
-            if (!active) {
-                activateButton.style.backgroundColor = "#dc2626";
-                activateButton.style.color = "#ffffff";
-            } else {
-                activateButton.style.backgroundColor = "";
-                activateButton.style.color = "";
-            }
-
-            if (active) {
-                countdown.dataset.expiryTime = String(
-                    new Date(service.serviceCountDown).getTime()
-                );
-
-                countdown.textContent = formatServiceCountDown(
-                    Number(countdown.dataset.expiryTime)
-                );
-            }
-        });
-
-    if (countdownInterval !== null) {
-        clearInterval(countdownInterval);
-    }
-
-    countdownInterval = null;
-
-    if (
-        servicesContainer.querySelector(
-            ".service-date:not([hidden])"
-        )
-    ) {
-        countdownInterval = setInterval(
-            updateServiceCountDowns,
-            1000
-        );
-    }
+    return date.toLocaleDateString("en-NG", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
 }
 
 /* DISPLAY SERVICES */
@@ -385,10 +308,10 @@ function displayServices(services) {
 
     servicesEmpty.hidden = true;
 
-    // Most recent serviceCountDown first.
+    // Most recent service date first.
     currentServices.sort((a, b) => {
-        const aDate = new Date(a.serviceCountDown).getTime();
-        const bDate = new Date(b.serviceCountDown).getTime();
+        const aDate = new Date(a.date).getTime();
+        const bDate = new Date(b.date).getTime();
 
         return (
             (Number.isFinite(bDate) ? bDate : 0) -
@@ -415,43 +338,28 @@ function displayServices(services) {
         const info = document.createElement("div");
         info.className = "service-info";
 
-        const countdown = document.createElement("span");
-        countdown.className = "service-date";
+        const date = document.createElement("span");
+        date.className = "service-date";
+        date.textContent = formatServiceDate(service.date);
 
         const approval = document.createElement("span");
         approval.className = "service-approval";
-        approval.textContent = service.adminApproval || "in review";
+        approval.textContent = service.adminApproval || "Under Review";
+
+        const approvalStatus = String(
+            service.adminApproval || ""
+        ).toLowerCase();
 
         approval.classList.add(
-            service.adminApproval === "approved"
+            approvalStatus === "approved"
                 ? "approved"
-                : service.adminApproval === "rejected"
+                : approvalStatus === "rejected"
                     ? "rejected"
                     : "in-review"
         );
 
-        const activateButton = document.createElement("button");
-        activateButton.type = "button";
-        activateButton.className = "activate-service-btn";
-        activateButton.textContent = "Activate";
-
-        const active = serviceIsActive(service);
-
-        activateButton.hidden = active;
-        countdown.hidden = !active;
-
-        info.append(countdown, approval);
-        card.append(skill, info, activateButton);
-
-        activateButton.addEventListener("click", event => {
-            event.stopPropagation();
-
-            activateService(
-                service.id,
-                activateButton,
-                countdown
-            );
-        });
+        info.append(date, approval);
+        card.append(skill, info);
 
         card.addEventListener("click", () => {
             openService(service.id);
@@ -468,88 +376,6 @@ function displayServices(services) {
 
         servicesContainer.appendChild(card);
     });
-
-    updateServiceCountDowns();
-}
-
-/* ACTIVATE SERVICE */
-async function activateService(serviceId, button, countdown) {
-    if (!serviceId) {
-        showModal(
-            "Service Error",
-            "This service could not be activated.",
-            "error"
-        );
-
-        return;
-    }
-
-    // Save the service ID, then retrieve it for the request.
-    sessionStorage.setItem("serviceId", String(serviceId));
-
-    const storedServiceId = sessionStorage.getItem("serviceId");
-
-    button.disabled = true;
-    button.textContent = "Activating...";
-
-    try {
-        const response = await API_REQUEST(ACTIVATE_ENDPOINT, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                serviceId: storedServiceId
-            })
-        });
-
-        if (response.status === 401) return;
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            button.disabled = false;
-            button.textContent = "Activate";
-
-            showModal(
-                "Activation Failed",
-                data.message ||
-                    "Unable to activate this service. Please try again.",
-                "error"
-            );
-
-            return;
-        }
-
-        const updated = data.service;
-
-        const service = currentServices.find(
-            item => String(item.id) === String(storedServiceId)
-        );
-
-        if (service && updated) {
-            service.serviceCountDown = updated.serviceCountDown;
-        }
-
-        button.hidden = true;
-        button.disabled = false;
-        button.textContent = "Activate";
-
-        countdown.hidden = false;
-
-        updateServiceCountDowns();
-    } catch (error) {
-        console.error("Service activation failed:", error);
-
-        button.disabled = false;
-        button.textContent = "Activate";
-
-        showModal(
-            "Connection Error",
-            "Unable to activate this service. Please try again.",
-            "error"
-        );
-    }
 }
 
 /* OPEN SERVICE */

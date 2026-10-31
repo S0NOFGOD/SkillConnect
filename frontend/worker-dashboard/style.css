@@ -117,3 +117,9 @@ button.is-loading{cursor:wait}
 @media(prefers-reduced-motion:reduce){
     *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+/* Hide sidebar X button on larger screens */
+@media (min-width: 769px) {
+    #closeMenuBtn {
+        display: none;
+    }
+}

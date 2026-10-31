@@ -576,6 +576,7 @@ async function createService() {
            2. Attempt access-token refresh when required.
            3. Retry the original request after successful refresh.
            4. Return the final response.
+           5. Dispatch authSessionExpired when refresh fails.
         */
 
         const response = await API_REQUEST(
@@ -605,11 +606,6 @@ async function createService() {
             const message = await extractResponseMessage(response);
 
             resetCreateServiceState();
-
-            /*
-               This assumes HTTP 403 from this endpoint means
-               profile verification has expired or is missing.
-            */
 
             const profileVerificationRequired =
                 response.status === 403;
