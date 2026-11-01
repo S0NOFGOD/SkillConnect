@@ -14,16 +14,6 @@ const IP_ENDPOINT = "https://api.ipify.org?format=json";
 
 const $ = id => document.getElementById(id);
 
-const menuBtn = $("menuBtn");
-const closeMenuBtn = $("closeMenuBtn");
-const sidebar = $("sidebar");
-const overlay = $("overlay");
-
-const dashboardBtn = $("dashboardBtn");
-const findWorkersBtn = $("findWorkersBtn");
-const editProfileBtn = $("editProfileBtn");
-const logoutBtn = $("logoutBtn");
-
 const skillFilter = $("skillFilter");
 const skillSearch = $("skillSearch");
 
@@ -469,75 +459,33 @@ skillFilter.addEventListener("change", renderWorkers);
 skillSearch.addEventListener("input", renderWorkers);
 
 /* =========================================================
-   15. SIDEBAR
+   15. LOGOUT
 ========================================================= */
 
-function openSidebar() {
-    sidebar.classList.add("active");
-    overlay.classList.add("active");
-    menuBtn.setAttribute("aria-expanded", "true");
-}
+const logoutBtn = $("logoutBtn");
 
-function closeSidebar() {
-    sidebar.classList.remove("active");
-    overlay.classList.remove("active");
-    menuBtn.setAttribute("aria-expanded", "false");
-}
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+        logoutBtn.disabled = true;
 
-menuBtn.addEventListener("click", openSidebar);
-closeMenuBtn.addEventListener("click", closeSidebar);
-overlay.addEventListener("click", closeSidebar);
+        try {
+            await apiRequest(LOGOUT_ENDPOINT, {
+                method: "POST"
+            });
 
-document.addEventListener("keydown", event => {
-    if (event.key === "Escape") {
-        closeSidebar();
+            sessionStorage.clear();
+            window.location.href = "../index.html";
 
-        if (!notificationOverlay.hidden) {
-            closeNotification(false);
+        } catch (error) {
+            showNotification(error.message || "Unable to logout. Please try again.");
+        } finally {
+            logoutBtn.disabled = false;
         }
-    }
-});
+    });
+}
 
 /* =========================================================
-   16. SIDEBAR NAVIGATION
-========================================================= */
-
-dashboardBtn.addEventListener("click", () => {
-    window.location.href = "../client-dashboard/index.html";
-});
-
-findWorkersBtn.addEventListener("click", () => {
-    closeSidebar();
-});
-
-editProfileBtn.addEventListener("click", () => {
-    window.location.href = "../client-edit-profile/index.html";
-});
-
-/* =========================================================
-   17. LOGOUT
-========================================================= */
-
-logoutBtn.addEventListener("click", async () => {
-    logoutBtn.disabled = true;
-
-    try {
-        await apiRequest(LOGOUT_ENDPOINT, {
-            method: "POST"
-        });
-
-        sessionStorage.clear();
-        window.location.href = "../index.html";
-
-    } catch (error) {
-        showNotification(error.message || "Unable to logout. Please try again.");
-    } finally {
-        logoutBtn.disabled = false;
-    }
-});
-
-/* =========================================================
-   18. INITIALIZE
+   16. INITIALIZE
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", loadWorkers);
