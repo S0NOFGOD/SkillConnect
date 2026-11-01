@@ -229,7 +229,7 @@ function initializeVerification(){
         otpInputs.forEach(input=>input.classList.remove("invalid"));
 
         verificationInProgress=true;
-        setButtonLoading(verifyButton,true,"Connecting...");
+        setButtonLoading(verifyButton,true,"Verifying...");
 
         try{
             const response=await API_REQUEST(VERIFY_ENDPOINT,{
@@ -300,7 +300,7 @@ function initializeResend(){
         resendOTP.dataset.loading="true";
         resendOTP.classList.add("disabled");
         resendOTP.setAttribute("aria-disabled","true");
-        resendOTP.textContent="Connecting...";
+        resendOTP.textContent="Verifying...";
 
         try{
             const response=await API_REQUEST(RESEND_ENDPOINT,{
