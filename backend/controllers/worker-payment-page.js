@@ -4,21 +4,20 @@ const crypto = require("crypto");
 const axios = require("axios");
 
 const Worker = require("../models/worker");
+
 const {
     authenticateWorker
 } = require("./worker-authentication");
 
 const PAYSTACK_URL = "https://api.paystack.co";
-const AMOUNT = 100000; // ₦1,000 in kobo
+const AMOUNT = 100000;
 const CURRENCY = "NGN";
 const ACCESS_DURATION = 30 * 24 * 60 * 60 * 1000;
 
 function paystackHeaders() {
     const key = process.env.PAYSTACK_SECRET_KEY;
 
-    if (!key) {
-        throw new Error("Paystack secret key is not configured.");
-    }
+    if (!key) throw new Error("Paystack secret key is missing.");
 
     return {
         Authorization: `Bearer ${key}`,
@@ -30,7 +29,7 @@ function authenticateRequest(req, res) {
     const authentication = authenticateWorker(req);
 
     if (!authentication.valid) {
-        res.status(authentication.status || 401).json({
+        res.status(401).json({
             success: false,
             code: "AUTHENTICATION_REQUIRED",
             message: authentication.message ||
@@ -58,16 +57,11 @@ async function verifyWithPaystack(reference) {
     if (
         response.data?.status !== true ||
         !transaction ||
-        transaction.reference !== reference
-    ) {
-        throw new Error("Paystack transaction verification failed.");
-    }
-
-    if (
+        transaction.reference !== reference ||
         transaction.amount !== AMOUNT ||
         transaction.currency !== CURRENCY
     ) {
-        throw new Error("Paystack transaction amount or currency is invalid.");
+        throw new Error("Paystack transaction verification failed.");
     }
 
     return transaction;
@@ -89,7 +83,6 @@ async function recordSuccess(workerId, reference) {
     const now = new Date();
     const expiresAt = new Date(now.getTime() + ACCESS_DURATION);
 
-    // A payment can activate access only once.
     const result = await Worker.updateOne(
         {
             _id: workerId,
@@ -110,13 +103,9 @@ async function recordSuccess(workerId, reference) {
     );
 
     if (result.modifiedCount === 1) {
-        return {
-            alreadyProcessed: false,
-            expiresAt
-        };
+        return expiresAt;
     }
 
-    // Repeated status requests or webhooks must not extend access.
     const worker = await Worker.findOne({
         _id: workerId,
         phoneVerificationPayments: {
@@ -128,13 +117,10 @@ async function recordSuccess(workerId, reference) {
     }).select("profileVerificationExpires");
 
     if (!worker) {
-        throw new Error("No matching pending payment record exists.");
+        throw new Error("Payment record could not be updated.");
     }
 
-    return {
-        alreadyProcessed: true,
-        expiresAt: worker.profileVerificationExpires
-    };
+    return worker.profileVerificationExpires;
 }
 
 async function recordFailure(workerId, reference) {
@@ -158,12 +144,11 @@ async function recordFailure(workerId, reference) {
 
 async function initializePaystackPayment(req, res) {
     try {
-        // Authentication belongs to the controller, not the route.
         if (!authenticateRequest(req, res)) return;
 
         if (
-            !process.env.PAYSTACK_CALLBACK_URL ||
-            !process.env.PAYSTACK_SECRET_KEY
+            !process.env.PAYSTACK_SECRET_KEY ||
+            !process.env.PAYSTACK_CALLBACK_URL
         ) {
             return res.status(500).json({
                 success: false,
@@ -171,9 +156,8 @@ async function initializePaystackPayment(req, res) {
             });
         }
 
-        const worker = await Worker.findById(req.workerId).select(
-            "email profileVerificationExpires phoneVerificationPayments"
-        );
+        const worker = await Worker.findById(req.workerId)
+            .select("email profileVerificationExpires");
 
         if (!worker) {
             return res.status(404).json({
@@ -182,7 +166,6 @@ async function initializePaystackPayment(req, res) {
             });
         }
 
-        // Do not charge again while profile-verification access is active.
         if (
             worker.profileVerificationExpires &&
             new Date(worker.profileVerificationExpires) > new Date()
@@ -199,7 +182,6 @@ async function initializePaystackPayment(req, res) {
             `SC-PHONE-${worker._id}-` +
             crypto.randomBytes(16).toString("hex");
 
-        // Save the reference before contacting Paystack.
         const saveResult = await Worker.updateOne(
             { _id: worker._id },
             {
@@ -210,8 +192,7 @@ async function initializePaystackPayment(req, res) {
                         currency: CURRENCY,
                         status: "pending",
                         paidAt: null,
-                        authorizationUrl: null,
-                        createdAt: new Date()
+                        authorizationUrl: null
                     }
                 }
             }
@@ -220,7 +201,7 @@ async function initializePaystackPayment(req, res) {
         if (saveResult.modifiedCount !== 1) {
             return res.status(500).json({
                 success: false,
-                message: "Unable to create a payment record. Please try again."
+                message: "Unable to create payment record."
             });
         }
 
@@ -246,30 +227,26 @@ async function initializePaystackPayment(req, res) {
         const payment = response.data?.data;
         const authorizationUrl = payment?.authorization_url;
 
-        let checkoutURLIsValid = false;
+        let validURL = false;
 
         try {
             const url = new URL(authorizationUrl);
 
-            checkoutURLIsValid =
+            validURL =
                 url.protocol === "https:" &&
-                (
-                    url.hostname === "checkout.paystack.com" ||
-                    url.hostname.endsWith(".paystack.com")
-                );
+                url.hostname === "checkout.paystack.com";
         } catch {
-            checkoutURLIsValid = false;
+            validURL = false;
         }
 
         if (
             response.data?.status !== true ||
-            !checkoutURLIsValid ||
+            !validURL ||
             payment?.reference !== reference
         ) {
             return res.status(502).json({
                 success: false,
-                message:
-                    "Paystack did not return valid checkout information. Please check your payment status before retrying."
+                message: "Paystack returned invalid checkout information."
             });
         }
 
@@ -291,6 +268,7 @@ async function initializePaystackPayment(req, res) {
             authorizationUrl,
             reference
         });
+
     } catch (error) {
         console.error(
             "Paystack initialization error:",
@@ -300,39 +278,51 @@ async function initializePaystackPayment(req, res) {
         return res.status(502).json({
             success: false,
             message:
-                "We could not confirm checkout initialization. Please check your payment status before retrying."
+                "Unable to initialize payment. Please try again."
         });
     }
 }
 
-async function verifyPaystackPaymentStatus(req, res) {
-    try {
-        // Authentication belongs to the controller, not the route.
-        if (!authenticateRequest(req, res)) return;
+function redirectToPaymentPage(res, payment, message) {
+    const frontendURL = process.env.WORKER_PAYMENT_PAGE_URL;
 
-        const { reference } = req.params;
+    if (!frontendURL) {
+        return res.status(500).send("Payment return URL is not configured.");
+    }
+
+    const url = new URL(frontendURL);
+
+    url.searchParams.set("payment", payment);
+    url.searchParams.set("message", message);
+
+    return res.redirect(303, url.toString());
+}
+
+async function handlePaystackCallback(req, res) {
+    try {
+        const reference = req.query.reference || req.query.trxref;
 
         if (
-            !reference ||
-            reference.length > 200 ||
-            !/^[a-zA-Z0-9_-]+$/.test(reference)
+            typeof reference !== "string" ||
+            !/^[a-zA-Z0-9_-]{1,200}$/.test(reference)
         ) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid payment reference."
-            });
+            return redirectToPaymentPage(
+                res,
+                "failed",
+                "Invalid payment reference. Please contact support if you have been charged."
+            );
         }
 
         const worker = await Worker.findOne({
-            _id: req.workerId,
             "phoneVerificationPayments.reference": reference
         }).select("phoneVerificationPayments");
 
         if (!worker) {
-            return res.status(404).json({
-                success: false,
-                message: "Payment reference not found."
-            });
+            return redirectToPaymentPage(
+                res,
+                "failed",
+                "Payment reference not found."
+            );
         }
 
         const payment = worker.phoneVerificationPayments.find(
@@ -340,69 +330,59 @@ async function verifyPaystackPaymentStatus(req, res) {
         );
 
         if (!payment) {
-            return res.status(404).json({
-                success: false,
-                message: "Payment reference not found."
-            });
+            return redirectToPaymentPage(
+                res,
+                "failed",
+                "Payment record not found."
+            );
         }
 
-        // Verify directly with Paystack. Never trust the browser alone.
         const transaction = await verifyWithPaystack(reference);
-        verifyOwner(transaction, req.workerId);
+
+        verifyOwner(transaction, worker._id);
 
         if (transaction.status === "success") {
-            const result = await recordSuccess(req.workerId, reference);
+            await recordSuccess(worker._id, reference);
 
-            return res.status(200).json({
-                success: true,
-                paymentStatus: "success",
-                message: "Payment verified successfully.",
-                reference,
-                amount: AMOUNT,
-                currency: CURRENCY,
-                profileVerificationExpires:
-                    result.expiresAt?.toISOString() || null
-            });
+            return redirectToPaymentPage(
+                res,
+                "success",
+                "Your ₦1,000 payment has been confirmed. Your profile-verification access is active for 30 days."
+            );
         }
 
         if (
             transaction.status === "failed" ||
             transaction.status === "abandoned"
         ) {
-            await recordFailure(req.workerId, reference);
+            await recordFailure(worker._id, reference);
 
-            return res.status(200).json({
-                success: true,
-                paymentStatus: "failed",
-                message:
-                    transaction.status === "abandoned"
-                        ? "Payment was cancelled or abandoned."
-                        : "Payment failed.",
-                reference,
-                amount: AMOUNT,
-                currency: CURRENCY
-            });
+            return redirectToPaymentPage(
+                res,
+                "failed",
+                transaction.status === "abandoned"
+                    ? "Your payment was cancelled."
+                    : "Your payment was unsuccessful. You can try again."
+            );
         }
 
-        return res.status(200).json({
-            success: true,
-            paymentStatus: "pending",
-            message: "Paystack has not confirmed the payment yet.",
-            reference,
-            amount: AMOUNT,
-            currency: CURRENCY
-        });
+        return redirectToPaymentPage(
+            res,
+            "failed",
+            "Your payment is still pending confirmation. Please contact support before trying another payment."
+        );
+
     } catch (error) {
         console.error(
-            "Paystack status error:",
+            "Paystack callback error:",
             error.response?.data || error.message
         );
 
-        return res.status(502).json({
-            success: false,
-            message:
-                "Unable to verify payment right now. If you have been charged, do not pay again until the status is checked."
-        });
+        return redirectToPaymentPage(
+            res,
+            "failed",
+            "Unable to confirm your payment. If you have been charged, contact support before trying again."
+        );
     }
 }
 
@@ -424,13 +404,11 @@ function validWebhookSignature(req) {
         .update(req.rawBody)
         .digest("hex");
 
-    const receivedBuffer = Buffer.from(signature, "hex");
-    const expectedBuffer = Buffer.from(expected, "hex");
+    const received = Buffer.from(signature, "hex");
+    const calculated = Buffer.from(expected, "hex");
 
-    return (
-        receivedBuffer.length === expectedBuffer.length &&
-        crypto.timingSafeEqual(receivedBuffer, expectedBuffer)
-    );
+    return received.length === calculated.length &&
+        crypto.timingSafeEqual(received, calculated);
 }
 
 async function handlePaystackWebhook(req, res) {
@@ -458,31 +436,23 @@ async function handlePaystackWebhook(req, res) {
             });
         }
 
-        // Independently verify the transaction with Paystack.
         const transaction = await verifyWithPaystack(reference);
 
         if (transaction.status !== "success") {
-            return res.status(200).json({
-                success: true,
-                message: "Payment is not confirmed as successful."
-            });
+            return res.status(200).json({ success: true });
         }
 
         const workerId = transaction.metadata?.workerId;
 
-        if (
-            !workerId ||
-            !/^[a-f0-9]{24}$/i.test(String(workerId))
-        ) {
+        if (!workerId || !/^[a-f0-9]{24}$/i.test(String(workerId))) {
             return res.status(400).json({
                 success: false,
-                message: "Worker information is invalid."
+                message: "Invalid worker information."
             });
         }
 
         verifyOwner(transaction, workerId);
 
-        // Only a recorded payment belonging to this worker can grant access.
         const paymentExists = await Worker.exists({
             _id: workerId,
             "phoneVerificationPayments.reference": reference
@@ -491,7 +461,7 @@ async function handlePaystackWebhook(req, res) {
         if (!paymentExists) {
             return res.status(404).json({
                 success: false,
-                message: "Payment reference not found."
+                message: "Payment record not found."
             });
         }
 
@@ -499,8 +469,9 @@ async function handlePaystackWebhook(req, res) {
 
         return res.status(200).json({
             success: true,
-            message: "Payment verified and processed."
+            message: "Payment processed successfully."
         });
+
     } catch (error) {
         console.error(
             "Paystack webhook error:",
@@ -516,6 +487,6 @@ async function handlePaystackWebhook(req, res) {
 
 module.exports = {
     initializePaystackPayment,
-    verifyPaystackPaymentStatus,
+    handlePaystackCallback,
     handlePaystackWebhook
 };

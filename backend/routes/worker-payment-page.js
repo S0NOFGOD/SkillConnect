@@ -4,7 +4,7 @@ const express = require("express");
 
 const {
     initializePaystackPayment,
-    verifyPaystackPaymentStatus,
+    handlePaystackCallback,
     handlePaystackWebhook
 } = require("../controllers/worker-payment-page");
 
@@ -16,8 +16,8 @@ router.post(
 );
 
 router.get(
-    "/paystack/status/:reference",
-    verifyPaystackPaymentStatus
+    "/paystack/callback",
+    handlePaystackCallback
 );
 
 router.post(

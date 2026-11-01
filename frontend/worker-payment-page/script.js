@@ -5,12 +5,8 @@ document.addEventListener("DOMContentLoaded", initializePaymentPage);
 const getElement = id => document.getElementById(id);
 
 const INITIALIZE_URL = "/api/worker-payment-page/paystack/initialize";
-const STATUS_URL = "/api/worker-payment-page/paystack/status";
 const DASHBOARD_URL = "../worker-dashboard/index.html";
 const AUTH_URL = "../worker-authentication/index.html";
-
-const AMOUNT = 100000;
-const CURRENCY = "NGN";
 
 let busy = false;
 let modalOpen = false;
@@ -19,7 +15,7 @@ let continueDestination = DASHBOARD_URL;
 function initializePaymentPage() {
     getElement("backBtn")?.addEventListener("click", () => {
         if (busy || modalOpen) return;
-        window.history.back();
+        window.location.assign(DASHBOARD_URL);
     });
 
     getElement("paystackPaymentButton")
@@ -102,7 +98,7 @@ function showResult(success, title, message, destination = DASHBOARD_URL) {
     button.focus();
 }
 
-function responseMessage(data, fallback) {
+function readMessage(data, fallback) {
     return typeof data?.message === "string" && data.message.trim()
         ? data.message
         : fallback;
@@ -116,33 +112,10 @@ async function readJSON(response) {
     }
 }
 
-function validCheckoutURL(value) {
-    try {
-        const url = new URL(value);
-
-        return url.protocol === "https:" &&
-            (
-                url.hostname === "checkout.paystack.com" ||
-                url.hostname.endsWith(".paystack.com")
-            );
-    } catch {
-        return false;
-    }
-}
-
 function isAuthenticationError(response, data) {
     return response.status === 401 ||
         data?.code === "AUTHENTICATION_REQUIRED" ||
         data?.code === "INVALID_ACCESS_TOKEN";
-}
-
-function showAuthenticationError(message) {
-    showResult(
-        false,
-        "Session expired",
-        message || "Your session has expired. Please log in again.",
-        AUTH_URL
-    );
 }
 
 async function startPayment() {
@@ -154,8 +127,7 @@ async function startPayment() {
     showMessage("Connecting to Paystack securely...");
 
     try {
-        // API_REQUEST is responsible for the existing access-token
-        // and refresh-token flow.
+        // API_REQUEST handles access-token refresh automatically.
         const response = await API_REQUEST(INITIALIZE_URL, {
             method: "POST",
             headers: {
@@ -170,78 +142,89 @@ async function startPayment() {
         if (!response.ok) {
             if (isAuthenticationError(response, data)) {
                 throw Object.assign(
-                    new Error(
-                        responseMessage(
-                            data,
-                            "Your session has expired. Please log in again."
-                        )
-                    ),
+                    new Error(readMessage(
+                        data,
+                        "Your session has expired. Please log in again."
+                    )),
                     { authenticationError: true }
                 );
             }
 
-            throw new Error(
-                responseMessage(
-                    data,
-                    "Unable to initialize payment. Please try again."
-                )
-            );
+            if (data.code === "PROFILE_VERIFICATION_ACTIVE") {
+                throw Object.assign(
+                    new Error(data.message),
+                    { activeProfile: true }
+                );
+            }
+
+            throw new Error(readMessage(
+                data,
+                "Unable to initialize payment. Please try again."
+            ));
         }
 
-        const checkoutURL =
-            data.authorizationUrl || data.data?.authorization_url;
+        const checkoutURL = data.authorizationUrl;
 
-        const reference =
-            data.reference || data.data?.reference;
+        let validURL = false;
 
-        if (
-            data.success !== true ||
-            !reference ||
-            !validCheckoutURL(checkoutURL)
-        ) {
-            throw new Error(
-                "Paystack returned invalid checkout information."
-            );
+        try {
+            const url = new URL(checkoutURL);
+
+            validURL = url.protocol === "https:" &&
+                url.hostname === "checkout.paystack.com";
+        } catch {
+            validURL = false;
+        }
+
+        if (data.success !== true || !validURL || !data.reference) {
+            throw new Error("Paystack returned invalid checkout information.");
         }
 
         hideMessage();
         window.location.assign(checkoutURL);
+
     } catch (error) {
         console.error("Payment initialization error:", error);
 
         if (error.authenticationError) {
-            showAuthenticationError(error.message);
+            showResult(
+                false,
+                "Session expired",
+                error.message,
+                AUTH_URL
+            );
+        } else if (error.activeProfile) {
+            showResult(
+                false,
+                "Verification already active",
+                error.message,
+                DASHBOARD_URL
+            );
         } else {
             showResult(
                 false,
                 "Unable to start payment",
                 error.message ||
-                    "Please try again. If you may have been charged, contact support before retrying."
+                    "Please try again. If you may have been charged, contact support."
             );
         }
     } finally {
         busy = false;
         setButton(false);
+        hideMessage();
     }
 }
 
 function handlePaystackReturn() {
     const url = new URL(window.location.href);
 
-    const reference =
-        url.searchParams.get("reference") ||
-        url.searchParams.get("trxref");
+    const payment = url.searchParams.get("payment");
+    const message = url.searchParams.get("message");
 
-    const returnedFromPaystack =
-        url.searchParams.has("reference") ||
-        url.searchParams.has("trxref") ||
-        url.searchParams.has("status");
+    if (!payment) return;
 
-    if (!returnedFromPaystack) return;
-
-    url.searchParams.delete("reference");
-    url.searchParams.delete("trxref");
-    url.searchParams.delete("status");
+    url.searchParams.delete("payment");
+    url.searchParams.delete("message");
 
     window.history.replaceState(
         {},
@@ -249,105 +232,19 @@ function handlePaystackReturn() {
         `${url.pathname}${url.search}${url.hash}`
     );
 
-    if (!reference) {
+    if (payment === "success") {
+        showResult(
+            true,
+            "Payment successful",
+            message ||
+                "Your ₦1,000 payment has been confirmed. Your profile-verification access is active for 30 days."
+        );
+    } else {
         showResult(
             false,
-            "Payment not confirmed",
-            "We could not find the payment reference. Check your payment status or contact support before trying again."
+            "Payment not completed",
+            message ||
+                "Your payment was unsuccessful or cancelled. You can try again from this page."
         );
-        return;
-    }
-
-    verifyPayment(reference);
-}
-
-async function verifyPayment(reference) {
-    if (busy || modalOpen) return;
-
-    busy = true;
-    setButton(true);
-    hideMessage();
-    showMessage("Checking your payment with SkillConnect...");
-
-    try {
-        const response = await API_REQUEST(
-            `${STATUS_URL}/${encodeURIComponent(reference)}`,
-            {
-                method: "GET",
-                headers: {
-                    Accept: "application/json"
-                }
-            }
-        );
-
-        const data = await readJSON(response);
-
-        if (!response.ok) {
-            if (isAuthenticationError(response, data)) {
-                throw Object.assign(
-                    new Error(
-                        responseMessage(
-                            data,
-                            "Your session has expired. Please log in again."
-                        )
-                    ),
-                    { authenticationError: true }
-                );
-            }
-
-            throw new Error(
-                responseMessage(
-                    data,
-                    "We could not confirm your payment. Contact support if you have been charged."
-                )
-            );
-        }
-
-        if (
-            data.success === true &&
-            data.paymentStatus === "success" &&
-            data.reference === reference &&
-            data.amount === AMOUNT &&
-            data.currency === CURRENCY
-        ) {
-            showResult(
-                true,
-                "Payment successful",
-                "Your ₦1,000 payment has been confirmed. Your profile-verification access is active for 30 days."
-            );
-        } else if (
-            data.paymentStatus === "failed" ||
-            data.paymentStatus === "cancelled"
-        ) {
-            showResult(
-                false,
-                "Payment not completed",
-                data.message ||
-                    "Your payment was not successful or was cancelled. You can continue to your worker dashboard."
-            );
-        } else {
-            showResult(
-                false,
-                "Payment pending",
-                data.message ||
-                    "Your payment has not yet been confirmed. Please wait or contact support before trying another payment."
-            );
-        }
-    } catch (error) {
-        console.error("Payment status error:", error);
-
-        if (error.authenticationError) {
-            showAuthenticationError(error.message);
-        } else {
-            showResult(
-                false,
-                "Unable to confirm payment",
-                `${error.message || "Please try again later."} If you have been charged, contact support before retrying.`
-            );
-        }
-    } finally {
-        busy = false;
-        setButton(false);
-        hideMessage();
     }
 }
