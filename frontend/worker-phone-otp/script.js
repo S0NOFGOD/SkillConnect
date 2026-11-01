@@ -93,8 +93,8 @@ window.addEventListener("authSessionExpired",()=>{
 /* LOAD MASKED PHONE */
 
 async function loadWorkerPhone(){
-    workerPhone.textContent="Connecting...";
-    countdown.textContent="Connecting...";
+    workerPhone.textContent="Verifying...";
+    countdown.textContent="Resending...";
     setControlsDisabled(true);
 
     try{
