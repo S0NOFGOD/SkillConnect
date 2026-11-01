@@ -40,7 +40,24 @@ const COOLDOWN_MS = 24 * 60 * 60 * 1000;
 const MAX_OTP_SENDS = 4;
 
 /* =========================================================
-   4. AUTHENTICATION
+   4. FORMAT PHONE FOR ROBASE
+========================================================= */
+
+const formatPhoneForRobase = phone => {
+
+    const cleaned = String(phone).replace(/\D/g, "");
+
+    if (!/^0[789][01]\d{8}$/.test(cleaned)) {
+        throw new Error(
+            "Please enter a valid Nigerian phone number."
+        );
+    }
+
+    return `+234${cleaned.slice(1)}`;
+};
+
+/* =========================================================
+   5. AUTHENTICATION
 ========================================================= */
 
 const authenticateRequest = (req, res) => {
@@ -64,14 +81,14 @@ const authenticateRequest = (req, res) => {
 };
 
 /* =========================================================
-   5. GENERATE OTP
+   6. GENERATE OTP
 ========================================================= */
 
 const generateOTP = () =>
     crypto.randomInt(100000, 1000000).toString();
 
 /* =========================================================
-   6. HASH OTP
+   7. HASH OTP
 ========================================================= */
 
 const hashOTP = otp =>
@@ -80,7 +97,7 @@ const hashOTP = otp =>
         .digest("hex");
 
 /* =========================================================
-   7. SEND PHONE OTP
+   8. SEND PHONE OTP
 ========================================================= */
 
 const sendPhoneOtp = async (phone, otp) => {
@@ -100,7 +117,7 @@ const sendPhoneOtp = async (phone, otp) => {
     await axios.post(
         `${ROBASE_BASE_URL}/v1/sms/send`,
         {
-            phone_number: phone,
+            phone_number: formatPhoneForRobase(phone),
             message
         },
         {
@@ -113,7 +130,7 @@ const sendPhoneOtp = async (phone, otp) => {
 };
 
 /* =========================================================
-   8. FORMAT PROFILE PHOTO
+   9. FORMAT PROFILE PHOTO
 ========================================================= */
 
 const formatProfilePhoto = publicId => {
@@ -130,7 +147,7 @@ const formatProfilePhoto = publicId => {
 };
 
 /* =========================================================
-   9. COUNT CLIENTS WITHIN 10 KM
+   10. COUNT CLIENTS WITHIN 10 KM
 ========================================================= */
 
 const countNearbyClients = async (workerLatitude, workerLongitude) => {
@@ -302,7 +319,7 @@ const countNearbyClients = async (workerLatitude, workerLongitude) => {
 };
 
 /* =========================================================
-   10. GET WORKER DASHBOARD
+   11. GET WORKER DASHBOARD
 ========================================================= */
 
 const getWorkerDashboard = async (req, res) => {
@@ -441,7 +458,7 @@ const getWorkerDashboard = async (req, res) => {
 };
 
 /* =========================================================
-   11. SEND PHONE OTP
+   12. SEND PHONE OTP
 ========================================================= */
 
 const verifyWorkerPhone = async (req, res) => {
@@ -663,7 +680,7 @@ const verifyWorkerPhone = async (req, res) => {
 };
 
 /* =========================================================
-   12. EXPORT CONTROLLERS
+   13. EXPORT CONTROLLERS
 ========================================================= */
 
 module.exports = {

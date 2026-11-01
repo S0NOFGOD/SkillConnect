@@ -24,13 +24,28 @@ const maskPhone=phone=>{
     return `${phone.slice(0,3)}****${phone.slice(-4)}`;
 };
 
+/* FORMAT PHONE FOR ROBASE */
+
+const formatPhoneForRobase=phone=>{
+
+    const cleaned=String(phone).replace(/\D/g,"");
+
+    if(!/^0[789][01]\d{8}$/.test(cleaned)){
+        throw new Error(
+            "Please enter a valid Nigerian phone number."
+        );
+    }
+
+    return `+234${cleaned.slice(1)}`;
+};
+
 const sendSMS=async(phone,otp)=>{
     if(!process.env.ROBASE_API_KEY){
         throw new Error("Robase SMS configuration is missing.");
     }
 
     await robase.sms.send({
-        phone_number:phone,
+        phone_number:formatPhoneForRobase(phone),
         message:`Your SkillConnect phone verification code is ${otp}. It expires in 10 minutes.`
     });
 };
