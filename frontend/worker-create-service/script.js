@@ -302,7 +302,7 @@ descriptionInput?.addEventListener(
 
 
 /* =========================================================
-   8. PORTFOLIO IMAGE PREVIEWS
+   8. PORTFOLIO IMAGE PREVIEWS AND VALIDATION
 ========================================================= */
 
 function restorePortfolioPreview(preview) {
@@ -313,6 +313,11 @@ function restorePortfolioPreview(preview) {
         <span>Add Image</span>
     `;
 }
+
+
+/* ---------------------------------------------------------
+   8A. FORMAT AND SIZE VALIDATION
+--------------------------------------------------------- */
 
 function validatePortfolioImage(file) {
     if (!file) {
@@ -338,6 +343,64 @@ function validatePortfolioImage(file) {
 
     return { valid: true };
 }
+
+
+/* ---------------------------------------------------------
+   8B. IMAGE CORRUPTION AND READABILITY VALIDATION
+--------------------------------------------------------- */
+
+function validateImageIntegrity(file) {
+    return new Promise(resolve => {
+        const image = new Image();
+        const objectURL = URL.createObjectURL(file);
+
+        let completed = false;
+
+        function finish(result) {
+            if (completed) return;
+
+            completed = true;
+
+            URL.revokeObjectURL(objectURL);
+
+            resolve(result);
+        }
+
+        image.onload = () => {
+            if (
+                !image.naturalWidth ||
+                !image.naturalHeight
+            ) {
+                finish({
+                    valid: false,
+                    message: `"${file.name}" is invalid or unreadable. Please select another image.`
+                });
+
+                return;
+            }
+
+            finish({
+                valid: true,
+                width: image.naturalWidth,
+                height: image.naturalHeight
+            });
+        };
+
+        image.onerror = () => {
+            finish({
+                valid: false,
+                message: `"${file.name}" is corrupted or cannot be read as an image. Please select another image.`
+            });
+        };
+
+        image.src = objectURL;
+    });
+}
+
+
+/* ---------------------------------------------------------
+   8C. IMAGE PREVIEW
+--------------------------------------------------------- */
 
 function showImagePreview(input, preview) {
     if (!input || !preview) return;
@@ -369,7 +432,12 @@ function showImagePreview(input, preview) {
     }, { once: true });
 }
 
-function validateSelectedPortfolioImage(input, preview) {
+
+/* ---------------------------------------------------------
+   8D. COMPLETE SELECTED IMAGE VALIDATION
+--------------------------------------------------------- */
+
+async function validateSelectedPortfolioImage(input, preview) {
     const file = input?.files?.[0];
 
     if (!file) {
@@ -377,16 +445,31 @@ function validateSelectedPortfolioImage(input, preview) {
         return true;
     }
 
-    const result = validatePortfolioImage(file);
+    const formatSizeResult = validatePortfolioImage(file);
 
-    if (!result.valid) {
+    if (!formatSizeResult.valid) {
         input.value = "";
         restorePortfolioPreview(preview);
 
         showNotification(
             "error",
             "Invalid Portfolio Image",
-            result.message
+            formatSizeResult.message
+        );
+
+        return false;
+    }
+
+    const integrityResult = await validateImageIntegrity(file);
+
+    if (!integrityResult.valid) {
+        input.value = "";
+        restorePortfolioPreview(preview);
+
+        showNotification(
+            "error",
+            "Invalid Portfolio Image",
+            integrityResult.message
         );
 
         return false;
@@ -396,6 +479,11 @@ function validateSelectedPortfolioImage(input, preview) {
 
     return true;
 }
+
+
+/* ---------------------------------------------------------
+   8E. IMAGE INPUT EVENTS
+--------------------------------------------------------- */
 
 portfolioPhoto1?.addEventListener("change", () => {
     validateSelectedPortfolioImage(
@@ -423,7 +511,7 @@ portfolioPhoto3?.addEventListener("change", () => {
    9. FORM VALIDATION
 ========================================================= */
 
-function validatePortfolioPhotos() {
+async function validatePortfolioPhotos() {
     const portfolioItems = [
         { input: portfolioPhoto1, number: 1 },
         { input: portfolioPhoto2, number: 2 },
@@ -440,10 +528,16 @@ function validatePortfolioPhotos() {
             };
         }
 
-        const result = validatePortfolioImage(file);
+        const formatSizeResult = validatePortfolioImage(file);
 
-        if (!result.valid) {
-            return result;
+        if (!formatSizeResult.valid) {
+            return formatSizeResult;
+        }
+
+        const integrityResult = await validateImageIntegrity(file);
+
+        if (!integrityResult.valid) {
+            return integrityResult;
         }
     }
 
@@ -470,8 +564,8 @@ function validateDescription() {
     return { valid: true };
 }
 
-function validateServiceForm() {
-    const portfolioResult = validatePortfolioPhotos();
+async function validateServiceForm() {
+    const portfolioResult = await validatePortfolioPhotos();
 
     if (!portfolioResult.valid) {
         return portfolioResult;
@@ -552,22 +646,24 @@ function buildServiceFormData() {
 async function createService() {
     if (isAddingService) return;
 
-    const validationResult = validateServiceForm();
-
-    if (!validationResult.valid) {
-        showNotification(
-            "error",
-            "Invalid Service",
-            validationResult.message
-        );
-
-        return;
-    }
-
     isAddingService = true;
     setButtonLoading(addServiceBtn, true);
 
     try {
+        const validationResult = await validateServiceForm();
+
+        if (!validationResult.valid) {
+            resetCreateServiceState();
+
+            showNotification(
+                "error",
+                "Invalid Service",
+                validationResult.message
+            );
+
+            return;
+        }
+
         const formData = buildServiceFormData();
 
         /*
