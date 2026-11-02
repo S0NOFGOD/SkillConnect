@@ -51,41 +51,15 @@ const ALLOWED_IMAGE_TYPES = new Set([
 ]);
 
 const DEFAULT_LOCAL_SKILLS = [
-    "Swimming Instructor",
-    "Barber",
-    "Hairdresser",
-    "Makeup Artist",
-    "Tailor",
-    "Bricklayer",
-    "Plumber",
-    "Electrician",
-    "Painter",
-    "Welder",
-    "Carpenter",
-    "Cleaner",
-    "Laundry Service",
-    "Mechanic",
-    "Auto Electrician",
-    "Phone Repair",
-    "Computer Repair",
-    "Graphic Designer",
-    "Web Developer",
-    "Photographer",
-    "Videographer",
-    "Caterer",
-    "Baker",
-    "Cook",
-    "Event Planner",
-    "Interior Decorator",
-    "AC Technician",
-    "Generator Repair",
-    "POP Installer",
-    "Tiler",
-    "Furniture Maker",
-    "Driver",
-    "Tutor",
-    "Fitness Trainer",
-    "Other"
+    "Swimming Instructor", "Barber", "Hairdresser", "Makeup Artist",
+    "Tailor", "Bricklayer", "Plumber", "Electrician", "Painter",
+    "Welder", "Carpenter", "Cleaner", "Laundry Service", "Mechanic",
+    "Auto Electrician", "Phone Repair", "Computer Repair",
+    "Graphic Designer", "Web Developer", "Photographer",
+    "Videographer", "Caterer", "Baker", "Cook", "Event Planner",
+    "Interior Decorator", "AC Technician", "Generator Repair",
+    "POP Installer", "Tiler", "Furniture Maker", "Driver", "Tutor",
+    "Fitness Trainer", "Other"
 ];
 
 let isAddingService = false;
@@ -97,8 +71,7 @@ let modalCloseCallback = null;
 ========================================================= */
 
 function getLocalSkills() {
-    return Array.isArray(window.LOCAL_SKILLS) &&
-        window.LOCAL_SKILLS.length
+    return Array.isArray(window.LOCAL_SKILLS) && window.LOCAL_SKILLS.length
         ? window.LOCAL_SKILLS
         : DEFAULT_LOCAL_SKILLS;
 }
@@ -109,7 +82,6 @@ function populateSkillDropdown() {
     skillInput.innerHTML = "";
 
     const placeholder = document.createElement("option");
-
     placeholder.value = "";
     placeholder.textContent = "Select your skill";
     placeholder.disabled = true;
@@ -119,10 +91,8 @@ function populateSkillDropdown() {
 
     getLocalSkills().forEach(skill => {
         const option = document.createElement("option");
-
         option.value = skill;
         option.textContent = skill;
-
         skillInput.appendChild(option);
     });
 }
@@ -140,14 +110,12 @@ function setButtonLoading(button, isLoading) {
     button.disabled = isLoading;
     button.classList.toggle("is-loading", isLoading);
 
+    const text = isLoading ? "Creating..." : "Create Service";
+
     if (textElement) {
-        textElement.textContent = isLoading
-            ? "Creating..."
-            : "Create Service";
+        textElement.textContent = text;
     } else {
-        button.textContent = isLoading
-            ? "Creating..."
-            : "Create Service";
+        button.textContent = text;
     }
 }
 
@@ -174,25 +142,14 @@ function showNotification(type, title, message, onClose = null) {
     modalCloseCallback = onClose;
 
     notificationCard.classList.remove(
-        "success",
-        "error",
-        "info",
-        "confirm"
+        "success", "error", "info", "confirm"
     );
 
     notificationCard.classList.add(type);
 
-    if (notificationIcon) {
-        notificationIcon.textContent = MODAL_ICONS[type] || "!";
-    }
-
-    if (notificationTitle) {
-        notificationTitle.textContent = title;
-    }
-
-    if (notificationText) {
-        notificationText.textContent = message;
-    }
+    if (notificationIcon) notificationIcon.textContent = MODAL_ICONS[type] || "!";
+    if (notificationTitle) notificationTitle.textContent = title;
+    if (notificationText) notificationText.textContent = message;
 
     if (notificationButton) {
         notificationButton.disabled = false;
@@ -212,23 +169,13 @@ function closeNotification() {
     document.body.style.overflow = "";
 
     const callback = modalCloseCallback;
-
     modalCloseCallback = null;
 
-    if (typeof callback === "function") {
-        callback();
-    }
+    if (typeof callback === "function") callback();
 }
 
-notificationCancelButton?.addEventListener(
-    "click",
-    closeNotification
-);
-
-notificationButton?.addEventListener(
-    "click",
-    closeNotification
-);
+notificationCancelButton?.addEventListener("click", closeNotification);
+notificationButton?.addEventListener("click", closeNotification);
 
 document.addEventListener("keydown", event => {
     if (
@@ -248,12 +195,7 @@ document.addEventListener("keydown", event => {
 window.addEventListener("authSessionExpired", () => {
     resetCreateServiceState();
 
-    if (
-        notificationOverlay &&
-        !notificationOverlay.hidden
-    ) {
-        return;
-    }
+    if (notificationOverlay && !notificationOverlay.hidden) return;
 
     showNotification(
         "error",
@@ -273,12 +215,9 @@ window.addEventListener("authSessionExpired", () => {
 function getWordCount(value) {
     const trimmedValue = value.trim();
 
-    if (!trimmedValue) return 0;
-
     return trimmedValue
-        .split(/\s+/)
-        .filter(Boolean)
-        .length;
+        ? trimmedValue.split(/\s+/).filter(Boolean).length
+        : 0;
 }
 
 function updateDescriptionWordCount() {
@@ -295,10 +234,7 @@ function updateDescriptionWordCount() {
     );
 }
 
-descriptionInput?.addEventListener(
-    "input",
-    updateDescriptionWordCount
-);
+descriptionInput?.addEventListener("input", updateDescriptionWordCount);
 
 
 /* =========================================================
@@ -319,25 +255,25 @@ function restorePortfolioPreview(preview) {
    8A. FORMAT AND SIZE VALIDATION
 --------------------------------------------------------- */
 
-function validatePortfolioImage(file) {
+function validatePortfolioImage(file, number) {
     if (!file) {
         return {
             valid: false,
-            message: "Please select a portfolio image."
+            message: `Please select portfolio photo ${number}.`
         };
     }
 
     if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
         return {
             valid: false,
-            message: `"${file.name}" must be a JPG, PNG, or WebP image.`
+            message: `Portfolio ${number} must be a JPG, PNG, or WebP image.`
         };
     }
 
     if (file.size > MAX_PORTFOLIO_IMAGE_SIZE) {
         return {
             valid: false,
-            message: `"${file.name}" exceeds the 10 MB image limit.`
+            message: `Portfolio ${number} exceeds the 10 MB image limit.`
         };
     }
 
@@ -349,7 +285,7 @@ function validatePortfolioImage(file) {
    8B. IMAGE CORRUPTION AND READABILITY VALIDATION
 --------------------------------------------------------- */
 
-function validateImageIntegrity(file) {
+function validateImageIntegrity(file, number) {
     return new Promise(resolve => {
         const image = new Image();
         const objectURL = URL.createObjectURL(file);
@@ -360,22 +296,16 @@ function validateImageIntegrity(file) {
             if (completed) return;
 
             completed = true;
-
             URL.revokeObjectURL(objectURL);
-
             resolve(result);
         }
 
         image.onload = () => {
-            if (
-                !image.naturalWidth ||
-                !image.naturalHeight
-            ) {
+            if (!image.naturalWidth || !image.naturalHeight) {
                 finish({
                     valid: false,
-                    message: `"${file.name}" is invalid or unreadable. Please select another image.`
+                    message: `Portfolio ${number} is corrupted or cannot be read as an image. Please select another image.`
                 });
-
                 return;
             }
 
@@ -389,7 +319,7 @@ function validateImageIntegrity(file) {
         image.onerror = () => {
             finish({
                 valid: false,
-                message: `"${file.name}" is corrupted or cannot be read as an image. Please select another image.`
+                message: `Portfolio ${number} is corrupted or cannot be read as an image. Please select another image.`
             });
         };
 
@@ -417,7 +347,6 @@ function showImagePreview(input, preview) {
     preview.innerHTML = "";
 
     const image = document.createElement("img");
-
     image.src = imageUrl;
     image.alt = "Selected portfolio image";
 
@@ -437,7 +366,7 @@ function showImagePreview(input, preview) {
    8D. COMPLETE SELECTED IMAGE VALIDATION
 --------------------------------------------------------- */
 
-async function validateSelectedPortfolioImage(input, preview) {
+async function validateSelectedPortfolioImage(input, preview, number) {
     const file = input?.files?.[0];
 
     if (!file) {
@@ -445,7 +374,7 @@ async function validateSelectedPortfolioImage(input, preview) {
         return true;
     }
 
-    const formatSizeResult = validatePortfolioImage(file);
+    const formatSizeResult = validatePortfolioImage(file, number);
 
     if (!formatSizeResult.valid) {
         input.value = "";
@@ -460,7 +389,7 @@ async function validateSelectedPortfolioImage(input, preview) {
         return false;
     }
 
-    const integrityResult = await validateImageIntegrity(file);
+    const integrityResult = await validateImageIntegrity(file, number);
 
     if (!integrityResult.valid) {
         input.value = "";
@@ -476,7 +405,6 @@ async function validateSelectedPortfolioImage(input, preview) {
     }
 
     showImagePreview(input, preview);
-
     return true;
 }
 
@@ -486,24 +414,15 @@ async function validateSelectedPortfolioImage(input, preview) {
 --------------------------------------------------------- */
 
 portfolioPhoto1?.addEventListener("change", () => {
-    validateSelectedPortfolioImage(
-        portfolioPhoto1,
-        portfolioPreview1
-    );
+    validateSelectedPortfolioImage(portfolioPhoto1, portfolioPreview1, 1);
 });
 
 portfolioPhoto2?.addEventListener("change", () => {
-    validateSelectedPortfolioImage(
-        portfolioPhoto2,
-        portfolioPreview2
-    );
+    validateSelectedPortfolioImage(portfolioPhoto2, portfolioPreview2, 2);
 });
 
 portfolioPhoto3?.addEventListener("change", () => {
-    validateSelectedPortfolioImage(
-        portfolioPhoto3,
-        portfolioPreview3
-    );
+    validateSelectedPortfolioImage(portfolioPhoto3, portfolioPreview3, 3);
 });
 
 
@@ -528,17 +447,13 @@ async function validatePortfolioPhotos() {
             };
         }
 
-        const formatSizeResult = validatePortfolioImage(file);
+        const formatSizeResult = validatePortfolioImage(file, item.number);
 
-        if (!formatSizeResult.valid) {
-            return formatSizeResult;
-        }
+        if (!formatSizeResult.valid) return formatSizeResult;
 
-        const integrityResult = await validateImageIntegrity(file);
+        const integrityResult = await validateImageIntegrity(file, item.number);
 
-        if (!integrityResult.valid) {
-            return integrityResult;
-        }
+        if (!integrityResult.valid) return integrityResult;
     }
 
     return { valid: true };
@@ -567,9 +482,7 @@ function validateDescription() {
 async function validateServiceForm() {
     const portfolioResult = await validatePortfolioPhotos();
 
-    if (!portfolioResult.valid) {
-        return portfolioResult;
-    }
+    if (!portfolioResult.valid) return portfolioResult;
 
     if (!skillInput?.value.trim()) {
         return {
@@ -585,13 +498,7 @@ async function validateServiceForm() {
         };
     }
 
-    const descriptionResult = validateDescription();
-
-    if (!descriptionResult.valid) {
-        return descriptionResult;
-    }
-
-    return { valid: true };
+    return validateDescription();
 }
 
 
@@ -610,10 +517,7 @@ async function extractResponseMessage(response) {
             "Something went wrong. Please try again.";
 
     } catch (error) {
-        console.error(
-            "Unable to read backend response:",
-            error
-        );
+        console.error("Unable to read backend response:", error);
 
         return "The server returned an unexpected response. Please try again.";
     }
@@ -703,8 +607,7 @@ async function createService() {
 
             resetCreateServiceState();
 
-            const profileVerificationRequired =
-                response.status === 403;
+            const profileVerificationRequired = response.status === 403;
 
             showNotification(
                 "error",
@@ -728,9 +631,8 @@ async function createService() {
         try {
             const data = await response.json();
 
-            if (data.message) {
-                successMessage = data.message;
-            }
+            if (data.message) successMessage = data.message;
+
         } catch (error) {
             console.log("No JSON success response returned.");
         }
@@ -751,18 +653,11 @@ async function createService() {
 
         resetCreateServiceState();
 
-        let message =
-            "Unable to connect to the server. Please check your internet connection and try again.";
+        const message = error?.name === "AbortError"
+            ? "The request took too long. Please try again."
+            : "Unable to connect to the server. Please check your internet connection and try again.";
 
-        if (error?.name === "AbortError") {
-            message = "The request took too long. Please try again.";
-        }
-
-        showNotification(
-            "error",
-            "Request Failed",
-            message
-        );
+        showNotification("error", "Request Failed", message);
 
     } finally {
         resetCreateServiceState();
