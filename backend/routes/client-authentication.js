@@ -1,21 +1,15 @@
+"use strict";
+
 const express=require("express");
 const router=express.Router();
 
-const{
-signup,
-login,
-forgotPassword,
-googleAuthentication,
-googleCallback,
-googleExchange,
-authenticateClient
-}=require("../controllers/client-authentication");
+const auth=require("../controllers/client-authentication");
 
-router.post("/signup",signup);
-router.post("/login",login);
-router.post("/forgot-password",forgotPassword);
-router.get("/google",googleAuthentication);
-router.get("/google/callback",googleCallback);
-router.post("/google/exchange",googleExchange);
+router.post("/signup",auth.signup);
+router.post("/login",auth.login);
+router.post("/forgot-password",auth.forgotPassword);
+
+router.get("/google",auth.googleAuthentication);
+router.get("/google/callback",auth.googleCallback);
 
 module.exports=router;
