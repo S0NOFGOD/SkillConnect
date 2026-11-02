@@ -1,7 +1,7 @@
 "use strict";
 
 /* =========================================================
-   1. IMPORTS
+1. IMPORTS
 ========================================================= */
 
 const { Readable } = require("stream");
@@ -12,9 +12,8 @@ const multer = require("multer");
 
 const { authenticateWorker } = require("./worker-authentication");
 
-
 /* =========================================================
-   2. CLOUDINARY CONFIGURATION
+2. CLOUDINARY CONFIGURATION
 ========================================================= */
 
 cloudinary.config({
@@ -23,9 +22,8 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-
 /* =========================================================
-   3. LIMITS AND ALLOWED VALUES
+3. LIMITS AND ALLOWED VALUES
 ========================================================= */
 
 const MAX_PORTFOLIO_IMAGE_SIZE = 10 * 1024 * 1024;
@@ -70,9 +68,8 @@ const EXPERIENCE_OPTIONS = [
     "5 years+"
 ];
 
-
 /* =========================================================
-   4. RESPONSE HELPERS
+4. RESPONSE HELPERS
 ========================================================= */
 
 function sendError(res, status, message) {
@@ -83,17 +80,30 @@ function sendError(res, status, message) {
 }
 
 function portfolioProcessingMessage(numbers) {
-    if (numbers.length === 3) {
-        return "Unable to process all 3 portfolios. Please upload 3 different images and try again.";
-    }
+    const uniqueNumbers = [...new Set(numbers)].sort(
+        (a, b) => a - b
+    );
 
-    const names = numbers.map(number => `portfolio ${number}`);
+    const names = uniqueNumbers.map(
+        number => `portfolio ${number}`
+    );
 
-    const portfolioNames = names.length === 1
-        ? names[0]
-        : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+    const portfolioNames =
+        names.length === 1
+            ? names[0]
+            : names.length === 2
+                ? `${names[0]} and ${names[1]}`
+                : names.join(", ").replace(
+                    /, ([^,]*)$/,
+                    " and $1"
+                );
 
-    return `Unable to process ${portfolioNames}. Please upload different image(s) and try again.`;
+    const imageText =
+        uniqueNumbers.length === 1
+            ? "the image"
+            : "the images";
+
+    return `Failed to process ${portfolioNames}. Please change ${imageText} and try again.`;
 }
 
 function countWords(text) {
@@ -102,9 +112,8 @@ function countWords(text) {
         : 0;
 }
 
-
 /* =========================================================
-   5. IMAGE VALIDATION
+5. IMAGE VALIDATION
 ========================================================= */
 
 function validatePortfolioFiles(files) {
@@ -143,9 +152,8 @@ function validatePortfolioFiles(files) {
     return { valid: true };
 }
 
-
 /* =========================================================
-   6. OPTIMIZE PORTFOLIO IMAGES
+6. OPTIMIZE PORTFOLIO IMAGES
 ========================================================= */
 
 async function convertAndCompressImage(fileBuffer) {
@@ -207,9 +215,8 @@ async function convertAndCompressImage(fileBuffer) {
     throw new Error("Portfolio compression failed.");
 }
 
-
 /* =========================================================
-   7. CLOUDINARY UPLOAD
+7. CLOUDINARY UPLOAD
 ========================================================= */
 
 function uploadImageToCloudinary(fileBuffer, workerId) {
@@ -231,13 +238,17 @@ function uploadImageToCloudinary(fileBuffer, workerId) {
             }
         );
 
-        Readable.from(fileBuffer).pipe(uploadStream);
+        const readableStream = Readable.from(fileBuffer);
+
+        readableStream.on("error", reject);
+        uploadStream.on("error", reject);
+
+        readableStream.pipe(uploadStream);
     });
 }
 
-
 /* =========================================================
-   8. CLEAN UP FAILED UPLOADS
+8. CLEAN UP FAILED UPLOADS
 ========================================================= */
 
 async function deleteCloudinaryImages(publicIds) {
@@ -254,9 +265,8 @@ async function deleteCloudinaryImages(publicIds) {
     }
 }
 
-
 /* =========================================================
-   9. CREATE SERVICE
+9. CREATE SERVICE
 ========================================================= */
 
 async function createWorkerService(req, res) {
@@ -464,29 +474,60 @@ async function createWorkerService(req, res) {
 
         /* L. COMPRESS AND UPLOAD PORTFOLIOS */
 
-        const portfolioPublicIds = [];
+        const compressedImages = [];
+        const compressionFailures = [];
+
+        // First, attempt to compress all three images.
+        // This allows the controller to identify every image
+        // that fails processing instead of stopping at the first one.
 
         for (let index = 0; index < portfolioFiles.length; index++) {
-            let compressedImage;
-
             try {
-                compressedImage = await convertAndCompressImage(
+                const compressedImage = await convertAndCompressImage(
                     portfolioFiles[index].buffer
                 );
-            } catch (error) {
-                error.portfolioProcessingNumber = index + 1;
-                throw error;
-            }
 
+                compressedImages.push({
+                    portfolioNumber: index + 1,
+                    buffer: compressedImage
+                });
+
+            } catch (error) {
+                console.error(
+                    `Portfolio ${index + 1} processing failed:`,
+                    error
+                );
+
+                compressionFailures.push(index + 1);
+            }
+        }
+
+        // Return all processing failures together.
+        // No Cloudinary uploads have happened yet.
+
+        if (compressionFailures.length) {
+            return sendError(
+                res,
+                400,
+                portfolioProcessingMessage(compressionFailures)
+            );
+        }
+
+        // Upload only after all three images have compressed successfully.
+
+        const portfolioPublicIds = [];
+
+        for (const image of compressedImages) {
             let uploadedImage;
 
             try {
                 uploadedImage = await uploadImageToCloudinary(
-                    compressedImage,
+                    image.buffer,
                     worker._id.toString()
                 );
+
             } catch (error) {
-                error.portfolioUploadNumber = index + 1;
+                error.portfolioUploadNumber = image.portfolioNumber;
                 throw error;
             }
 
@@ -612,9 +653,8 @@ async function createWorkerService(req, res) {
     }
 }
 
-
 /* =========================================================
-   10. EXPORT
+10. EXPORT
 ========================================================= */
 
 module.exports = {
