@@ -1,7 +1,7 @@
 "use strict";
 
 /* =========================================================
-1. IMPORTS
+   1. IMPORTS
 ========================================================= */
 
 const { Readable } = require("stream");
@@ -12,8 +12,9 @@ const multer = require("multer");
 
 const { authenticateWorker } = require("./worker-authentication");
 
+
 /* =========================================================
-2. CLOUDINARY CONFIGURATION
+   2. CLOUDINARY CONFIGURATION
 ========================================================= */
 
 cloudinary.config({
@@ -22,8 +23,9 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+
 /* =========================================================
-3. LIMITS AND ALLOWED VALUES
+   3. LIMITS AND ALLOWED VALUES
 ========================================================= */
 
 const MAX_PORTFOLIO_IMAGE_SIZE = 10 * 1024 * 1024;
@@ -46,17 +48,41 @@ const ALLOWED_IMAGE_FORMATS = new Set([
 ]);
 
 const LOCAL_SKILLS = [
-    "Swimming Instructor", "Barber", "Hairdresser",
-    "Makeup Artist", "Tailor", "Bricklayer", "Plumber",
-    "Electrician", "Painter", "Welder", "Carpenter",
-    "Cleaner", "Laundry Service", "Mechanic",
-    "Auto Electrician", "Phone Repair", "Computer Repair",
-    "Graphic Designer", "Web Developer", "Photographer",
-    "Videographer", "Caterer", "Baker", "Cook",
-    "Event Planner", "Interior Decorator", "AC Technician",
-    "Generator Repair", "POP Installer", "Tiler",
-    "Furniture Maker", "Driver", "Tutor",
-    "Fitness Trainer", "Other"
+    "Swimming Instructor",
+    "Barber",
+    "Hairdresser",
+    "Makeup Artist",
+    "Tailor",
+    "Bricklayer",
+    "Plumber",
+    "Electrician",
+    "Painter",
+    "Welder",
+    "Carpenter",
+    "Cleaner",
+    "Laundry Service",
+    "Mechanic",
+    "Auto Electrician",
+    "Phone Repair",
+    "Computer Repair",
+    "Graphic Designer",
+    "Web Developer",
+    "Photographer",
+    "Videographer",
+    "Caterer",
+    "Baker",
+    "Cook",
+    "Event Planner",
+    "Interior Decorator",
+    "AC Technician",
+    "Generator Repair",
+    "POP Installer",
+    "Tiler",
+    "Furniture Maker",
+    "Driver",
+    "Tutor",
+    "Fitness Trainer",
+    "Other"
 ];
 
 const EXPERIENCE_OPTIONS = [
@@ -68,8 +94,9 @@ const EXPERIENCE_OPTIONS = [
     "5 years+"
 ];
 
+
 /* =========================================================
-4. RESPONSE HELPERS
+   4. RESPONSE HELPERS
 ========================================================= */
 
 function sendError(res, status, message) {
@@ -112,12 +139,16 @@ function countWords(text) {
         : 0;
 }
 
+
 /* =========================================================
-5. IMAGE VALIDATION
+   5. IMAGE VALIDATION
 ========================================================= */
 
 function validatePortfolioFiles(files) {
-    if (!Array.isArray(files) || files.length !== MAX_PORTFOLIO_IMAGES) {
+    if (
+        !Array.isArray(files) ||
+        files.length !== MAX_PORTFOLIO_IMAGES
+    ) {
         return {
             valid: false,
             message: "Please upload exactly 3 portfolio images."
@@ -152,8 +183,9 @@ function validatePortfolioFiles(files) {
     return { valid: true };
 }
 
+
 /* =========================================================
-6. OPTIMIZE PORTFOLIO IMAGES
+   6. OPTIMIZE PORTFOLIO IMAGES
 ========================================================= */
 
 async function convertAndCompressImage(fileBuffer) {
@@ -175,11 +207,23 @@ async function convertAndCompressImage(fileBuffer) {
         1
     );
 
-    let width = Math.max(1, Math.floor(metadata.width * resizeScale));
-    let height = Math.max(1, Math.floor(metadata.height * resizeScale));
+    let width = Math.max(
+        1,
+        Math.floor(metadata.width * resizeScale)
+    );
+
+    let height = Math.max(
+        1,
+        Math.floor(metadata.height * resizeScale)
+    );
+
     let quality = 80;
 
-    for (let attempt = 0; attempt < MAX_COMPRESSION_ATTEMPTS; attempt++) {
+    for (
+        let attempt = 0;
+        attempt < MAX_COMPRESSION_ATTEMPTS;
+        attempt++
+    ) {
         const outputBuffer = await sharp(fileBuffer, {
             limitInputPixels: 40000000,
             sequentialRead: true
@@ -215,12 +259,14 @@ async function convertAndCompressImage(fileBuffer) {
     throw new Error("Portfolio compression failed.");
 }
 
+
 /* =========================================================
-7. CLOUDINARY UPLOAD
+   7. CLOUDINARY UPLOAD
 ========================================================= */
 
 function uploadImageToCloudinary(fileBuffer, workerId) {
     return new Promise((resolve, reject) => {
+
         const uploadStream = cloudinary.uploader.upload_stream(
             {
                 folder: `skillconnect/workers/${workerId}/services`,
@@ -228,27 +274,46 @@ function uploadImageToCloudinary(fileBuffer, workerId) {
                 format: "jpg"
             },
             (error, result) => {
-                if (error) return reject(error);
 
-                if (!result || !result.public_id) {
-                    return reject(new Error("Cloudinary upload failed."));
+                if (error) {
+                    console.error("Cloudinary upload error:", {
+                        message: error.message,
+                        http_code: error.http_code,
+                        name: error.name
+                    });
+
+                    return reject(error);
                 }
 
-                resolve({ public_id: result.public_id });
+                if (!result || !result.public_id) {
+                    return reject(
+                        new Error("Cloudinary returned no public image ID.")
+                    );
+                }
+
+                resolve({
+                    public_id: result.public_id
+                });
             }
         );
 
-        const readableStream = Readable.from(fileBuffer);
+        const readableStream = Readable.from([fileBuffer]);
 
-        readableStream.on("error", reject);
-        uploadStream.on("error", reject);
+        readableStream.on("error", error => {
+            reject(error);
+        });
+
+        uploadStream.on("error", error => {
+            reject(error);
+        });
 
         readableStream.pipe(uploadStream);
     });
 }
 
+
 /* =========================================================
-8. CLEAN UP FAILED UPLOADS
+   8. CLEAN UP FAILED UPLOADS
 ========================================================= */
 
 async function deleteCloudinaryImages(publicIds) {
@@ -259,14 +324,19 @@ async function deleteCloudinaryImages(publicIds) {
             await cloudinary.uploader.destroy(publicId, {
                 resource_type: "image"
             });
+
         } catch (error) {
-            console.error("Cloudinary cleanup failed:", error);
+            console.error("Cloudinary cleanup failed:", {
+                publicId,
+                message: error.message
+            });
         }
     }
 }
 
+
 /* =========================================================
-9. CREATE SERVICE
+   9. CREATE SERVICE
 ========================================================= */
 
 async function createWorkerService(req, res) {
@@ -327,10 +397,15 @@ async function createWorkerService(req, res) {
             ? req.files
             : [];
 
-        const portfolioResult = validatePortfolioFiles(portfolioFiles);
+        const portfolioResult =
+            validatePortfolioFiles(portfolioFiles);
 
         if (!portfolioResult.valid) {
-            return sendError(res, 400, portfolioResult.message);
+            return sendError(
+                res,
+                400,
+                portfolioResult.message
+            );
         }
 
 
@@ -341,11 +416,19 @@ async function createWorkerService(req, res) {
             : "";
 
         if (!skill) {
-            return sendError(res, 400, "Please select your skill.");
+            return sendError(
+                res,
+                400,
+                "Please select your skill."
+            );
         }
 
         if (!LOCAL_SKILLS.includes(skill)) {
-            return sendError(res, 400, "The selected skill is not valid.");
+            return sendError(
+                res,
+                400,
+                "The selected skill is not valid."
+            );
         }
 
 
@@ -356,11 +439,19 @@ async function createWorkerService(req, res) {
             : "";
 
         if (!experience) {
-            return sendError(res, 400, "Please select your experience.");
+            return sendError(
+                res,
+                400,
+                "Please select your experience."
+            );
         }
 
         if (!EXPERIENCE_OPTIONS.includes(experience)) {
-            return sendError(res, 400, "The selected experience is not valid.");
+            return sendError(
+                res,
+                400,
+                "The selected experience is not valid."
+            );
         }
 
 
@@ -391,11 +482,18 @@ async function createWorkerService(req, res) {
 
         const invalidPortfolios = [];
 
-        for (let index = 0; index < portfolioFiles.length; index++) {
+        for (
+            let index = 0;
+            index < portfolioFiles.length;
+            index++
+        ) {
             try {
-                const metadata = await sharp(portfolioFiles[index].buffer, {
-                    limitInputPixels: 40000000
-                }).metadata();
+                const metadata = await sharp(
+                    portfolioFiles[index].buffer,
+                    {
+                        limitInputPixels: 40000000
+                    }
+                ).metadata();
 
                 if (
                     !metadata.width ||
@@ -426,7 +524,9 @@ async function createWorkerService(req, res) {
 
         if (
             !profileVerificationExpires ||
-            !Number.isFinite(new Date(profileVerificationExpires).getTime()) ||
+            !Number.isFinite(
+                new Date(profileVerificationExpires).getTime()
+            ) ||
             new Date(profileVerificationExpires).getTime() <= Date.now()
         ) {
             return sendError(
@@ -459,11 +559,17 @@ async function createWorkerService(req, res) {
 
         let nextServiceId = 1;
 
-        if (Array.isArray(worker.services) && worker.services.length) {
+        if (
+            Array.isArray(worker.services) &&
+            worker.services.length
+        ) {
             const highestServiceId = worker.services.reduce(
                 (highest, service) => {
                     const id = Number(service.id);
-                    return Number.isFinite(id) && id > highest ? id : highest;
+
+                    return Number.isFinite(id) && id > highest
+                        ? id
+                        : highest;
                 },
                 0
             );
@@ -472,20 +578,21 @@ async function createWorkerService(req, res) {
         }
 
 
-        /* L. COMPRESS AND UPLOAD PORTFOLIOS */
+        /* L. COMPRESS ALL THREE PORTFOLIOS FIRST */
 
         const compressedImages = [];
         const compressionFailures = [];
 
-        // First, attempt to compress all three images.
-        // This allows the controller to identify every image
-        // that fails processing instead of stopping at the first one.
-
-        for (let index = 0; index < portfolioFiles.length; index++) {
+        for (
+            let index = 0;
+            index < portfolioFiles.length;
+            index++
+        ) {
             try {
-                const compressedImage = await convertAndCompressImage(
-                    portfolioFiles[index].buffer
-                );
+                const compressedImage =
+                    await convertAndCompressImage(
+                        portfolioFiles[index].buffer
+                    );
 
                 compressedImages.push({
                     portfolioNumber: index + 1,
@@ -502,8 +609,10 @@ async function createWorkerService(req, res) {
             }
         }
 
-        // Return all processing failures together.
-        // No Cloudinary uploads have happened yet.
+        /*
+           Do not upload anything if even one image
+           fails compression.
+        */
 
         if (compressionFailures.length) {
             return sendError(
@@ -513,7 +622,8 @@ async function createWorkerService(req, res) {
             );
         }
 
-        // Upload only after all three images have compressed successfully.
+
+        /* M. UPLOAD ALL THREE TO CLOUDINARY */
 
         const portfolioPublicIds = [];
 
@@ -527,7 +637,9 @@ async function createWorkerService(req, res) {
                 );
 
             } catch (error) {
-                error.portfolioUploadNumber = image.portfolioNumber;
+                error.portfolioUploadNumber =
+                    image.portfolioNumber;
+
                 throw error;
             }
 
@@ -536,7 +648,7 @@ async function createWorkerService(req, res) {
         }
 
 
-        /* M. PREPARE SERVICE DATA */
+        /* N. PREPARE SERVICE DATA */
 
         const now = new Date();
 
@@ -555,7 +667,7 @@ async function createWorkerService(req, res) {
         };
 
 
-        /* N. SAVE SERVICE AND WORKER SKILL */
+        /* O. SAVE SERVICE AND WORKER SKILL */
 
         worker.services.push(newService);
 
@@ -575,7 +687,7 @@ async function createWorkerService(req, res) {
         await worker.save();
 
 
-        /* O. SUCCESS RESPONSE */
+        /* P. SUCCESS RESPONSE */
 
         return res.status(201).json({
             success: true,
@@ -584,29 +696,28 @@ async function createWorkerService(req, res) {
 
     } catch (error) {
 
+        /*
+           If anything fails after Cloudinary uploads,
+           attempt to delete every image uploaded
+           during this request.
+        */
+
         await deleteCloudinaryImages(uploadedPublicIds);
 
 
-        /* PORTFOLIO PROCESSING ERROR */
-
-        if (error.portfolioProcessingNumber) {
-            return sendError(
-                res,
-                400,
-                portfolioProcessingMessage([
-                    error.portfolioProcessingNumber
-                ])
-            );
-        }
-
-
-        /* CLOUDINARY UPLOAD ERROR */
+        /* PORTFOLIO UPLOAD ERROR */
 
         if (error.portfolioUploadNumber) {
+            console.error("Portfolio upload failed:", {
+                portfolio: error.portfolioUploadNumber,
+                message: error.message,
+                http_code: error.http_code
+            });
+
             return sendError(
                 res,
                 503,
-                `Unable to upload portfolio ${error.portfolioUploadNumber}. Please try again.`
+                `Unable to upload portfolio ${error.portfolioUploadNumber}. Please check your connection and try again.`
             );
         }
 
@@ -614,6 +725,7 @@ async function createWorkerService(req, res) {
         /* MULTER ERRORS */
 
         if (error instanceof multer.MulterError) {
+
             if (error.code === "LIMIT_FILE_SIZE") {
                 return sendError(
                     res,
@@ -643,7 +755,13 @@ async function createWorkerService(req, res) {
 
         /* GENERAL ERROR */
 
-        console.error("Create worker service error:", error);
+        console.error("Create worker service error:", {
+            message: error.message,
+            name: error.name,
+            stack: error.stack,
+            code: error.code,
+            http_code: error.http_code
+        });
 
         return sendError(
             res,
@@ -653,8 +771,9 @@ async function createWorkerService(req, res) {
     }
 }
 
+
 /* =========================================================
-10. EXPORT
+   10. EXPORT
 ========================================================= */
 
 module.exports = {

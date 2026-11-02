@@ -521,7 +521,7 @@ async function extractResponseMessage(response) {
             error
         );
 
-        return "Something went wrong. Please try again.";
+        return "The server returned an unexpected response. Please try again.";
     }
 }
 
@@ -655,10 +655,17 @@ async function createService() {
 
         resetCreateServiceState();
 
+        let message =
+            "Unable to connect to the server. Please check your internet connection and try again.";
+
+        if (error?.name === "AbortError") {
+            message = "The request took too long. Please try again.";
+        }
+
         showNotification(
             "error",
             "Request Failed",
-            "Something went wrong. Please try again."
+            message
         );
 
     } finally {
