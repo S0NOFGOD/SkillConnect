@@ -1,9 +1,6 @@
 "use strict";
 
-const mongoose = require("mongoose");
-
 const Worker = require("../models/worker");
-
 const { v2: cloudinary } = require("cloudinary");
 
 /* =========================================================
@@ -20,22 +17,12 @@ cloudinary.config({
    2. DISTANCE CALCULATION
 ========================================================= */
 
-const calculateDistance = (
-    lat1,
-    lon1,
-    lat2,
-    lon2
-) => {
-    const toRadians = value =>
-        value * Math.PI / 180;
-
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const toRadians = value => value * Math.PI / 180;
     const earthRadius = 6371;
 
-    const latitudeDifference =
-        toRadians(lat2 - lat1);
-
-    const longitudeDifference =
-        toRadians(lon2 - lon1);
+    const latitudeDifference = toRadians(lat2 - lat1);
+    const longitudeDifference = toRadians(lon2 - lon1);
 
     const a =
         Math.sin(latitudeDifference / 2) ** 2 +
@@ -43,22 +30,17 @@ const calculateDistance = (
         Math.cos(toRadians(lat2)) *
         Math.sin(longitudeDifference / 2) ** 2;
 
-    const c = 2 * Math.atan2(
+    return earthRadius * 2 * Math.atan2(
         Math.sqrt(a),
         Math.sqrt(1 - a)
     );
-
-    return earthRadius * c;
 };
 
 /* =========================================================
    3. VALIDATE CLIENT LOCATION
 ========================================================= */
 
-const validateCoordinates = (
-    latitude,
-    longitude
-) => {
+const validateCoordinates = (latitude, longitude) => {
     if (
         typeof latitude !== "number" ||
         !Number.isFinite(latitude) ||
@@ -83,9 +65,7 @@ const validateCoordinates = (
         };
     }
 
-    return {
-        valid: true
-    };
+    return { valid: true };
 };
 
 /* =========================================================
@@ -94,14 +74,9 @@ const validateCoordinates = (
 
 const getNearbyWorkers = async (req, res) => {
     try {
-        const {
-            latitude,
-            longitude
-        } = req.body;
+        const { latitude, longitude } = req.body;
 
-        /* =================================================
-           4.1 VALIDATE LATITUDE AND LONGITUDE
-        ================================================= */
+        /* VALIDATE COORDINATES */
 
         const validation = validateCoordinates(
             latitude,
@@ -115,84 +90,53 @@ const getNearbyWorkers = async (req, res) => {
             });
         }
 
-        /* =================================================
-           4.2 FIND WORKERS WITHIN 10 KM
-        ================================================= */
+        /* FIND WORKERS WITHIN 10 KM */
 
         const radius = 10;
-
-        const latitudeRange =
-            radius / 111.32;
+        const latitudeRange = radius / 111.32;
 
         const longitudeRange =
-            Math.abs(
-                Math.cos(latitude * Math.PI / 180)
-            ) < 0.000001
+            Math.abs(Math.cos(latitude * Math.PI / 180)) < 0.000001
                 ? 180
                 : radius / (
                     111.32 *
-                    Math.abs(
-                        Math.cos(
-                            latitude * Math.PI / 180
-                        )
-                    )
+                    Math.abs(Math.cos(latitude * Math.PI / 180))
                 );
-
-        const minLatitude = Math.max(
-            -90,
-            latitude - latitudeRange
-        );
-
-        const maxLatitude = Math.min(
-            90,
-            latitude + latitudeRange
-        );
-
-        const minLongitude = Math.max(
-            -180,
-            longitude - longitudeRange
-        );
-
-        const maxLongitude = Math.min(
-            180,
-            longitude + longitudeRange
-        );
 
         const now = new Date();
 
         const workers = await Worker.find({
             latitude: {
-                $gte: minLatitude,
-                $lte: maxLatitude
+                $gte: Math.max(-90, latitude - latitudeRange),
+                $lte: Math.min(90, latitude + latitudeRange)
             },
 
             longitude: {
-                $gte: minLongitude,
-                $lte: maxLongitude
+                $gte: Math.max(-180, longitude - longitudeRange),
+                $lte: Math.min(180, longitude + longitudeRange)
             },
 
             profileVerificationExpires: {
                 $gt: now
-            }
+            },
+
+            "services.adminApproval": "approved"
         }).select(
             "_id fullName profilePhoto latitude longitude services"
         );
 
-        /* =================================================
-           4.3 FILTER AND FORMAT NEARBY WORKERS
-        ================================================= */
+        /* FILTER AND FORMAT NEARBY WORKERS */
 
         const nearbyWorkers = [];
 
         for (const worker of workers) {
             if (
                 !Number.isFinite(worker.latitude) ||
-                !Number.isFinite(worker.longitude)
+                !Number.isFinite(worker.longitude) ||
+                !Array.isArray(worker.services)
             ) {
                 continue;
             }
-
-            /* CALCULATE DISTANCE */
 
             const distance = calculateDistance(
                 latitude,
@@ -201,123 +145,78 @@ const getNearbyWorkers = async (req, res) => {
                 worker.longitude
             );
 
-            /* EXCLUDE WORKERS OUTSIDE 10 KM */
-
-            if (distance > radius) {
-                continue;
-            }
-
-            /* VALIDATE WORKER SERVICES */
-
-            if (!Array.isArray(worker.services)) {
-                continue;
-            }
-
-            /* CONVERT CLOUDINARY PUBLIC ID TO URL */
+            if (distance > radius) continue;
 
             const profilePhoto = worker.profilePhoto
-                ? cloudinary.url(
-                    worker.profilePhoto,
-                    {
-                        resource_type: "image",
-                        secure: true
-                    }
-                )
+                ? cloudinary.url(worker.profilePhoto, {
+                    resource_type: "image",
+                    secure: true
+                })
                 : null;
-
-            /* FORMAT EACH WORKER SERVICE */
 
             for (const service of worker.services) {
                 if (
                     service.id === undefined ||
                     service.id === null ||
-                    !service.skill
+                    !service.skill ||
+                    service.adminApproval !== "approved"
                 ) {
                     continue;
                 }
 
                 nearbyWorkers.push({
                     workerId: worker._id.toString(),
-
-                    fullName:
-                        worker.fullName || null,
-
+                    fullName: worker.fullName || null,
                     profilePhoto,
-
-                    skill:
-                        service.skill,
-
-                    latitude:
-                        Number(
-                            worker.latitude.toFixed(5)
-                        ),
-
-                    serviceId:
-                        service.id,
-
+                    skill: service.skill,
+                    latitude: Number(worker.latitude.toFixed(5)),
+                    serviceId: service.id,
                     distance
                 });
             }
         }
 
-        /* =================================================
-           5. SORT NEAREST WORKERS FIRST
-        ================================================= */
+        /* SORT NEAREST WORKERS FIRST */
 
-        nearbyWorkers.sort(
-            (a, b) => a.distance - b.distance
-        );
+        nearbyWorkers.sort((a, b) => a.distance - b.distance);
 
-        /* =================================================
-           6. REMOVE INTERNAL DISTANCE FIELD
-        ================================================= */
+        /* REMOVE INTERNAL DISTANCE FIELD */
 
-        const formattedWorkers =
-            nearbyWorkers.map(
-                ({
-                    workerId,
-                    fullName,
-                    profilePhoto,
-                    skill,
-                    latitude,
-                    serviceId
-                }) => ({
-                    workerId,
-                    fullName,
-                    profilePhoto,
-                    skill,
-                    latitude,
-                    serviceId
-                })
-            );
+        const formattedWorkers = nearbyWorkers.map(({
+            workerId,
+            fullName,
+            profilePhoto,
+            skill,
+            latitude,
+            serviceId
+        }) => ({
+            workerId,
+            fullName,
+            profilePhoto,
+            skill,
+            latitude,
+            serviceId
+        }));
 
-        /* =================================================
-           7. RETURN WORKERS
-        ================================================= */
+        /* RETURN WORKERS */
 
         return res.status(200).json({
             success: true,
-
             workers: formattedWorkers
         });
 
     } catch (error) {
-        console.error(
-            "Get Nearby Workers Error:",
-            error
-        );
+        console.error("Get Nearby Workers Error:", error);
 
         return res.status(500).json({
             success: false,
-
-            message:
-                "Unable to find nearby workers."
+            message: "Unable to find nearby workers."
         });
     }
 };
 
 /* =========================================================
-   8. EXPORT CONTROLLER
+   5. EXPORT CONTROLLER
 ========================================================= */
 
 module.exports = {
