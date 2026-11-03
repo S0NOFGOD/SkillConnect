@@ -76,7 +76,11 @@
                         <option value="">All Skills</option>
                     </select>
                 </div>
-                <button type="button" id="changeLocationBtn" class="change-location-btn">Change Location</button>
+
+                <div class="search-group">
+                    <span class="search-icon" aria-hidden="true">⌕</span>
+                    <input type="search" id="skillSearch" placeholder="Search by skill name..." aria-label="Search workers by skill name" autocomplete="off">
+                </div>
             </div>
 
             <div id="workersLoading" class="workers-loading" role="status" aria-live="polite" hidden>
@@ -89,7 +93,7 @@
             <div id="workersEmpty" class="workers-empty" hidden>
                 <div class="empty-icon" aria-hidden="true">🔎</div>
                 <h3>No Workers Found</h3>
-                <p>No workers matching your location are currently available.</p>
+                <p id="workersEmptyText">No workers found within your location.</p>
             </div>
         </section>
     </main>

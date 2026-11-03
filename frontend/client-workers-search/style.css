@@ -6,7 +6,7 @@ button,input,select{font:inherit}
 button{border:0;cursor:pointer}
 button:disabled{cursor:not-allowed;opacity:.65}
 a{color:inherit;text-decoration:none}
-button:focus-visible,a:focus-visible,select:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
 
 /* Background */
 .blue-glow,.green-glow{position:fixed;width:320px;height:320px;border-radius:50%;filter:blur(100px);pointer-events:none;opacity:.13;z-index:-1}
@@ -20,7 +20,7 @@ button:focus-visible,a:focus-visible,select:focus-visible{outline:2px solid var(
 .menu-btn{display:none;width:42px;height:42px;padding:10px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid var(--border)}
 .menu-btn span{display:block;height:2px;margin:4px 0;border-radius:2px;background:#fff}
 
-/* Left sidebar — matches client dashboard */
+/* Sidebar */
 .sidebar{position:fixed;top:70px;left:0;right:auto;bottom:0;width:270px;display:flex;flex-direction:column;padding:16px;background:rgba(8,15,30,.94);border-right:1px solid var(--border);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:900}
 .sidebar-header{display:flex;justify-content:flex-end;align-items:center;margin-bottom:8px;padding:0 4px}
 .close-menu-btn{display:grid;place-items:center;width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.06);color:#fff;font-size:1.5rem;line-height:1}
@@ -53,14 +53,17 @@ button:focus-visible,a:focus-visible,select:focus-visible{outline:2px solid var(
 .page-description{margin-top:10px;color:var(--muted);font-size:14px}
 .dashboard-section{position:relative;margin-bottom:26px;padding:28px;border:1px solid var(--border);border-radius:20px;background:linear-gradient(145deg,rgba(15,23,42,.9),rgba(15,23,42,.68));box-shadow:var(--shadow)}
 
-/* Skill filter */
-.filter-bar{display:flex;align-items:flex-end;gap:12px;margin-bottom:22px}
+/* Skill filter and search */
+.filter-bar{display:flex;align-items:flex-end;gap:12px;margin-bottom:9px}
 .filter-group{display:flex;flex-direction:column;gap:7px;min-width:230px}
 .filter-group select{width:100%;height:44px;padding:0 13px;border:1px solid var(--border);border-radius:11px;background:var(--surface);color:var(--text);outline:none}
 .filter-group select:focus{border-color:rgba(59,130,246,.65)}
 .filter-group select option{background:var(--surface);color:var(--text)}
-.change-location-btn{height:44px;padding:0 17px;border:1px solid rgba(59,130,246,.35);border-radius:11px;background:rgba(59,130,246,.1);color:var(--blue);font-weight:600;white-space:nowrap}
-.change-location-btn:hover{background:rgba(59,130,246,.17);border-color:var(--blue)}
+.search-group{position:relative;flex:1;min-width:0}
+.search-group input{width:100%;height:44px;padding:0 14px 0 42px;border:1px solid var(--border);border-radius:11px;background:var(--surface);color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s}
+.search-group input::placeholder{color:var(--muted)}
+.search-group input:focus{border-color:rgba(59,130,246,.65);box-shadow:0 0 0 3px rgba(59,130,246,.08)}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:23px;line-height:1;pointer-events:none}
 
 /* Worker cards */
 .workers-container{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
@@ -125,7 +128,7 @@ button:focus-visible,a:focus-visible,select:focus-visible{outline:2px solid var(
     .profile-photo-wrapper{width:92px;height:92px}
     .filter-bar{align-items:stretch;flex-direction:column}
     .filter-group{min-width:0}
-    .change-location-btn{width:100%}
+    .search-group{width:100%}
     .worker-card{padding:16px;gap:12px}
     .worker-photo,.worker-photo-placeholder{width:64px;height:64px;flex-basis:64px}
     .worker-details{gap:7px}
