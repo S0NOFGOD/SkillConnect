@@ -1,769 +1,765 @@
-document.addEventListener("DOMContentLoaded",()=>{
+"use strict";
 
-const profilePage=document.getElementById("profilePage");
-const form=document.getElementById("clientProfileForm");
-const fullNameInput=document.getElementById("fullName");
-const phoneInput=document.getElementById("phone");
-const profilePhotoInput=document.getElementById("profilePhoto");
-const profilePhotoPlaceholder=document.getElementById("profilePhotoPlaceholder");
-const profilePhotoImage=document.getElementById("profilePhotoImage");
-const countryInput=document.getElementById("country");
-const stateInput=document.getElementById("state");
-const cityInput=document.getElementById("city");
-const lgaInput=document.getElementById("lga");
-const continueBtn=document.getElementById("continueBtn");
-const buttonText=continueBtn.querySelector(".button-text");
+/* =========================================================
+   1. DOM ELEMENTS
+========================================================= */
 
-const notificationOverlay=document.getElementById("notificationOverlay");
-const notificationCard=document.getElementById("notificationCard");
-const notificationIcon=document.getElementById("notificationIcon");
-const notificationTitle=document.getElementById("notificationTitle");
-const notificationText=document.getElementById("notificationText");
-const notificationButton=document.getElementById("notificationButton");
+const profilePage = document.getElementById("profilePage");
+const clientProfileForm = document.getElementById("clientProfileForm");
 
-const MAX_IMAGE_DIMENSION=1920;
-const MAX_COMPRESSED_IMAGE_SIZE=5*1024*1024;
-const clientEmail=sessionStorage.getItem("clientEmail");
+const profilePhotoInput = document.getElementById("profilePhoto");
+const profilePhotoImage = document.getElementById("profilePhotoImage");
+const profilePhotoPlaceholder = document.getElementById("profilePhotoPlaceholder");
 
-if(!clientEmail){
+const fullNameInput = document.getElementById("fullName");
+const phoneInput = document.getElementById("phone");
 
-showModal(
-"error",
-"Authentication Required",
-"Your client session could not be found. Please sign in again.",
-"Go to Login",
-()=>window.location.href="../client-authentication/index.html"
+const latitudeInput = document.getElementById("latitude");
+const longitudeInput = document.getElementById("longitude");
+
+const getLocationBtn = document.getElementById("getLocationBtn");
+const locationButtonText = getLocationBtn?.querySelector(".location-button-text");
+
+const progressPercentage = document.getElementById("progressPercentage");
+const progressFill = document.getElementById("progressFill");
+
+const continueBtn = document.getElementById("continueBtn");
+const buttonText = continueBtn?.querySelector(".button-text");
+
+const notificationOverlay = document.getElementById("notificationOverlay");
+const notificationCard = document.getElementById("notificationCard");
+const notificationIcon = document.getElementById("notificationIcon");
+const notificationTitle = document.getElementById("notificationTitle");
+const notificationText = document.getElementById("notificationText");
+const notificationButton = document.getElementById("notificationButton");
+
+
+/* =========================================================
+   2. CONFIGURATION
+========================================================= */
+
+const CREATE_PROFILE_ENDPOINT = "/api/client-create-profile";
+
+const AUTHENTICATION_REDIRECT =
+    "../client-authentication/index.html";
+
+const WORKERS_SEARCH_REDIRECT =
+    "../client-workers-search/index.html";
+
+const MAX_PROFILE_PHOTO_SIZE = 10 * 1024 * 1024;
+
+const ALLOWED_IMAGE_TYPES = new Set([
+    "image/jpeg",
+    "image/png",
+    "image/webp"
+]);
+
+let isCreatingProfile = false;
+let isGettingLocation = false;
+let modalCloseCallback = null;
+
+
+/* =========================================================
+   3. BUTTON LOADING STATE
+========================================================= */
+
+function setCreateProfileLoading(isLoading) {
+    if (!continueBtn) return;
+
+    continueBtn.disabled = isLoading;
+
+    continueBtn.classList.toggle(
+        "loading",
+        isLoading
+    );
+
+    if (buttonText) {
+        buttonText.textContent = isLoading
+            ? "Creating..."
+            : "Create Profile";
+    }
+}
+
+function resetCreateProfileState() {
+    isCreatingProfile = false;
+
+    setCreateProfileLoading(false);
+}
+
+
+/* =========================================================
+   4. NOTIFICATION MODAL
+========================================================= */
+
+const MODAL_ICONS = {
+    success: "✓",
+    error: "!",
+    info: "i"
+};
+
+function showNotification(
+    type,
+    title,
+    message,
+    onClose = null
+) {
+    if (!notificationOverlay || !notificationCard) return;
+
+    modalCloseCallback = onClose;
+
+    notificationCard.classList.remove(
+        "success",
+        "error",
+        "info"
+    );
+
+    notificationCard.classList.add(type);
+
+    notificationIcon.textContent =
+        MODAL_ICONS[type] || "!";
+
+    notificationTitle.textContent = title;
+    notificationText.textContent = message;
+
+    notificationButton.disabled = false;
+    notificationButton.textContent = "Continue";
+
+    notificationOverlay.hidden = false;
+
+    document.body.classList.add("modal-open");
+
+    notificationButton.focus();
+}
+
+function closeNotification() {
+    if (!notificationOverlay) return;
+
+    notificationOverlay.hidden = true;
+
+    document.body.classList.remove("modal-open");
+
+    const callback = modalCloseCallback;
+
+    modalCloseCallback = null;
+
+    if (typeof callback === "function") {
+        callback();
+    }
+}
+
+notificationButton?.addEventListener(
+    "click",
+    closeNotification
 );
 
-return;
+document.addEventListener("keydown", event => {
+    if (
+        event.key === "Escape" &&
+        notificationOverlay &&
+        !notificationOverlay.hidden
+    ) {
+        closeNotification();
+    }
+});
 
+
+/* =========================================================
+   5. AUTHENTICATION SESSION EXPIRY
+========================================================= */
+
+window.addEventListener("authSessionExpired", () => {
+    resetCreateProfileState();
+
+    if (
+        notificationOverlay &&
+        !notificationOverlay.hidden
+    ) {
+        return;
+    }
+
+    showNotification(
+        "error",
+        "Authentication Required",
+        "Your session has expired. Please log in again.",
+        () => {
+            window.location.href = AUTHENTICATION_REDIRECT;
+        }
+    );
+});
+
+
+/* =========================================================
+   6. PROFILE PHOTO VALIDATION AND PREVIEW
+========================================================= */
+
+function validateProfilePhoto(file) {
+    if (!file) {
+        return {
+            valid: false,
+            message: "Please upload your profile photo."
+        };
+    }
+
+    if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+        return {
+            valid: false,
+            message: "Profile photo must be a JPG, PNG, or WebP image."
+        };
+    }
+
+    if (file.size > MAX_PROFILE_PHOTO_SIZE) {
+        return {
+            valid: false,
+            message: "Profile photo must not exceed 10 MB."
+        };
+    }
+
+    return { valid: true };
 }
 
-profilePage.hidden=false;
+function resetProfilePhotoPreview() {
+    profilePhotoImage.src = "";
+    profilePhotoImage.hidden = true;
 
+    profilePhotoPlaceholder.hidden = false;
 
-/* PROFILE PHOTO */
+    const addText = document.querySelector(
+        ".profile-photo-add-text"
+    );
 
-profilePhotoInput.addEventListener("change",()=>{
-
-const file=profilePhotoInput.files[0];
-
-if(!file){
-
-profilePhotoImage.hidden=true;
-profilePhotoPlaceholder.hidden=false;
-profilePhotoImage.removeAttribute("src");
-updateProgress();
-return;
-
+    if (addText) {
+        addText.hidden = false;
+    }
 }
 
-if(!["image/jpeg","image/png","image/webp"].includes(file.type)){
+profilePhotoInput?.addEventListener("change", () => {
+    const file = profilePhotoInput.files?.[0];
 
-profilePhotoInput.value="";
-profilePhotoImage.hidden=true;
-profilePhotoPlaceholder.hidden=false;
-profilePhotoImage.removeAttribute("src");
+    if (!file) {
+        resetProfilePhotoPreview();
+        updateProgress();
+        return;
+    }
 
-showModal(
-"error",
-"Invalid Profile Photo",
-"Please select a JPG, PNG, or WebP image."
+    const result = validateProfilePhoto(file);
+
+    if (!result.valid) {
+        profilePhotoInput.value = "";
+
+        resetProfilePhotoPreview();
+        updateProgress();
+
+        showNotification(
+            "error",
+            "Invalid Profile Photo",
+            result.message
+        );
+
+        return;
+    }
+
+    const imageUrl = URL.createObjectURL(file);
+
+    profilePhotoImage.src = imageUrl;
+    profilePhotoImage.hidden = false;
+
+    profilePhotoPlaceholder.hidden = true;
+
+    const addText = document.querySelector(
+        ".profile-photo-add-text"
+    );
+
+    if (addText) {
+        addText.hidden = true;
+    }
+
+    updateProgress();
+});
+
+
+/* =========================================================
+   7. FULL NAME VALIDATION
+========================================================= */
+
+function validateFullName(value) {
+    const cleanName = value.trim().replace(/\s+/g, " ");
+
+    const nameParts = cleanName.split(" ");
+
+    const namePattern =
+        /^[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*$/;
+
+    if (
+        nameParts.length !== 2 ||
+        !namePattern.test(nameParts[0]) ||
+        !namePattern.test(nameParts[1])
+    ) {
+        return {
+            valid: false,
+            message: "Please enter exactly two names with a space between them, for example: Destiny Okpone."
+        };
+    }
+
+    return { valid: true };
+}
+
+
+/* =========================================================
+   8. PHONE VALIDATION
+========================================================= */
+
+function validatePhone(value) {
+    const phone = value.trim().replace(/[\s\-()]/g, "");
+
+    const localFormat = /^0[789]\d{9}$/;
+
+    const internationalFormat = /^\+?234[789]\d{9}$/;
+
+    if (
+        !localFormat.test(phone) &&
+        !internationalFormat.test(phone)
+    ) {
+        return {
+            valid: false,
+            message: "Please enter a valid Nigerian phone number."
+        };
+    }
+
+    return { valid: true };
+}
+
+
+/* =========================================================
+   9. LOCATION RETRIEVAL
+========================================================= */
+
+function getClientLocation() {
+    if (isGettingLocation) return;
+
+    if (!navigator.geolocation) {
+        showNotification(
+            "error",
+            "Location Unavailable",
+            "Your browser does not support location services."
+        );
+
+        return;
+    }
+
+    isGettingLocation = true;
+
+    getLocationBtn.disabled = true;
+
+    locationButtonText.textContent = "Getting Location...";
+
+    navigator.geolocation.getCurrentPosition(
+        position => {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            latitudeInput.value = latitude.toFixed(7);
+            longitudeInput.value = longitude.toFixed(7);
+
+            isGettingLocation = false;
+
+            getLocationBtn.disabled = false;
+
+            locationButtonText.textContent = "Get My Location";
+
+            updateProgress();
+        },
+
+        error => {
+            isGettingLocation = false;
+
+            getLocationBtn.disabled = false;
+
+            locationButtonText.textContent = "Get My Location";
+
+            let message =
+                "Unable to retrieve your location. Please try again.";
+
+            if (error.code === error.PERMISSION_DENIED) {
+                message =
+                    "Location permission was denied. Please allow location access in your browser settings and try again.";
+            }
+
+            if (error.code === error.POSITION_UNAVAILABLE) {
+                message =
+                    "Your current location is unavailable. Please try again.";
+            }
+
+            if (error.code === error.TIMEOUT) {
+                message =
+                    "Getting your location took too long. Please try again.";
+            }
+
+            showNotification(
+                "error",
+                "Location Error",
+                message
+            );
+        },
+
+        {
+            enableHighAccuracy: true,
+            timeout: 20000,
+            maximumAge: 0
+        }
+    );
+}
+
+getLocationBtn?.addEventListener(
+    "click",
+    getClientLocation
 );
 
-updateProgress();
-return;
 
+/* =========================================================
+   10. LATITUDE AND LONGITUDE VALIDATION
+========================================================= */
+
+function validateCoordinates() {
+    const latitude = Number(latitudeInput.value);
+    const longitude = Number(longitudeInput.value);
+
+    if (
+        !latitudeInput.value.trim() ||
+        !longitudeInput.value.trim()
+    ) {
+        return {
+            valid: false,
+            message: "Please get your location before creating your profile."
+        };
+    }
+
+    if (
+        !Number.isFinite(latitude) ||
+        latitude < -90 ||
+        latitude > 90
+    ) {
+        return {
+            valid: false,
+            message: "Your latitude is invalid. Please get your location again."
+        };
+    }
+
+    if (
+        !Number.isFinite(longitude) ||
+        longitude < -180 ||
+        longitude > 180
+    ) {
+        return {
+            valid: false,
+            message: "Your longitude is invalid. Please get your location again."
+        };
+    }
+
+    return { valid: true };
 }
 
-const imageUrl=URL.createObjectURL(file);
 
-profilePhotoImage.src=imageUrl;
-profilePhotoImage.hidden=false;
-profilePhotoPlaceholder.hidden=true;
+/* =========================================================
+   11. PROFILE COMPLETION PROGRESS
+========================================================= */
 
-profilePhotoImage.addEventListener(
-"load",
-()=>URL.revokeObjectURL(imageUrl),
-{once:true}
-);
+function updateProgress() {
+    const fields = [
+        Boolean(profilePhotoInput?.files?.[0]),
+        Boolean(fullNameInput?.value.trim()),
+        Boolean(phoneInput?.value.trim()),
+        Boolean(latitudeInput?.value.trim()),
+        Boolean(longitudeInput?.value.trim())
+    ];
 
-updateProgress();
+    const completed = fields.filter(Boolean).length;
 
-});
+    const percentage = Math.round(
+        (completed / fields.length) * 100
+    );
 
+    progressPercentage.textContent = `${percentage}%`;
 
-/* LOCATION */
-
-function resetLocationFields(){
-
-stateInput.innerHTML='<option value="">Select State</option>';
-cityInput.innerHTML='<option value="">Select City</option>';
-lgaInput.innerHTML='<option value="">Select LGA</option>';
-
-stateInput.disabled=true;
-cityInput.disabled=true;
-lgaInput.disabled=true;
-
+    progressFill.style.width = `${percentage}%`;
 }
-
-function populateStates(){
-
-stateInput.innerHTML='<option value="">Select State</option>';
-cityInput.innerHTML='<option value="">Select City</option>';
-lgaInput.innerHTML='<option value="">Select LGA</option>';
-
-cityInput.disabled=true;
-lgaInput.disabled=true;
-
-if(countryInput.value!=="Nigeria"){
-
-stateInput.disabled=true;
-return;
-
-}
-
-getNigeriaStates().forEach(state=>{
-
-const option=document.createElement("option");
-
-option.value=state;
-option.textContent=state;
-
-stateInput.appendChild(option);
-
-});
-
-stateInput.disabled=false;
-
-}
-
-function populateStateLocations(){
-
-cityInput.innerHTML='<option value="">Select City</option>';
-lgaInput.innerHTML='<option value="">Select LGA</option>';
-
-cityInput.disabled=true;
-lgaInput.disabled=true;
-
-if(!stateInput.value)return;
-
-getCitiesByState(stateInput.value).forEach(city=>{
-
-const option=document.createElement("option");
-
-option.value=city;
-option.textContent=city;
-
-cityInput.appendChild(option);
-
-});
-
-getLGAsByState(stateInput.value).forEach(lga=>{
-
-const option=document.createElement("option");
-
-option.value=lga;
-option.textContent=lga;
-
-lgaInput.appendChild(option);
-
-});
-
-cityInput.disabled=false;
-lgaInput.disabled=false;
-
-}
-
-countryInput.addEventListener("change",()=>{
-
-populateStates();
-updateProgress();
-
-});
-
-stateInput.addEventListener("change",()=>{
-
-populateStateLocations();
-updateProgress();
-
-});
-
-
-/* FIELD CHANGES */
 
 [
-fullNameInput,
-phoneInput,
-countryInput,
-stateInput,
-cityInput,
-lgaInput
-].forEach(element=>{
-
-element.addEventListener("input",updateProgress);
-element.addEventListener("change",updateProgress);
-
+    fullNameInput,
+    phoneInput
+].forEach(input => {
+    input?.addEventListener("input", updateProgress);
 });
 
 
-/* SUBMIT */
+/* =========================================================
+   12. FRONTEND FORM VALIDATION
+========================================================= */
 
-form.addEventListener("submit",async event=>{
+function validateClientProfileForm() {
 
-event.preventDefault();
+    /* PROFILE PHOTO */
 
-const validation=validateForm();
+    const photoResult = validateProfilePhoto(
+        profilePhotoInput.files?.[0]
+    );
 
-if(!validation.valid){
+    if (!photoResult.valid) {
+        return photoResult;
+    }
 
-showModal(
-"error",
-"Invalid Information",
-validation.message
+    /* FULL NAME */
+
+    const nameResult = validateFullName(
+        fullNameInput.value
+    );
+
+    if (!nameResult.valid) {
+        return nameResult;
+    }
+
+    /* PHONE */
+
+    const phoneResult = validatePhone(
+        phoneInput.value
+    );
+
+    if (!phoneResult.valid) {
+        return phoneResult;
+    }
+
+    /* LOCATION */
+
+    const locationResult = validateCoordinates();
+
+    if (!locationResult.valid) {
+        return locationResult;
+    }
+
+    return { valid: true };
+}
+
+
+/* =========================================================
+   13. RESPONSE MESSAGE EXTRACTION
+========================================================= */
+
+async function extractResponseData(response) {
+    try {
+        return await response.json();
+    } catch (error) {
+        console.error(
+            "Unable to read backend response:",
+            error
+        );
+
+        return {
+            message: "Something went wrong. Please try again."
+        };
+    }
+}
+
+
+/* =========================================================
+   14. BUILD PROFILE FORM DATA
+========================================================= */
+
+function buildProfileFormData(email) {
+    const formData = new FormData();
+
+    formData.append("email", email);
+
+    formData.append(
+        "profilePhoto",
+        profilePhotoInput.files[0]
+    );
+
+    formData.append(
+        "fullName",
+        fullNameInput.value.trim()
+    );
+
+    formData.append(
+        "phone",
+        phoneInput.value.trim()
+    );
+
+    formData.append(
+        "latitude",
+        latitudeInput.value.trim()
+    );
+
+    formData.append(
+        "longitude",
+        longitudeInput.value.trim()
+    );
+
+    return formData;
+}
+
+
+/* =========================================================
+   15. CREATE CLIENT PROFILE REQUEST
+========================================================= */
+
+async function createClientProfile() {
+    if (isCreatingProfile) return;
+
+    /* FRONTEND VALIDATION */
+
+    const validationResult =
+        validateClientProfileForm();
+
+    if (!validationResult.valid) {
+        showNotification(
+            "error",
+            "Invalid Profile Information",
+            validationResult.message
+        );
+
+        return;
+    }
+
+    /* GET EMAIL FROM SESSION STORAGE */
+
+    const email = sessionStorage.getItem("clientEmail");
+
+    if (!email || !email.trim()) {
+        showNotification(
+            "error",
+            "Authentication Required",
+            "Your registration session could not be found. Please register or log in again.",
+            () => {
+                window.location.href = AUTHENTICATION_REDIRECT;
+            }
+        );
+
+        return;
+    }
+
+    /* START LOADING */
+
+    isCreatingProfile = true;
+
+    setCreateProfileLoading(true);
+
+    try {
+        const formData = buildProfileFormData(email);
+
+        /*
+            API_REQUEST handles:
+            - HTTP-only cookies.
+            - Access-token refresh.
+            - Original request retry after refresh.
+        */
+
+        const response = await API_REQUEST(
+            CREATE_PROFILE_ENDPOINT,
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        const data = await extractResponseData(response);
+
+        /* AUTHENTICATION FAILURE */
+
+        if (
+            response.status === 401 ||
+            data.code === "EMAIL_NOT_VERIFIED"
+        ) {
+            resetCreateProfileState();
+
+            showNotification(
+                "error",
+                data.code === "EMAIL_NOT_VERIFIED"
+                    ? "Email Verification Required"
+                    : "Authentication Required",
+                data.message ||
+                    "Please verify your email address before completing your profile.",
+                () => {
+                    window.location.href = AUTHENTICATION_REDIRECT;
+                }
+            );
+
+            return;
+        }
+
+        /* OTHER BACKEND ERRORS */
+
+        if (!response.ok) {
+            resetCreateProfileState();
+
+            showNotification(
+                "error",
+                "Unable To Create Profile",
+                data.message ||
+                    "Unable to create your profile. Please try again."
+            );
+
+            return;
+        }
+
+        /* SUCCESSFUL PROFILE CREATION */
+
+        sessionStorage.removeItem("clientEmail");
+
+        resetCreateProfileState();
+
+        showNotification(
+            "success",
+            "Profile Created Successfully",
+            data.message ||
+                "Your client profile has been completed successfully.",
+            () => {
+                window.location.href = WORKERS_SEARCH_REDIRECT;
+            }
+        );
+
+    } catch (error) {
+        console.error(
+            "Create client profile request failed:",
+            error
+        );
+
+        resetCreateProfileState();
+
+        showNotification(
+            "error",
+            "Request Failed",
+            "Something went wrong. Please check your internet connection and try again."
+        );
+
+    } finally {
+        resetCreateProfileState();
+    }
+}
+
+
+/* =========================================================
+   16. FORM SUBMISSION
+========================================================= */
+
+clientProfileForm?.addEventListener(
+    "submit",
+    event => {
+        event.preventDefault();
+
+        createClientProfile();
+    }
 );
 
-return;
 
+/* =========================================================
+   17. INITIALIZATION
+========================================================= */
+
+function initializeClientProfilePage() {
+    if (profilePage) {
+        profilePage.hidden = false;
+    }
+
+    updateProgress();
 }
 
-setLoading(true);
-
-try{
-
-const compressedPhoto=await compressImage(
-profilePhotoInput.files[0]
-);
-
-const normalizedFullName=
-normalizeFullName(fullNameInput.value);
-
-const phone=
-normalizePhone(phoneInput.value);
-
-fullNameInput.value=normalizedFullName;
-phoneInput.value=phone;
-
-const formData=new FormData();
-
-formData.append("email",clientEmail);
-formData.append("fullName",normalizedFullName);
-formData.append("phone",phone);
-formData.append("country",countryInput.value);
-formData.append("state",stateInput.value);
-formData.append("city",cityInput.value);
-formData.append("lga",lgaInput.value);
-formData.append("profilePhoto",compressedPhoto);
-
-const response=await API_REQUEST(
-"/api/client-create-profile",
-{
-method:"POST",
-body:formData
-}
-);
-
-let data={};
-
-try{
-data=await response.json();
-}catch{
-data={};
-}
-
-if(!response.ok){
-
-showModal(
-"error",
-"Profile Update Failed",
-data.message||
-"Unable to complete your profile. Please try again."
-);
-
-return;
-
-}
-
-sessionStorage.removeItem("clientEmail");
-
-showModal(
-"success",
-"Profile Completed",
-data.message||
-"Your client profile has been completed successfully.",
-"Continue",
-()=>window.location.href="../client-workers-search/index.html"
-);
-
-}catch(error){
-
-console.error(
-"Client profile request failed:",
-error
-);
-
-showModal(
-"error",
-"Connection Error",
-error.message||
-"Unable to connect to the server. Please try again."
-);
-
-}finally{
-
-setLoading(false);
-
-}
-
-});
-
-
-/* MODAL */
-
-notificationButton.addEventListener(
-"click",
-()=>closeModal()
-);
-
-populateStates();
-updateProgress();
-
-
-/* PHONE NORMALIZATION */
-
-function normalizePhone(value){
-
-let phone=value
-.trim()
-.replace(/\s+/g,"")
-.replace(/-/g,"")
-.replace(/\(/g,"")
-.replace(/\)/g,"");
-
-if(/^0[789]\d{9}$/.test(phone)){
-phone="+234"+phone.substring(1);
-}else if(/^234[789]\d{9}$/.test(phone)){
-phone="+"+phone;
-}
-
-return phone;
-
-}
-
-
-/* NAME NORMALIZATION */
-
-function normalizeNamePart(name){
-
-return name
-.toLowerCase()
-.split(/([-'])/)
-.map(part=>{
-
-if(part==="-"||part==="'")return part;
-
-return part.charAt(0).toUpperCase()+part.slice(1);
-
-})
-.join("");
-
-}
-
-function normalizeFullName(value){
-
-const fullName=String(value||"")
-.trim()
-.replace(/\s+/g," ");
-
-const nameParts=fullName.split(" ");
-
-if(nameParts.length!==2)return null;
-
-const namePattern=
-/^[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*$/;
-
-if(
-!namePattern.test(nameParts[0])||
-!namePattern.test(nameParts[1])
-)return null;
-
-return nameParts
-.map(normalizeNamePart)
-.join(" ");
-
-}
-
-
-/* IMAGE CONVERSION + COMPRESSION */
-
-function compressImage(file){
-
-return new Promise((resolve,reject)=>{
-
-const image=new Image();
-const objectUrl=URL.createObjectURL(file);
-
-image.onload=()=>{
-
-URL.revokeObjectURL(objectUrl);
-
-let width=image.width;
-let height=image.height;
-
-if(
-width>MAX_IMAGE_DIMENSION||
-height>MAX_IMAGE_DIMENSION
-){
-
-if(width>height){
-
-height=Math.round(
-height*(MAX_IMAGE_DIMENSION/width)
-);
-
-width=MAX_IMAGE_DIMENSION;
-
-}else{
-
-width=Math.round(
-width*(MAX_IMAGE_DIMENSION/height)
-);
-
-height=MAX_IMAGE_DIMENSION;
-
-}
-
-}
-
-const canvas=document.createElement("canvas");
-
-canvas.width=width;
-canvas.height=height;
-
-const context=canvas.getContext("2d");
-
-if(!context){
-
-reject(
-new Error(
-"The selected image could not be processed."
-)
-);
-
-return;
-
-}
-
-context.drawImage(
-image,
-0,
-0,
-width,
-height
-);
-
-let quality=0.8;
-
-const compress=()=>{
-
-canvas.toBlob(blob=>{
-
-if(!blob){
-
-reject(
-new Error(
-"The selected image could not be compressed."
-)
-);
-
-return;
-
-}
-
-if(blob.size<=MAX_COMPRESSED_IMAGE_SIZE){
-
-resolve(
-new File(
-[blob],
-`${file.name.replace(/\.[^/.]+$/,"")}.jpg`,
-{type:"image/jpeg"}
-)
-);
-
-return;
-
-}
-
-if(quality>0.1){
-
-quality=Math.max(0.1,quality-0.1);
-
-compress();
-
-return;
-
-}
-
-width=Math.floor(width*0.85);
-height=Math.floor(height*0.85);
-
-if(width<320||height<320){
-
-reject(
-new Error(
-"The selected image could not be compressed below 5 MB."
-)
-);
-
-return;
-
-}
-
-canvas.width=width;
-canvas.height=height;
-
-context.drawImage(
-image,
-0,
-0,
-width,
-height
-);
-
-quality=0.8;
-
-compress();
-
-},"image/jpeg",quality);
-
-};
-
-compress();
-
-};
-
-image.onerror=()=>{
-
-URL.revokeObjectURL(objectUrl);
-
-reject(
-new Error(
-"The selected image could not be processed."
-)
-);
-
-};
-
-image.src=objectUrl;
-
-});
-
-}
-
-
-/* VALIDATION */
-
-function validateForm(){
-
-const fullName=fullNameInput.value.trim();
-const phone=normalizePhone(phoneInput.value);
-const profilePhoto=profilePhotoInput.files[0];
-const country=countryInput.value;
-const state=stateInput.value;
-const city=cityInput.value;
-const lga=lgaInput.value;
-
-if(!profilePhoto){
-
-return{
-valid:false,
-message:"Please select a profile photo."
-};
-
-}
-
-if(!["image/jpeg","image/png","image/webp"].includes(profilePhoto.type)){
-
-return{
-valid:false,
-message:"Please select a JPG, PNG, or WebP image."
-};
-
-}
-
-const normalizedFullName=
-normalizeFullName(fullName);
-
-if(!normalizedFullName){
-
-return{
-valid:false,
-message:
-"Please enter exactly two names with a space between them, for example: Destiny Okpone."
-};
-
-}
-
-if(!/^\+234[789]\d{9}$/.test(phone)){
-
-return{
-valid:false,
-message:
-"Please enter a valid Nigerian phone number."
-};
-
-}
-
-if(!country){
-
-return{
-valid:false,
-message:"Please select your country."
-};
-
-}
-
-if(!state){
-
-return{
-valid:false,
-message:"Please select your state."
-};
-
-}
-
-if(!city){
-
-return{
-valid:false,
-message:"Please select your city."
-};
-
-}
-
-if(!lga){
-
-return{
-valid:false,
-message:"Please select your LGA."
-};
-
-}
-
-return{
-valid:true,
-message:""
-};
-
-}
-
-
-/* PROGRESS */
-
-function updateProgress(){
-
-const fields=[
-profilePhotoInput.files.length>0,
-fullNameInput.value.trim(),
-normalizePhone(phoneInput.value),
-countryInput.value,
-stateInput.value,
-cityInput.value,
-lgaInput.value
-];
-
-const completed=fields.filter(Boolean).length;
-const percentage=Math.round(
-(completed/fields.length)*100
-);
-
-const progressFill=
-document.getElementById("progressFill");
-
-const progressPercentage=
-document.getElementById("progressPercentage");
-
-if(progressFill)
-progressFill.style.width=`${percentage}%`;
-
-if(progressPercentage)
-progressPercentage.textContent=`${percentage}%`;
-
-}
-
-
-/* LOADING */
-
-function setLoading(isLoading){
-
-continueBtn.disabled=isLoading;
-
-continueBtn.classList.toggle(
-"loading",
-isLoading
-);
-
-if(buttonText){
-
-buttonText.textContent=
-isLoading
-?"Saving Profile..."
-:"Complete Profile";
-
-}
-
-}
-
-
-/* SHOW MODAL */
-
-function showModal(
-type,
-title,
-message,
-buttonLabel="Close",
-onClose=null
-){
-
-notificationCard.className=
-`notification-card ${type}`;
-
-notificationIcon.textContent=
-type==="success"
-?"✓"
-:type==="error"
-?"!"
-:"i";
-
-notificationTitle.textContent=title;
-notificationText.textContent=message;
-notificationButton.textContent=buttonLabel;
-
-notificationButton.onclick=()=>{
-
-closeModal();
-
-if(onClose)onClose();
-
-};
-
-notificationOverlay.hidden=false;
-
-document.body.classList.add("modal-open");
-
-}
-
-
-/* CLOSE MODAL */
-
-function closeModal(){
-
-notificationOverlay.hidden=true;
-
-document.body.classList.remove(
-"modal-open"
-);
-
-}
-
-});
+initializeClientProfilePage();
