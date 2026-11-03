@@ -3,12 +3,13 @@
 const mongoose=require("mongoose");
 
 const clientSchema=new mongoose.Schema({
+
 email:{
-type:String,
-unique:true,
-sparse:true,
-lowercase:true,
-trim:true
+    type:String,
+    unique:true,
+    sparse:true,
+    lowercase:true,
+    trim:true
 },
 
 passwordHash:{
@@ -40,6 +41,18 @@ profileCompleted:{
 fullName:{
     type:String,
     trim:true
+},
+
+phone:{
+    type:String,
+    trim:true,
+    unique:true,
+    sparse:true
+},
+
+profilePhoto:{
+    type:String,
+    default:null
 },
 
 emailOtpHash:String,
