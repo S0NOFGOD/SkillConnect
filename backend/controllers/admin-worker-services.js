@@ -14,7 +14,7 @@ const getAdminWorkerServices=async(req,res)=>{
 
         const workers=await Worker.find(
             {
-                "services.adminApproval":"in review"
+                "services.adminApproval":"Under Review"
             },
             {
                 services:1
@@ -29,7 +29,7 @@ const getAdminWorkerServices=async(req,res)=>{
 
             worker.services.forEach(service=>{
 
-                if(service.adminApproval==="in review"){
+                if(service.adminApproval==="Under Review"){
 
                     services.push({
                         workerId:worker._id,

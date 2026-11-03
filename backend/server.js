@@ -35,6 +35,7 @@ const clientViewRatingsRoutes = require("./routes/client-view-ratings");
 
 // SERVICES ROUTE
 const servicesRoutes = require("./routes/services");
+const workerDetailsRoutes = require("./routes/worker-details");
 
 const adminAuthenticationRoutes = require("./routes/admin-authentication");
 const adminDashboardRoutes = require("./routes/admin-dashboard");
@@ -182,6 +183,7 @@ app.use("/api/client-view-ratings", clientViewRatingsRoutes);
 /* 7. SERVICES ROUTE */
 
 app.use("/api/services", servicesRoutes);
+app.use("/api/client-worker-details", workerDetailsRoutes);
 
 /* 8. ADMIN ROUTES */
 

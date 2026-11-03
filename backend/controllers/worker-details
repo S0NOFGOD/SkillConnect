@@ -1,0 +1,176 @@
+"use strict";
+
+const mongoose = require("mongoose");
+const Worker = require("../models/worker");
+
+/* CLOUDINARY URL */
+
+function getImageUrl(image) {
+
+    if (!image) return null;
+
+    if (/^https?:\/\//i.test(image)) {
+        return image;
+    }
+
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+
+    if (!cloudName) return null;
+
+    return `https://res.cloudinary.com/${cloudName}/image/upload/${image}`;
+}
+
+/* GET WORKER DETAILS */
+
+async function getWorkerDetails(req, res) {
+
+    try {
+
+        const { workerId, serviceId } = req.body;
+
+        if (
+            !workerId ||
+            !serviceId ||
+            !mongoose.Types.ObjectId.isValid(workerId)
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid worker information."
+            });
+        }
+
+        const worker = await Worker.findById(workerId)
+            .select("fullName profilePhoto phone latitude services");
+
+        if (!worker) {
+            return res.status(404).json({
+                success: false,
+                message: "Worker not found."
+            });
+        }
+
+        const service = worker.services.find(
+            item => String(item.id) === String(serviceId)
+        );
+
+        if (!service) {
+            return res.status(404).json({
+                success: false,
+                message: "Worker service not found."
+            });
+        }
+
+        const allReviews = (service.ratingAndReview || [])
+            .slice()
+            .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+        const reviewCount = allReviews.length;
+
+        const rating = reviewCount
+            ? allReviews.reduce(
+                (total, review) => total + Number(review.rating || 0),
+                0
+            ) / reviewCount
+            : 0;
+
+        const ratingAndReview = allReviews
+            .slice(0, 3)
+            .map(review => ({
+                fullName: review.fullName,
+                rating: review.rating,
+                review: review.review,
+                date: review.date
+            }));
+
+        const portfolioPhotos = (service.portfolios || [])
+            .map(getImageUrl)
+            .filter(Boolean);
+
+        const workerData = {
+            fullName: worker.fullName,
+            profilePhoto: getImageUrl(worker.profilePhoto),
+            phone: worker.phone,
+            latitude: worker.latitude,
+            skill: service.skill,
+            experience: service.experience,
+            description: service.description,
+            portfolioPhotos,
+            rating: Number(rating.toFixed(1)),
+            reviewCount,
+            ratingAndReview
+        };
+
+        return res.status(200).json({
+            success: true,
+            worker: workerData
+        });
+
+    } catch (error) {
+
+        console.error("Get worker details error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Unable to retrieve worker details."
+        });
+
+    }
+}
+
+/* CONTACT WORKER */
+
+async function contactWorker(req, res) {
+
+    try {
+
+        const { workerId } = req.body;
+
+        if (!workerId || !mongoose.Types.ObjectId.isValid(workerId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid worker information."
+            });
+        }
+
+        const worker = await Worker.findByIdAndUpdate(
+            workerId,
+            {
+                $inc: {
+                    totalContact: 1
+                }
+            },
+            {
+                new: true,
+                select: "phone"
+            }
+        );
+
+        if (!worker) {
+            return res.status(404).json({
+                success: false,
+                message: "Worker not found."
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Worker contact recorded successfully.",
+            phone: worker.phone
+        });
+
+    } catch (error) {
+
+        console.error("Contact worker error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Unable to contact worker."
+        });
+
+    }
+}
+
+module.exports = {
+    getWorkerDetails,
+    contactWorker
+};
