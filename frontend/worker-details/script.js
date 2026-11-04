@@ -106,7 +106,7 @@ async function loadWorkerDetails() {
     try {
 
         const response = await API_REQUEST(
-            "/api/client-worker-details",
+            "/api/worker-details",
             {
                 method: "POST",
                 headers: {
@@ -295,7 +295,7 @@ contactWorkerBtn.addEventListener("click", async () => {
     try {
 
         const response = await API_REQUEST(
-            "/api/client-worker-details/contact",
+            "/api/worker-details/contact",
             {
                 method: "POST",
                 headers: {
