@@ -1,21 +1,16 @@
 "use strict";
 
-/* =========================================================
-1. ENDPOINTS
-========================================================= */
+/* 1. ENDPOINTS */
 
 const SERVICES_ENDPOINT = "/api/services";
 const LOGOUT_ENDPOINT = "/api/auth/logout";
 
-/* =========================================================
-2. DOM ELEMENTS
-========================================================= */
+/* 2. DOM ELEMENTS */
 
 const $ = id => document.getElementById(id);
 
 const skillFilter = $("skillFilter");
 const skillSearch = $("skillSearch");
-
 const workersContainer = $("workersContainer");
 const workersLoading = $("workersLoading");
 const workersEmpty = $("workersEmpty");
@@ -29,16 +24,12 @@ const notificationText = $("notificationText");
 const notificationButton = $("notificationButton");
 const notificationCancelButtonMobile = $("notificationCancelButtonMobile");
 
-/* =========================================================
-3. STATE
-========================================================= */
+/* 3. STATE */
 
 let workers = [];
 let notificationCallback = null;
 
-/* =========================================================
-4. API REQUEST
-========================================================= */
+/* 4. API REQUEST */
 
 async function apiRequest(endpoint, options = {}) {
     if (typeof API_REQUEST === "function") {
@@ -48,16 +39,12 @@ async function apiRequest(endpoint, options = {}) {
     const response = await fetch(endpoint, {
         credentials: "include",
         ...options,
-        headers: {
-            ...(options.headers || {})
-        }
+        headers: { ...(options.headers || {}) }
     });
 
     const data = await response.json().catch(() => ({}));
 
-    if (!response.ok) {
-        throw new Error(data.message || "Something went wrong.");
-    }
+    if (!response.ok) throw new Error(data.message || "Something went wrong.");
 
     return data;
 }
@@ -65,11 +52,7 @@ async function apiRequest(endpoint, options = {}) {
 async function readResponse(response) {
     if (response && typeof response.json === "function") {
         const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message || "Something went wrong.");
-        }
-
+        if (!response.ok) throw new Error(data.message || "Something went wrong.");
         return data;
     }
 
@@ -80,61 +63,34 @@ async function readResponse(response) {
     return response;
 }
 
-/* =========================================================
-5. NOTIFICATION
-========================================================= */
+/* 5. NOTIFICATION */
 
 function showNotification(message, type = "error", callback = null) {
     notificationCard.className = `notification-card ${type}`;
-
-    notificationIcon.textContent =
-        type === "success" ? "✓" : "!";
-
-    notificationTitle.textContent =
-        type === "success" ? "Success" : "Notification";
-
+    notificationIcon.textContent = type === "success" ? "✓" : "!";
+    notificationTitle.textContent = type === "success" ? "Success" : "Notification";
     notificationText.textContent = message;
-
     notificationCallback = callback;
-
-    notificationButton.textContent =
-        callback ? "Continue" : "Okay";
-
-    notificationCancelButtonMobile.style.display =
-        callback ? "block" : "none";
-
+    notificationButton.textContent = callback ? "Continue" : "Okay";
+    notificationCancelButtonMobile.style.display = callback ? "block" : "none";
     notificationOverlay.hidden = false;
 }
 
 function closeNotification(runCallback = false) {
     notificationOverlay.hidden = true;
-
     const callback = notificationCallback;
-
     notificationCallback = null;
-
-    if (runCallback && callback) {
-        callback();
-    }
+    if (runCallback && callback) callback();
 }
 
-notificationButton.addEventListener("click", () => {
-    closeNotification(true);
-});
-
-notificationCancelButtonMobile.addEventListener("click", () => {
-    closeNotification(false);
-});
+notificationButton.addEventListener("click", () => closeNotification(true));
+notificationCancelButtonMobile.addEventListener("click", () => closeNotification(false));
 
 notificationOverlay.addEventListener("click", event => {
-    if (event.target === notificationOverlay) {
-        closeNotification(false);
-    }
+    if (event.target === notificationOverlay) closeNotification(false);
 });
 
-/* =========================================================
-6. LOADING AND EMPTY STATES
-========================================================= */
+/* 6. LOADING AND EMPTY STATES */
 
 function showLoading(show) {
     workersLoading.hidden = !show;
@@ -145,7 +101,6 @@ function showLoading(show) {
 function showEmpty(message) {
     workersContainer.hidden = true;
     workersEmpty.hidden = false;
-
     workersEmptyText.textContent = message;
 }
 
@@ -154,19 +109,12 @@ function showWorkers() {
     workersEmpty.hidden = true;
 }
 
-/* =========================================================
-7. BROWSER LOCATION
-========================================================= */
+/* 7. BROWSER LOCATION */
 
 function getDeviceLocation() {
     return new Promise((resolve, reject) => {
         if (!navigator.geolocation) {
-            reject(
-                new Error(
-                    "Your browser does not support location services."
-                )
-            );
-
+            reject(new Error("Your browser does not support location services."));
             return;
         }
 
@@ -178,50 +126,26 @@ function getDeviceLocation() {
                 if (
                     !Number.isFinite(latitude) ||
                     !Number.isFinite(longitude) ||
-                    latitude < -90 ||
-                    latitude > 90 ||
-                    longitude < -180 ||
-                    longitude > 180
+                    latitude < -90 || latitude > 90 ||
+                    longitude < -180 || longitude > 180
                 ) {
-                    reject(
-                        new Error(
-                            "Your device returned invalid coordinates."
-                        )
-                    );
-
+                    reject(new Error("Your device returned invalid coordinates."));
                     return;
                 }
 
-                // DIAGNOSTIC 1: DEVICE LOCATION
-
-                console.log("DEVICE LOCATION:", {
-                    latitude,
-                    longitude
-                });
-
-                resolve({
-                    latitude,
-                    longitude
-                });
+                console.log("DEVICE LOCATION:", { latitude, longitude });
+                resolve({ latitude, longitude });
             },
 
             error => {
-                let message =
-                    "Unable to retrieve your location.";
+                let message = "Unable to retrieve your location.";
 
                 if (error.code === error.PERMISSION_DENIED) {
-                    message =
-                        "Location permission denied. Please allow location access to find nearby workers.";
-
-                } else if (
-                    error.code === error.POSITION_UNAVAILABLE
-                ) {
-                    message =
-                        "Your device location is currently unavailable. Please try again.";
-
+                    message = "Location permission denied. Please allow location access to find nearby workers.";
+                } else if (error.code === error.POSITION_UNAVAILABLE) {
+                    message = "Your device location is currently unavailable. Please try again.";
                 } else if (error.code === error.TIMEOUT) {
-                    message =
-                        "Location request timed out. Please try again.";
+                    message = "Location request timed out. Please try again.";
                 }
 
                 console.error("GEOLOCATION ERROR:", {
@@ -241,438 +165,225 @@ function getDeviceLocation() {
     });
 }
 
-/* =========================================================
-8. REQUEST NEARBY WORKERS
-========================================================= */
+/* 8. REQUEST NEARBY WORKERS */
 
 async function loadWorkers() {
     showLoading(true);
-
     workers = [];
 
     try {
-        // Get device latitude and longitude.
+        const { latitude, longitude } = await getDeviceLocation();
 
-        const {
-            latitude,
-            longitude
-        } = await getDeviceLocation();
+        const response = await apiRequest(SERVICES_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ latitude, longitude })
+        });
 
-        // Send location details to backend.
-
-        const response = await apiRequest(
-            SERVICES_ENDPOINT,
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    latitude,
-                    longitude
-                })
-            }
-        );
-
-        // DIAGNOSTIC 2: API RESPONSE STATUS
-
-        console.log(
-            "API RESPONSE STATUS:",
-            response.status
-        );
+        console.log("API RESPONSE STATUS:", response.status);
 
         const data = await readResponse(response);
-
-        // DIAGNOSTIC 3: WORKERS RESPONSE
 
         console.log("WORKERS RESPONSE:", JSON.stringify(data, null, 2));
 
         if (!Array.isArray(data.workers)) {
-            throw new Error(
-                "Invalid workers response from server."
-            );
+            throw new Error("Invalid workers response from server.");
         }
 
         workers = data.workers;
 
         if (!workers.length) {
-            showEmpty(
-                "No workers found within your location."
-            );
-
+            showEmpty("No workers found within your location.");
             return;
         }
 
         populateSkillFilter();
-
         renderWorkers();
 
     } catch (error) {
-
-        // DIAGNOSTIC: COMPLETE ERROR
-
         console.error("SERVICES PAGE ERROR:", error);
-
         workers = [];
-
-        // Display actual error on the page.
-
-        showEmpty(
-            error.message ||
-            "Unable to load nearby workers."
-        );
+        showEmpty(error.message || "Unable to load nearby workers.");
 
     } finally {
         workersLoading.hidden = true;
     }
 }
 
-/* =========================================================
-9. SKILL DROPDOWN
-========================================================= */
+/* 9. SKILL DROPDOWN */
 
 function populateSkillFilter() {
-    const skills = [
-        ...new Set(
-            workers
-                .map(worker =>
-                    String(worker.skill || "").trim()
-                )
-                .filter(Boolean)
-        )
-    ].sort((a, b) => a.localeCompare(b));
+    const skills = [...new Set(
+        workers.map(worker => String(worker.skill || "").trim()).filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b));
 
     skillFilter.replaceChildren();
 
-    const defaultOption =
-        document.createElement("option");
-
+    const defaultOption = document.createElement("option");
     defaultOption.value = "";
     defaultOption.textContent = "All Skills";
-
     skillFilter.appendChild(defaultOption);
 
     skills.forEach(skill => {
-        const option =
-            document.createElement("option");
-
+        const option = document.createElement("option");
         option.value = skill;
         option.textContent = skill;
-
         skillFilter.appendChild(option);
     });
 }
 
-/* =========================================================
-10. FILTER AND SEARCH WORKERS
-========================================================= */
+/* 10. FILTER AND SEARCH WORKERS */
 
 function getFilteredWorkers() {
-    const selectedSkill =
-        skillFilter.value.toLowerCase();
-
-    const searchValue =
-        skillSearch.value.trim().toLowerCase();
+    const selectedSkill = skillFilter.value.toLowerCase();
+    const searchValue = skillSearch.value.trim().toLowerCase();
 
     return workers.filter(worker => {
-        const skill =
-            String(worker.skill || "").toLowerCase();
+        const skill = String(worker.skill || "").toLowerCase();
 
-        const matchesFilter =
-            !selectedSkill ||
-            skill === selectedSkill;
-
-        const matchesSearch =
-            !searchValue ||
-            skill.includes(searchValue);
+        const matchesFilter = !selectedSkill || skill === selectedSkill;
+        const matchesSearch = !searchValue || skill.includes(searchValue);
 
         return matchesFilter && matchesSearch;
     });
 }
 
-/* =========================================================
-11. RENDER WORKERS
-========================================================= */
+/* 11. RENDER WORKERS */
 
 function renderWorkers() {
     const filteredWorkers = getFilteredWorkers();
-
     workersContainer.replaceChildren();
 
     if (!filteredWorkers.length) {
         if (skillFilter.value) {
-            showEmpty(
-                "No workers found for this skill."
-            );
-
+            showEmpty("No workers found for this skill.");
         } else if (skillSearch.value.trim()) {
-            showEmpty(
-                "No workers found for your search."
-            );
-
+            showEmpty("No workers found for your search.");
         } else {
-            showEmpty(
-                "No workers found within your location."
-            );
+            showEmpty("No workers found within your location.");
         }
-
         return;
     }
 
     showWorkers();
 
-    // Workers are already sorted by distance by the backend.
-
     filteredWorkers.forEach(worker => {
-        workersContainer.appendChild(
-            createWorkerCard(worker)
-        );
+        workersContainer.appendChild(createWorkerCard(worker));
     });
 }
 
-/* =========================================================
-12. WORKER CARD
-========================================================= */
+/* 12. WORKER CARD */
 
 function createWorkerCard(worker) {
     const card = document.createElement("div");
-
     card.className = "worker-card";
     card.tabIndex = 0;
-
     card.setAttribute("role", "button");
-
-    card.setAttribute(
-        "aria-label",
-        `View ${worker.fullName || "worker"}'s service`
-    );
+    card.setAttribute("aria-label", `View ${worker.fullName || "worker"}'s service`);
 
     const info = document.createElement("div");
-
     info.className = "worker-info";
 
     const name = document.createElement("h3");
-
     name.className = "worker-name";
-
-    name.textContent =
-        worker.fullName || "Worker";
+    name.textContent = worker.fullName || "Worker";
 
     const details = document.createElement("div");
-
     details.className = "worker-details";
 
     const skill = document.createElement("span");
-
     skill.className = "worker-skill";
+    skill.textContent = worker.skill || "Skill not specified";
 
-    skill.textContent =
-        worker.skill || "Skill not specified";
-
-    const divider = document.createElement("span");
-
-    divider.className = "worker-divider";
-
-    divider.textContent = "•";
-
-    const location = document.createElement("span");
-
-    location.className = "worker-location";
-
-    const latitude = Number(worker.latitude);
-
-    location.textContent =
-        Number.isFinite(latitude)
-            ? latitude.toFixed(5)
-            : "Location unavailable";
-
-    details.append(
-        skill,
-        divider,
-        location
-    );
-
-    info.append(
-        name,
-        details
-    );
+    details.append(skill);
+    info.append(name, details);
 
     let photo;
 
     if (worker.profilePhoto) {
         photo = document.createElement("img");
-
         photo.className = "worker-photo";
-
         photo.src = worker.profilePhoto;
-
-        photo.alt =
-            `${worker.fullName || "Worker"}'s profile photo`;
-
+        photo.alt = `${worker.fullName || "Worker"}'s profile photo`;
         photo.loading = "lazy";
 
         photo.onerror = () => {
-            const placeholder =
-                createPhotoPlaceholder();
-
-            photo.replaceWith(placeholder);
+            photo.replaceWith(createPhotoPlaceholder());
         };
-
     } else {
         photo = createPhotoPlaceholder();
     }
 
-    card.append(
-        info,
-        photo
-    );
+    card.append(info, photo);
 
-    /* =====================================================
-       VIEW SERVICE
-    ===================================================== */
+    /* VIEW SERVICE */
 
     const openService = () => {
         if (!worker.workerId) {
-            showNotification(
-                "This worker's ID is unavailable."
-            );
-
+            showNotification("This worker's ID is unavailable.");
             return;
         }
 
-        if (
-            worker.serviceId === undefined ||
-            worker.serviceId === null
-        ) {
-            showNotification(
-                "This worker's service ID is unavailable."
-            );
-
+        if (worker.serviceId === undefined || worker.serviceId === null) {
+            showNotification("This worker's service ID is unavailable.");
             return;
         }
 
-        // Save workerId.
+        sessionStorage.setItem("workerId", String(worker.workerId));
+        sessionStorage.setItem("serviceId", String(worker.serviceId));
 
-        sessionStorage.setItem(
-            "workerId",
-            String(worker.workerId)
-        );
-
-        // Save serviceId.
-
-        sessionStorage.setItem(
-            "serviceId",
-            String(worker.serviceId)
-        );
-
-        // Redirect to worker details.
-
-        window.location.href =
-            "../worker-details/index.html";
+        window.location.href = "../worker-details/index.html";
     };
 
-    card.addEventListener(
-        "click",
-        openService
-    );
+    card.addEventListener("click", openService);
 
-    card.addEventListener(
-        "keydown",
-        event => {
-            if (
-                event.key === "Enter" ||
-                event.key === " "
-            ) {
-                event.preventDefault();
-
-                openService();
-            }
+    card.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openService();
         }
-    );
+    });
 
     return card;
 }
 
-/* =========================================================
-13. PHOTO PLACEHOLDER
-========================================================= */
+/* 13. PHOTO PLACEHOLDER */
 
 function createPhotoPlaceholder() {
-    const placeholder =
-        document.createElement("div");
-
-    placeholder.className =
-        "worker-photo-placeholder";
-
+    const placeholder = document.createElement("div");
+    placeholder.className = "worker-photo-placeholder";
     placeholder.textContent = "👤";
-
-    placeholder.setAttribute(
-        "aria-label",
-        "Worker photo unavailable"
-    );
-
+    placeholder.setAttribute("aria-label", "Worker photo unavailable");
     return placeholder;
 }
 
-/* =========================================================
-14. FILTER EVENTS
-========================================================= */
+/* 14. FILTER EVENTS */
 
-skillFilter.addEventListener(
-    "change",
-    renderWorkers
-);
+skillFilter.addEventListener("change", renderWorkers);
+skillSearch.addEventListener("input", renderWorkers);
 
-skillSearch.addEventListener(
-    "input",
-    renderWorkers
-);
-
-/* =========================================================
-15. LOGOUT
-========================================================= */
+/* 15. LOGOUT */
 
 const logoutBtn = $("logoutBtn");
 
 if (logoutBtn) {
-    logoutBtn.addEventListener(
-        "click",
-        async () => {
-            logoutBtn.disabled = true;
+    logoutBtn.addEventListener("click", async () => {
+        logoutBtn.disabled = true;
 
-            try {
-                await apiRequest(
-                    LOGOUT_ENDPOINT,
-                    {
-                        method: "POST"
-                    }
-                );
+        try {
+            await apiRequest(LOGOUT_ENDPOINT, { method: "POST" });
+            sessionStorage.clear();
+            window.location.href = "../index.html";
 
-                sessionStorage.clear();
+        } catch (error) {
+            showNotification(error.message || "Unable to logout. Please try again.");
 
-                window.location.href =
-                    "../index.html";
-
-            } catch (error) {
-                showNotification(
-                    error.message ||
-                    "Unable to logout. Please try again."
-                );
-
-            } finally {
-                logoutBtn.disabled = false;
-            }
+        } finally {
+            logoutBtn.disabled = false;
         }
-    );
+    });
 }
 
-/* =========================================================
-16. INITIALIZE
-========================================================= */
+/* 16. INITIALIZE */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    loadWorkers
-);
+document.addEventListener("DOMContentLoaded", loadWorkers);
