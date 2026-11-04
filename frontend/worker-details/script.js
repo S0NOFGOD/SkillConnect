@@ -43,7 +43,8 @@ let workerData = null;
 const workerId = sessionStorage.getItem("workerId");
 const serviceId = sessionStorage.getItem("serviceId");
 
-const API_URL = API_ENDPOINT.replace(/\/$/, "");
+
+/* DISPLAY STATES */
 
 function showLoading() {
     loadingState.hidden = false;
@@ -57,6 +58,9 @@ function showError(message) {
     errorState.hidden = false;
     errorMessage.textContent = message;
 }
+
+
+/* NOTIFICATIONS */
 
 function showNotification(title, message) {
     notificationTitle.textContent = title;
@@ -77,20 +81,16 @@ function closeRatingModal() {
 }
 
 notificationButton.addEventListener("click", closeNotification);
-
-notificationOverlay.addEventListener("click", event => {
-    if (event.target === notificationOverlay) {
-        closeNotification();
-    }
-});
-
 ratingCancelButton.addEventListener("click", closeRatingModal);
 
-ratingOverlay.addEventListener("click", event => {
-    if (event.target === ratingOverlay) {
-        closeRatingModal();
-    }
+notificationOverlay.addEventListener("click", event => {
+    if (event.target === notificationOverlay) closeNotification();
 });
+
+ratingOverlay.addEventListener("click", event => {
+    if (event.target === ratingOverlay) closeRatingModal();
+});
+
 
 /* LOAD WORKER DETAILS */
 
@@ -105,17 +105,14 @@ async function loadWorkerDetails() {
 
     try {
 
-        const response = await fetch(
-            `${API_URL}/api/client-worker-details`,
+        const response = await API_REQUEST(
+            "/api/client-worker-details",
             {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({
-                    workerId,
-                    serviceId
-                })
+                body: JSON.stringify({ workerId, serviceId })
             }
         );
 
@@ -123,6 +120,11 @@ async function loadWorkerDetails() {
 
         if (!response.ok) {
             showError(data.message || "Unable to load worker details.");
+            return;
+        }
+
+        if (!data.worker) {
+            showError("Worker information was not returned by the server.");
             return;
         }
 
@@ -139,6 +141,7 @@ async function loadWorkerDetails() {
     }
 }
 
+
 /* DISPLAY WORKER */
 
 function displayWorker(data) {
@@ -152,30 +155,27 @@ function displayWorker(data) {
     const latitude = data.latitude;
 
     workerLocation.textContent =
-        latitude !== null && latitude !== undefined
-        ? `Latitude: ${latitude}`
-        : "Location unavailable";
+        latitude != null ? `Latitude: ${latitude}` : "Location unavailable";
 
     workerDescription.textContent = data.description || "-";
 
     infoSkill.textContent = data.skill || "-";
     infoExperience.textContent = data.experience || "-";
+
     infoLocation.textContent =
-        latitude !== null && latitude !== undefined
-        ? String(latitude)
-        : "Unavailable";
+        latitude != null ? String(latitude) : "Unavailable";
 
     infoRating.textContent =
         `⭐ ${Number(data.rating || 0).toFixed(1)} (${data.reviewCount || 0} Reviews)`;
 
     displayPortfolio(data.portfolioPhotos || []);
-
     displayReviews(data.ratingAndReview || []);
 
     loadingState.hidden = true;
     errorState.hidden = true;
     workerContent.hidden = false;
 }
+
 
 /* PORTFOLIO */
 
@@ -201,6 +201,7 @@ function displayPortfolio(photos) {
 
     });
 }
+
 
 /* REVIEWS */
 
@@ -245,7 +246,6 @@ function displayReviews(reviews) {
             date.textContent = formatDate(review.date);
 
             item.append(top, text, date);
-
             reviewList.appendChild(item);
 
         });
@@ -266,7 +266,8 @@ function formatDate(date) {
     });
 }
 
-/* BACK NAVIGATION */
+
+/* NAVIGATION */
 
 backBtn.addEventListener("click", () => {
 
@@ -277,13 +278,10 @@ backBtn.addEventListener("click", () => {
 
 });
 
-/* SEE MORE */
-
 seeMoreBtn.addEventListener("click", () => {
-
     window.location.href = "../client-view-ratings/index.html";
-
 });
+
 
 /* CONTACT WORKER */
 
@@ -296,40 +294,32 @@ contactWorkerBtn.addEventListener("click", async () => {
 
     try {
 
-        const response = await fetch(
-            `${API_URL}/api/client-worker-details/contact`,
+        const response = await API_REQUEST(
+            "/api/client-worker-details/contact",
             {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({
-                    workerId
-                })
+                body: JSON.stringify({ workerId })
             }
         );
 
         const data = await response.json();
 
         if (!response.ok) {
-
             showNotification(
                 "Unable to Contact Worker",
                 data.message || "Unable to contact this worker."
             );
-
             return;
         }
 
-        contactWorkerBtn.textContent = "Contact Worker";
-
         if (!data.phone) {
-
             showNotification(
                 "Phone Number Unavailable",
                 "This worker's phone number is not available."
             );
-
             return;
         }
 
@@ -353,11 +343,10 @@ contactWorkerBtn.addEventListener("click", async () => {
 
 });
 
-/* RATE WORKER CONFIRMATION */
+
+/* RATE WORKER */
 
 rateWorkerBtn.addEventListener("click", openRatingModal);
-
-ratingCancelButton.addEventListener("click", closeRatingModal);
 
 ratingConfirmButton.addEventListener("click", () => {
 
@@ -367,9 +356,13 @@ ratingConfirmButton.addEventListener("click", () => {
 
 });
 
+
 /* RETRY */
 
 retryBtn.addEventListener("click", loadWorkerDetails);
+
+
+/* INITIALIZE */
 
 loadWorkerDetails();
 

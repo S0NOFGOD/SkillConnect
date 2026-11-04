@@ -105,7 +105,7 @@ const getNearbyWorkers = async (req, res) => {
 
         const now = new Date();
 
-        const workers = await Worker.find({
+        const locationQuery = {
             latitude: {
                 $gte: Math.max(-90, latitude - latitudeRange),
                 $lte: Math.min(90, latitude + latitudeRange)
@@ -114,7 +114,82 @@ const getNearbyWorkers = async (req, res) => {
             longitude: {
                 $gte: Math.max(-180, longitude - longitudeRange),
                 $lte: Math.min(180, longitude + longitudeRange)
+            }
+        };
+
+        /* =================================================
+           5. WORKER SEARCH DIAGNOSTICS
+        ================================================= */
+
+        const totalWorkers = await Worker.countDocuments();
+
+        /* DISPLAY ALL SAVED WORKER LOCATIONS */
+
+        const allWorkerLocations = await Worker.find({})
+            .select(
+                "_id fullName latitude longitude profileVerificationExpires"
+            );
+
+        console.log(
+            "ALL SAVED WORKER LOCATIONS:",
+            allWorkerLocations.map(worker => ({
+                workerId: worker._id.toString(),
+                fullName: worker.fullName,
+                latitude: worker.latitude,
+                longitude: worker.longitude,
+                latitudeType: typeof worker.latitude,
+                longitudeType: typeof worker.longitude,
+                profileVerificationExpires:
+                    worker.profileVerificationExpires
+            }))
+        );
+
+        /* COUNT WORKERS WITHIN CLIENT LOCATION */
+
+        const workersWithCoordinates = await Worker.countDocuments(
+            locationQuery
+        );
+
+        /* COUNT WORKERS WITH VALID PROFILE VERIFICATION */
+
+        const workersWithValidVerification = await Worker.countDocuments({
+            ...locationQuery,
+
+            profileVerificationExpires: {
+                $gt: now
+            }
+        });
+
+        /* COUNT WORKERS WITH APPROVED SERVICES */
+
+        const workersWithApprovedServices = await Worker.countDocuments({
+            ...locationQuery,
+
+            profileVerificationExpires: {
+                $gt: now
             },
+
+            "services.adminApproval": "approved"
+        });
+
+        console.log("WORKER SEARCH DIAGNOSTICS:", {
+            clientLocation: {
+                latitude,
+                longitude
+            },
+            searchRadius: radius,
+            totalWorkers,
+            workersWithCoordinates,
+            workersWithValidVerification,
+            workersWithApprovedServices
+        });
+
+        /* =================================================
+           6. FIND ELIGIBLE WORKERS
+        ================================================= */
+
+        const workers = await Worker.find({
+            ...locationQuery,
 
             profileVerificationExpires: {
                 $gt: now
@@ -216,7 +291,7 @@ const getNearbyWorkers = async (req, res) => {
 };
 
 /* =========================================================
-   5. EXPORT CONTROLLER
+   7. EXPORT CONTROLLER
 ========================================================= */
 
 module.exports = {

@@ -60,7 +60,78 @@ let modalCloseCallback = null;
 
 
 /* =========================================================
-   3. BUTTON LOADING STATE
+   3. INITIALIZE WORKER EMAIL
+========================================================= */
+
+function initializeWorkerEmail() {
+
+    const urlParams = new URLSearchParams(
+        window.location.search
+    );
+
+    const googleEmail = urlParams.get("email");
+
+    if (googleEmail && googleEmail.trim()) {
+
+        const normalizedEmail = googleEmail
+            .trim()
+            .toLowerCase();
+
+        const emailPattern =
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailPattern.test(normalizedEmail)) {
+            sessionStorage.removeItem("workerEmail");
+
+            showNotification(
+                "error",
+                "Invalid Registration",
+                "The email address received from Google is invalid.",
+                () => {
+                    window.location.href = AUTHENTICATION_REDIRECT;
+                }
+            );
+
+            return false;
+        }
+
+        sessionStorage.setItem(
+            "workerEmail",
+            normalizedEmail
+        );
+
+        window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+        );
+
+        return true;
+    }
+
+    const existingEmail = sessionStorage.getItem(
+        "workerEmail"
+    );
+
+    if (existingEmail && existingEmail.trim()) {
+        return true;
+    }
+
+    showNotification(
+        "error",
+        "Registration Session Missing",
+        "Your registration session could not be found. Please register or log in again.",
+        () => {
+            window.location.href = AUTHENTICATION_REDIRECT;
+        }
+    );
+
+    return false;
+}
+
+
+/* =========================================================
+   4. BUTTON LOADING STATE
 ========================================================= */
 
 function setCreateProfileLoading(isLoading) {
@@ -88,7 +159,7 @@ function resetCreateProfileState() {
 
 
 /* =========================================================
-   4. NOTIFICATION MODAL
+   5. NOTIFICATION MODAL
 ========================================================= */
 
 const MODAL_ICONS = {
@@ -164,7 +235,7 @@ document.addEventListener("keydown", event => {
 
 
 /* =========================================================
-   5. AUTHENTICATION SESSION EXPIRY
+   6. AUTHENTICATION SESSION EXPIRY
 ========================================================= */
 
 window.addEventListener("authSessionExpired", () => {
@@ -189,7 +260,7 @@ window.addEventListener("authSessionExpired", () => {
 
 
 /* =========================================================
-   6. PROFILE PHOTO VALIDATION AND PREVIEW
+   7. PROFILE PHOTO VALIDATION AND PREVIEW
 ========================================================= */
 
 function validateProfilePhoto(file) {
@@ -278,7 +349,7 @@ profilePhotoInput?.addEventListener("change", () => {
 
 
 /* =========================================================
-   7. FULL NAME VALIDATION
+   8. FULL NAME VALIDATION
 ========================================================= */
 
 function validateFullName(value) {
@@ -305,7 +376,7 @@ function validateFullName(value) {
 
 
 /* =========================================================
-   8. PHONE VALIDATION
+   9. PHONE VALIDATION
 ========================================================= */
 
 function validatePhone(value) {
@@ -330,7 +401,7 @@ function validatePhone(value) {
 
 
 /* =========================================================
-   9. LOCATION RETRIEVAL
+   10. LOCATION RETRIEVAL
 ========================================================= */
 
 function getWorkerLocation() {
@@ -416,7 +487,7 @@ getLocationBtn?.addEventListener(
 
 
 /* =========================================================
-   10. LATITUDE AND LONGITUDE VALIDATION
+   11. LATITUDE AND LONGITUDE VALIDATION
 ========================================================= */
 
 function validateCoordinates() {
@@ -460,7 +531,7 @@ function validateCoordinates() {
 
 
 /* =========================================================
-   11. PROFILE COMPLETION PROGRESS
+   12. PROFILE COMPLETION PROGRESS
 ========================================================= */
 
 function updateProgress() {
@@ -492,12 +563,10 @@ function updateProgress() {
 
 
 /* =========================================================
-   12. FRONTEND FORM VALIDATION
+   13. FRONTEND FORM VALIDATION
 ========================================================= */
 
 function validateWorkerProfileForm() {
-
-    /* PROFILE PHOTO */
 
     const photoResult = validateProfilePhoto(
         profilePhotoInput.files?.[0]
@@ -507,8 +576,6 @@ function validateWorkerProfileForm() {
         return photoResult;
     }
 
-    /* FULL NAME */
-
     const nameResult = validateFullName(
         fullNameInput.value
     );
@@ -517,8 +584,6 @@ function validateWorkerProfileForm() {
         return nameResult;
     }
 
-    /* PHONE */
-
     const phoneResult = validatePhone(
         phoneInput.value
     );
@@ -526,8 +591,6 @@ function validateWorkerProfileForm() {
     if (!phoneResult.valid) {
         return phoneResult;
     }
-
-    /* LOCATION */
 
     const locationResult = validateCoordinates();
 
@@ -540,7 +603,7 @@ function validateWorkerProfileForm() {
 
 
 /* =========================================================
-   13. RESPONSE MESSAGE EXTRACTION
+   14. RESPONSE MESSAGE EXTRACTION
 ========================================================= */
 
 async function extractResponseData(response) {
@@ -560,7 +623,7 @@ async function extractResponseData(response) {
 
 
 /* =========================================================
-   14. BUILD PROFILE FORM DATA
+   15. BUILD PROFILE FORM DATA
 ========================================================= */
 
 function buildProfileFormData(email) {
@@ -598,13 +661,11 @@ function buildProfileFormData(email) {
 
 
 /* =========================================================
-   15. CREATE WORKER PROFILE REQUEST
+   16. CREATE WORKER PROFILE REQUEST
 ========================================================= */
 
 async function createWorkerProfile() {
     if (isCreatingProfile) return;
-
-    /* FRONTEND VALIDATION */
 
     const validationResult =
         validateWorkerProfileForm();
@@ -618,8 +679,6 @@ async function createWorkerProfile() {
 
         return;
     }
-
-    /* GET EMAIL FROM SESSION STORAGE */
 
     const email = sessionStorage.getItem("workerEmail");
 
@@ -636,21 +695,12 @@ async function createWorkerProfile() {
         return;
     }
 
-    /* START LOADING */
-
     isCreatingProfile = true;
 
     setCreateProfileLoading(true);
 
     try {
         const formData = buildProfileFormData(email);
-
-        /*
-            API_REQUEST handles:
-            - HTTP-only cookies.
-            - Access-token refresh.
-            - Original request retry after refresh.
-        */
 
         const response = await API_REQUEST(
             CREATE_PROFILE_ENDPOINT,
@@ -661,8 +711,6 @@ async function createWorkerProfile() {
         );
 
         const data = await extractResponseData(response);
-
-        /* AUTHENTICATION FAILURE */
 
         if (
             response.status === 401 ||
@@ -685,8 +733,6 @@ async function createWorkerProfile() {
             return;
         }
 
-        /* OTHER BACKEND ERRORS */
-
         if (!response.ok) {
             resetCreateProfileState();
 
@@ -699,8 +745,6 @@ async function createWorkerProfile() {
 
             return;
         }
-
-        /* SUCCESSFUL PROFILE CREATION */
 
         sessionStorage.removeItem("workerEmail");
 
@@ -737,7 +781,7 @@ async function createWorkerProfile() {
 
 
 /* =========================================================
-   16. FORM SUBMISSION
+   17. FORM SUBMISSION
 ========================================================= */
 
 workerProfileForm?.addEventListener(
@@ -751,10 +795,15 @@ workerProfileForm?.addEventListener(
 
 
 /* =========================================================
-   17. INITIALIZATION
+   18. INITIALIZATION
 ========================================================= */
 
 function initializeWorkerProfilePage() {
+
+    if (!initializeWorkerEmail()) {
+        return;
+    }
+
     if (profilePage) {
         profilePage.hidden = false;
     }

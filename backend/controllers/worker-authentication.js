@@ -613,7 +613,10 @@ const googleCallback = async (req, res) => {
             });
 
             return res.redirect(
-                frontendPage("worker-create-profile/index.html")
+                frontendPage(
+                    "worker-create-profile/index.html",
+                    { email }
+                )
             );
         }
 
@@ -624,7 +627,10 @@ const googleCallback = async (req, res) => {
             await worker.save();
 
             return res.redirect(
-                frontendPage("worker-create-profile/index.html")
+                frontendPage(
+                    "worker-create-profile/index.html",
+                    { email }
+                )
             );
         }
 

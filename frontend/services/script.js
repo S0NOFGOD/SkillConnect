@@ -1,9 +1,8 @@
 "use strict";
 
 /* =========================================================
-
 1. ENDPOINTS
-   ========================================================= */
+========================================================= */
 
 const SERVICES_ENDPOINT = "/api/services";
 const LOGOUT_ENDPOINT = "/api/auth/logout";
@@ -42,31 +41,19 @@ let notificationCallback = null;
 ========================================================= */
 
 async function apiRequest(endpoint, options = {}) {
-if (typeof API_REQUEST === "function") {
-return API_REQUEST(endpoint, options);
-}
-
-const response = await fetch(endpoint, {
-    credentials: "include",
-    ...options,
-    headers: {
-        ...(options.headers || {})
+    if (typeof API_REQUEST === "function") {
+        return API_REQUEST(endpoint, options);
     }
-});
 
-const data = await response.json().catch(() => ({}));
+    const response = await fetch(endpoint, {
+        credentials: "include",
+        ...options,
+        headers: {
+            ...(options.headers || {})
+        }
+    });
 
-if (!response.ok) {
-    throw new Error(data.message || "Something went wrong.");
-}
-
-return data;
-
-}
-
-async function readResponse(response) {
-if (response && typeof response.json === "function") {
-const data = await response.json();
+    const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
         throw new Error(data.message || "Something went wrong.");
@@ -75,12 +62,22 @@ const data = await response.json();
     return data;
 }
 
-if (response?.success === false) {
-    throw new Error(response.message || "Something went wrong.");
-}
+async function readResponse(response) {
+    if (response && typeof response.json === "function") {
+        const data = await response.json();
 
-return response;
+        if (!response.ok) {
+            throw new Error(data.message || "Something went wrong.");
+        }
 
+        return data;
+    }
+
+    if (response?.success === false) {
+        throw new Error(response.message || "Something went wrong.");
+    }
+
+    return response;
 }
 
 /* =========================================================
@@ -88,53 +85,51 @@ return response;
 ========================================================= */
 
 function showNotification(message, type = "error", callback = null) {
-notificationCard.className = "notification-card ${type}";
+    notificationCard.className = `notification-card ${type}`;
 
-notificationIcon.textContent =
-    type === "success" ? "✓" : "!";
+    notificationIcon.textContent =
+        type === "success" ? "✓" : "!";
 
-notificationTitle.textContent =
-    type === "success" ? "Success" : "Notification";
+    notificationTitle.textContent =
+        type === "success" ? "Success" : "Notification";
 
-notificationText.textContent = message;
+    notificationText.textContent = message;
 
-notificationCallback = callback;
+    notificationCallback = callback;
 
-notificationButton.textContent =
-    callback ? "Continue" : "Okay";
+    notificationButton.textContent =
+        callback ? "Continue" : "Okay";
 
-notificationCancelButtonMobile.style.display =
-    callback ? "block" : "none";
+    notificationCancelButtonMobile.style.display =
+        callback ? "block" : "none";
 
-notificationOverlay.hidden = false;
-
+    notificationOverlay.hidden = false;
 }
 
 function closeNotification(runCallback = false) {
-notificationOverlay.hidden = true;
+    notificationOverlay.hidden = true;
 
-const callback = notificationCallback;
+    const callback = notificationCallback;
 
-notificationCallback = null;
+    notificationCallback = null;
 
-if (runCallback && callback) {
-    callback();
-}
-
+    if (runCallback && callback) {
+        callback();
+    }
 }
 
 notificationButton.addEventListener("click", () => {
-closeNotification(true);
+    closeNotification(true);
 });
 
 notificationCancelButtonMobile.addEventListener("click", () => {
-closeNotification(false);
+    closeNotification(false);
 });
 
 notificationOverlay.addEventListener("click", event => {
-if (event.target === notificationOverlay) {
-closeNotification(false);
-}
+    if (event.target === notificationOverlay) {
+        closeNotification(false);
+    }
 });
 
 /* =========================================================
@@ -142,22 +137,21 @@ closeNotification(false);
 ========================================================= */
 
 function showLoading(show) {
-workersLoading.hidden = !show;
-workersContainer.hidden = show;
-workersEmpty.hidden = true;
+    workersLoading.hidden = !show;
+    workersContainer.hidden = show;
+    workersEmpty.hidden = true;
 }
 
 function showEmpty(message) {
-workersContainer.hidden = true;
-workersEmpty.hidden = false;
+    workersContainer.hidden = true;
+    workersEmpty.hidden = false;
 
-workersEmptyText.textContent = message;
-
+    workersEmptyText.textContent = message;
 }
 
 function showWorkers() {
-workersContainer.hidden = false;
-workersEmpty.hidden = true;
+    workersContainer.hidden = false;
+    workersEmpty.hidden = true;
 }
 
 /* =========================================================
@@ -165,75 +159,86 @@ workersEmpty.hidden = true;
 ========================================================= */
 
 function getDeviceLocation() {
-return new Promise((resolve, reject) => {
-if (!navigator.geolocation) {
-reject(
-new Error(
-"Your browser does not support location services."
-)
-);
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(
+                new Error(
+                    "Your browser does not support location services."
+                )
+            );
 
-        return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-        position => {
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
-
-            if (
-                !Number.isFinite(latitude) ||
-                !Number.isFinite(longitude) ||
-                latitude < -90 ||
-                latitude > 90 ||
-                longitude < -180 ||
-                longitude > 180
-            ) {
-                reject(
-                    new Error(
-                        "Your device returned invalid coordinates."
-                    )
-                );
-
-                return;
-            }
-
-            resolve({
-                latitude,
-                longitude
-            });
-        },
-
-        error => {
-            let message =
-                "Unable to retrieve your location.";
-
-            if (error.code === error.PERMISSION_DENIED) {
-                message =
-                    "Location permission denied. Please allow location access to find nearby workers.";
-
-            } else if (
-                error.code === error.POSITION_UNAVAILABLE
-            ) {
-                message =
-                    "Your device location is currently unavailable. Please try again.";
-
-            } else if (error.code === error.TIMEOUT) {
-                message =
-                    "Location request timed out. Please try again.";
-            }
-
-            reject(new Error(message));
-        },
-
-        {
-            enableHighAccuracy: true,
-            timeout: 15000,
-            maximumAge: 0
+            return;
         }
-    );
-});
 
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+
+                if (
+                    !Number.isFinite(latitude) ||
+                    !Number.isFinite(longitude) ||
+                    latitude < -90 ||
+                    latitude > 90 ||
+                    longitude < -180 ||
+                    longitude > 180
+                ) {
+                    reject(
+                        new Error(
+                            "Your device returned invalid coordinates."
+                        )
+                    );
+
+                    return;
+                }
+
+                // DIAGNOSTIC 1: DEVICE LOCATION
+
+                console.log("DEVICE LOCATION:", {
+                    latitude,
+                    longitude
+                });
+
+                resolve({
+                    latitude,
+                    longitude
+                });
+            },
+
+            error => {
+                let message =
+                    "Unable to retrieve your location.";
+
+                if (error.code === error.PERMISSION_DENIED) {
+                    message =
+                        "Location permission denied. Please allow location access to find nearby workers.";
+
+                } else if (
+                    error.code === error.POSITION_UNAVAILABLE
+                ) {
+                    message =
+                        "Your device location is currently unavailable. Please try again.";
+
+                } else if (error.code === error.TIMEOUT) {
+                    message =
+                        "Location request timed out. Please try again.";
+                }
+
+                console.error("GEOLOCATION ERROR:", {
+                    code: error.code,
+                    message: error.message
+                });
+
+                reject(new Error(message));
+            },
+
+            {
+                enableHighAccuracy: false,
+                timeout: 30000,
+                maximumAge: 60000
+            }
+        );
+    });
 }
 
 /* =========================================================
@@ -241,72 +246,87 @@ new Error(
 ========================================================= */
 
 async function loadWorkers() {
-showLoading(true);
+    showLoading(true);
 
-workers = [];
-
-try {
-    // Get device latitude and longitude.
-    const {
-        latitude,
-        longitude
-    } = await getDeviceLocation();
-
-    // Send location details to backend.
-    const response = await apiRequest(
-        SERVICES_ENDPOINT,
-        {
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-                latitude,
-                longitude
-            })
-        }
-    );
-
-    const data = await readResponse(response);
-
-    if (!Array.isArray(data.workers)) {
-        throw new Error(
-            "Invalid workers response from server."
-        );
-    }
-
-    workers = data.workers;
-
-    if (!workers.length) {
-        showEmpty(
-            "No workers found within your location."
-        );
-
-        return;
-    }
-
-    populateSkillFilter();
-
-    renderWorkers();
-
-} catch (error) {
     workers = [];
 
-    showEmpty(
-        "Unable to load nearby workers."
-    );
+    try {
+        // Get device latitude and longitude.
 
-    showNotification(
-        error.message ||
-        "Unable to connect. Please try again."
-    );
+        const {
+            latitude,
+            longitude
+        } = await getDeviceLocation();
 
-} finally {
-    workersLoading.hidden = true;
-}
+        // Send location details to backend.
 
+        const response = await apiRequest(
+            SERVICES_ENDPOINT,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    latitude,
+                    longitude
+                })
+            }
+        );
+
+        // DIAGNOSTIC 2: API RESPONSE STATUS
+
+        console.log(
+            "API RESPONSE STATUS:",
+            response.status
+        );
+
+        const data = await readResponse(response);
+
+        // DIAGNOSTIC 3: WORKERS RESPONSE
+
+        console.log("WORKERS RESPONSE:", JSON.stringify(data, null, 2));
+
+        if (!Array.isArray(data.workers)) {
+            throw new Error(
+                "Invalid workers response from server."
+            );
+        }
+
+        workers = data.workers;
+
+        if (!workers.length) {
+            showEmpty(
+                "No workers found within your location."
+            );
+
+            return;
+        }
+
+        populateSkillFilter();
+
+        renderWorkers();
+
+    } catch (error) {
+
+        // DIAGNOSTIC: COMPLETE ERROR
+
+        console.error("SERVICES PAGE ERROR:", error);
+
+        workers = [];
+
+        // Display actual error on the page.
+
+        showEmpty(
+            error.message ||
+            "Unable to load nearby workers."
+        );
+
+    } finally {
+        workersLoading.hidden = true;
+    }
 }
 
 /* =========================================================
@@ -314,36 +334,35 @@ try {
 ========================================================= */
 
 function populateSkillFilter() {
-const skills = [
-...new Set(
-workers
-.map(worker =>
-String(worker.skill || "").trim()
-)
-.filter(Boolean)
-)
-].sort((a, b) => a.localeCompare(b));
+    const skills = [
+        ...new Set(
+            workers
+                .map(worker =>
+                    String(worker.skill || "").trim()
+                )
+                .filter(Boolean)
+        )
+    ].sort((a, b) => a.localeCompare(b));
 
-skillFilter.replaceChildren();
+    skillFilter.replaceChildren();
 
-const defaultOption =
-    document.createElement("option");
-
-defaultOption.value = "";
-defaultOption.textContent = "All Skills";
-
-skillFilter.appendChild(defaultOption);
-
-skills.forEach(skill => {
-    const option =
+    const defaultOption =
         document.createElement("option");
 
-    option.value = skill;
-    option.textContent = skill;
+    defaultOption.value = "";
+    defaultOption.textContent = "All Skills";
 
-    skillFilter.appendChild(option);
-});
+    skillFilter.appendChild(defaultOption);
 
+    skills.forEach(skill => {
+        const option =
+            document.createElement("option");
+
+        option.value = skill;
+        option.textContent = skill;
+
+        skillFilter.appendChild(option);
+    });
 }
 
 /* =========================================================
@@ -351,27 +370,26 @@ skills.forEach(skill => {
 ========================================================= */
 
 function getFilteredWorkers() {
-const selectedSkill =
-skillFilter.value.toLowerCase();
+    const selectedSkill =
+        skillFilter.value.toLowerCase();
 
-const searchValue =
-    skillSearch.value.trim().toLowerCase();
+    const searchValue =
+        skillSearch.value.trim().toLowerCase();
 
-return workers.filter(worker => {
-    const skill =
-        String(worker.skill || "").toLowerCase();
+    return workers.filter(worker => {
+        const skill =
+            String(worker.skill || "").toLowerCase();
 
-    const matchesFilter =
-        !selectedSkill ||
-        skill === selectedSkill;
+        const matchesFilter =
+            !selectedSkill ||
+            skill === selectedSkill;
 
-    const matchesSearch =
-        !searchValue ||
-        skill.includes(searchValue);
+        const matchesSearch =
+            !searchValue ||
+            skill.includes(searchValue);
 
-    return matchesFilter && matchesSearch;
-});
-
+        return matchesFilter && matchesSearch;
+    });
 }
 
 /* =========================================================
@@ -379,39 +397,39 @@ return workers.filter(worker => {
 ========================================================= */
 
 function renderWorkers() {
-const filteredWorkers = getFilteredWorkers();
+    const filteredWorkers = getFilteredWorkers();
 
-workersContainer.replaceChildren();
+    workersContainer.replaceChildren();
 
-if (!filteredWorkers.length) {
-    if (skillFilter.value) {
-        showEmpty(
-            "No workers found for this skill."
-        );
+    if (!filteredWorkers.length) {
+        if (skillFilter.value) {
+            showEmpty(
+                "No workers found for this skill."
+            );
 
-    } else if (skillSearch.value.trim()) {
-        showEmpty(
-            "No workers found for your search."
-        );
+        } else if (skillSearch.value.trim()) {
+            showEmpty(
+                "No workers found for your search."
+            );
 
-    } else {
-        showEmpty(
-            "No workers found within your location."
-        );
+        } else {
+            showEmpty(
+                "No workers found within your location."
+            );
+        }
+
+        return;
     }
 
-    return;
-}
+    showWorkers();
 
-showWorkers();
+    // Workers are already sorted by distance by the backend.
 
-// Workers are already sorted by distance by the backend.
-filteredWorkers.forEach(worker => {
-    workersContainer.appendChild(
-        createWorkerCard(worker)
-    );
-});
-
+    filteredWorkers.forEach(worker => {
+        workersContainer.appendChild(
+            createWorkerCard(worker)
+        );
+    });
 }
 
 /* =========================================================
@@ -419,160 +437,162 @@ filteredWorkers.forEach(worker => {
 ========================================================= */
 
 function createWorkerCard(worker) {
-const card = document.createElement("div");
+    const card = document.createElement("div");
 
-card.className = "worker-card";
-card.tabIndex = 0;
+    card.className = "worker-card";
+    card.tabIndex = 0;
 
-card.setAttribute("role", "button");
+    card.setAttribute("role", "button");
 
-card.setAttribute(
-    "aria-label",
-    `View ${worker.fullName || "worker"}'s service`
-);
+    card.setAttribute(
+        "aria-label",
+        `View ${worker.fullName || "worker"}'s service`
+    );
 
-const info = document.createElement("div");
+    const info = document.createElement("div");
 
-info.className = "worker-info";
+    info.className = "worker-info";
 
-const name = document.createElement("h3");
+    const name = document.createElement("h3");
 
-name.className = "worker-name";
+    name.className = "worker-name";
 
-name.textContent =
-    worker.fullName || "Worker";
+    name.textContent =
+        worker.fullName || "Worker";
 
-const details = document.createElement("div");
+    const details = document.createElement("div");
 
-details.className = "worker-details";
+    details.className = "worker-details";
 
-const skill = document.createElement("span");
+    const skill = document.createElement("span");
 
-skill.className = "worker-skill";
+    skill.className = "worker-skill";
 
-skill.textContent =
-    worker.skill || "Skill not specified";
+    skill.textContent =
+        worker.skill || "Skill not specified";
 
-const divider = document.createElement("span");
+    const divider = document.createElement("span");
 
-divider.className = "worker-divider";
+    divider.className = "worker-divider";
 
-divider.textContent = "•";
+    divider.textContent = "•";
 
-const location = document.createElement("span");
+    const location = document.createElement("span");
 
-location.className = "worker-location";
+    location.className = "worker-location";
 
-const latitude = Number(worker.latitude);
+    const latitude = Number(worker.latitude);
 
-location.textContent =
-    Number.isFinite(latitude)
-        ? latitude.toFixed(5)
-        : "Location unavailable";
+    location.textContent =
+        Number.isFinite(latitude)
+            ? latitude.toFixed(5)
+            : "Location unavailable";
 
-details.append(
-    skill,
-    divider,
-    location
-);
+    details.append(
+        skill,
+        divider,
+        location
+    );
 
-info.append(
-    name,
-    details
-);
+    info.append(
+        name,
+        details
+    );
 
-let photo;
+    let photo;
 
-if (worker.profilePhoto) {
-    photo = document.createElement("img");
+    if (worker.profilePhoto) {
+        photo = document.createElement("img");
 
-    photo.className = "worker-photo";
+        photo.className = "worker-photo";
 
-    photo.src = worker.profilePhoto;
+        photo.src = worker.profilePhoto;
 
-    photo.alt =
-        `${worker.fullName || "Worker"}'s profile photo`;
+        photo.alt =
+            `${worker.fullName || "Worker"}'s profile photo`;
 
-    photo.loading = "lazy";
+        photo.loading = "lazy";
 
-    photo.onerror = () => {
-        const placeholder =
-            createPhotoPlaceholder();
+        photo.onerror = () => {
+            const placeholder =
+                createPhotoPlaceholder();
 
-        photo.replaceWith(placeholder);
+            photo.replaceWith(placeholder);
+        };
+
+    } else {
+        photo = createPhotoPlaceholder();
+    }
+
+    card.append(
+        info,
+        photo
+    );
+
+    /* =====================================================
+       VIEW SERVICE
+    ===================================================== */
+
+    const openService = () => {
+        if (!worker.workerId) {
+            showNotification(
+                "This worker's ID is unavailable."
+            );
+
+            return;
+        }
+
+        if (
+            worker.serviceId === undefined ||
+            worker.serviceId === null
+        ) {
+            showNotification(
+                "This worker's service ID is unavailable."
+            );
+
+            return;
+        }
+
+        // Save workerId.
+
+        sessionStorage.setItem(
+            "workerId",
+            String(worker.workerId)
+        );
+
+        // Save serviceId.
+
+        sessionStorage.setItem(
+            "serviceId",
+            String(worker.serviceId)
+        );
+
+        // Redirect to worker details.
+
+        window.location.href =
+            "../worker-details/index.html";
     };
 
-} else {
-    photo = createPhotoPlaceholder();
-}
-
-card.append(
-    info,
-    photo
-);
-
-/* =====================================================
-   VIEW SERVICE
-===================================================== */
-
-const openService = () => {
-    if (!worker.workerId) {
-        showNotification(
-            "This worker's ID is unavailable."
-        );
-
-        return;
-    }
-
-    if (
-        worker.serviceId === undefined ||
-        worker.serviceId === null
-    ) {
-        showNotification(
-            "This worker's service ID is unavailable."
-        );
-
-        return;
-    }
-
-    // Save workerId.
-    sessionStorage.setItem(
-        "workerId",
-        String(worker.workerId)
+    card.addEventListener(
+        "click",
+        openService
     );
 
-    // Save serviceId.
-    sessionStorage.setItem(
-        "serviceId",
-        String(worker.serviceId)
-    );
+    card.addEventListener(
+        "keydown",
+        event => {
+            if (
+                event.key === "Enter" ||
+                event.key === " "
+            ) {
+                event.preventDefault();
 
-    // Redirect to worker details.
-    window.location.href =
-        "../worker-details/index.html";
-};
-
-card.addEventListener(
-    "click",
-    openService
-);
-
-card.addEventListener(
-    "keydown",
-    event => {
-        if (
-            event.key === "Enter" ||
-            event.key === " "
-        ) {
-            event.preventDefault();
-
-            openService();
+                openService();
+            }
         }
-    }
-);
+    );
 
-return card;
-
+    return card;
 }
 
 /* =========================================================
@@ -580,21 +600,20 @@ return card;
 ========================================================= */
 
 function createPhotoPlaceholder() {
-const placeholder =
-document.createElement("div");
+    const placeholder =
+        document.createElement("div");
 
-placeholder.className =
-    "worker-photo-placeholder";
+    placeholder.className =
+        "worker-photo-placeholder";
 
-placeholder.textContent = "👤";
+    placeholder.textContent = "👤";
 
-placeholder.setAttribute(
-    "aria-label",
-    "Worker photo unavailable"
-);
+    placeholder.setAttribute(
+        "aria-label",
+        "Worker photo unavailable"
+    );
 
-return placeholder;
-
+    return placeholder;
 }
 
 /* =========================================================
@@ -602,13 +621,13 @@ return placeholder;
 ========================================================= */
 
 skillFilter.addEventListener(
-"change",
-renderWorkers
+    "change",
+    renderWorkers
 );
 
 skillSearch.addEventListener(
-"input",
-renderWorkers
+    "input",
+    renderWorkers
 );
 
 /* =========================================================
@@ -618,36 +637,35 @@ renderWorkers
 const logoutBtn = $("logoutBtn");
 
 if (logoutBtn) {
-logoutBtn.addEventListener(
-"click",
-async () => {
-logoutBtn.disabled = true;
+    logoutBtn.addEventListener(
+        "click",
+        async () => {
+            logoutBtn.disabled = true;
 
-        try {
-            await apiRequest(
-                LOGOUT_ENDPOINT,
-                {
-                    method: "POST"
-                }
-            );
+            try {
+                await apiRequest(
+                    LOGOUT_ENDPOINT,
+                    {
+                        method: "POST"
+                    }
+                );
 
-            sessionStorage.clear();
+                sessionStorage.clear();
 
-            window.location.href =
-                "../index.html";
+                window.location.href =
+                    "../index.html";
 
-        } catch (error) {
-            showNotification(
-                error.message ||
-                "Unable to logout. Please try again."
-            );
+            } catch (error) {
+                showNotification(
+                    error.message ||
+                    "Unable to logout. Please try again."
+                );
 
-        } finally {
-            logoutBtn.disabled = false;
+            } finally {
+                logoutBtn.disabled = false;
+            }
         }
-    }
-);
-
+    );
 }
 
 /* =========================================================
@@ -655,6 +673,6 @@ logoutBtn.disabled = true;
 ========================================================= */
 
 document.addEventListener(
-"DOMContentLoaded",
-loadWorkers
+    "DOMContentLoaded",
+    loadWorkers
 );
