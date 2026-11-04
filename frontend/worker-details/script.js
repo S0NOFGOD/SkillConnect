@@ -18,7 +18,6 @@ const rateWorkerBtn = $("rateWorkerBtn");
 const workerPhoto = $("workerPhoto");
 const workerName = $("workerName");
 const workerSkill = $("workerSkill");
-const workerLocation = $("workerLocation");
 const workerDescription = $("workerDescription");
 
 const infoSkill = $("infoSkill");
@@ -152,18 +151,13 @@ function displayWorker(data) {
     workerName.textContent = data.fullName || "-";
     workerSkill.textContent = data.skill || "-";
 
-    const latitude = data.latitude;
-
-    workerLocation.textContent =
-        latitude != null ? `Latitude: ${latitude}` : "Location unavailable";
-
     workerDescription.textContent = data.description || "-";
 
     infoSkill.textContent = data.skill || "-";
     infoExperience.textContent = data.experience || "-";
 
     infoLocation.textContent =
-        latitude != null ? String(latitude) : "Unavailable";
+        data.latitude != null ? String(data.latitude) : "Unavailable";
 
     infoRating.textContent =
         `⭐ ${Number(data.rating || 0).toFixed(1)} (${data.reviewCount || 0} Reviews)`;
