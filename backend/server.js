@@ -30,7 +30,7 @@ const clientEditProfileRoutes = require("./routes/client-edit-profile");
 const clientPasswordChangeRoutes = require("./routes/client-password-change");
 const clientDashboardRoutes = require("./routes/client-dashboard");
 const clientWorkerSearchRoutes = require("./routes/client-workers-search");
-const clientWorkerDetailsRoutes = require("./routes/client-worker-details");
+const clientWorkerDetailsRoutes = require("./routes/worker-details");
 const clientViewRatingsRoutes = require("./routes/client-view-ratings");
 
 // SERVICES ROUTE
@@ -177,7 +177,7 @@ app.use(
 
 app.use("/api/client-dashboard", clientDashboardRoutes);
 app.use("/api/client/worker-search", clientWorkerSearchRoutes);
-app.use("/api/client-worker-details", clientWorkerDetailsRoutes);
+app.use("/api/worker-details", clientWorkerDetailsRoutes);
 app.use("/api/client-view-ratings", clientViewRatingsRoutes);
 
 /* 7. SERVICES ROUTE */
