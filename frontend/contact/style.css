@@ -2,7 +2,6 @@
     --background: #020617;
     --card-background: rgba(255,255,255,.05);
     --worker-green: #15803d;
-    --worker-green-dark: #16a34a;
     --text-white: #fff;
     --text-light: #cbd5e1;
     --text-muted: #94a3b8;
@@ -390,7 +389,7 @@ a:focus-visible {
     font-size: 15px;
     font-weight: 700;
     color: #fff;
-    background: linear-gradient(135deg,#22c55e,#16a34a);
+    background: var(--worker-green);
     cursor: pointer;
     transition: .3s;
 }
@@ -543,7 +542,7 @@ a:focus-visible {
 }
 
 .worker-btn {
-    background: var(--worker-green-dark);
+    background: var(--worker-green);
     color: #fff;
 }
 
