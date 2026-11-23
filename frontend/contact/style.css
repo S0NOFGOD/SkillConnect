@@ -254,7 +254,7 @@ a:focus-visible {
 }
 
 .hero h1 span {
-    color: var(--worker-green-dark);
+    color: var(--worker-green);
 }
 
 .hero p,
