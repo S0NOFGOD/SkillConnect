@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -14,28 +13,87 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
 
-<!-- HEADER / NAVIGATION -->
+<div class="worker-email-otp-page">
+
+<!-- HEADER -->
 
 <header class="header">
 
 <nav class="navbar" aria-label="Main navigation">
 
-<a href="../index.html" class="logo">
-SKILLCONNECT
-</a>
+<a href="/" class="logo">SKILLCONNECT</a>
 
 <div class="nav-links">
 <a href="../index.html">Home</a>
+<a href="../about/index.html">About us</a>
+<a href="../contact/index.html">Contact us</a>
+<a href="../services/index.html">Find a worker</a>
 </div>
+
+<button
+id="menuToggle"
+type="button"
+class="menu-toggle"
+aria-label="Open navigation menu"
+aria-expanded="false"
+aria-controls="otpMobileSidebar">
+
+<span></span>
+<span></span>
+<span></span>
+
+</button>
 
 </nav>
 
 </header>
+
+<!-- MOBILE SIDEBAR OVERLAY -->
+
+<div
+id="sidebarOverlay"
+class="sidebar-overlay"
+aria-hidden="true">
+</div>
+
+<!-- MOBILE SIDEBAR -->
+
+<aside
+id="otpMobileSidebar"
+class="mobile-sidebar"
+aria-label="Mobile navigation"
+aria-hidden="true"
+inert>
+
+<div class="sidebar-header">
+
+<span class="sidebar-title">Menu</span>
+
+<button
+id="sidebarClose"
+type="button"
+class="sidebar-close"
+aria-label="Close navigation menu">
+
+×
+</button>
+
+</div>
+
+<nav class="sidebar-links">
+
+<a href="../index.html">Home</a>
+<a href="../about/index.html">About us</a>
+<a href="../contact/index.html">Contact us</a>
+<a href="../services/index.html">Find a worker</a>
+
+</nav>
+
+</aside>
 
 <!-- MAIN OTP PAGE -->
 
@@ -53,13 +111,9 @@ SKILLCONNECT
 Email Verification
 </span>
 
-<h1>
-Verify Your Email
-</h1>
+<h1>Verify Your Email</h1>
 
-<p>
-Enter the 6-digit verification code sent to:
-</p>
+<p>Enter the 6-digit verification code sent to:</p>
 
 <p id="workerEmail" class="worker-email">
 Loading email...
@@ -92,6 +146,7 @@ type="text"
 maxlength="1"
 class="otp-input"
 inputmode="numeric"
+autocomplete="off"
 aria-label="OTP digit 2"
 required>
 
@@ -100,6 +155,7 @@ type="text"
 maxlength="1"
 class="otp-input"
 inputmode="numeric"
+autocomplete="off"
 aria-label="OTP digit 3"
 required>
 
@@ -108,6 +164,7 @@ type="text"
 maxlength="1"
 class="otp-input"
 inputmode="numeric"
+autocomplete="off"
 aria-label="OTP digit 4"
 required>
 
@@ -116,6 +173,7 @@ type="text"
 maxlength="1"
 class="otp-input"
 inputmode="numeric"
+autocomplete="off"
 aria-label="OTP digit 5"
 required>
 
@@ -124,6 +182,7 @@ type="text"
 maxlength="1"
 class="otp-input"
 inputmode="numeric"
+autocomplete="off"
 aria-label="OTP digit 6"
 required>
 
@@ -132,10 +191,11 @@ required>
 <button
 id="verifyButton"
 type="submit"
-class="submit-btn">
+class="submit-btn"
+disabled>
 
 <span class="btn-text">
-Verify Email
+Verify OTP
 </span>
 
 </button>
@@ -148,9 +208,15 @@ Verify Email
 
 Didn't receive the code?
 
-<a href="#" id="resendOTP">
+<button
+type="button"
+id="resendOTP"
+class="disabled"
+disabled>
+
 Resend OTP
-</a>
+
+</button>
 
 </p>
 
@@ -174,6 +240,7 @@ class="notification-modal"
 role="dialog"
 aria-modal="true"
 aria-labelledby="notificationTitle"
+aria-describedby="notificationMessage"
 hidden>
 
 <div class="notification-card">
@@ -199,7 +266,7 @@ id="notificationCloseButton"
 type="button"
 class="notification-close-button">
 
-Close
+Continue
 
 </button>
 
@@ -210,10 +277,14 @@ Close
 <!-- FOOTER -->
 
 <footer>
+
 <p>
-© 2026 SkillConnect. All rights reserved.
+© <span id="currentYear"></span> SkillConnect. All rights reserved.
 </p>
+
 </footer>
+
+</div>
 
 <!-- JAVASCRIPT -->
 
