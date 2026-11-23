@@ -1,150 +1,804 @@
 /* =========================================================
-1. GLOBAL RESET
+   1. GLOBAL RESET
 ========================================================= */
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{font-family:"Inter",sans-serif;background:#020617;color:#fff;line-height:1.6;overflow-x:hidden;min-height:100vh}
-a{text-decoration:none;color:inherit}
 
-/* =========================================================
-2. FIXED NAVBAR
-========================================================= */
-header{position:fixed;top:0;left:0;width:100%;z-index:1000;background:rgba(2,6,23,.85);backdrop-filter:blur(15px);border-bottom:1px solid rgba(255,255,255,.08)}
-.navbar{width:90%;max-width:1200px;height:70px;margin:auto;display:flex;justify-content:space-between;align-items:center}
-.logo{font-size:24px;font-weight:800;letter-spacing:-1px;color:#16a34a}
-.nav-links{display:flex;gap:30px}
-.nav-links a{color:#cbd5e1;font-size:15px;font-weight:600;transition:.3s}
-.nav-links a:hover{color:#22c55e}
-
-/* =========================================================
-3. MAIN OTP PAGE
-========================================================= */
-.otp-page{width:90%;max-width:1200px;min-height:calc(100vh - 70px);margin:auto;padding-top:110px;padding-bottom:70px;display:flex;justify-content:center;align-items:center;position:relative}
-
-/* Background glow */
-.otp-page::before{content:"";position:absolute;width:360px;height:360px;background:#22c55e;filter:blur(170px);opacity:.18;top:100px;left:50%;transform:translateX(-50%);pointer-events:none}
-
-/* =========================================================
-4. OTP SECTION AND CARD
-========================================================= */
-.otp-section{width:100%;display:flex;justify-content:center;position:relative;z-index:2}
-.otp-card{width:100%;max-width:460px;padding:35px;border-radius:24px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(15px);box-shadow:0 25px 70px rgba(0,0,0,.45)}
-
-/* =========================================================
-5. OTP HEADER
-========================================================= */
-.otp-header{text-align:center;margin-bottom:30px}
-.otp-badge{display:inline-block;padding:8px 18px;margin-bottom:18px;border-radius:30px;color:#22c55e;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);font-size:14px;font-weight:600}
-.otp-header h1{font-size:32px;font-weight:800;margin-bottom:10px}
-.otp-header p{color:#cbd5e1;font-size:15px}
-
-/* Worker email */
-.worker-email{display:inline-block;max-width:100%;margin-top:12px;padding:7px 12px;border-radius:8px;background:rgba(59,130,246,.10);border:1px solid rgba(59,130,246,.20);color:#93c5fd!important;font-size:14px!important;font-weight:600;overflow-wrap:anywhere}
-
-/* =========================================================
-6. OTP FORM AND INPUTS
-========================================================= */
-#otpForm{display:flex;flex-direction:column;gap:14px}
-.otp-box{display:flex;justify-content:center;gap:10px;margin:15px 0 25px}
-.otp-input{width:55px;height:60px;padding:0;border:1px solid transparent;border-radius:14px;background:#111827;color:#fff;font-size:24px;font-weight:700;text-align:center;outline:none;transition:.3s}
-.otp-input:focus{border:1px solid #22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.15)}
-.otp-input:not(:placeholder-shown){border-color:rgba(34,197,94,.35)}
-
-/* =========================================================
-7. VERIFY OTP BUTTON
-========================================================= */
-.submit-btn{width:100%;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;color:#fff;background:linear-gradient(135deg,#22c55e,#16a34a);transition:.3s;display:flex;justify-content:center;align-items:center;gap:10px}
-.submit-btn:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(34,197,94,.20)}
-.submit-btn:disabled{opacity:.7;cursor:not-allowed;transform:none}
-
-/* =========================================================
-8. LOADING SPINNER
-========================================================= */
-.loading-spinner{width:18px;height:18px;border-radius:50%;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;animation:spin .8s linear infinite}
-@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-
-/* =========================================================
-9. RESEND OTP
-========================================================= */
-.resend{text-align:center;margin-top:25px;color:#cbd5e1;font-size:14px}
-.resend a{color:#3b82f6;font-weight:600;transition:.3s}
-.resend a:hover{color:#22c55e}
-.resend a.disabled{pointer-events:none;opacity:.5;cursor:not-allowed}
-
-/* =========================================================
-10. COUNTDOWN
-========================================================= */
-.countdown{margin-top:10px;text-align:center;color:#94a3b8;font-size:13px}
-
-/* =========================================================
-11. FOOTER
-========================================================= */
-footer{padding:30px;text-align:center;color:#94a3b8;border-top:1px solid rgba(255,255,255,.08)}
-
-/* =========================================================
-12. SUCCESS / ERROR MODAL
-========================================================= */
-.message-modal{position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;padding:20px}
-.message-modal.show{display:flex;animation:fadeIn .2s ease}
-.message-modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(5px)}
-.message-modal-content{position:relative;z-index:2;width:100%;max-width:400px;padding:30px;border:1px solid rgba(255,255,255,.10);border-radius:20px;text-align:center;background:#0f172a;box-shadow:0 25px 80px rgba(0,0,0,.45)}
-.modal-close{position:absolute;top:12px;right:14px;width:32px;height:32px;border:none;border-radius:50%;color:#94a3b8;background:rgba(255,255,255,.06);font-size:1.3rem;cursor:pointer}
-.modal-icon{width:50px;height:50px;margin:0 auto 16px;display:grid;place-items:center;border-radius:50%;color:#fff;background:linear-gradient(135deg,#22c55e,#16a34a);font-size:1.2rem;font-weight:800}
-.message-modal.error .modal-icon{background:linear-gradient(135deg,#ef4444,#dc2626)}
-.message-modal.success .modal-icon{background:linear-gradient(135deg,#22c55e,#16a34a)}
-.message-modal-content h2{margin-bottom:8px;color:#f8fafc;font-size:1.2rem;font-weight:700}
-.message-modal-content p{margin-bottom:10px;color:#94a3b8;font-size:.85rem;line-height:1.6}
-.modal-button{width:100%;padding:12px;border:none;border-radius:10px;color:#fff;background:linear-gradient(135deg,#22c55e,#16a34a);font-weight:700;cursor:pointer}
-
-/* =========================================================
-13. ANIMATIONS
-========================================================= */
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes scaleIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
-
-/* =========================================================
-14. TABLET
-========================================================= */
-@media(min-width:768px){
-.otp-page{width:85%}
-.otp-card{padding:40px}
-.otp-header h1{font-size:38px}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-/* =========================================================
-15. DESKTOP
-========================================================= */
-@media(min-width:1024px){
-.otp-page{max-width:1200px}
-.otp-card{max-width:480px}
+html {
+    scroll-behavior: smooth;
 }
 
-/* =========================================================
-16. MOBILE
-========================================================= */
-@media(max-width:600px){
-.navbar{width:90%;height:65px}
-.logo{font-size:22px}
-.nav-links{gap:15px}
-.nav-links a{font-size:14px}
-.otp-page{width:92%;padding-top:95px;padding-bottom:50px}
-.otp-card{padding:25px 20px;border-radius:22px}
-.otp-header h1{font-size:28px}
-.otp-header p{font-size:14px}
-.worker-email{font-size:13px!important}
-.otp-box{gap:7px}
-.otp-input{width:46px;height:54px;font-size:21px;border-radius:12px}
-.message-modal-content{padding:25px 20px}
+body {
+    font-family: "Inter", sans-serif;
+    background: #020617;
+    color: #fff;
+    line-height: 1.6;
+    overflow-x: hidden;
+    min-height: 100vh;
 }
 
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button,
+input {
+    font-family: inherit;
+}
+
+
 /* =========================================================
-17. SMALL MOBILE
+   2. HEADER AND NAVBAR
 ========================================================= */
-@media(max-width:400px){
-.otp-card{padding:22px 16px}
-.otp-header h1{font-size:25px}
-.otp-box{gap:5px}
-.otp-input{width:42px;height:50px;font-size:19px}
-.nav-links a{font-size:13px}
-.message-modal-content{padding:28px 18px}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background: rgba(2, 6, 23, .85);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+
+.navbar {
+    width: 90%;
+    max-width: 1200px;
+    height: 70px;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* LOGO */
+
+.logo {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: #15803d;
+}
+
+/* DESKTOP NAVIGATION */
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.nav-links a {
+    color: #cbd5e1;
+    font-size: 15px;
+    font-weight: 600;
+    transition: .3s;
+}
+
+.nav-links a:hover {
+    color: #22c55e;
+}
+
+
+/* =========================================================
+   3. MOBILE MENU BUTTON
+========================================================= */
+
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 42px;
+    height: 42px;
+    padding: 9px;
+    border: 1px solid rgba(255, 255, 255, .10);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .05);
+    cursor: pointer;
+}
+
+.menu-toggle span {
+    width: 100%;
+    height: 2px;
+    border-radius: 5px;
+    background: #f8fafc;
+    transition: .3s;
+}
+
+
+/* =========================================================
+   4. MOBILE SIDEBAR OVERLAY
+========================================================= */
+
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: rgba(0, 0, 0, .65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    visibility: hidden;
+    transition: .3s;
+}
+
+.sidebar-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+/* =========================================================
+   5. MOBILE SIDEBAR
+========================================================= */
+
+.mobile-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 290px;
+    max-width: 85%;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 1200;
+    padding: 25px;
+    background: #0f172a;
+    border-left: 1px solid rgba(255, 255, 255, .08);
+    box-shadow: -20px 0 60px rgba(0, 0, 0, .35);
+    transform: translateX(100%);
+    transition: transform .3s ease;
+    overflow-y: auto;
+}
+
+.mobile-sidebar.open {
+    transform: translateX(0);
+}
+
+/* SIDEBAR HEADER */
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+
+.sidebar-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+.sidebar-close {
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .06);
+    color: #94a3b8;
+    font-size: 25px;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.sidebar-close:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, .12);
+}
+
+/* SIDEBAR LINKS */
+
+.sidebar-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 25px;
+}
+
+.sidebar-links a {
+    padding: 13px 15px;
+    border-radius: 10px;
+    color: #cbd5e1;
+    font-size: 15px;
+    font-weight: 600;
+    transition: .3s;
+}
+
+.sidebar-links a:hover {
+    color: #22c55e;
+    background: rgba(21, 128, 61, .10);
+}
+
+
+/* =========================================================
+   6. MAIN OTP PAGE
+========================================================= */
+
+.otp-page {
+    width: 90%;
+    max-width: 1200px;
+    min-height: calc(100vh - 70px);
+    margin: auto;
+    padding: 110px 0 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* BACKGROUND GLOW */
+
+.otp-page::before {
+    content: "";
+    position: absolute;
+    width: 360px;
+    height: 360px;
+    background: #15803d;
+    filter: blur(170px);
+    opacity: .15;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   7. OTP SECTION AND CARD
+========================================================= */
+
+.otp-section {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+}
+
+.otp-card {
+    width: 100%;
+    max-width: 460px;
+    padding: 35px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, .05);
+    border: 1px solid rgba(255, 255, 255, .08);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    box-shadow: 0 25px 70px rgba(0, 0, 0, .45);
+}
+
+
+/* =========================================================
+   8. OTP HEADER
+========================================================= */
+
+.otp-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* BADGE */
+
+.otp-badge {
+    display: inline-block;
+    padding: 8px 18px;
+    margin-bottom: 18px;
+    border-radius: 30px;
+    color: #15803d;
+    background: rgba(21, 128, 61, .15);
+    border: 1px solid rgba(21, 128, 61, .3);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* HEADING */
+
+.otp-header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    line-height: 1.25;
+}
+
+/* DESCRIPTION */
+
+.otp-header p {
+    color: #cbd5e1;
+    font-size: 15px;
+}
+
+
+/* =========================================================
+   9. WORKER EMAIL
+========================================================= */
+
+.worker-email {
+    display: inline-block;
+    max-width: 100%;
+    margin-top: 12px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    background: rgba(59, 130, 246, .10);
+    border: 1px solid rgba(59, 130, 246, .20);
+    color: #93c5fd !important;
+    font-size: 14px !important;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   10. OTP FORM AND INPUTS
+========================================================= */
+
+#otpForm {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* OTP BOX */
+
+.otp-box {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 15px 0 25px;
+}
+
+/* OTP INPUT */
+
+.otp-input {
+    width: 55px;
+    height: 60px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    background: #111827;
+    color: #fff;
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    outline: none;
+    transition: .3s;
+}
+
+/* INPUT FOCUS */
+
+.otp-input:focus {
+    border-color: #15803d;
+    box-shadow: 0 0 0 3px rgba(21, 128, 61, .15);
+}
+
+/* FILLED INPUT */
+
+.otp-input:not(:placeholder-shown) {
+    border-color: rgba(21, 128, 61, .35);
+}
+
+
+/* =========================================================
+   11. VERIFY OTP BUTTON
+========================================================= */
+
+.submit-btn {
+    width: 100%;
+    min-height: 52px;
+    border: none;
+    border-radius: 14px;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #fff;
+    background: #15803d;
+    transition: .3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.submit-btn:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.1);
+}
+
+.submit-btn:disabled {
+    opacity: .7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+
+/* =========================================================
+   12. LOADING SPINNER
+========================================================= */
+
+.loading-spinner {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, .35);
+    border-top-color: #fff;
+    animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   13. RESEND OTP
+========================================================= */
+
+.resend {
+    text-align: center;
+    margin-top: 25px;
+    color: #cbd5e1;
+    font-size: 14px;
+}
+
+.resend a {
+    color: #3b82f6;
+    font-weight: 600;
+    transition: .3s;
+}
+
+.resend a:hover {
+    color: #15803d;
+}
+
+.resend a.disabled {
+    pointer-events: none;
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   14. COUNTDOWN
+========================================================= */
+
+.countdown {
+    margin-top: 10px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   15. FOOTER
+========================================================= */
+
+footer {
+    padding: 30px;
+    text-align: center;
+    color: #94a3b8;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+}
+
+footer p {
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   16. SUCCESS / ERROR MODAL
+========================================================= */
+
+.message-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.message-modal.show {
+    display: flex;
+    animation: fadeIn .2s ease;
+}
+
+/* MODAL OVERLAY */
+
+.message-modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, .72);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+/* MODAL CONTENT */
+
+.message-modal-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 400px;
+    padding: 30px;
+    border: 1px solid rgba(255, 255, 255, .10);
+    border-radius: 20px;
+    text-align: center;
+    background: #0f172a;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, .45);
+    animation: scaleIn .2s ease;
+}
+
+/* CLOSE BUTTON */
+
+.modal-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    color: #94a3b8;
+    background: rgba(255, 255, 255, .06);
+    font-size: 1.3rem;
+    cursor: pointer;
+}
+
+/* MODAL ICON */
+
+.modal-icon {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 16px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: #fff;
+    background: #15803d;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+/* ERROR ICON */
+
+.message-modal.error .modal-icon {
+    background: #dc2626;
+}
+
+/* SUCCESS ICON */
+
+.message-modal.success .modal-icon {
+    background: #15803d;
+}
+
+/* MODAL TITLE */
+
+.message-modal-content h2 {
+    margin-bottom: 8px;
+    color: #f8fafc;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+/* MODAL MESSAGE */
+
+.message-modal-content p {
+    margin-bottom: 10px;
+    color: #94a3b8;
+    font-size: .85rem;
+    line-height: 1.6;
+}
+
+/* COOLDOWN COUNTDOWN */
+
+.modal-cooldown-countdown {
+    margin-top: 12px;
+    font-weight: 600;
+}
+
+/* MODAL BUTTON */
+
+.modal-button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    background: #15803d;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.modal-button:hover {
+    filter: brightness(1.1);
+}
+
+
+/* =========================================================
+   17. ANIMATIONS
+========================================================= */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(.85);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+
+/* =========================================================
+   18. TABLET
+========================================================= */
+
+@media (min-width: 768px) {
+
+    .otp-page {
+        width: 85%;
+    }
+
+    .otp-card {
+        padding: 40px;
+    }
+
+    .otp-header h1 {
+        font-size: 38px;
+    }
+
+}
+
+
+/* =========================================================
+   19. DESKTOP
+========================================================= */
+
+@media (min-width: 1024px) {
+
+    .otp-page {
+        max-width: 1200px;
+    }
+
+    .otp-card {
+        max-width: 480px;
+    }
+
+}
+
+
+/* =========================================================
+   20. MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .navbar {
+        width: 90%;
+        height: 65px;
+    }
+
+    .logo {
+        font-size: 22px;
+    }
+
+    .nav-links {
+        display: none;
+    }
+
+    .menu-toggle {
+        display: flex;
+    }
+
+    .otp-page {
+        width: 92%;
+        padding-top: 95px;
+        padding-bottom: 50px;
+    }
+
+    .otp-card {
+        padding: 25px 20px;
+        border-radius: 22px;
+    }
+
+    .otp-header h1 {
+        font-size: 28px;
+    }
+
+    .otp-header p {
+        font-size: 14px;
+    }
+
+    .worker-email {
+        font-size: 13px !important;
+    }
+
+    .otp-box {
+        gap: 7px;
+    }
+
+    .otp-input {
+        width: 46px;
+        height: 54px;
+        font-size: 21px;
+        border-radius: 12px;
+    }
+
+    .message-modal-content {
+        padding: 25px 20px;
+    }
+
+}
+
+
+/* =========================================================
+   21. SMALL MOBILE
+========================================================= */
+
+@media (max-width: 400px) {
+
+    .otp-card {
+        padding: 22px 16px;
+    }
+
+    .otp-header h1 {
+        font-size: 25px;
+    }
+
+    .otp-box {
+        gap: 5px;
+    }
+
+    .otp-input {
+        width: 42px;
+        height: 50px;
+        font-size: 19px;
+    }
+
+    .message-modal-content {
+        padding: 28px 18px;
+    }
+
+}
+
+
+/* =========================================================
+   22. REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+        animation: none !important;
+    }
+
 }

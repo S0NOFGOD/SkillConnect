@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <!-- ==========================================
-         Meta
+         META
     =========================================== -->
 
     <meta charset="UTF-8">
@@ -13,21 +13,16 @@
     >
 
     <!-- ==========================================
-         Page Title
+         PAGE TITLE
     =========================================== -->
 
-    <title>
-        Worker Password Reset | SkillConnect
-    </title>
+    <title>Worker Password Reset | SkillConnect</title>
 
     <!-- ==========================================
-         Google Fonts
+         GOOGLE FONTS
     =========================================== -->
 
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
 
     <link
         rel="preconnect"
@@ -41,104 +36,159 @@
     >
 
     <!-- ==========================================
-         Stylesheet
+         STYLESHEET
     =========================================== -->
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
+    <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
     <!-- ==========================================
-         Header
+         HEADER
     =========================================== -->
 
-    <header>
+    <header class="header">
 
-        <nav class="navbar">
+        <nav class="navbar" aria-label="Main navigation">
 
-            <!-- ==================================
-                 SkillConnect Logo
-            =================================== -->
+            <!-- LOGO -->
 
-            <a
-                href="../index.html"
-                class="logo"
-            >
-                SkillConnect
+            <a href="../index.html" class="logo">
+                SKILLCONNECT
             </a>
 
-            <!-- ==================================
-                 Navigation
-            =================================== -->
+            <!-- DESKTOP NAVIGATION -->
 
             <div class="nav-links">
 
-                <a href="../index.html">
-                    Home
-                </a>
+                <a href="../home/">Home</a>
+
+                <a href="../about/">About us</a>
+
+                <a href="../contact/">Contact us</a>
+
+                <a href="../services/">Find a worker</a>
 
             </div>
+
+            <!-- MOBILE MENU BUTTON -->
+
+            <button
+                type="button"
+                class="menu-toggle"
+                id="menuToggle"
+                aria-label="Open navigation menu"
+                aria-expanded="false"
+                aria-controls="mobileSidebar"
+            >
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </button>
 
         </nav>
 
     </header>
 
     <!-- ==========================================
-         Main Password Reset OTP Area
+         MOBILE SIDEBAR OVERLAY
+    =========================================== -->
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+        aria-hidden="true"
+    ></div>
+
+    <!-- ==========================================
+         MOBILE SIDEBAR
+    =========================================== -->
+
+    <aside
+        class="mobile-sidebar"
+        id="mobileSidebar"
+        aria-label="Mobile navigation"
+        aria-hidden="true"
+        inert
+    >
+
+        <!-- SIDEBAR HEADER -->
+
+        <div class="sidebar-header">
+
+            <span class="sidebar-title">
+                Menu
+            </span>
+
+            <button
+                type="button"
+                class="sidebar-close"
+                id="sidebarClose"
+                aria-label="Close navigation menu"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <!-- SIDEBAR LINKS -->
+
+        <nav class="sidebar-links">
+
+            <a href="../home/">
+                Home
+            </a>
+
+            <a href="../about/">
+                About us
+            </a>
+
+            <a href="../contact/">
+                Contact us
+            </a>
+
+            <a href="../services/">
+                Find a worker
+            </a>
+
+        </nav>
+
+    </aside>
+
+    <!-- ==========================================
+         MAIN PASSWORD RESET OTP AREA
     =========================================== -->
 
     <main class="otp-page">
 
-        <!-- ======================================
-             OTP Section
-        ======================================= -->
+        <!-- OTP SECTION -->
 
         <section class="otp-section">
 
-            <!-- ==================================
-                 OTP Card
-            =================================== -->
+            <!-- OTP CARD -->
 
             <div class="otp-card">
 
-                <!-- ==================================
-                     OTP Header
-                =================================== -->
+                <!-- OTP HEADER -->
 
                 <div class="otp-header">
-
-                    <!-- ==================================
-                         OTP Badge
-                    =================================== -->
 
                     <span class="otp-badge">
                         Password Reset
                     </span>
 
-                    <!-- ==================================
-                         Main Heading
-                    =================================== -->
-
                     <h1>
                         Verify Reset Code
                     </h1>
 
-                    <!-- ==================================
-                         Description
-                    =================================== -->
-
                     <p>
-                        Enter the 6-digit password reset
-                        code sent to your email address.
+                        Enter the 6-digit password reset code
+                        sent to your email address.
                     </p>
-
-                    <!-- ==================================
-                         Worker Email
-                    =================================== -->
 
                     <p
                         id="workerEmailDisplay"
@@ -149,22 +199,16 @@
 
                 </div>
 
-                <!-- ==================================
-                     OTP Form
-                =================================== -->
+                <!-- OTP FORM -->
 
                 <form
                     id="otpForm"
                     novalidate
                 >
 
-                    <!-- ==================================
-                         Six-Digit OTP Input
-                    =================================== -->
+                    <!-- SIX-DIGIT OTP INPUT -->
 
                     <div class="otp-box">
-
-                        <!-- Digit 1 -->
 
                         <input
                             type="text"
@@ -176,66 +220,59 @@
                             required
                         >
 
-                        <!-- Digit 2 -->
-
                         <input
                             type="text"
                             maxlength="1"
                             class="otp-input"
                             inputmode="numeric"
+                            autocomplete="off"
                             aria-label="OTP digit 2"
                             required
                         >
 
-                        <!-- Digit 3 -->
-
                         <input
                             type="text"
                             maxlength="1"
                             class="otp-input"
                             inputmode="numeric"
+                            autocomplete="off"
                             aria-label="OTP digit 3"
                             required
                         >
 
-                        <!-- Digit 4 -->
-
                         <input
                             type="text"
                             maxlength="1"
                             class="otp-input"
                             inputmode="numeric"
+                            autocomplete="off"
                             aria-label="OTP digit 4"
                             required
                         >
 
-                        <!-- Digit 5 -->
-
                         <input
                             type="text"
                             maxlength="1"
                             class="otp-input"
                             inputmode="numeric"
+                            autocomplete="off"
                             aria-label="OTP digit 5"
                             required
                         >
 
-                        <!-- Digit 6 -->
-
                         <input
                             type="text"
                             maxlength="1"
                             class="otp-input"
                             inputmode="numeric"
+                            autocomplete="off"
                             aria-label="OTP digit 6"
                             required
                         >
 
                     </div>
 
-                    <!-- ==================================
-                         Verify OTP Button
-                    =================================== -->
+                    <!-- VERIFY BUTTON -->
 
                     <button
                         id="verifyButton"
@@ -251,9 +288,7 @@
 
                 </form>
 
-                <!-- ==================================
-                     Resend OTP
-                =================================== -->
+                <!-- RESEND OTP -->
 
                 <p class="resend">
 
@@ -268,13 +303,12 @@
 
                 </p>
 
-                <!-- ==================================
-                     Resend Countdown
-                =================================== -->
+                <!-- COUNTDOWN -->
 
                 <p
                     id="countdown"
                     class="countdown"
+                    aria-live="polite"
                 >
                     Resend available in 60s
                 </p>
@@ -286,7 +320,20 @@
     </main>
 
     <!-- ==========================================
-         Success / Error Modal
+         FOOTER
+    =========================================== -->
+
+    <footer>
+
+        <p>
+            © <span id="currentYear"></span> SkillConnect.
+            All rights reserved.
+        </p>
+
+    </footer>
+
+    <!-- ==========================================
+         SUCCESS / ERROR MODAL
     =========================================== -->
 
     <div
@@ -295,18 +342,14 @@
         aria-hidden="true"
     >
 
-        <!-- ======================================
-             Modal Overlay
-        ======================================= -->
+        <!-- MODAL OVERLAY -->
 
         <div
             class="message-modal-overlay"
             id="messageModalOverlay"
         ></div>
 
-        <!-- ======================================
-             Modal Content
-        ======================================= -->
+        <!-- MODAL CONTENT -->
 
         <div
             class="message-modal-content"
@@ -315,9 +358,7 @@
             aria-labelledby="messageModalTitle"
         >
 
-            <!-- ==================================
-                 Close Modal Button
-            =================================== -->
+            <!-- CLOSE BUTTON -->
 
             <button
                 type="button"
@@ -328,32 +369,24 @@
                 ×
             </button>
 
-            <!-- ==================================
-                 Modal Icon
-            =================================== -->
+            <!-- ICON -->
 
             <div
                 id="modalIcon"
                 class="modal-icon"
             ></div>
 
-            <!-- ==================================
-                 Modal Title
-            =================================== -->
+            <!-- TITLE -->
 
             <h2 id="messageModalTitle">
                 Message
             </h2>
 
-            <!-- ==================================
-                 Modal Message
-            =================================== -->
+            <!-- MESSAGE -->
 
             <p id="messageModalText"></p>
 
-            <!-- ==================================
-                 Continue Button
-            =================================== -->
+            <!-- CONTINUE BUTTON -->
 
             <button
                 type="button"
@@ -368,7 +401,7 @@
     </div>
 
     <!-- ==========================================
-         JavaScript
+         JAVASCRIPT
     =========================================== -->
 
     <script src="../config.js"></script>
