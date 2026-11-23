@@ -15,46 +15,141 @@
 
 <body>
 
-    <header>
-        <nav class="navbar">
-            <a href="../index.html" class="logo">SkillConnect</a>
+    <!-- HEADER -->
+    <header class="header">
+        <nav class="navbar" aria-label="Main navigation">
+
+            <a href="../index.html" class="logo">
+                SKILLCONNECT
+            </a>
 
             <div class="nav-links">
                 <a href="../index.html">Home</a>
+                <a href="../about/index.html">About us</a>
+                <a href="../contact/index.html">Contact us</a>
+                <a href="../services/index.html">Find a worker</a>
             </div>
+
+            <button
+                type="button"
+                class="menu-toggle"
+                id="menuToggle"
+                aria-label="Open navigation menu"
+                aria-expanded="false"
+                aria-controls="mobileSidebar"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
         </nav>
     </header>
 
-    <main class="profile-page protected-page" id="profilePage" hidden>
+
+    <!-- MOBILE SIDEBAR OVERLAY -->
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+        aria-hidden="true"
+    ></div>
+
+
+    <!-- MOBILE SIDEBAR -->
+    <aside
+        class="mobile-sidebar"
+        id="mobileSidebar"
+        aria-label="Mobile navigation"
+        aria-hidden="true"
+        inert
+    >
+
+        <div class="sidebar-header">
+
+            <span class="sidebar-title">
+                Menu
+            </span>
+
+            <button
+                type="button"
+                class="sidebar-close"
+                id="sidebarClose"
+                aria-label="Close navigation menu"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <nav class="sidebar-links">
+
+            <a href="../index.html">Home</a>
+            <a href="../about/index.html">About us</a>
+            <a href="../contact/index.html">Contact us</a>
+            <a href="../services/index.html">Find a worker</a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- PROFILE PAGE -->
+    <main
+        class="profile-page protected-page"
+        id="profilePage"
+        hidden
+    >
 
         <section class="profile-section">
 
             <div class="profile-card">
 
+                <!-- PROFILE HEADER -->
                 <div class="profile-header">
-                    <span class="profile-badge">Worker Profile</span>
 
-                    <h1>Create Your Profile</h1>
+                    <span class="profile-badge">
+                        Worker Profile
+                    </span>
+
+                    <h1>
+                        Create Your Profile
+                    </h1>
 
                     <p>
                         Tell clients about yourself and the services you offer.
                     </p>
+
                 </div>
 
+
+                <!-- PROFILE PROGRESS -->
                 <div class="progress-container">
+
                     <div class="progress-info">
-                        <span>Profile completion</span>
-                        <span id="progressPercentage">0%</span>
+
+                        <span>
+                            Profile completion
+                        </span>
+
+                        <span id="progressPercentage">
+                            0%
+                        </span>
+
                     </div>
 
                     <div class="progress-bar">
+
                         <div
                             class="progress-fill"
                             id="progressFill"
                         ></div>
+
                     </div>
+
                 </div>
 
+
+                <!-- PROFILE FORM -->
                 <form
                     id="workerProfileForm"
                     class="profile-form"
@@ -65,11 +160,15 @@
                     <div class="form-section">
 
                         <div class="section-heading">
-                            <h2>Profile Photo</h2>
+
+                            <h2>
+                                Profile Photo
+                            </h2>
 
                             <p>
                                 Upload a clear photo clients can use to recognize you.
                             </p>
+
                         </div>
 
                         <div class="profile-photo-container">
@@ -83,13 +182,18 @@
                                     class="profile-photo-preview"
                                     id="profilePhotoPreview"
                                 >
+
                                     <span
                                         id="profilePhotoPlaceholder"
                                         class="profile-photo-placeholder"
                                         aria-hidden="true"
-                                    >+</span>
+                                    >
+                                        +
+                                    </span>
 
-                                    <span class="profile-photo-add-text">
+                                    <span
+                                        class="profile-photo-add-text"
+                                    >
                                         Add Image
                                     </span>
 
@@ -99,18 +203,19 @@
                                         alt="Profile photo preview"
                                         hidden
                                     >
+
                                 </div>
 
-                                <input
-                                    type="file"
-                                    id="profilePhoto"
-                                    name="profilePhoto"
-                                    class="profile-photo-input"
-                                    accept="image/jpeg,image/png,image/webp"
-                                    required
-                                >
-
                             </label>
+
+                            <input
+                                type="file"
+                                id="profilePhoto"
+                                name="profilePhoto"
+                                class="profile-photo-input"
+                                accept="image/jpeg,image/png,image/webp"
+                                required
+                            >
 
                         </div>
 
@@ -120,19 +225,27 @@
 
                     </div>
 
+
                     <!-- PERSONAL INFORMATION -->
                     <div class="form-section">
 
                         <div class="section-heading">
-                            <h2>Personal Information</h2>
+
+                            <h2>
+                                Personal Information
+                            </h2>
 
                             <p>
                                 Basic information clients will see.
                             </p>
+
                         </div>
 
                         <div class="form-group">
-                            <label for="fullName">Full Name</label>
+
+                            <label for="fullName">
+                                Full Name
+                            </label>
 
                             <input
                                 type="text"
@@ -142,10 +255,14 @@
                                 autocomplete="name"
                                 required
                             >
+
                         </div>
 
                         <div class="form-group">
-                            <label for="phone">Phone Number</label>
+
+                            <label for="phone">
+                                Phone Number
+                            </label>
 
                             <input
                                 type="tel"
@@ -155,15 +272,21 @@
                                 autocomplete="tel"
                                 required
                             >
+
                         </div>
 
                     </div>
+
 
                     <!-- LOCATION INFORMATION -->
                     <div class="form-section">
 
                         <div class="section-heading">
-                            <h2>Location Information</h2>
+
+                            <h2>
+                                Location Information
+                            </h2>
+
                         </div>
 
                         <div class="form-group">
@@ -181,8 +304,7 @@
                             </button>
 
                             <small class="location-help">
-                                Tap the button and allow location access when your
-                                browser asks for permission.
+                                Tap the button and allow location access when your browser asks for permission.
                             </small>
 
                         </div>
@@ -223,18 +345,18 @@
 
                     </div>
 
-                    <!-- SUBMIT PROFILE -->
+
+                    <!-- CREATE PROFILE BUTTON -->
                     <button
                         type="submit"
                         id="continueBtn"
                         class="continue-btn"
                     >
-                        <span class="button-text">Create Profile</span>
 
-                        <span
-                            class="button-loader"
-                            aria-hidden="true"
-                        ></span>
+                        <span class="button-text">
+                            Create Profile
+                        </span>
+
                     </button>
 
                 </form>
@@ -244,6 +366,7 @@
         </section>
 
     </main>
+
 
     <!-- NOTIFICATION MODAL -->
     <div
@@ -255,7 +378,7 @@
         <div
             class="notification-card"
             id="notificationCard"
-            role="dialog"
+            role="alertdialog"
             aria-modal="true"
             aria-labelledby="notificationTitle"
             aria-describedby="notificationText"
@@ -264,9 +387,13 @@
             <div
                 class="notification-icon"
                 id="notificationIcon"
-            >!</div>
+            >
+                !
+            </div>
 
-            <h2 id="notificationTitle">Notification</h2>
+            <h2 id="notificationTitle">
+                Notification
+            </h2>
 
             <p id="notificationText">
                 Something happened.
@@ -284,9 +411,14 @@
 
     </div>
 
+
+    <!-- FOOTER -->
     <footer>
-        <p>© 2026 SkillConnect. All rights reserved.</p>
+        <p>
+            © <span id="footerYear"></span> SkillConnect. All rights reserved.
+        </p>
     </footer>
+
 
     <!-- APPLICATION CONFIGURATION -->
     <script src="../config.js"></script>
