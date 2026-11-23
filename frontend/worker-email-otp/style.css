@@ -1,32 +1,28 @@
-/* =========================================================
-   WORKER EMAIL OTP - REACT DESIGN MATCH
-========================================================= */
+/* WORKER EMAIL OTP */
 
 .worker-email-otp-page {
     --background:#08111f;
     --card-background:#111c2d;
-    --worker-green:#15803d;
+    --worker-green:#22c55e;
+    --worker-green-dark:#16a34a;
     --text-white:#fff;
     --text-light:#cbd5e1;
     --text-muted:#94a3b8;
     --border:rgba(255,255,255,.08);
 
+    width:100%;
     min-height:100vh;
+    min-height:100dvh;
     display:flex;
     flex-direction:column;
     position:relative;
     isolation:isolate;
+    overflow-x:hidden;
     background:var(--background);
     color:var(--text-white);
     font-family:"Inter",sans-serif;
     line-height:1.6;
-    overflow-x:hidden;
 }
-
-
-/* =========================================================
-   GLOBAL RESET
-========================================================= */
 
 .worker-email-otp-page *,
 .worker-email-otp-page *::before,
@@ -36,14 +32,16 @@
     box-sizing:border-box;
 }
 
+html,body {
+    width:100%;
+    min-height:100%;
+    background:#08111f;
+    overflow-x:hidden;
+}
+
 html {
     scroll-behavior:smooth;
 }
-
-
-/* =========================================================
-   BACKGROUND GLOW
-========================================================= */
 
 .worker-email-otp-page::before,
 .worker-email-otp-page::after {
@@ -70,11 +68,6 @@ html {
     right:-100px;
 }
 
-
-/* =========================================================
-   LINKS AND BUTTONS
-========================================================= */
-
 .worker-email-otp-page a {
     text-decoration:none;
     color:inherit;
@@ -97,10 +90,7 @@ html {
     outline-offset:3px;
 }
 
-
-/* =========================================================
-   HEADER
-========================================================= */
+/* HEADER */
 
 .worker-email-otp-page .header {
     position:fixed;
@@ -123,11 +113,6 @@ html {
     justify-content:space-between;
 }
 
-
-/* =========================================================
-   LOGO
-========================================================= */
-
 .worker-email-otp-page .logo {
     color:var(--worker-green)!important;
     font-size:1.35rem;
@@ -135,11 +120,6 @@ html {
     letter-spacing:-.7px;
     white-space:nowrap;
 }
-
-
-/* =========================================================
-   NAVIGATION LINKS
-========================================================= */
 
 .worker-email-otp-page .nav-links {
     display:flex;
@@ -158,10 +138,7 @@ html {
     color:var(--worker-green);
 }
 
-
-/* =========================================================
-   HAMBURGER
-========================================================= */
+/* MENU */
 
 .worker-email-otp-page .menu-toggle {
     display:none;
@@ -184,11 +161,6 @@ html {
     background:#fff;
 }
 
-
-/* =========================================================
-   MOBILE SIDEBAR OVERLAY
-========================================================= */
-
 .worker-email-otp-page .sidebar-overlay {
     position:fixed;
     inset:0;
@@ -203,11 +175,6 @@ html {
     opacity:1;
     visibility:visible;
 }
-
-
-/* =========================================================
-   MOBILE SIDEBAR
-========================================================= */
 
 .worker-email-otp-page .mobile-sidebar {
     position:fixed;
@@ -230,11 +197,6 @@ html {
     transform:translateX(0);
     visibility:visible;
 }
-
-
-/* =========================================================
-   SIDEBAR HEADER
-========================================================= */
 
 .worker-email-otp-page .sidebar-header {
     display:flex;
@@ -260,11 +222,6 @@ html {
     line-height:1;
 }
 
-
-/* =========================================================
-   SIDEBAR LINKS
-========================================================= */
-
 .worker-email-otp-page .sidebar-links {
     display:flex;
     flex-direction:column;
@@ -286,10 +243,7 @@ html {
     background:rgba(34,197,94,.1);
 }
 
-
-/* =========================================================
-   OTP PAGE
-========================================================= */
+/* OTP PAGE */
 
 .worker-email-otp-page .otp-page {
     width:90%;
@@ -303,11 +257,6 @@ html {
     align-items:center;
 }
 
-
-/* =========================================================
-   OTP SECTION
-========================================================= */
-
 .worker-email-otp-page .otp-section {
     width:100%;
     display:flex;
@@ -315,11 +264,6 @@ html {
     position:relative;
     z-index:2;
 }
-
-
-/* =========================================================
-   OTP CARD
-========================================================= */
 
 .worker-email-otp-page .otp-card {
     width:100%;
@@ -332,20 +276,10 @@ html {
     box-shadow:0 25px 70px rgba(0,0,0,.35);
 }
 
-
-/* =========================================================
-   OTP HEADER
-========================================================= */
-
 .worker-email-otp-page .otp-header {
     text-align:center;
     margin-bottom:30px;
 }
-
-
-/* =========================================================
-   OTP BADGE
-========================================================= */
 
 .worker-email-otp-page .otp-badge {
     display:inline-block;
@@ -359,11 +293,6 @@ html {
     font-weight:500;
 }
 
-
-/* =========================================================
-   OTP HEADING
-========================================================= */
-
 .worker-email-otp-page .otp-header h1 {
     margin-bottom:10px;
     font-size:32px;
@@ -376,11 +305,6 @@ html {
     font-size:15px;
 }
 
-
-/* =========================================================
-   WORKER EMAIL
-========================================================= */
-
 .worker-email-otp-page .worker-email {
     margin-top:8px;
     color:var(--text-white)!important;
@@ -388,11 +312,6 @@ html {
     font-weight:700;
     word-break:break-word;
 }
-
-
-/* =========================================================
-   SPAM NOTICE
-========================================================= */
 
 .worker-email-otp-page .spam-notice {
     margin-top:12px;
@@ -406,10 +325,7 @@ html {
     font-weight:700;
 }
 
-
-/* =========================================================
-   OTP FORM
-========================================================= */
+/* FORM */
 
 .worker-email-otp-page form {
     display:flex;
@@ -417,22 +333,12 @@ html {
     gap:14px;
 }
 
-
-/* =========================================================
-   OTP INPUT CONTAINER
-========================================================= */
-
 .worker-email-otp-page .otp-box {
     display:flex;
     justify-content:center;
     gap:10px;
     margin:15px 0 25px;
 }
-
-
-/* =========================================================
-   OTP INPUT
-========================================================= */
 
 .worker-email-otp-page .otp-input {
     width:55px;
@@ -449,39 +355,19 @@ html {
     transition:.3s;
 }
 
-
-/* =========================================================
-   OTP INPUT FOCUS
-========================================================= */
-
 .worker-email-otp-page .otp-input:focus {
     border:1px solid var(--worker-green);
     box-shadow:0 0 0 3px rgba(34,197,94,.15);
 }
 
-
-/* =========================================================
-   OTP INPUT WITH VALUE
-========================================================= */
-
 .worker-email-otp-page .otp-input:not(:placeholder-shown) {
     border-color:rgba(34,197,94,.35);
 }
-
-
-/* =========================================================
-   INVALID OTP INPUT
-========================================================= */
 
 .worker-email-otp-page .otp-input.invalid {
     border-color:#ef4444;
     box-shadow:0 0 0 3px rgba(239,68,68,.12);
 }
-
-
-/* =========================================================
-   VERIFY BUTTON
-========================================================= */
 
 .worker-email-otp-page .submit-btn {
     width:100%;
@@ -489,7 +375,7 @@ html {
     padding:15px;
     border:0;
     border-radius:14px;
-    background:var(--worker-green);
+    background:var(--worker-green-dark);
     color:#fff;
     font-size:16px;
     font-weight:700;
@@ -510,10 +396,7 @@ html {
     transform:none;
 }
 
-
-/* =========================================================
-   RESEND OTP
-========================================================= */
+/* RESEND */
 
 .worker-email-otp-page .resend {
     margin-top:25px;
@@ -531,18 +414,13 @@ html {
 }
 
 .worker-email-otp-page .resend button:hover:not(:disabled) {
-    color:var(--worker-green);
+    color:var(--worker-green-dark);
 }
 
 .worker-email-otp-page .resend button:disabled {
     opacity:.5;
     cursor:not-allowed;
 }
-
-
-/* =========================================================
-   COUNTDOWN
-========================================================= */
 
 .worker-email-otp-page .countdown {
     margin-top:10px;
@@ -551,10 +429,7 @@ html {
     font-size:13px;
 }
 
-
-/* =========================================================
-   NOTIFICATION MODAL
-========================================================= */
+/* MODAL */
 
 .worker-email-otp-page .notification-modal {
     position:fixed;
@@ -570,19 +445,9 @@ html {
     animation:otp-fade-in .25s ease;
 }
 
-
-/* =========================================================
-   HIDDEN MODAL
-========================================================= */
-
 .worker-email-otp-page .notification-modal[hidden] {
     display:none;
 }
-
-
-/* =========================================================
-   NOTIFICATION CARD
-========================================================= */
 
 .worker-email-otp-page .notification-card {
     position:relative;
@@ -595,11 +460,6 @@ html {
     text-align:center;
     animation:otp-scale-in .25s ease;
 }
-
-
-/* =========================================================
-   NOTIFICATION ICON
-========================================================= */
 
 .worker-email-otp-page .notification-icon {
     width:54px;
@@ -614,30 +474,15 @@ html {
     font-weight:800;
 }
 
-
-/* =========================================================
-   SUCCESS ICON
-========================================================= */
-
 .worker-email-otp-page .notification-icon.success {
     background:rgba(34,197,94,.15);
     color:#22c55e;
 }
 
-
-/* =========================================================
-   ERROR ICON
-========================================================= */
-
 .worker-email-otp-page .notification-icon.error {
     background:rgba(239,68,68,.12);
     color:#f87171;
 }
-
-
-/* =========================================================
-   NOTIFICATION TITLE
-========================================================= */
 
 .worker-email-otp-page .notification-card h2 {
     margin-bottom:10px;
@@ -647,11 +492,6 @@ html {
     overflow-wrap:anywhere;
 }
 
-
-/* =========================================================
-   NOTIFICATION MESSAGE
-========================================================= */
-
 .worker-email-otp-page .notification-card p {
     color:var(--text-light);
     font-size:14px;
@@ -659,11 +499,6 @@ html {
     white-space:pre-line;
     overflow-wrap:anywhere;
 }
-
-
-/* =========================================================
-   NOTIFICATION BUTTON
-========================================================= */
 
 .worker-email-otp-page .notification-close-button {
     position:static!important;
@@ -674,7 +509,7 @@ html {
     padding:10px 18px;
     border:0;
     border-radius:11px;
-    background:var(--worker-green);
+    background:var(--worker-green-dark);
     color:#fff;
     font-size:14px;
     font-weight:700;
@@ -689,10 +524,7 @@ html {
     box-shadow:0 10px 25px rgba(34,197,94,.2);
 }
 
-
-/* =========================================================
-   FOOTER
-========================================================= */
+/* FOOTER */
 
 .worker-email-otp-page footer {
     padding:25px 20px;
@@ -701,40 +533,21 @@ html {
     border-top:1px solid var(--border);
 }
 
-
-/* =========================================================
-   ANIMATIONS
-========================================================= */
+/* ANIMATIONS */
 
 @keyframes otp-fade-in {
-    from {
-        opacity:0;
-    }
-
-    to {
-        opacity:1;
-    }
+    from { opacity:0; }
+    to { opacity:1; }
 }
 
 @keyframes otp-scale-in {
-    from {
-        transform:translateY(12px) scale(.98);
-        opacity:0;
-    }
-
-    to {
-        transform:none;
-        opacity:1;
-    }
+    from { transform:translateY(12px) scale(.98); opacity:0; }
+    to { transform:none; opacity:1; }
 }
 
-
-/* =========================================================
-   TABLET AND DESKTOP
-========================================================= */
+/* RESPONSIVE */
 
 @media(min-width:768px) {
-
     .worker-email-otp-page .navbar,
     .worker-email-otp-page .otp-page {
         width:85%;
@@ -747,16 +560,9 @@ html {
     .worker-email-otp-page .otp-header h1 {
         font-size:38px;
     }
-
 }
 
-
-/* =========================================================
-   DESKTOP
-========================================================= */
-
 @media(min-width:1024px) {
-
     .worker-email-otp-page .otp-page {
         max-width:1200px;
     }
@@ -764,16 +570,9 @@ html {
     .worker-email-otp-page .otp-card {
         max-width:480px;
     }
-
 }
 
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
 @media(max-width:767px) {
-
     .worker-email-otp-page .nav-links {
         display:none;
     }
@@ -781,16 +580,9 @@ html {
     .worker-email-otp-page .menu-toggle {
         display:flex;
     }
-
 }
 
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
 @media(max-width:600px) {
-
     .worker-email-otp-page .navbar {
         width:90%;
         height:70px;
@@ -802,8 +594,7 @@ html {
 
     .worker-email-otp-page .otp-page {
         width:92%;
-        padding-top:95px;
-        padding-bottom:50px;
+        padding:95px 0 50px;
     }
 
     .worker-email-otp-page .otp-card {
@@ -815,10 +606,7 @@ html {
         font-size:28px;
     }
 
-    .worker-email-otp-page .otp-header p {
-        font-size:14px;
-    }
-
+    .worker-email-otp-page .otp-header p,
     .worker-email-otp-page .worker-email {
         font-size:14px!important;
     }
@@ -837,16 +625,9 @@ html {
     .worker-email-otp-page .notification-card {
         padding:26px 22px;
     }
-
 }
 
-
-/* =========================================================
-   SMALL MOBILE
-========================================================= */
-
 @media(max-width:400px) {
-
     .worker-email-otp-page .otp-card {
         padding:22px 16px;
     }
@@ -868,16 +649,9 @@ html {
     .worker-email-otp-page .notification-card {
         max-width:340px;
     }
-
 }
 
-
-/* =========================================================
-   REDUCED MOTION
-========================================================= */
-
 @media(prefers-reduced-motion:reduce) {
-
     .worker-email-otp-page *,
     .worker-email-otp-page *::before,
     .worker-email-otp-page *::after {
@@ -885,5 +659,4 @@ html {
         transition:none!important;
         animation:none!important;
     }
-
 }
