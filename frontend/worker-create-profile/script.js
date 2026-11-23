@@ -210,7 +210,7 @@ async function validateProfilePhoto(file) {
     } catch {
         return {
             valid: false,
-            message: "Your profile photo could not be decoded. Please upload a valid JPG, PNG, or WebP image."
+            message: "Your profile photo could not be decoded. Please upload a different image."
         };
     }
 }
