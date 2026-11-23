@@ -1,411 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- ==========================================
-         META
-    =========================================== -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Verify your password reset code for SkillConnect.">
+<title>Worker Password Reset | SkillConnect</title>
 
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <!-- ==========================================
-         PAGE TITLE
-    =========================================== -->
-
-    <title>Worker Password Reset | SkillConnect</title>
-
-    <!-- ==========================================
-         GOOGLE FONTS
-    =========================================== -->
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
-
-    <!-- ==========================================
-         STYLESHEET
-    =========================================== -->
-
-    <link rel="stylesheet" href="style.css">
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <!-- ==========================================
-         HEADER
-    =========================================== -->
+<header class="header">
+    <nav class="navbar" aria-label="Main navigation">
+        <a href="../index.html" class="logo">SKILLCONNECT</a>
 
-    <header class="header">
-
-        <nav class="navbar" aria-label="Main navigation">
-
-            <!-- LOGO -->
-
-            <a href="../index.html" class="logo">
-                SKILLCONNECT
-            </a>
-
-            <!-- DESKTOP NAVIGATION -->
-
-            <div class="nav-links">
-
-                <a href="../home/">Home</a>
-
-                <a href="../about/">About us</a>
-
-                <a href="../contact/">Contact us</a>
-
-                <a href="../services/">Find a worker</a>
-
-            </div>
-
-            <!-- MOBILE MENU BUTTON -->
-
-            <button
-                type="button"
-                class="menu-toggle"
-                id="menuToggle"
-                aria-label="Open navigation menu"
-                aria-expanded="false"
-                aria-controls="mobileSidebar"
-            >
-
-                <span></span>
-                <span></span>
-                <span></span>
-
-            </button>
-
-        </nav>
-
-    </header>
-
-    <!-- ==========================================
-         MOBILE SIDEBAR OVERLAY
-    =========================================== -->
-
-    <div
-        class="sidebar-overlay"
-        id="sidebarOverlay"
-        aria-hidden="true"
-    ></div>
-
-    <!-- ==========================================
-         MOBILE SIDEBAR
-    =========================================== -->
-
-    <aside
-        class="mobile-sidebar"
-        id="mobileSidebar"
-        aria-label="Mobile navigation"
-        aria-hidden="true"
-        inert
-    >
-
-        <!-- SIDEBAR HEADER -->
-
-        <div class="sidebar-header">
-
-            <span class="sidebar-title">
-                Menu
-            </span>
-
-            <button
-                type="button"
-                class="sidebar-close"
-                id="sidebarClose"
-                aria-label="Close navigation menu"
-            >
-                ×
-            </button>
-
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../about/index.html">About us</a>
+            <a href="../contact/index.html">Contact us</a>
+            <a href="../services/index.html">Find a worker</a>
         </div>
 
-        <!-- SIDEBAR LINKS -->
-
-        <nav class="sidebar-links">
-
-            <a href="../home/">
-                Home
-            </a>
-
-            <a href="../about/">
-                About us
-            </a>
-
-            <a href="../contact/">
-                Contact us
-            </a>
-
-            <a href="../services/">
-                Find a worker
-            </a>
-
-        </nav>
-
-    </aside>
-
-    <!-- ==========================================
-         MAIN PASSWORD RESET OTP AREA
-    =========================================== -->
-
-    <main class="otp-page">
-
-        <!-- OTP SECTION -->
-
-        <section class="otp-section">
-
-            <!-- OTP CARD -->
-
-            <div class="otp-card">
-
-                <!-- OTP HEADER -->
-
-                <div class="otp-header">
-
-                    <span class="otp-badge">
-                        Password Reset
-                    </span>
-
-                    <h1>
-                        Verify Reset Code
-                    </h1>
-
-                    <p>
-                        Enter the 6-digit password reset code
-                        sent to your email address.
-                    </p>
-
-                    <p
-                        id="workerEmailDisplay"
-                        class="worker-email"
-                    >
-                        Loading email...
-                    </p>
-
-                </div>
-
-                <!-- OTP FORM -->
-
-                <form
-                    id="otpForm"
-                    novalidate
-                >
-
-                    <!-- SIX-DIGIT OTP INPUT -->
-
-                    <div class="otp-box">
-
-                        <input
-                            type="text"
-                            maxlength="1"
-                            class="otp-input"
-                            inputmode="numeric"
-                            autocomplete="one-time-code"
-                            aria-label="OTP digit 1"
-                            required
-                        >
-
-                        <input
-                            type="text"
-                            maxlength="1"
-                            class="otp-input"
-                            inputmode="numeric"
-                            autocomplete="off"
-                            aria-label="OTP digit 2"
-                            required
-                        >
-
-                        <input
-                            type="text"
-                            maxlength="1"
-                            class="otp-input"
-                            inputmode="numeric"
-                            autocomplete="off"
-                            aria-label="OTP digit 3"
-                            required
-                        >
-
-                        <input
-                            type="text"
-                            maxlength="1"
-                            class="otp-input"
-                            inputmode="numeric"
-                            autocomplete="off"
-                            aria-label="OTP digit 4"
-                            required
-                        >
-
-                        <input
-                            type="text"
-                            maxlength="1"
-                            class="otp-input"
-                            inputmode="numeric"
-                            autocomplete="off"
-                            aria-label="OTP digit 5"
-                            required
-                        >
-
-                        <input
-                            type="text"
-                            maxlength="1"
-                            class="otp-input"
-                            inputmode="numeric"
-                            autocomplete="off"
-                            aria-label="OTP digit 6"
-                            required
-                        >
-
-                    </div>
-
-                    <!-- VERIFY BUTTON -->
-
-                    <button
-                        id="verifyButton"
-                        type="submit"
-                        class="submit-btn"
-                    >
-
-                        <span class="btn-text">
-                            Verify OTP
-                        </span>
-
-                    </button>
-
-                </form>
-
-                <!-- RESEND OTP -->
-
-                <p class="resend">
-
-                    Didn't receive the code?
-
-                    <a
-                        href="#"
-                        id="resendOTP"
-                    >
-                        Resend OTP
-                    </a>
-
-                </p>
-
-                <!-- COUNTDOWN -->
-
-                <p
-                    id="countdown"
-                    class="countdown"
-                    aria-live="polite"
-                >
-                    Resend available in 60s
-                </p>
-
-            </div>
-
-        </section>
-
-    </main>
-
-    <!-- ==========================================
-         FOOTER
-    =========================================== -->
-
-    <footer>
-
-        <p>
-            © <span id="currentYear"></span> SkillConnect.
-            All rights reserved.
-        </p>
-
-    </footer>
-
-    <!-- ==========================================
-         SUCCESS / ERROR MODAL
-    =========================================== -->
-
-    <div
-        id="messageModal"
-        class="message-modal"
-        aria-hidden="true"
-    >
-
-        <!-- MODAL OVERLAY -->
-
-        <div
-            class="message-modal-overlay"
-            id="messageModalOverlay"
-        ></div>
-
-        <!-- MODAL CONTENT -->
-
-        <div
-            class="message-modal-content"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="messageModalTitle"
-        >
-
-            <!-- CLOSE BUTTON -->
-
-            <button
-                type="button"
-                id="closeMessageModal"
-                class="modal-close"
-                aria-label="Close notification"
-            >
-                ×
-            </button>
-
-            <!-- ICON -->
-
-            <div
-                id="modalIcon"
-                class="modal-icon"
-            ></div>
-
-            <!-- TITLE -->
-
-            <h2 id="messageModalTitle">
-                Message
-            </h2>
-
-            <!-- MESSAGE -->
-
-            <p id="messageModalText"></p>
-
-            <!-- CONTINUE BUTTON -->
-
-            <button
-                type="button"
-                id="messageModalButton"
-                class="modal-button"
-            >
-                Continue
-            </button>
-
-        </div>
-
+        <button id="menuToggle" type="button" class="menu-toggle"
+            aria-label="Open navigation menu" aria-expanded="false"
+            aria-controls="mobileSidebar">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+</header>
+
+<div id="sidebarOverlay" class="sidebar-overlay" aria-hidden="true"></div>
+
+<aside class="mobile-sidebar" id="mobileSidebar"
+    aria-label="Mobile navigation" aria-hidden="true" inert>
+
+    <div class="sidebar-header">
+        <span class="sidebar-title">Menu</span>
+        <button type="button" id="sidebarClose" class="sidebar-close"
+            aria-label="Close navigation menu">×</button>
     </div>
 
-    <!-- ==========================================
-         JAVASCRIPT
-    =========================================== -->
+    <nav class="sidebar-links">
+        <a href="../index.html">Home</a>
+        <a href="../about/index.html">About us</a>
+        <a href="../contact/index.html">Contact us</a>
+        <a href="../services/index.html">Find a worker</a>
+    </nav>
+</aside>
 
-    <script src="../config.js"></script>
-    <script src="script.js"></script>
+<main class="otp-page">
+    <section class="otp-section">
+        <div class="otp-card">
+
+            <div class="otp-header">
+                <span class="otp-badge">Password Reset</span>
+                <h1>Verify Reset Code</h1>
+
+                <p>Enter the 6-digit password reset code sent to your email address.</p>
+
+                <p id="workerEmailDisplay" class="worker-email">Loading email...</p>
+            </div>
+
+            <form id="otpForm" novalidate>
+                <div class="otp-box">
+                    <input type="text" maxlength="1" class="otp-input" inputmode="numeric" autocomplete="one-time-code" aria-label="OTP digit 1" required>
+                    <input type="text" maxlength="1" class="otp-input" inputmode="numeric" autocomplete="off" aria-label="OTP digit 2" required>
+                    <input type="text" maxlength="1" class="otp-input" inputmode="numeric" autocomplete="off" aria-label="OTP digit 3" required>
+                    <input type="text" maxlength="1" class="otp-input" inputmode="numeric" autocomplete="off" aria-label="OTP digit 4" required>
+                    <input type="text" maxlength="1" class="otp-input" inputmode="numeric" autocomplete="off" aria-label="OTP digit 5" required>
+                    <input type="text" maxlength="1" class="otp-input" inputmode="numeric" autocomplete="off" aria-label="OTP digit 6" required>
+                </div>
+
+                <button id="verifyButton" type="submit" class="submit-btn">
+                    <span class="btn-text">Verify OTP</span>
+                </button>
+            </form>
+
+            <p class="resend">
+                Didn't receive the code?
+                <a href="#" id="resendOTP">Resend OTP</a>
+            </p>
+
+            <p id="countdown" class="countdown" aria-live="polite">
+                Resend available in 60s
+            </p>
+
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p>© <span id="currentYear"></span> SkillConnect. All rights reserved.</p>
+</footer>
+
+<!-- SUCCESS / ERROR MODAL -->
+
+<div id="messageModal" class="message-modal" aria-hidden="true">
+    <div class="message-modal-overlay" id="messageModalOverlay"></div>
+
+    <div class="message-modal-content" role="dialog" aria-modal="true"
+        aria-labelledby="messageModalTitle">
+
+        <button type="button" id="closeMessageModal" class="modal-close"
+            aria-label="Close notification">×</button>
+
+        <div id="modalIcon" class="modal-icon"></div>
+
+        <h2 id="messageModalTitle">Message</h2>
+
+        <p id="messageModalText"></p>
+
+        <button type="button" id="messageModalButton" class="modal-button">
+            Continue
+        </button>
+    </div>
+</div>
+
+<script src="../config.js"></script>
+<script src="script.js"></script>
 
 </body>
 </html>
