@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     menuToggle.setAttribute("aria-expanded", "true");
     menuToggle.setAttribute("aria-label", "Close navigation menu");
     sidebar.setAttribute("aria-hidden", "false");
+    sidebar.removeAttribute("inert");
     document.body.style.overflow = "hidden";
     closeButton.focus();
   }
@@ -21,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     menuToggle.setAttribute("aria-expanded", "false");
     menuToggle.setAttribute("aria-label", "Open navigation menu");
     sidebar.setAttribute("aria-hidden", "true");
+    sidebar.setAttribute("inert", "");
     document.body.style.overflow = "";
   }
 
